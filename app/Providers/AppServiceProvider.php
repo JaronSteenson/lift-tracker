@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Providers;
+namespace LiftTracker\Providers;
 
 use Illuminate\Support\ServiceProvider;
 
