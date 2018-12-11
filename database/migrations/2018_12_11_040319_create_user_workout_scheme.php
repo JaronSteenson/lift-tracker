@@ -16,7 +16,7 @@ class CreateUserWorkoutScheme extends Migration
         Schema::create('user_workout_schemes', function (Blueprint $table) {
             $table->increments('id');
             $table->integer('user_id');
-            $table->integer('workout_scheme');
+            $table->integer('workout_scheme_id');
             $table->timestamps();
         });
     }
