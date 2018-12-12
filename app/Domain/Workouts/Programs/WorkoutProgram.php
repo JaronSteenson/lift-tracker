@@ -2,12 +2,17 @@
 
 namespace LiftTracker\Domain\Workouts\Programs;
 
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 
 /**
  * @mixin Builder
- * @property int userId
+ * @property int id
+ * @property string name
+ * @property string definition_class
+ * @property Carbon created_at
+ * @property Carbon updated_at
  */
 class WorkoutProgram extends Model
 {
