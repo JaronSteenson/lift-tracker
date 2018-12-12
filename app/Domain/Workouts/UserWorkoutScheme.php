@@ -1,6 +1,6 @@
 <?php
 
-namespace LiftTracker;
+namespace LiftTracker\Domain\Workouts;
 
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
