@@ -5,16 +5,14 @@
     <div class="row justify-content-center">
         <div class="col-md-8">
             <div class="card">
-                <div class="card-header">Dashboard</div>
+                <div class="card-header">Your workout programs</div>
 
                 <div class="card-body">
-                    @if (session('status'))
+                    @foreach($workoutSchemes as $workoutScheme)
                         <div class="alert alert-success" role="alert">
                             {{ session('status') }}
                         </div>
-                    @endif
-
-                    You are logged in!
+                    @endforeach
                 </div>
             </div>
         </div>
