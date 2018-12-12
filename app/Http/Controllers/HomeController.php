@@ -3,6 +3,7 @@
 namespace LiftTracker\Http\Controllers;
 
 use Illuminate\Http\Request;
+use LiftTracker\UserWorkoutScheme;
 
 class HomeController extends Controller
 {

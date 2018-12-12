@@ -2,10 +2,15 @@
 
 namespace LiftTracker;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Notifications\Notifiable;
-use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 
+/**
+ * Class User
+ * @package LiftTracker
+ * @mixin Builder
+ */
 class User extends Authenticatable
 {
     use Notifiable;

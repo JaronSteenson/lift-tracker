@@ -2,9 +2,11 @@
 
 namespace LiftTracker;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 
 /**
+ * @mixin Builder
  * @property int userId
  */
 class UserWorkoutScheme extends Model
