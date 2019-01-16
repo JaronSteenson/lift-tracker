@@ -1,19 +1,21 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="container">
-    <div class="row justify-content-center">
-        <div class="col-md-8">
-            <div class="card">
-                <div class="card-header">Workout programs</div>
-
-                <div class="card-body">
-                    @foreach($nonUserDefinedWorkoutPrograms as $program)
-                        <li>{{$program->name}}</li>
-                    @endforeach
+    <div class="container-fluid">
+        <div class="row">
+            <nav class="col-md-2 d-none d-md-block bg-light sidebar">
+                <div class="sidebar-sticky">
+                    <ul class="nav flex-column">
+                        <li class="nav-item">
+                            <i class="fa fa-plus"></i>
+                            <i class="fa fa-ban"></i>
+                            <a class="nav-link" href="#">
+                                Add a program
+                            </a>
+                        </li>
+                    </ul>
                 </div>
-            </div>
+            </nav>
         </div>
     </div>
-</div>
 @endsection
