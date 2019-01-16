@@ -1,0 +1,5 @@
+@import '../app';
+
+.navbar {
+  @include floating-box;
+}
