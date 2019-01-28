@@ -5,13 +5,10 @@
 // Fontawesome
 @import '~font-awesome/scss/font-awesome.scss';
 
-// Variables
-@import 'variables';
-
-// Mixins
-@import 'mixins';
-
 // Bootstrap
 @import '~bootstrap/scss/bootstrap';
 
-@import './cards';
+
+// Components
+@import 'components/navbar';
+@import 'components/sidebar';
