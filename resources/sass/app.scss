@@ -2,13 +2,12 @@
 // Fonts
 @import url('https://fonts.googleapis.com/css?family=Nunito');
 
-// Fontawesome
-@import '~font-awesome/scss/font-awesome.scss';
+// Fontawesome - currently using a cdn in app.blade.php
+//@import '~font-awesome/scss/font-awesome.scss';
 
 // Bootstrap
 @import '~bootstrap/scss/bootstrap';
 
 
 // Components
-@import 'components/navbar';
 @import 'components/sidebar';

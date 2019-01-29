@@ -28,18 +28,12 @@
 
     <div class="navbar navbar-inverse navbar-fixed-left">
 
-
-
         <ul class="nav navbar-nav">
             <a class="navbar-brand" href="{{ url('/') }}">
                 {{ config('app.name', 'Laravel') }}
             </a>
 
-            <li><a href="#">Link2</a></li>
-            <li><a href="#">Link3</a></li>
-
-
-            <ul class="navbar-nav ml-auto">
+            <ul class="navbar-nav">
                 <!-- Authentication Links -->
                 @guest
                     <li class="nav-item">
@@ -74,7 +68,6 @@
 
         </ul>
     </div>
-
 
     <main class="py-4">
         @yield('content')
