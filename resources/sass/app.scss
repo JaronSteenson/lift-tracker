@@ -10,4 +10,9 @@
 
 
 // Components
-@import 'components/sidebar';
+@import 'components/left_nav_bar';
+
+// Main layout
+.main-content {
+  margin-left:  $default-left-nav-size;
+}
