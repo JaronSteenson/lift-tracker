@@ -3,3 +3,13 @@
 @mixin full-border {
   border: 1px solid $border-color;
 }
+
+@mixin brand-color-text {
+  color: $primary-color;
+}
+
+@mixin border-radius($radius) {
+  -webkit-border-radius: $radius;
+  -moz-border-radius: $radius;
+  border-radius: $radius;
+}

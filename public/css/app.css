@@ -11439,47 +11439,25 @@ a.text-dark:focus {
   }
 }
 
-.navbar {
-  border: 1px solid rgba(0, 0, 0, 0.125);
-  -webkit-box-align: start;
-      -ms-flex-align: start;
-          align-items: flex-start;
-}
-
-.navbar-fixed-left {
-  width: 200px;
-  position: fixed;
-  border-radius: 0;
-  height: 100%;
-  padding: 0;
-}
-
-.nav.navbar-nav {
-  width: 100%;
-}
-
+.nav-link,
 .navbar-brand {
-  text-align: center;
+  color: #248019;
 }
 
-.nav-item {
-  width: 100%;
-  padding-left: 10px;
-  border: 1px solid rgba(0, 0, 0, 0.125);
+.main-nav-bar {
+  background-color: #d8f7d4;
 }
 
-.navbar-fixed-left + .container {
-  padding-left: 160px;
+.navbar-burger {
+  width: 25px;
+  padding: 5px 0 0;
 }
 
-/* On using dropdown menu (To right shift popuped) */
-
-.navbar-fixed-left .navbar-nav > li > .dropdown-menu {
-  margin-top: -50px;
-  margin-left: 140px;
-}
-
-.main-content {
-  margin-left: 200px;
+.navbar-burger.navbar-burger__layer {
+  border-radius: 5px;
+  height: 4px;
+  background: #248019;
+  padding-top: 0;
+  margin: 4px 0 4px 0;
 }
 

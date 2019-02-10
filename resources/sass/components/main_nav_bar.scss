@@ -1,0 +1,27 @@
+@import '../_mixins';
+@import '../variables';
+
+
+.nav-link, .navbar-brand {
+  @include brand-color-text;
+}
+
+
+.main-nav-bar {
+  background-color: $primary-background-color;
+}
+
+.navbar-burger {
+  width: 25px;
+  padding: 5px 0 0;
+
+  &.navbar-burger__layer {
+    @include border-radius(5px);
+
+    height: 4px;
+    background: $primary-color;
+    padding-top: 0;
+    margin: 4px 0 4px 0;
+  }
+
+}

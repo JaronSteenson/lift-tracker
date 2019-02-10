@@ -21,8 +21,8 @@ $cyan: #6cb2eb;
 
 
 // Brand colours
-$primary-colour: $orange;
+$primary-color: #248019;
+$primary-background-color: lighten($primary-color, 60%);
+
 $border-color: rgba(0, 0, 0, 0.125);
 
-// Default sizes
-$default-left-nav-size: 200px;
