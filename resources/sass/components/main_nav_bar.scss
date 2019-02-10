@@ -8,7 +8,8 @@
 
 
 .main-nav-bar {
-  background-color: $primary-background-color;
+  @include border-bottom;
+  background-color: $primary-color-dark;
 }
 
 .navbar-burger {

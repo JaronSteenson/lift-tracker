@@ -1,6 +1,11 @@
+/**
+  Bootstrap card overrides
+ */
+
 @import '../_mixins';
 @import '../variables';
 
 .card-header {
-
+  color: $primary-color-dark;
+  background-color: $primary-color;
 }

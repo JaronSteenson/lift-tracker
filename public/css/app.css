@@ -11441,11 +11441,12 @@ a.text-dark:focus {
 
 .nav-link,
 .navbar-brand {
-  color: #248019;
+  color: #eae9ea;
 }
 
 .main-nav-bar {
-  background-color: #d8f7d4;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.125);
+  background-color: #524f52;
 }
 
 .navbar-burger {
@@ -11456,8 +11457,17 @@ a.text-dark:focus {
 .navbar-burger.navbar-burger__layer {
   border-radius: 5px;
   height: 4px;
-  background: #248019;
+  background: #eae9ea;
   padding-top: 0;
   margin: 4px 0 4px 0;
+}
+
+/**
+  Bootstrap card overrides
+ */
+
+.card-header {
+  color: #524f52;
+  background-color: #eae9ea;
 }
 
