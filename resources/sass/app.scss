@@ -8,13 +8,9 @@
 // Bootstrap
 @import '~bootstrap/scss/bootstrap';
 
+// Element defaults
+@import '_element_defaults';
 
 // Components
 @import 'components/main_nav_bar'; //top nav bar
 @import 'components/card'; //bootstrap card overrides
-
-// Main layout
-.main-content {
-
-}
-

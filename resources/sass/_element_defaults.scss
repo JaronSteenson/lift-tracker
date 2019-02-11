@@ -1,0 +1,9 @@
+@import 'variables';
+
+body {
+  color: $primary-color-dark;
+}
+
+a:hover {
+  color: $primary-color-lighter;
+}
