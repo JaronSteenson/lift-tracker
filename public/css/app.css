@@ -11439,6 +11439,14 @@ a.text-dark:focus {
   }
 }
 
+body {
+  color: #524f52;
+}
+
+a:hover {
+  color: white;
+}
+
 .nav-link,
 .navbar-brand {
   color: #eae9ea;
@@ -11469,5 +11477,22 @@ a.text-dark:focus {
 .card-header {
   color: #524f52;
   background-color: #eae9ea;
+}
+
+/**
+  Bootstrap button overrides
+ */
+
+.btn.btn-primary {
+  color: #524f52;
+  background-color: #eae9ea;
+  border-color: rgba(0, 0, 0, 0.125);
+}
+
+.btn.btn-primary:active:focus,
+.btn.btn-primary:hover {
+  color: #524f52;
+  background-color: #d1cfd1;
+  border-color: rgba(0, 0, 0, 0.125);
 }
 
