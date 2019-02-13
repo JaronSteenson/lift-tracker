@@ -12,7 +12,7 @@
                 </div>
             </a>
 
-            <div class="collapse navbar-collapse" id="js-navbar-options">
+            <div class="collapse navbar-collapse justify-content-end" id="js-navbar-options">
             <ul class="nav navbar-nav">
                 <!-- Authentication Links -->
                 @guest
