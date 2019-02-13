@@ -25,5 +25,7 @@ $primary-color: #eae9ea;
 $primary-color-dark: darken($primary-color, 60%);
 $primary-color-lighter: lighten($primary-color, 40%);
 
+$active-color: lighten($primary-color, 10%);
+
 $border-color: rgba(0, 0, 0, 0.125);
 
