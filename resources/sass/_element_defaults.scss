@@ -7,3 +7,21 @@ body {
 a:hover {
   color: $primary-color-lighter;
 }
+
+//overrides Bootstrap's btn-*:focus|active styles
+button:focus, button:active {
+  outline: 0;
+  -webkit-box-shadow: 0 0 0 0.2rem $primary-color !important;
+  box-shadow: 0 0 0 0.2rem $primary-color !important;
+}
+
+//overrides Bootstrap's form-control:focus
+input:focus {
+  color: $primary-color !important;
+  background-color: $primary-color !important;
+  border-color: $border-color !important;
+  outline: 0;
+  -webkit-box-shadow: 0 0 0 0.2rem $primary-color !important;
+  box-shadow: 0 0 0 0.2rem $primary-color !important;
+
+}
