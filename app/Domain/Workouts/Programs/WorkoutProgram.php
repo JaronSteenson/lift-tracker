@@ -5,12 +5,12 @@ namespace LiftTracker\Domain\Workouts\Programs;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use LiftTracker\Traits\HasUUID;
 
 /**
  * @mixin Builder
  * @property int id
  * @property string name
- * @property string definition_class
  * @property Carbon created_at
  * @property Carbon updated_at
  *
@@ -18,23 +18,15 @@ use Illuminate\Database\Eloquent\Model;
  */
 class WorkoutProgram extends Model
 {
+    use HasUUID;
 
     /**
      * The attributes that are mass assignable.
      *
      * @var array
      */
-    protected $hidden = [
-        'user_id', 'definition_class', 'created_at', 'updated_at'
+    protected $fillable = [
+        'name'
     ];
-
-    /**
-     * Find all standard/non user defined workouts
-     * @return \Illuminate\Database\Eloquent\Collection|WorkoutProgram[]
-     */
-    public static function findAllNonUserDefined()
-    {
-        return static::all();
-    }
 
 }

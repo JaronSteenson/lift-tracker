@@ -3,6 +3,7 @@
 namespace LiftTracker\Http\Controllers;
 
 use Illuminate\Http\Response;
+use LiftTracker\Domain\Workouts\Programs\WorkoutProgram;
 use LiftTracker\Domain\Workouts\UserWorkouts\UserWorkoutProgram;
 use Illuminate\Http\Request;
 
@@ -25,18 +26,32 @@ class UserWorkoutProgramController extends Controller
      */
     public function create()
     {
-        //
+        //workout_program.name, -> user_workout_program
+        return view('workouts.userWorkoutProgram.create');
     }
 
     /**
      * Store a newly created resource in storage.
      *
      * @param  \Illuminate\Http\Request $request
-     * @return void
+     * @return \Illuminate\Routing\Redirector|\Illuminate\Http\RedirectResponse
      */
     public function store(Request $request)
     {
-        //
+        $request->validate([
+            'name'=>'required|max:40',
+        ]);
+
+
+        //TODO attach current session user if it is not a community workout
+        $workoutProgram = new WorkoutProgram([
+            'name' => $request->get('name'),
+        ]);
+
+        $workoutProgram->save();
+
+
+        return redirect('/programs')->with('success', 'Workout program has been added');
     }
 
     /**

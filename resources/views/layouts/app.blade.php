@@ -49,10 +49,8 @@
 <div id="app">
     @include('layouts.partials.main_nav_bar')
 
-    <main class="main-content py-4">
-        <div class="container">
+    <main class="main-content py-4 container">
             @yield('content')
-        </div>
     </main>
 </div>
 </body>
