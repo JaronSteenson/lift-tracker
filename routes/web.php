@@ -15,4 +15,4 @@ Auth::routes();
 
 Route::get('/', 'HomeController@index')->name('home');
 
-Route::resource('workout-programs', 'UserWorkoutProgramController')->middleware('auth');
+Route::resource('programs', 'UserWorkoutProgramController')->middleware('auth');
