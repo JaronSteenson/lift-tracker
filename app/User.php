@@ -3,11 +3,14 @@
 namespace LiftTracker;
 
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Foundation\Auth\User as Authenticatable;
+use LiftTracker\Domain\Workouts\Programs\WorkoutProgram;
 
 /**
  * Class User
+ * @property int id
  * @package LiftTracker
  * @mixin Builder
  */
@@ -32,4 +35,13 @@ class User extends Authenticatable
     protected $hidden = [
         'password', 'remember_token',
     ];
+
+    /**
+     * Get the workout out programs created and owned by this user.
+     * These concepts are likely to be separated in the future.
+     */
+    public function workoutPrograms(): HasMany
+    {
+        return $this->hasMany(WorkoutProgram::class);
+    }
 }

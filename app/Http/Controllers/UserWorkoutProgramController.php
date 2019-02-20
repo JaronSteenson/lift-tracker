@@ -3,9 +3,11 @@
 namespace LiftTracker\Http\Controllers;
 
 use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Auth;
 use LiftTracker\Domain\Workouts\Programs\WorkoutProgram;
 use LiftTracker\Domain\Workouts\UserWorkouts\UserWorkoutProgram;
 use Illuminate\Http\Request;
+use LiftTracker\User;
 
 class UserWorkoutProgramController extends Controller
 {
@@ -42,14 +44,13 @@ class UserWorkoutProgramController extends Controller
             'name'=>'required|max:40',
         ]);
 
-
-        //TODO attach current session user if it is not a community workout
         $workoutProgram = new WorkoutProgram([
             'name' => $request->get('name'),
         ]);
 
-        $workoutProgram->save();
+        $workoutProgram->user()->associate(Auth::user());
 
+        $workoutProgram->save();
 
         return redirect('/programs')->with('success', 'Workout program has been added');
     }
@@ -57,12 +58,17 @@ class UserWorkoutProgramController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param \LiftTracker\Http\Controllers\UserWorkoutProgram $userWorkoutProgram
+     * @param WorkoutProgram $workoutProgram
      * @return void
      */
-    public function show(UserWorkoutProgram $userWorkoutProgram)
+    public function show(WorkoutProgram $workoutProgram)
     {
-        //
+        /** @var User $user */
+        $user = Auth::user();
+
+        if ($workoutProgram->isOwnedBy($user)) {
+            echo $workoutProgram;
+        }
     }
 
     /**

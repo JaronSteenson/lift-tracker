@@ -2,7 +2,10 @@
 
 namespace LiftTracker\Http\Controllers;
 
+use Illuminate\Support\Facades\Auth;
 use LiftTracker\Domain\Workouts\Programs\WorkoutProgram;
+use LiftTracker\Domain\Workouts\Programs\WorkoutProgramCollection;
+use LiftTracker\User;
 
 class HomeController extends Controller
 {
@@ -23,8 +26,12 @@ class HomeController extends Controller
      */
     public function index()
     {
-        return view('home', [
-                'nonUserDefinedWorkoutPrograms' => WorkoutProgram::findAllNonUserDefined()
-            ]);
+        /** @var User $user */
+        $user = Auth::user();
+
+        /** @var WorkoutProgramCollection $userWorkoutPrograms */
+        $userWorkoutPrograms = $user->workoutPrograms()->get();
+
+        return view('home', ['userWorkoutPrograms' => $userWorkoutPrograms]);
     }
 }
