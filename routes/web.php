@@ -13,6 +13,8 @@
 
 Auth::routes();
 
+/** @see \LiftTracker\Http\Controllers\HomeController */
 Route::get('/', 'HomeController@index')->name('home');
 
+/** @see \LiftTracker\Http\Controllers\WorkoutProgramController */
 Route::resource('workout-programs', 'WorkoutProgramController')->middleware('auth');

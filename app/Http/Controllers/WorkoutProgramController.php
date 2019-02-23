@@ -32,17 +32,17 @@ class WorkoutProgramController extends Controller
         /** @var WorkoutProgramCollection $workoutPrograms */
         $workoutPrograms = $user->workoutPrograms()->get();
 
-        return view('workouts.userWorkoutProgram.index', ['workoutPrograms' => $workoutPrograms]);
+        return view('workouts.workoutProgram.index', ['workoutPrograms' => $workoutPrograms]);
     }
 
     /**
      * Show the form for creating a new resource.
      *
-     * @return Response
+     * @return View
      */
-    public function create(): Response
+    public function create(): View
     {
-        return view('workouts.userWorkoutProgram.create');
+        return view('workouts.workoutProgram.create');
     }
 
     /**
@@ -88,7 +88,7 @@ class WorkoutProgramController extends Controller
         $user = Auth::user();
 
         if ($workoutProgram->isOwnedBy($user)) {
-            return view('workouts.userWorkoutProgram.edit', ['workoutProgram' => $workoutProgram]);
+            return view('workouts.workoutProgram.edit', ['workoutProgram' => $workoutProgram]);
         }
 
         app()->abort(404);

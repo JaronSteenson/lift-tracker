@@ -1,4 +1,4 @@
-<?php /** @var \LiftTracker\Domain\Workouts\Programs\WorkoutProgramCollection $workoutPrograms */?>
+<?php /** @var \LiftTracker\Domain\Workouts\Programs\WorkoutProgramCollection $workoutPrograms */ ?>
 
 @extends('layouts.app')
 
@@ -15,7 +15,9 @@
                                 <li>
                                     <a href="{{ route('workout-programs.edit', $workoutProgram->id)}}">{{ $workoutProgram->name }}</a>
 
-                                    <form class="display-inline" action="{{ route('workout-programs.destroy', $workoutProgram->id)}}" method="post">
+                                    <form class="display-inline"
+                                          action="{{ route('workout-programs.destroy', $workoutProgram->id)}}"
+                                          method="post">
                                         @csrf
                                         @method('DELETE')
                                         <button class="btn btn-link" type="submit">
@@ -25,6 +27,20 @@
                                 </li>
                             @endforeach
                         </ul>
+                    </div>
+
+                    <div class="row">
+                        @if($workoutPrograms->isEmpty())
+                            <p>
+                                {{ __('You do not have any workout programs. ') }}
+                                <a href="{{ route('workout-programs.create')}}">{{ __('Add one.') }}</a>
+                            </p>
+                        @else
+                            <br/>
+                            <p>
+                                <a href="{{ route('workout-programs.create')}}">{{ __('Add another program') }}</a>
+                            </p>
+                        @endif
                     </div>
                 </div>
             </div>

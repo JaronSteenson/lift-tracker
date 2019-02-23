@@ -1,4 +1,4 @@
-<?php /** @var \LiftTracker\Domain\Workouts\Programs\WorkoutProgram $workoutProgram */?>
+<?php /** @var \LiftTracker\Domain\Workouts\Programs\WorkoutProgram $workoutProgram */ ?>
 
 @extends('layouts.app')
 
@@ -36,10 +36,10 @@
                                     {{ __('Update workout program') }}
                                 </button>
 
-                                    <a class="btn btn-link" href="{{ route('workout-programs.index') }}">
-                                        {{ __('cancel') }}
-                                    </a>
-                                </div>
+                                <a class="btn btn-link" href="{{ route('workout-programs.index') }}">
+                                    {{ __('cancel') }}
+                                </a>
+                            </div>
                         </div>
                     </form>
                 </div>

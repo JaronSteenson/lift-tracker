@@ -11467,6 +11467,10 @@ body {
   color: #524f52;
 }
 
+p {
+  margin-left: 20px;
+}
+
 /**
   Bootstrap button overrides
  */
