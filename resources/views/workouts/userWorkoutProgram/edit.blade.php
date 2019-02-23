@@ -35,7 +35,11 @@
                                 <button type="submit" class="btn btn-primary">
                                     {{ __('Update workout program') }}
                                 </button>
-                            </div>
+
+                                    <a class="btn btn-link" href="{{ route('workout-programs.index') }}">
+                                        {{ __('cancel') }}
+                                    </a>
+                                </div>
                         </div>
                     </form>
                 </div>
