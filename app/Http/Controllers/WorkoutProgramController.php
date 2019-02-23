@@ -5,6 +5,7 @@
 namespace LiftTracker\Http\Controllers;
 
 use Illuminate\Contracts\View\Factory;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\View\View;
@@ -50,9 +51,7 @@ class WorkoutProgramController extends Controller
      */
     public function store(Request $request)
     {
-        $request->validate([
-            'name'=>'required|max:40',
-        ]);
+        $this->validateSaveRequest($request);
 
         $workoutProgram = new WorkoutProgram([
             'name' => $request->get('name'),
@@ -61,7 +60,7 @@ class WorkoutProgramController extends Controller
         $workoutProgram->user()->associate(Auth::user());
         $workoutProgram->save();
 
-        return redirect('/programs')->with('success', 'Workout program has been added');
+        return redirect('/workout-programs')->with('success', 'Workout program has been added');
     }
 
     /**
@@ -97,12 +96,27 @@ class WorkoutProgramController extends Controller
      * Update the specified resource in storage.
      *
      * @param  \Illuminate\Http\Request $request
-     * @param \LiftTracker\Http\Controllers\UserWorkoutProgram $userWorkoutProgram
-     * @return void
+     * @param WorkoutProgram $workoutProgram
+     * @return void|RedirectResponse
      */
-    public function update(Request $request, UserWorkoutProgram $userWorkoutProgram)
+    public function update(Request $request, WorkoutProgram $workoutProgram)
     {
-        //
+        $this->validateSaveRequest($request);
+
+        $workoutProgram->name = $request->get('name');
+
+        /** @var User $user */
+        $user = Auth::user();
+
+        if ($workoutProgram->isOwnedBy($user)) {
+            $workoutProgram->save();
+
+            return redirect('/workout-programs')->with('success', 'Workout program has been updated');
+        }
+
+        app()->abort(404);
+
+
     }
 
     /**
@@ -114,5 +128,12 @@ class WorkoutProgramController extends Controller
     public function destroy(UserWorkoutProgram $userWorkoutProgram)
     {
         //
+    }
+
+    private function validateSaveRequest(Request $request): void
+    {
+        $request->validate([
+            'name'=>'required|max:40',
+        ]);
     }
 }
