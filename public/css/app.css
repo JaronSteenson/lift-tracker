@@ -11459,27 +11459,14 @@ body {
   color: #524f52;
 }
 
-a:hover {
-  color: white;
-}
-
-button:focus,
-button:active {
-  outline: 0;
-  -webkit-box-shadow: 0 0 0 0.2rem #eae9ea !important;
-  box-shadow: 0 0 0 0.2rem #eae9ea !important;
-}
-
-input:not([type='checkbox']):focus {
-  border-color: rgba(0, 0, 0, 0.125) !important;
-  outline: 0;
-  -webkit-box-shadow: 0 0 0 0.2rem #eae9ea !important;
-  box-shadow: 0 0 0 0.2rem #eae9ea !important;
-}
-
 .nav-link,
 .navbar-brand {
   color: #eae9ea;
+}
+
+.nav-link:hover,
+.navbar-brand:hover {
+  color: white;
 }
 
 .main-nav-bar {
@@ -11506,6 +11493,7 @@ input:not([type='checkbox']):focus {
 
 .card-header {
   color: #524f52;
+  border: 1px solid #eae9ea;
   background-color: #eae9ea;
 }
 
@@ -11524,5 +11512,19 @@ input:not([type='checkbox']):focus {
   color: #524f52;
   background-color: #d1cfd1;
   border-color: rgba(0, 0, 0, 0.125);
+}
+
+.btn:focus,
+.btn:active {
+  outline: 0;
+  -webkit-box-shadow: 0 0 0 0.2rem #eae9ea !important;
+  box-shadow: 0 0 0 0.2rem #eae9ea !important;
+}
+
+input:not([type='checkbox']):focus {
+  border-color: rgba(0, 0, 0, 0.125) !important;
+  outline: 0;
+  -webkit-box-shadow: 0 0 0 0.2rem #eae9ea !important;
+  box-shadow: 0 0 0 0.2rem #eae9ea !important;
 }
 

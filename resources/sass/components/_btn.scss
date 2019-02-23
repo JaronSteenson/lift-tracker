@@ -19,3 +19,17 @@
   }
 
 }
+//overrides Bootstrap's btn-*:focus|active styles
+.btn:focus, .btn:active {
+  outline: 0;
+  -webkit-box-shadow: 0 0 0 0.2rem $primary-color !important;
+  box-shadow: 0 0 0 0.2rem $primary-color !important;
+}
+
+//overrides Bootstrap's form-control:focus
+input:not([type='checkbox']):focus {
+  border-color: $border-color !important;
+  outline: 0;
+  -webkit-box-shadow: 0 0 0 0.2rem $primary-color !important;
+  box-shadow: 0 0 0 0.2rem $primary-color !important;
+}

@@ -3,7 +3,12 @@
 
 
 .nav-link, .navbar-brand {
-  @include brand-color-text;
+  color: $primary-color;
+
+  &:hover {
+    color: $primary-color-lighter;
+  }
+
 }
 
 
