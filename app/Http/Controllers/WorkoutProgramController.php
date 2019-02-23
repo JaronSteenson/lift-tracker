@@ -1,24 +1,35 @@
-<?php
+<?php /** @noinspection PhpVoidFunctionResultUsedInspection */
+
+/** @noinspection PhpInconsistentReturnPointsInspection */
 
 namespace LiftTracker\Http\Controllers;
 
+use Illuminate\Contracts\View\Factory;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\View\View;
 use LiftTracker\Domain\Workouts\Programs\WorkoutProgram;
+use LiftTracker\Domain\Workouts\Programs\WorkoutProgramCollection;
 use LiftTracker\Domain\Workouts\UserWorkouts\UserWorkoutProgram;
 use Illuminate\Http\Request;
 use LiftTracker\User;
 
-class UserWorkoutProgramController extends Controller
+class WorkoutProgramController extends Controller
 {
     /**
      * Display a listing of the resource.
      *
-     * @return Response
+     * @return View
      */
-    public function index()
+    public function index(): View
     {
-        //
+        /** @var User $user */
+        $user = Auth::user();
+
+        /** @var WorkoutProgramCollection $workoutPrograms */
+        $workoutPrograms = $user->workoutPrograms()->get();
+
+        return view('home', ['workoutPrograms' => $workoutPrograms]);
     }
 
     /**
@@ -26,9 +37,8 @@ class UserWorkoutProgramController extends Controller
      *
      * @return Response
      */
-    public function create()
+    public function create(): Response
     {
-        //workout_program.name, -> user_workout_program
         return view('workouts.userWorkoutProgram.create');
     }
 
@@ -49,7 +59,6 @@ class UserWorkoutProgramController extends Controller
         ]);
 
         $workoutProgram->user()->associate(Auth::user());
-
         $workoutProgram->save();
 
         return redirect('/programs')->with('success', 'Workout program has been added');
@@ -59,27 +68,29 @@ class UserWorkoutProgramController extends Controller
      * Display the specified resource.
      *
      * @param WorkoutProgram $workoutProgram
-     * @return void
+     * @return void|View|Factory
      */
     public function show(WorkoutProgram $workoutProgram)
     {
-        /** @var User $user */
-        $user = Auth::user();
-
-        if ($workoutProgram->isOwnedBy($user)) {
-            echo $workoutProgram;
-        }
+        return $this->edit($workoutProgram);
     }
 
     /**
      * Show the form for editing the specified resource.
      *
-     * @param \LiftTracker\Http\Controllers\UserWorkoutProgram $userWorkoutProgram
+     * @param WorkoutProgram $workoutProgram
      * @return void
      */
-    public function edit(UserWorkoutProgram $userWorkoutProgram)
+    public function edit(WorkoutProgram $workoutProgram)
     {
-        //
+        /** @var User $user */
+        $user = Auth::user();
+
+        if ($workoutProgram->isOwnedBy($user)) {
+            return view('workouts.userWorkoutProgram.edit', ['workoutProgram' => $workoutProgram]);
+        }
+
+        app()->abort(404);
     }
 
     /**

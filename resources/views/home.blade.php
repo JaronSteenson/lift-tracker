@@ -9,7 +9,7 @@
                 <div class="card-body">
                     <div class="row">
                         <ul>
-                            @foreach ($userWorkoutPrograms as $workoutProgram)
+                            @foreach ($workoutPrograms as $workoutProgram)
                                 <li>
                                     <a href="{{ url("/workout-programs/$workoutProgram->id") }}">{{ $workoutProgram->name }}</a>
                                 </li>

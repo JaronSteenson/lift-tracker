@@ -29,9 +29,9 @@ class HomeController extends Controller
         /** @var User $user */
         $user = Auth::user();
 
-        /** @var WorkoutProgramCollection $userWorkoutPrograms */
-        $userWorkoutPrograms = $user->workoutPrograms()->get();
+        /** @var WorkoutProgramCollection $workoutPrograms */
+        $workoutPrograms = $user->workoutPrograms()->get();
 
-        return view('home', ['userWorkoutPrograms' => $userWorkoutPrograms]);
+        return view('home', ['workoutPrograms' => $workoutPrograms]);
     }
 }
