@@ -17,8 +17,14 @@ $dropdown-link-active-bg: $active-color;
 // Bootstrap
 @import '~bootstrap/scss/bootstrap';
 
+// Utility classes
+@import "utls";
+
 // Element defaults
 @import 'element_defaults';
+
+// Font awesome overrides
+@import "fa-overrides";
 
 // Components
 @import 'components/main_nav_bar'; //top nav bar

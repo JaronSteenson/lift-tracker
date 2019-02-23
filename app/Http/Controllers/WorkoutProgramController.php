@@ -1,5 +1,6 @@
-<?php /** @noinspection PhpVoidFunctionResultUsedInspection */
-
+<?php
+/** @noinspection ReturnTypeCanBeDeclaredInspection */
+/** @noinspection PhpVoidFunctionResultUsedInspection */
 /** @noinspection PhpInconsistentReturnPointsInspection */
 
 namespace LiftTracker\Http\Controllers;
@@ -11,12 +12,13 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\View\View;
 use LiftTracker\Domain\Workouts\Programs\WorkoutProgram;
 use LiftTracker\Domain\Workouts\Programs\WorkoutProgramCollection;
-use LiftTracker\Domain\Workouts\UserWorkouts\UserWorkoutProgram;
 use Illuminate\Http\Request;
 use LiftTracker\User;
 
 class WorkoutProgramController extends Controller
 {
+    private const THIS_ROUTE = '/workout-programs';
+
     /**
      * Display a listing of the resource.
      *
@@ -30,7 +32,7 @@ class WorkoutProgramController extends Controller
         /** @var WorkoutProgramCollection $workoutPrograms */
         $workoutPrograms = $user->workoutPrograms()->get();
 
-        return view('home', ['workoutPrograms' => $workoutPrograms]);
+        return view('workouts.userWorkoutProgram.index', ['workoutPrograms' => $workoutPrograms]);
     }
 
     /**
@@ -60,7 +62,7 @@ class WorkoutProgramController extends Controller
         $workoutProgram->user()->associate(Auth::user());
         $workoutProgram->save();
 
-        return redirect('/workout-programs')->with('success', 'Workout program has been added');
+        return redirect(static::THIS_ROUTE)->with('success', 'Workout program has been added');
     }
 
     /**
@@ -111,23 +113,30 @@ class WorkoutProgramController extends Controller
         if ($workoutProgram->isOwnedBy($user)) {
             $workoutProgram->save();
 
-            return redirect('/workout-programs')->with('success', 'Workout program has been updated');
+            return redirect(static::THIS_ROUTE)->with('success', 'Workout program has been updated');
         }
 
         app()->abort(404);
-
-
     }
 
     /**
      * Remove the specified resource from storage.
      *
-     * @param \LiftTracker\Http\Controllers\UserWorkoutProgram $userWorkoutProgram
+     * @param WorkoutProgram $workoutProgram
      * @return void
      */
-    public function destroy(UserWorkoutProgram $userWorkoutProgram)
+    public function destroy(WorkoutProgram $workoutProgram)
     {
-        //
+        /** @var User $user */
+        $user = Auth::user();
+
+        if ($workoutProgram->isOwnedBy($user)) {
+            $workoutProgram->delete();
+
+            return redirect(static::THIS_ROUTE)->with('success', 'Workout program has been deleted');
+        }
+
+        app()->abort(404);
     }
 
     private function validateSaveRequest(Request $request): void

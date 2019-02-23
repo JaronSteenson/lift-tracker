@@ -11455,8 +11455,24 @@ a.text-dark:focus {
   }
 }
 
+/**
+  Utility classes
+ */
+
+.display-inline {
+  display: inline;
+}
+
 body {
   color: #524f52;
+}
+
+/**
+  Bootstrap button overrides
+ */
+
+.fa-trash {
+  color: rgba(255, 0, 0, 0.5);
 }
 
 .nav-link,

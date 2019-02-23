@@ -13,7 +13,15 @@
                         <ul>
                             @foreach ($workoutPrograms as $workoutProgram)
                                 <li>
-                                    <a href="{{ url("/workout-programs/$workoutProgram->id") }}">{{ $workoutProgram->name }}</a>
+                                    <a href="{{ route('workout-programs.edit', $workoutProgram->id)}}">{{ $workoutProgram->name }}</a>
+
+                                    <form class="display-inline" action="{{ route('workout-programs.destroy', $workoutProgram->id)}}" method="post">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button class="btn btn-link" type="submit">
+                                            <i class="fa fa-trash"></i>
+                                        </button>
+                                    </form>
                                 </li>
                             @endforeach
                         </ul>

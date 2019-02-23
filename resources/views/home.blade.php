@@ -8,13 +8,7 @@
 
                 <div class="card-body">
                     <div class="row">
-                        <ul>
-                            @foreach ($workoutPrograms as $workoutProgram)
-                                <li>
-                                    <a href="{{ url("/workout-programs/$workoutProgram->id") }}">{{ $workoutProgram->name }}</a>
-                                </li>
-                            @endforeach
-                        </ul>
+                        <a href="{{ route('workout-programs.index') }}">Manage your workout programs</a>
                     </div>
                 </div>
             </div>
