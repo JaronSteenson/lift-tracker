@@ -1,0 +1,15 @@
+/**
+  Bootstrap toast overrides
+ */
+
+@import '../_mixins';
+@import '../variables';
+
+.toast-wrapper {
+  position: absolute;
+  z-index: 100;
+}
+
+.toast {
+  min-width: 300px;
+}

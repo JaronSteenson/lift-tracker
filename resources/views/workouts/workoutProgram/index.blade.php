@@ -4,6 +4,9 @@
 
 @section('content')
     <div class="row justify-content-center">
+
+        @include('layouts.partials.flash_notifications')
+
         <div class="col-md-8">
             <div class="card">
                 <div class="card-header">{{ __('Your workout programs') }}</div>

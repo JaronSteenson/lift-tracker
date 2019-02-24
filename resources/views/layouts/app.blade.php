@@ -33,7 +33,7 @@
     <link rel="apple-touch-icon" sizes="144x144" href="/app-icons/apple-icon-144x144.png">
     <link rel="apple-touch-icon" sizes="152x152" href="/app-icons/apple-icon-152x152.png">
     <link rel="apple-touch-icon" sizes="180x180" href="/app-icons/apple-icon-180x180.png">
-    <link rel="icon" type="image/png" sizes="192x192"  href="/app-icons/android-icon-192x192.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="/app-icons/android-icon-192x192.png">
     <link rel="icon" type="image/png" sizes="32x32" href="/app-icons/favicon-32x32.png">
     <link rel="icon" type="image/png" sizes="96x96" href="/app-icons/favicon-96x96.png">
     <link rel="icon" type="image/png" sizes="16x16" href="/app-icons/favicon-16x16.png">
@@ -49,7 +49,7 @@
     @include('layouts.partials.main_nav_bar')
 
     <main class="main-content py-4 container">
-            @yield('content')
+        @yield('content')
     </main>
 </div>
 </body>

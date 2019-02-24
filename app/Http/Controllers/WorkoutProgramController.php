@@ -7,7 +7,6 @@ namespace LiftTracker\Http\Controllers;
 
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\View\View;
 use LiftTracker\Domain\Workouts\Programs\WorkoutProgram;
@@ -62,7 +61,7 @@ class WorkoutProgramController extends Controller
         $workoutProgram->user()->associate(Auth::user());
         $workoutProgram->save();
 
-        return redirect(static::THIS_ROUTE)->with('success', 'Workout program has been added');
+        return redirect(static::THIS_ROUTE)->with('success-alert', 'Workout program has been added');
     }
 
     /**
@@ -113,7 +112,7 @@ class WorkoutProgramController extends Controller
         if ($workoutProgram->isOwnedBy($user)) {
             $workoutProgram->save();
 
-            return redirect(static::THIS_ROUTE)->with('success', 'Workout program has been updated');
+            return redirect(static::THIS_ROUTE)->with('success-alert', 'Workout program has been updated');
         }
 
         app()->abort(404);
@@ -133,7 +132,7 @@ class WorkoutProgramController extends Controller
         if ($workoutProgram->isOwnedBy($user)) {
             $workoutProgram->delete();
 
-            return redirect(static::THIS_ROUTE)->with('success', 'Workout program has been deleted');
+            return redirect(static::THIS_ROUTE)->with('success-alert', 'Workout program has been deleted');
         }
 
         app()->abort(404);
