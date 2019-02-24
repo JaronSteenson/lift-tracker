@@ -20,9 +20,3 @@ Vue.component('example-component', require('./components/ExampleComponent.vue'))
 const app = new Vue({
     el: '#app'
 });
-
-
-//There is no ajax yet, so we just show the flash data based toast if it is in the dom
-$(document).ready(function () {
-    $('.toast').toast('show');
-});
