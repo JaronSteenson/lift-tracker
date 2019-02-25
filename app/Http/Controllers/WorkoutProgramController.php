@@ -16,7 +16,7 @@ use LiftTracker\User;
 
 class WorkoutProgramController extends Controller
 {
-    private const THIS_ROUTE = '/workout-programs';
+    public const ROUTE = '/workout-programs';
 
     /**
      * Display a listing of the resource.
@@ -28,8 +28,7 @@ class WorkoutProgramController extends Controller
         /** @var User $user */
         $user = Auth::user();
 
-        /** @var WorkoutProgramCollection $workoutPrograms */
-        $workoutPrograms = $user->workoutPrograms()->get();
+        $workoutPrograms = $user->findWorkoutPrograms();
 
         return view('workouts.workoutProgram.index', ['workoutPrograms' => $workoutPrograms]);
     }
@@ -61,7 +60,7 @@ class WorkoutProgramController extends Controller
         $workoutProgram->user()->associate(Auth::user());
         $workoutProgram->save();
 
-        return redirect(static::THIS_ROUTE)->with('success-alert', 'Workout program has been added');
+        return redirect(static::ROUTE)->with('success-alert', 'Workout program has been added');
     }
 
     /**
@@ -112,7 +111,7 @@ class WorkoutProgramController extends Controller
         if ($workoutProgram->isOwnedBy($user)) {
             $workoutProgram->save();
 
-            return redirect(static::THIS_ROUTE)->with('success-alert', 'Workout program has been updated');
+            return redirect(static::ROUTE)->with('success-alert', 'Workout program has been updated');
         }
 
         app()->abort(404);
@@ -132,7 +131,7 @@ class WorkoutProgramController extends Controller
         if ($workoutProgram->isOwnedBy($user)) {
             $workoutProgram->delete();
 
-            return redirect(static::THIS_ROUTE)->with('success-alert', 'Workout program has been deleted');
+            return redirect(static::ROUTE)->with('success-alert', 'Workout program has been deleted');
         }
 
         app()->abort(404);
