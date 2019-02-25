@@ -10,7 +10,6 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\View\View;
 use LiftTracker\Domain\Workouts\Programs\WorkoutProgram;
-use LiftTracker\Domain\Workouts\Programs\WorkoutProgramCollection;
 use Illuminate\Http\Request;
 use LiftTracker\User;
 

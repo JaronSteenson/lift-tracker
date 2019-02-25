@@ -42,4 +42,22 @@ class WorkoutProgramFeatureTest extends TestCase
             ->assertSeeTextInOrder([$first->name, $second->name, $third->name])
             ->assertSeeText('Add another program');
     }
+
+    /**
+     * @return void
+     */
+    public function testUsersCannotUpdateOtherUsersPrograms(): void
+    {
+        $user = factory(User::class)->create();
+        $otherUser = factory(User::class)->create();
+
+        $otherUsersProgram = new WorkoutProgram(['name' => 'AAA']);
+        $otherUsersProgram->user()->associate($otherUser);
+        $otherUsersProgram->save();
+
+        $this->actingAs($user)
+            ->post(route('workout-programs.update', $otherUsersProgram->id), ['name' => 'BBB'])
+            ->assertStatus(404);
+    }
+
 }
