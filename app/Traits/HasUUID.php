@@ -29,4 +29,18 @@ trait HasUUID
         return Uuid::generate(config('app.uuid_type'))->string;
     }
 
+    /**
+     * Do not try to increment the uuid
+     * @return bool
+     */
+    public function getIncrementing()
+    {
+        return false;
+    }
+
+    public function getKeyType()
+    {
+        return 'string';
+    }
+
 }
