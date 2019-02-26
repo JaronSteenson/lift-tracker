@@ -2,6 +2,9 @@
 
 namespace Tests\Feature;
 
+use Illuminate\Contracts\Session\Session;
+use Illuminate\Foundation\Testing\DatabaseTransactions;
+use Illuminate\Foundation\Testing\WithoutMiddleware;
 use LiftTracker\Domain\Workouts\Programs\WorkoutProgram;
 use LiftTracker\Domain\Workouts\Programs\WorkoutProgramCollection;
 use LiftTracker\Http\Controllers\WorkoutProgramController;
@@ -11,6 +14,9 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 
 class WorkoutProgramFeatureTest extends TestCase
 {
+    use WithoutMiddleware;
+    use DatabaseTransactions;
+
     /**
      * @return void
      */
@@ -43,6 +49,51 @@ class WorkoutProgramFeatureTest extends TestCase
             ->assertSeeText('Add another program');
     }
 
+    public function testUserCanSaveNewProgram(): void
+    {
+        $data = [
+            '_token' => csrf_token(),
+            'name' => 'Program 1',
+        ];
+
+        /** @var User $user */
+        $user = factory(User::class)->create();
+
+        $this->actingAs($user)
+            ->post(route('workout-programs.store'), $data)
+            ->assertStatus(302)
+            ->assertRedirect(route('workout-programs.index'))
+            ->assertSessionHas('success-alert', 'Workout program has been added');
+
+        $savedProgram = $user->findWorkoutPrograms()->first();
+
+        static::assertThat($savedProgram->name, static::equalTo($data['name']));
+    }
+
+    /**
+     * @return void
+     */
+    public function testUsersCanUpdateTheirOwnPrograms(): void
+    {
+        $user = factory(User::class)->create();
+
+        $otherUsersProgram = new WorkoutProgram(['name' => 'Program 1']);
+        $otherUsersProgram->user()->associate($user);
+        $otherUsersProgram->save();
+
+        $data = [
+            '_token' => csrf_token(),
+            '_method' => 'PUT',
+            'name' => 'Program One',
+        ];
+
+        $this->actingAs($user)
+            ->post(route('workout-programs.update', $otherUsersProgram->id), $data)
+            ->assertStatus(302)
+            ->assertRedirect(route('workout-programs.index'))
+            ->assertSessionHas('success-alert', 'Workout program has been updated');
+    }
+
     /**
      * @return void
      */
@@ -55,8 +106,14 @@ class WorkoutProgramFeatureTest extends TestCase
         $otherUsersProgram->user()->associate($otherUser);
         $otherUsersProgram->save();
 
+        $data = [
+            '_token' => csrf_token(),
+            '_method' => 'PUT',
+            'name' => 'Program 1',
+        ];
+
         $this->actingAs($user)
-            ->post(route('workout-programs.update', $otherUsersProgram->id), ['name' => 'BBB'])
+            ->post(route('workout-programs.update', $otherUsersProgram->id), $data)
             ->assertStatus(404);
     }
 
