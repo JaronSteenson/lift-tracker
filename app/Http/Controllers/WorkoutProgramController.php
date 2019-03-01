@@ -10,7 +10,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\View\View;
 use LiftTracker\Domain\Workouts\Programs\WorkoutProgram;
-use Illuminate\Http\Request;
+use LiftTracker\Http\Requests\WorkoutProgramRequest;
 use LiftTracker\User;
 
 class WorkoutProgramController extends Controller
@@ -44,13 +44,11 @@ class WorkoutProgramController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request $request
+     * @param WorkoutProgramRequest $request
      * @return \Illuminate\Routing\Redirector|\Illuminate\Http\RedirectResponse
      */
-    public function store(Request $request)
+    public function store(WorkoutProgramRequest $request)
     {
-        $this->validateSaveRequest($request);
-
         $workoutProgram = new WorkoutProgram([
             'name' => $request->get('name'),
         ]);
@@ -81,64 +79,35 @@ class WorkoutProgramController extends Controller
      */
     public function edit(WorkoutProgram $workoutProgram)
     {
-        /** @var User $user */
-        $user = Auth::user();
-
-        if ($workoutProgram->isOwnedBy($user)) {
-            return view('workouts.workoutProgram.edit', ['workoutProgram' => $workoutProgram]);
-        }
-
-        app()->abort(404);
+        return view('workouts.workoutProgram.edit', ['workoutProgram' => $workoutProgram]);
     }
 
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request $request
+     * @param WorkoutProgramRequest $request
      * @param WorkoutProgram $workoutProgram
      * @return void|RedirectResponse
      */
-    public function update(Request $request, WorkoutProgram $workoutProgram)
+    public function update(WorkoutProgramRequest $request, WorkoutProgram $workoutProgram)
     {
-        $this->validateSaveRequest($request);
+        $workoutProgram->name = $request->get('name');
+        $workoutProgram->save();
 
-        /** @var User $user */
-        $user = Auth::user();
-
-        if ($workoutProgram->isOwnedBy($user)) {
-            $workoutProgram->name = $request->get('name');
-            $workoutProgram->save();
-
-            return redirect(route('workout-programs.index'))->with('success-alert', 'Workout program has been updated');
-        }
-
-        app()->abort(404);
+        return redirect(route('workout-programs.index'))->with('success-alert', 'Workout program has been updated');
     }
 
     /**
      * Remove the specified resource from storage.
      *
+     * @param WorkoutProgramRequest $request
      * @param WorkoutProgram $workoutProgram
      * @return void
      */
-    public function destroy(WorkoutProgram $workoutProgram)
+    public function destroy(WorkoutProgramRequest $request, WorkoutProgram $workoutProgram)
     {
-        /** @var User $user */
-        $user = Auth::user();
-
-        if ($workoutProgram->isOwnedBy($user)) {
-            $workoutProgram->delete();
-
-            return redirect(sroute('workout-programs.index'))->with('success-alert', 'Workout program has been deleted');
-        }
-
-        app()->abort(404);
+        $workoutProgram->delete();
+        return redirect(route('workout-programs.index'))->with('success-alert', 'Workout program has been deleted');
     }
 
-    private function validateSaveRequest(Request $request): void
-    {
-        $request->validate([
-            'name'=>'required|max:40',
-        ]);
-    }
 }
