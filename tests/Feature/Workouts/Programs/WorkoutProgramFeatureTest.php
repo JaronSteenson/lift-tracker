@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use Illuminate\Contracts\Session\Session;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Foundation\Testing\WithoutMiddleware;
+use Illuminate\Support\Str;
 use LiftTracker\Domain\Workouts\Programs\WorkoutProgram;
 use LiftTracker\Domain\Workouts\Programs\WorkoutProgramCollection;
 use LiftTracker\Http\Controllers\WorkoutProgramController;
@@ -76,6 +77,22 @@ class WorkoutProgramFeatureTest extends TestCase
         static::assertThat($savedProgram->name, static::equalTo($data['name']));
     }
 
+    public function testUserCannotSaveNewProgramWithANameTooLong(): void
+    {
+        $data = [
+            '_token' => csrf_token(),
+            'name' => Str::random(500),
+        ];
+
+        /** @var User $user */
+        $user = factory(User::class)->create();
+
+        $this->actingAs($user)
+            ->post(route('workout-programs.store'), $data)
+            ->assertStatus(302)
+            ->assertSessionHasErrors();
+    }
+
     /**
      * @return void
      */
@@ -96,6 +113,7 @@ class WorkoutProgramFeatureTest extends TestCase
         $this->actingAs($user)
             ->post(route('workout-programs.update', $usersProgram), $data)
             ->assertStatus(302)
+            ->assertSessionDoesntHaveErrors()
             ->assertRedirect(route('workout-programs.index'))
             ->assertSessionHas('success-alert', 'Workout program has been updated');
     }
@@ -120,7 +138,7 @@ class WorkoutProgramFeatureTest extends TestCase
 
         $this->actingAs($user)
             ->post(route('workout-programs.update', [$otherUsersProgram]), $data)
-            ->assertStatus(404);
+            ->assertStatus(403);
     }
 
 }
