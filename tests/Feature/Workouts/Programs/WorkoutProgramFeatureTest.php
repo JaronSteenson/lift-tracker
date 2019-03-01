@@ -8,14 +8,20 @@ use Illuminate\Foundation\Testing\WithoutMiddleware;
 use LiftTracker\Domain\Workouts\Programs\WorkoutProgram;
 use LiftTracker\Domain\Workouts\Programs\WorkoutProgramCollection;
 use LiftTracker\Http\Controllers\WorkoutProgramController;
+use LiftTracker\Http\Middleware\VerifyCsrfToken;
 use LiftTracker\User;
 use Tests\TestCase;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
 class WorkoutProgramFeatureTest extends TestCase
 {
-    use WithoutMiddleware;
     use DatabaseTransactions;
+
+    public function setUp(): void
+    {
+        parent::setUp();
+        $this->withoutMiddleware([VerifyCsrfToken::class]);
+    }
 
     /**
      * @return void
@@ -25,7 +31,7 @@ class WorkoutProgramFeatureTest extends TestCase
         $user = factory(User::class)->create();
 
         $this->actingAs($user)
-            ->get(WorkoutProgramController::ROUTE)
+            ->get(route('workout-programs.index'))
             ->assertStatus(200)
             ->assertSeeInOrder(['You do not have any workout programs', 'Add one']);
     }
@@ -42,7 +48,7 @@ class WorkoutProgramFeatureTest extends TestCase
         $third = factory(WorkoutProgram::class)->create(['name' => 'CCC', 'user_id' => $user->id]);
 
         $this->actingAs($user)
-            ->get(WorkoutProgramController::ROUTE)
+            ->get(route('workout-programs.index'))
             ->assertStatus(200)
             ->assertDontSeeText('You do not have any workout programs')
             ->assertSeeTextInOrder([$first->name, $second->name, $third->name])
@@ -77,9 +83,9 @@ class WorkoutProgramFeatureTest extends TestCase
     {
         $user = factory(User::class)->create();
 
-        $otherUsersProgram = new WorkoutProgram(['name' => 'Program 1']);
-        $otherUsersProgram->user()->associate($user);
-        $otherUsersProgram->save();
+        $usersProgram = new WorkoutProgram(['name' => 'Program 1']);
+        $usersProgram->user()->associate($user);
+        $usersProgram->save();
 
         $data = [
             '_token' => csrf_token(),
@@ -88,7 +94,7 @@ class WorkoutProgramFeatureTest extends TestCase
         ];
 
         $this->actingAs($user)
-            ->post(route('workout-programs.update', $otherUsersProgram->id), $data)
+            ->post(route('workout-programs.update', $usersProgram), $data)
             ->assertStatus(302)
             ->assertRedirect(route('workout-programs.index'))
             ->assertSessionHas('success-alert', 'Workout program has been updated');
@@ -113,7 +119,7 @@ class WorkoutProgramFeatureTest extends TestCase
         ];
 
         $this->actingAs($user)
-            ->post(route('workout-programs.update', $otherUsersProgram->id), $data)
+            ->post(route('workout-programs.update', [$otherUsersProgram]), $data)
             ->assertStatus(404);
     }
 
