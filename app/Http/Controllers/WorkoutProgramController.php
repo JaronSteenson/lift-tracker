@@ -15,7 +15,6 @@ use LiftTracker\User;
 
 class WorkoutProgramController extends Controller
 {
-    public const ROUTE = '/workout-programs';
 
     /**
      * Display a listing of the resource.
@@ -59,7 +58,8 @@ class WorkoutProgramController extends Controller
         $workoutProgram->user()->associate(Auth::user());
         $workoutProgram->save();
 
-        return redirect(static::ROUTE)->with('success-alert', 'Workout program has been added');
+
+        return redirect(route('workout-programs.index'))->with('success-alert', 'Workout program has been added');
     }
 
     /**
@@ -102,15 +102,14 @@ class WorkoutProgramController extends Controller
     {
         $this->validateSaveRequest($request);
 
-        $workoutProgram->name = $request->get('name');
-
         /** @var User $user */
         $user = Auth::user();
 
         if ($workoutProgram->isOwnedBy($user)) {
+            $workoutProgram->name = $request->get('name');
             $workoutProgram->save();
 
-            return redirect(static::ROUTE)->with('success-alert', 'Workout program has been updated');
+            return redirect(route('workout-programs.index'))->with('success-alert', 'Workout program has been updated');
         }
 
         app()->abort(404);
@@ -130,7 +129,7 @@ class WorkoutProgramController extends Controller
         if ($workoutProgram->isOwnedBy($user)) {
             $workoutProgram->delete();
 
-            return redirect(static::ROUTE)->with('success-alert', 'Workout program has been deleted');
+            return redirect(sroute('workout-programs.index'))->with('success-alert', 'Workout program has been deleted');
         }
 
         app()->abort(404);
