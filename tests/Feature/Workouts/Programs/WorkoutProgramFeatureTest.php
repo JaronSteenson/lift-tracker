@@ -2,17 +2,13 @@
 
 namespace Tests\Feature;
 
-use Illuminate\Contracts\Session\Session;
+use Illuminate\Foundation\Testing\DatabaseMigrations;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
-use Illuminate\Foundation\Testing\WithoutMiddleware;
 use Illuminate\Support\Str;
 use LiftTracker\Domain\Workouts\Programs\WorkoutProgram;
-use LiftTracker\Domain\Workouts\Programs\WorkoutProgramCollection;
-use LiftTracker\Http\Controllers\WorkoutProgramController;
 use LiftTracker\Http\Middleware\VerifyCsrfToken;
 use LiftTracker\User;
 use Tests\TestCase;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 
 class WorkoutProgramFeatureTest extends TestCase
 {
