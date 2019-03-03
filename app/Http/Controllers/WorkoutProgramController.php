@@ -100,7 +100,7 @@ class WorkoutProgramController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param WorkoutProgramRequest $request
+     * @param WorkoutProgramRequest $request Validates ownership, do not remove
      * @param WorkoutProgram $workoutProgram
      * @return void
      */

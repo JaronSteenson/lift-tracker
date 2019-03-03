@@ -141,4 +141,40 @@ class WorkoutProgramFeatureTest extends TestCase
             ->assertStatus(403);
     }
 
+    /**
+     * @return void
+     */
+    public function testUsersCanDeleteTheirOwnPrograms(): void
+    {
+        $user = factory(User::class)->create();
+
+        $usersProgram = new WorkoutProgram(['name' => 'Program 1']);
+        $usersProgram->user()->associate($user);
+        $usersProgram->save();
+
+        $this->actingAs($user)
+            ->delete(route('workout-programs.destroy', $usersProgram))
+            ->assertStatus(302)
+            ->assertSessionDoesntHaveErrors()
+            ->assertRedirect(route('workout-programs.index'))
+            ->assertSessionHas('success-alert', 'Workout program has been deleted');
+    }
+
+    /**
+     * @return void
+     */
+    public function testUsersCannotDeleteOtherUsersPrograms(): void
+    {
+        $user = factory(User::class)->create();
+        $otherUser = factory(User::class)->create();
+
+        $otherUsersProgram = new WorkoutProgram(['name' => 'AAA']);
+        $otherUsersProgram->user()->associate($otherUser);
+        $otherUsersProgram->save();
+
+        $this->actingAs($user)
+            ->delete(route('workout-programs.destroy', [$otherUsersProgram]))
+            ->assertStatus(403);
+    }
+
 }
