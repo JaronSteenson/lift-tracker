@@ -21,7 +21,7 @@
                 <div class="col-md-6">
                     <div v-bind:class="{ 'is-invalid': validationErrors.name }"></div>
                     <input id="workouts-per-cycle" type="number" min="1" step="1" class="form-control"
-                           name="name" required v-bind:value="workoutsPerCycle">
+                           name="name" required v-model="workoutsPerCycle">
 
                     <span v-if="validationErrors.name" class="invalid-feedback" role="alert">
                                     <strong>{{ validationErrors.name}}</strong>
@@ -68,23 +68,24 @@
         computed: {
             workoutsPerCycle: {
                 get() {
-                    return this.workoutProgram.workoutRoutines.length || '';
+                    return this.getWorkoutRoutineLength() || '';
                 },
                 set(newValue) {
                     debugger;
                     newValue = Number.parseInt(newValue);
+                    const workoutsPerCycle = this.getWorkoutRoutineLength();
 
-                    if (isNaN(newValue) || newValue === this.workoutsPerCycle) {
+                    if (isNaN(newValue) || newValue === workoutsPerCycle) {
                         return;
                     }
 
                     let mutation = this.addWorkoutToCycle;
 
-                    if (this.workoutsPerCycle < newValue) {
+                    if (workoutsPerCycle > newValue) {
                         mutation = this.removeWorkoutFromCycle;
                     }
 
-                    while (this.workoutsPerCycle !== newValue) {
+                    while (this.getWorkoutRoutineLength() !== newValue) {
                         mutation();
                     }
                 }
@@ -92,11 +93,15 @@
         },
         methods: {
             addWorkoutToCycle() {
+                debugger;
                 this.workoutProgram.workoutRoutines.push({});
             },
             removeWorkoutFromCycle() {
                 this.workoutProgram.workoutRoutines.pop();
-            }
+            },
+            getWorkoutRoutineLength() {
+              return this.workoutProgram.workoutRoutines.length;
+            },
         }
     }
 </script>

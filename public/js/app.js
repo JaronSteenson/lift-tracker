@@ -48070,23 +48070,24 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
     computed: {
         workoutsPerCycle: {
             get: function get() {
-                return this.workoutProgram.workoutRoutines.length || '';
+                return this.getWorkoutRoutineLength() || '';
             },
             set: function set(newValue) {
                 debugger;
                 newValue = Number.parseInt(newValue);
+                var workoutsPerCycle = this.getWorkoutRoutineLength();
 
-                if (isNaN(newValue) || newValue === this.workoutsPerCycle) {
+                if (isNaN(newValue) || newValue === workoutsPerCycle) {
                     return;
                 }
 
                 var mutation = this.addWorkoutToCycle;
 
-                if (this.workoutsPerCycle < newValue) {
+                if (workoutsPerCycle > newValue) {
                     mutation = this.removeWorkoutFromCycle;
                 }
 
-                while (this.workoutsPerCycle !== newValue) {
+                while (this.getWorkoutRoutineLength() !== newValue) {
                     mutation();
                 }
             }
@@ -48094,10 +48095,14 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
     },
     methods: {
         addWorkoutToCycle: function addWorkoutToCycle() {
+            debugger;
             this.workoutProgram.workoutRoutines.push({});
         },
         removeWorkoutFromCycle: function removeWorkoutFromCycle() {
             this.workoutProgram.workoutRoutines.pop();
+        },
+        getWorkoutRoutineLength: function getWorkoutRoutineLength() {
+            return this.workoutProgram.workoutRoutines.length;
         }
     }
 });
@@ -48167,6 +48172,14 @@ var render = function() {
               _c("div", { class: { "is-invalid": _vm.validationErrors.name } }),
               _vm._v(" "),
               _c("input", {
+                directives: [
+                  {
+                    name: "model",
+                    rawName: "v-model",
+                    value: _vm.workoutsPerCycle,
+                    expression: "workoutsPerCycle"
+                  }
+                ],
                 staticClass: "form-control",
                 attrs: {
                   id: "workouts-per-cycle",
@@ -48176,7 +48189,15 @@ var render = function() {
                   name: "name",
                   required: ""
                 },
-                domProps: { value: _vm.workoutsPerCycle }
+                domProps: { value: _vm.workoutsPerCycle },
+                on: {
+                  input: function($event) {
+                    if ($event.target.composing) {
+                      return
+                    }
+                    _vm.workoutsPerCycle = $event.target.value
+                  }
+                }
               }),
               _vm._v(" "),
               _vm.validationErrors.name
