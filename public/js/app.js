@@ -47916,6 +47916,8 @@ module.exports = Component.exports
 Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__components_BootstrapCard__ = __webpack_require__(57);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__components_BootstrapCard___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0__components_BootstrapCard__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__components_domain_WorkoutRoutineForm__ = __webpack_require__(60);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__components_domain_WorkoutRoutineForm___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1__components_domain_WorkoutRoutineForm__);
 //
 //
 //
@@ -47962,16 +47964,22 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 //
 //
 //
+//
+//
+//
+//
+//
+
 
 
 
 /* harmony default export */ __webpack_exports__["default"] = ({
-    components: { BootstrapCard: __WEBPACK_IMPORTED_MODULE_0__components_BootstrapCard___default.a },
+    components: { BootstrapCard: __WEBPACK_IMPORTED_MODULE_0__components_BootstrapCard___default.a, WorkoutRoutineForm: __WEBPACK_IMPORTED_MODULE_1__components_domain_WorkoutRoutineForm___default.a },
     data: function data() {
         return {
             validationErrors: {},
             workoutProgram: {
-                workouts: []
+                workoutRoutines: [{ name: 'Push' }]
             }
         };
     },
@@ -47979,13 +47987,34 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
     computed: {
         workoutsPerCycle: {
             get: function get() {
-                return this.workoutProgram.workouts.length || '';
+                return this.workoutProgram.workoutRoutines.length || '';
             },
             set: function set(newValue) {
-                if (this.workoutsPerCycle < newValue) {}
+                debugger;
+                newValue = Number.parseInt(newValue);
 
-                if (this.workoutsPerCycle > newValue) {}
+                if (isNaN(newValue) || newValue === this.workoutsPerCycle) {
+                    return;
+                }
+
+                var mutation = this.addWorkoutToCycle;
+
+                if (this.workoutsPerCycle < newValue) {
+                    mutation = this.removeWorkoutFromCycle;
+                }
+
+                while (this.workoutsPerCycle !== newValue) {
+                    mutation();
+                }
             }
+        }
+    },
+    methods: {
+        addWorkoutToCycle: function addWorkoutToCycle() {
+            this.workoutProgram.workoutRoutines.push({});
+        },
+        removeWorkoutFromCycle: function removeWorkoutFromCycle() {
+            this.workoutProgram.workoutRoutines.pop();
         }
     }
 });
@@ -48003,84 +48032,101 @@ var render = function() {
     { attrs: { title: "Create new workout program" } },
     [
       _c("form", { attrs: { method: "POST", action: "" } }, [
-        _c("div", { staticClass: "form-group row" }, [
-          _c(
-            "label",
-            {
-              staticClass: "col-md-4 col-form-label text-md-right",
-              attrs: { for: "edit-workout-program-name" }
-            },
-            [_vm._v("Workout program name")]
-          ),
-          _vm._v(" "),
-          _c("div", { staticClass: "col-md-6" }, [
-            _c("div", { class: { "is-invalid": _vm.validationErrors.name } }),
-            _vm._v(" "),
-            _c("input", {
-              staticClass: "form-control",
-              attrs: {
-                id: "edit-workout-program-name",
-                type: "text",
-                name: "name",
-                required: ""
+        _c(
+          "div",
+          { staticClass: "form-group row" },
+          [
+            _c(
+              "label",
+              {
+                staticClass: "col-md-4 col-form-label text-md-right",
+                attrs: { for: "edit-workout-program-name" }
               },
-              domProps: { value: _vm.workoutProgram.name }
-            }),
+              [_vm._v("Workout program name")]
+            ),
             _vm._v(" "),
-            _vm.validationErrors.name
-              ? _c(
-                  "span",
-                  { staticClass: "invalid-feedback", attrs: { role: "alert" } },
-                  [_c("strong", [_vm._v(_vm._s(_vm.validationErrors.name))])]
-                )
-              : _vm._e()
-          ]),
-          _vm._v(" "),
-          _c(
-            "label",
-            {
-              staticClass: "col-md-4 col-form-label text-md-right",
-              attrs: { for: "edit-workout-program-name" }
-            },
-            [_vm._v("Workouts per cycle")]
-          ),
-          _vm._v(" "),
-          _c("div", { staticClass: "col-md-6" }, [
-            _c("div", { class: { "is-invalid": _vm.validationErrors.name } }),
+            _c("div", { staticClass: "col-md-6" }, [
+              _c("div", { class: { "is-invalid": _vm.validationErrors.name } }),
+              _vm._v(" "),
+              _c("input", {
+                staticClass: "form-control",
+                attrs: {
+                  id: "edit-workout-program-name",
+                  type: "text",
+                  name: "name",
+                  required: ""
+                },
+                domProps: { value: _vm.workoutProgram.name }
+              }),
+              _vm._v(" "),
+              _vm.validationErrors.name
+                ? _c(
+                    "span",
+                    {
+                      staticClass: "invalid-feedback",
+                      attrs: { role: "alert" }
+                    },
+                    [_c("strong", [_vm._v(_vm._s(_vm.validationErrors.name))])]
+                  )
+                : _vm._e()
+            ]),
             _vm._v(" "),
-            _c("input", {
-              staticClass: "form-control",
-              attrs: {
-                id: "workouts-per-cycle",
-                type: "number",
-                min: "1",
-                step: "1",
-                name: "name",
-                required: ""
+            _c(
+              "label",
+              {
+                staticClass: "col-md-4 col-form-label text-md-right",
+                attrs: { for: "workouts-per-cycle" }
               },
-              domProps: { value: _vm.workoutsPerCycle }
-            }),
+              [_vm._v("Workouts per cycle")]
+            ),
             _vm._v(" "),
-            _vm.validationErrors.name
-              ? _c(
-                  "span",
-                  { staticClass: "invalid-feedback", attrs: { role: "alert" } },
-                  [_c("strong", [_vm._v(_vm._s(_vm.validationErrors.name))])]
-                )
-              : _vm._e()
-          ])
-        ]),
+            _c("div", { staticClass: "col-md-6" }, [
+              _c("div", { class: { "is-invalid": _vm.validationErrors.name } }),
+              _vm._v(" "),
+              _c("input", {
+                staticClass: "form-control",
+                attrs: {
+                  id: "workouts-per-cycle",
+                  type: "number",
+                  min: "1",
+                  step: "1",
+                  name: "name",
+                  required: ""
+                },
+                domProps: { value: _vm.workoutsPerCycle }
+              }),
+              _vm._v(" "),
+              _vm.validationErrors.name
+                ? _c(
+                    "span",
+                    {
+                      staticClass: "invalid-feedback",
+                      attrs: { role: "alert" }
+                    },
+                    [_c("strong", [_vm._v(_vm._s(_vm.validationErrors.name))])]
+                  )
+                : _vm._e()
+            ]),
+            _vm._v(" "),
+            _vm._l(_vm.workoutProgram.workoutRoutines, function(
+              workoutRoutine,
+              index
+            ) {
+              return _c("workout-routine-form", {
+                key: index,
+                attrs: { data: workoutRoutine, day: index + 1 }
+              })
+            })
+          ],
+          2
+        ),
         _vm._v(" "),
         _c("div", { staticClass: "form-group row mb-0" }, [
           _c("div", { staticClass: "col-md-8 offset-md-4" }, [
             _c(
               "button",
               { staticClass: "btn btn-primary", attrs: { type: "submit" } },
-              [
-                _vm._v(
-                  "\n                    Update workout program\n                "
-                )
-              ]
+              [_vm._v("\n                    save\n                ")]
             ),
             _vm._v(" "),
             _c(
@@ -48204,6 +48250,140 @@ if (false) {
   module.hot.accept()
   if (module.hot.data) {
     require("vue-hot-reload-api")      .rerender("data-v-4ee67343", module.exports)
+  }
+}
+
+/***/ }),
+/* 60 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var disposed = false
+var normalizeComponent = __webpack_require__(40)
+/* script */
+var __vue_script__ = __webpack_require__(61)
+/* template */
+var __vue_template__ = __webpack_require__(62)
+/* template functional */
+var __vue_template_functional__ = false
+/* styles */
+var __vue_styles__ = null
+/* scopeId */
+var __vue_scopeId__ = null
+/* moduleIdentifier (server only) */
+var __vue_module_identifier__ = null
+var Component = normalizeComponent(
+  __vue_script__,
+  __vue_template__,
+  __vue_template_functional__,
+  __vue_styles__,
+  __vue_scopeId__,
+  __vue_module_identifier__
+)
+Component.options.__file = "resources/js/components/domain/WorkoutRoutineForm.vue"
+
+/* hot reload */
+if (false) {(function () {
+  var hotAPI = require("vue-hot-reload-api")
+  hotAPI.install(require("vue"), false)
+  if (!hotAPI.compatible) return
+  module.hot.accept()
+  if (!module.hot.data) {
+    hotAPI.createRecord("data-v-17dd1d4a", Component.options)
+  } else {
+    hotAPI.reload("data-v-17dd1d4a", Component.options)
+  }
+  module.hot.dispose(function (data) {
+    disposed = true
+  })
+})()}
+
+module.exports = Component.exports
+
+
+/***/ }),
+/* 61 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+
+/* harmony default export */ __webpack_exports__["default"] = ({
+    name: "WorkoutRoutineForm",
+    props: ['day', 'data'],
+    data: function data() {
+        return {
+            validationErrors: {},
+            workoutRoutine: {
+                name: 'Workout ' + this.day
+            }
+        };
+    },
+
+    computed: {}
+});
+
+/***/ }),
+/* 62 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var render = function() {
+  var _vm = this
+  var _h = _vm.$createElement
+  var _c = _vm._self._c || _h
+  return _c("div", { staticClass: "col-md-6" }, [
+    _c(
+      "label",
+      {
+        staticClass: "col-md-4 col-form-label text-md-right",
+        attrs: { for: "workouts-routine-form" }
+      },
+      [_vm._v("Workout " + _vm._s(_vm.day) + " name")]
+    ),
+    _vm._v(" "),
+    _c("div", { class: { "is-invalid": _vm.validationErrors.name } }),
+    _vm._v(" "),
+    _c("input", {
+      staticClass: "form-control",
+      attrs: {
+        id: "workouts-routine-form",
+        type: "text",
+        name: "name",
+        required: ""
+      },
+      domProps: { value: _vm.workoutRoutine.name }
+    }),
+    _vm._v(" "),
+    _vm.validationErrors.name
+      ? _c(
+          "span",
+          { staticClass: "invalid-feedback", attrs: { role: "alert" } },
+          [_c("strong", [_vm._v(_vm._s(_vm.validationErrors.name))])]
+        )
+      : _vm._e()
+  ])
+}
+var staticRenderFns = []
+render._withStripped = true
+module.exports = { render: render, staticRenderFns: staticRenderFns }
+if (false) {
+  module.hot.accept()
+  if (module.hot.data) {
+    require("vue-hot-reload-api")      .rerender("data-v-17dd1d4a", module.exports)
   }
 }
 
