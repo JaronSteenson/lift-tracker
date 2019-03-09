@@ -48077,7 +48077,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
                 newValue = Number.parseInt(newValue);
                 var workoutsPerCycle = this.getWorkoutRoutineLength();
 
-                if (isNaN(newValue) || newValue === workoutsPerCycle) {
+                if (isNaN(newValue) || newValue === workoutsPerCycle || newValue < 0 || newValue > 20) {
                     return;
                 }
 

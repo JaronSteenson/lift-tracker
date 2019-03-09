@@ -75,7 +75,7 @@
                     newValue = Number.parseInt(newValue);
                     const workoutsPerCycle = this.getWorkoutRoutineLength();
 
-                    if (isNaN(newValue) || newValue === workoutsPerCycle) {
+                    if (isNaN(newValue) || newValue === workoutsPerCycle || newValue < 0 || newValue > 20) {
                         return;
                     }
 
