@@ -45,12 +45,14 @@
     <meta name="theme-color" content="{{ config('app.brand_color_dark') }}">
 </head>
 <body>
-<div id="app">
     @include('layouts.partials.main_nav_bar')
 
     <main class="main-content py-4 container">
-        @yield('content')
+        <div id="js-lift-tracker-app">
+            <main-content>
+                @yield('content')
+            </main-content>
+        </div>
     </main>
-</div>
 </body>
 </html>

@@ -15,8 +15,13 @@ window.Vue = require('vue');
  * or customize the JavaScript scaffolding to fit your unique needs.
  */
 
-Vue.component('example-component', require('./components/ExampleComponent.vue'));
+const theMainContent =  require('./components/TheMainContent.vue');
+const theCreateWorkoutProgramForm =  require('./pages/TheCreateWorkoutProgramForm');
 
-const app = new Vue({
-    el: '#app'
+const vm = new Vue({
+    el: '#js-lift-tracker-app',
+    components: {
+        'main-content': theMainContent,
+        'the-create-workout-program-form': theCreateWorkoutProgramForm,
+    },
 });
