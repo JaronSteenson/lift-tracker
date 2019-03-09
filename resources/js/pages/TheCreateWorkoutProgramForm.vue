@@ -28,11 +28,13 @@
                                 </span>
                 </div>
 
+            </div>
+
                 <workout-routine-form v-for="(workoutRoutine, index) in workoutProgram.workoutRoutines"
                                       v-bind:data="workoutRoutine" v-bind:key="index" v-bind:day="index + 1">
 
                 </workout-routine-form>
-            </div>
+
 
             <div class="form-group row mb-0">
                 <div class="col-md-8 offset-md-4">
