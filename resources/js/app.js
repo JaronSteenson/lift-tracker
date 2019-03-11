@@ -16,12 +16,12 @@ window.Vue = require('vue');
  */
 
 const theMainContent =  require('./components/TheMainContent.vue');
-const theCreateWorkoutProgramForm =  require('./pages/TheCreateWorkoutProgramForm');
+const TheCreateWorkoutProgramPage =  require('./pages/TheCreateWorkoutProgramPage');
 
 const vm = new Vue({
     el: '#js-lift-tracker-app',
     components: {
         'main-content': theMainContent,
-        'the-create-workout-program-form': theCreateWorkoutProgramForm,
+        'the-create-workout-program-form': TheCreateWorkoutProgramPage,
     },
 });

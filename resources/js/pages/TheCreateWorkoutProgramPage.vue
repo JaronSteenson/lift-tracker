@@ -3,7 +3,7 @@
         <form method="POST" action="">
             <div class="form-group row">
                 <label for="edit-workout-program-name"
-                       class="col-md-4 col-form-label text-md-right">Workout program name</label>
+                       class="col-md-4 col-form-label text-md-right">Program name</label>
 
                 <div class="col-md-6">
                     <div v-bind:class="{ 'is-invalid': validationErrors.name }"></div>
@@ -15,6 +15,9 @@
                                 </span>
                 </div>
 
+            </div>
+
+            <div class="form-group row">
                 <label for="workouts-per-cycle"
                        class="col-md-4 col-form-label text-md-right">Workouts per cycle</label>
 
@@ -61,7 +64,7 @@
             return {
                 validationErrors: {},
                 workoutProgram: {
-                    workoutRoutines: [{name: 'Push'}]
+                    workoutRoutines: []
                 },
             }
         },
@@ -71,7 +74,6 @@
                     return this.getWorkoutRoutineLength() || '';
                 },
                 set(newValue) {
-                    debugger;
                     newValue = Number.parseInt(newValue);
                     const workoutsPerCycle = this.getWorkoutRoutineLength();
 
@@ -93,7 +95,6 @@
         },
         methods: {
             addWorkoutToCycle() {
-                debugger;
                 this.workoutProgram.workoutRoutines.push({});
             },
             removeWorkoutFromCycle() {
