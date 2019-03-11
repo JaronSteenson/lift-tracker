@@ -32,6 +32,7 @@
                 </div>
 
             </div>
+                <hr v-if="hasWorkoutRoutines()" class="form-section-divider">
 
                 <workout-routine-form v-for="(workoutRoutine, index) in workoutProgram.workoutRoutines"
                                       v-bind:data="workoutRoutine" v-bind:key="index" v-bind:day="index + 1">
@@ -41,7 +42,7 @@
 
             <div class="form-group row mb-0">
                 <div class="col-md-8 offset-md-4">
-                    <button type="submit" class="btn btn-primary">
+                    <button type="submit" class="btn btn-primary" v-bind:class="{ disabled: hasNoWorkoutRoutines() }">
                         save
                     </button>
 
@@ -50,6 +51,7 @@
                     </a>
                 </div>
             </div>
+
         </form>
     </bootstrap-card>
 </template>
@@ -103,6 +105,12 @@
             getWorkoutRoutineLength() {
               return this.workoutProgram.workoutRoutines.length;
             },
+            hasWorkoutRoutines() {
+                return this.getWorkoutRoutineLength() > 0;
+            },
+            hasNoWorkoutRoutines() {
+                return !this.hasWorkoutRoutines();
+            }
         }
     }
 </script>

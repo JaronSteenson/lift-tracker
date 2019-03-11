@@ -3,7 +3,7 @@
         <div class="row">
             <h2 class="col-md-4 col-form-label text-md-right">{{ workoutRoutine.name }}</h2>
         </div>
-        
+
         <div class="row">
             <label for="workouts-routine-form"
                    class="col-md-4 col-form-label text-md-right">Workout name</label>
@@ -17,6 +17,7 @@
             </span>
             </div>
         </div>
+        <hr class="form-section-divider">
     </div>
 </template>
 
@@ -35,7 +36,3 @@
         computed: {}
     }
 </script>
-
-<style scoped>
-
-</style>
