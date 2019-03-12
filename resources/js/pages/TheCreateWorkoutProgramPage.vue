@@ -1,6 +1,6 @@
 <template>
     <bootstrap-card title="Create new workout program">
-        <form method="POST" action="">
+        <form>
             <div class="form-group row">
                 <label for="edit-workout-program-name"
                        class="col-md-4 col-form-label text-md-right">Program name</label>
@@ -12,7 +12,7 @@
 
                     <span v-if="validationErrors.name" class="invalid-feedback" role="alert">
                                     <strong>{{ validationErrors.name}}</strong>
-                                </span>
+                    </span>
                 </div>
 
             </div>
@@ -30,14 +30,14 @@
                                     <strong>{{ validationErrors.name}}</strong>
                                 </span>
                 </div>
-
             </div>
-                <hr v-if="hasWorkoutRoutines()" class="form-section-divider">
 
-                <workout-routine-form v-for="(workoutRoutine, index) in workoutProgram.workoutRoutines"
-                                      v-bind:data="workoutRoutine" v-bind:key="index" v-bind:day="index + 1">
+            <hr v-if="hasWorkoutRoutines()" class="form-section-divider">
 
-                </workout-routine-form>
+            <workout-routine-form v-for="(workoutRoutine, index) in workoutProgram.workoutRoutines"
+                                  v-bind:data="workoutRoutine" v-bind:key="index" v-bind:day="index + 1">
+
+            </workout-routine-form>
 
 
             <div class="form-group row mb-0">
@@ -61,12 +61,13 @@
     import WorkoutRoutineForm from "../components/domain/WorkoutRoutineForm";
 
     export default {
+        name: 'TheCreateWorkoutProgramPage',
         components: {BootstrapCard, WorkoutRoutineForm},
         data() {
             return {
                 validationErrors: {},
                 workoutProgram: {
-                    workoutRoutines: []
+                    workoutRoutines: [{}]
                 },
             }
         },
@@ -103,7 +104,7 @@
                 this.workoutProgram.workoutRoutines.pop();
             },
             getWorkoutRoutineLength() {
-              return this.workoutProgram.workoutRoutines.length;
+                return this.workoutProgram.workoutRoutines.length;
             },
             hasWorkoutRoutines() {
                 return this.getWorkoutRoutineLength() > 0;
