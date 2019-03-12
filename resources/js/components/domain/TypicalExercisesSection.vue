@@ -4,7 +4,7 @@
                 <h2 class="col-md-4 col-form-label text-md-right">Typical exercises</h2>
             </div>
 
-            <TypicalExerciseInput v-for="exercise in exercises" v-bind:exercise="exercise"/>
+            <TypicalExerciseInput v-for="exercise in exercises" v-bind:key="exercise.id" v-bind:exercise="exercise"/>
         </div>
 </template>
 

@@ -56,11 +56,7 @@
                 },
                 workoutRoutine: {
                     name: `Workout ${this.day}`,
-                    exercises: [
-                        {},
-                        {},
-                        {},
-                    ],
+                    exercises: [{}],
                 }
             }
         },

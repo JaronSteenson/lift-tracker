@@ -48580,7 +48580,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
             },
             workoutRoutine: {
                 name: "Workout " + this.day,
-                exercises: [{}, {}, {}]
+                exercises: [{}]
             }
         };
     },
@@ -48979,7 +48979,10 @@ var render = function() {
       _vm._m(0),
       _vm._v(" "),
       _vm._l(_vm.exercises, function(exercise) {
-        return _c("TypicalExerciseInput", { attrs: { exercise: exercise } })
+        return _c("TypicalExerciseInput", {
+          key: exercise.id,
+          attrs: { exercise: exercise }
+        })
       })
     ],
     2
@@ -49198,7 +49201,7 @@ exports = module.exports = __webpack_require__(48)(false);
 
 
 // module
-exports.push([module.i, "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n", ""]);
+exports.push([module.i, "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n", ""]);
 
 // exports
 
@@ -49223,6 +49226,22 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 
 /* harmony default export */ __webpack_exports__["default"] = ({
     name: 'TypicalExerciseInput',
@@ -49232,8 +49251,17 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
             required: false,
             default: {
                 id: null,
-                name: null
+                name: null,
+                numberOfSets: 0
             }
+        }
+    },
+    computed: {
+        setsOfLabelPhrase: function setsOfLabelPhrase() {
+            return this.numberOfSets > 1 ? 'sets of:' : 'set of:';
+        },
+        exercises: function exercises() {
+            return window.app && window.app.exercises || [];
         }
     }
 });
@@ -49246,47 +49274,118 @@ var render = function() {
   var _vm = this
   var _h = _vm.$createElement
   var _c = _vm._self._c || _h
-  return _c("div", { staticClass: "form-group row" }, [
-    _c("h1", [_vm._v("EXE IMNPUT")]),
-    _vm._v(" "),
-    _c(
-      "label",
-      {
-        staticClass: "col-md-4 col-form-label text-md-right",
-        attrs: { for: "workouts-per-cycle" }
-      },
-      [_vm._v("Workouts per cycle")]
-    ),
-    _vm._v(" "),
-    _c("div", { staticClass: "col-md-6" }, [
-      _c("input", {
-        directives: [
-          {
-            name: "model",
-            rawName: "v-model",
-            value: _vm.workoutsPerCycle,
-            expression: "workoutsPerCycle"
-          }
-        ],
-        staticClass: "form-control",
-        attrs: {
-          id: "workouts-per-cycle",
-          type: "number",
-          min: "1",
-          step: "1",
-          name: "name",
-          required: ""
+  return _c("div", [
+    _c("div", { staticClass: "form-group row" }, [
+      _c(
+        "label",
+        {
+          staticClass: "col-md-4 col-form-label text-md-right",
+          attrs: { for: _vm.nameInputId }
         },
-        domProps: { value: _vm.workoutsPerCycle },
-        on: {
-          input: function($event) {
-            if ($event.target.composing) {
-              return
+        [_vm._v("Exercise")]
+      ),
+      _vm._v(" "),
+      _c("div", { staticClass: "col-md-6" }, [
+        _c(
+          "select",
+          {
+            directives: [
+              {
+                name: "model",
+                rawName: "v-model",
+                value: _vm.exercise.id,
+                expression: "exercise.id"
+              }
+            ],
+            staticClass: "form-control",
+            attrs: { id: _vm.nameInputId },
+            on: {
+              change: function($event) {
+                var $$selectedVal = Array.prototype.filter
+                  .call($event.target.options, function(o) {
+                    return o.selected
+                  })
+                  .map(function(o) {
+                    var val = "_value" in o ? o._value : o.value
+                    return val
+                  })
+                _vm.$set(
+                  _vm.exercise,
+                  "id",
+                  $event.target.multiple ? $$selectedVal : $$selectedVal[0]
+                )
+              }
             }
-            _vm.workoutsPerCycle = $event.target.value
+          },
+          _vm._l(_vm.exercises, function(exercise) {
+            return _c(
+              "option",
+              { key: exercise.id, domProps: { value: exercise.id } },
+              [
+                _vm._v(
+                  "\n                    " +
+                    _vm._s(exercise.name) +
+                    "\n                "
+                )
+              ]
+            )
+          }),
+          0
+        )
+      ])
+    ]),
+    _vm._v(" "),
+    _c("div", { staticClass: "form-group row" }, [
+      _c(
+        "label",
+        {
+          staticClass: "col-md-4 col-form-label text-md-right",
+          attrs: { for: _vm.nameInputId }
+        },
+        [_vm._v("Number of sets")]
+      ),
+      _vm._v(" "),
+      _c("div", { staticClass: "col-md-6" }, [
+        _c("div", { class: { "is-invalid": _vm.validationErrors } }),
+        _vm._v(" "),
+        _c("input", {
+          directives: [
+            {
+              name: "model",
+              rawName: "v-model",
+              value: _vm.exercise,
+              expression: "exercise"
+            }
+          ],
+          staticClass: "form-control",
+          attrs: {
+            id: _vm.exercise.id,
+            type: "number",
+            min: "1",
+            max: "10",
+            step: "1",
+            name: "name",
+            required: ""
+          },
+          domProps: { value: _vm.exercise },
+          on: {
+            input: function($event) {
+              if ($event.target.composing) {
+                return
+              }
+              _vm.exercise = $event.target.value
+            }
           }
-        }
-      })
+        }),
+        _vm._v(" "),
+        _vm.validationErrors
+          ? _c(
+              "span",
+              { staticClass: "invalid-feedback", attrs: { role: "alert" } },
+              [_c("strong")]
+            )
+          : _vm._e()
+      ])
     ])
   ])
 }

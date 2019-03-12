@@ -1,13 +1,29 @@
 <template>
-    <div class="form-group row">
-        <h1>EXE IMNPUT</h1>
-        <label for="workouts-per-cycle"
-               class="col-md-4 col-form-label text-md-right">Workouts per cycle</label>
+    <div>
+        <div class="form-group row">
+            <label v-bind:for="nameInputId"
+                   class="col-md-4 col-form-label text-md-right">Exercise</label>
+            <div class="col-md-6">
+                <select v-bind:id="nameInputId" class="form-control" v-model="exercise.id">
+                    <option v-for="exercise in exercises" v-bind:key="exercise.id" v-bind:value="exercise.id">
+                        {{ exercise.name }}
+                    </option>
+                </select>
+            </div>
+        </div>
 
-        <div class="col-md-6">
-            <input id="workouts-per-cycle" type="number" min="1" step="1" class="form-control"
-                   name="name" required v-model="workoutsPerCycle">
+        <div class="form-group row">
+            <label v-bind:for="nameInputId"
+                   class="col-md-4 col-form-label text-md-right">Number of sets</label>
+            <div class="col-md-6">
+                <div v-bind:class="{ 'is-invalid': validationErrors }"></div>
+                <input v-bind:id="exercise.id" type="number" min="1" max="10" step="1" class="form-control"
+                       name="name" required v-model="exercise">
 
+                <span v-if="validationErrors" class="invalid-feedback" role="alert">
+                                        <strong></strong>
+            </span>
+            </div>
         </div>
     </div>
 </template>
@@ -22,7 +38,16 @@
                 default: {
                     id: null,
                     name: null,
+                    numberOfSets: 0,
                 }
+            }
+        },
+        computed: {
+            setsOfLabelPhrase() {
+                return this.numberOfSets > 1 ? 'sets of:' : 'set of:';
+            },
+            exercises() {
+                return window.app && window.app.exercises || [];
             }
         }
     }
