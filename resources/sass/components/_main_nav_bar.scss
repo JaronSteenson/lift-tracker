@@ -22,7 +22,7 @@
   padding: 5px 0 0;
 
   &.navbar-burger__layer {
-    @include border-radius(5px);
+    @include border-rounding(5px);
 
     height: 4px;
     background: $primary-color;

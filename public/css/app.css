@@ -11571,3 +11571,8 @@ input:not([type='checkbox']):focus {
   border-bottom: 1px solid rgba(0, 0, 0, 0.125);
 }
 
+.draggable-component {
+  border: 1px dotted rgba(0, 0, 0, 0.125);
+  border-radius: 5px;
+}
+

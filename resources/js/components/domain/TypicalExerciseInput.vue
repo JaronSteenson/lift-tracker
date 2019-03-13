@@ -1,5 +1,5 @@
 <template>
-    <div>
+    <div class="draggable-component">
         <div class="form-group row">
             <label v-bind:for="nameInputId"
                    class="col-md-4 col-form-label text-md-right">Exercise</label>
@@ -54,5 +54,8 @@
 </script>
 
 <style scoped>
-
+    .draggable-component {
+        padding: 20px 10px 10px;
+        margin-bottom: 5px;
+    }
 </style>

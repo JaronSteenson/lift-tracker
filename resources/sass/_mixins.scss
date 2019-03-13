@@ -9,11 +9,11 @@
   border-bottom: 1px solid $border-color;
 }
 
-@mixin full-border {
-  border: 1px solid $border-color;
+@mixin full-border($type: solid) {
+  border: 1px $type $border-color;
 }
 
-@mixin border-radius($radius) {
+@mixin border-rounding($radius: 5px) {
   -webkit-border-radius: $radius;
   -moz-border-radius: $radius;
   border-radius: $radius;
