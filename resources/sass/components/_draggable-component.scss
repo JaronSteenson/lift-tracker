@@ -1,6 +1,6 @@
 @import '../mixins';
 
-.draggable-component {
+.draggable-section {
   @include full-border(dotted);
   @include border-rounding;
 }

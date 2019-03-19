@@ -1,6 +1,6 @@
 <template>
-    <div class="draggable-component">
-        <CloseCross></CloseCross>
+    <div class="draggable-section">
+        <CloseCross v-if="showCross" @click.native="$emit('removeExercise', displayPosition)"/>
         <div class="form-group row">
             <label v-bind:for="nameInputId"
                    class="col-md-4 col-form-label text-md-right">Exercise</label>
@@ -44,6 +44,16 @@
                     name: null,
                     numberOfSets: 0,
                 }
+            },
+            displayPosition: {
+                type: Number,
+                required: false,
+                default: 0,
+            },
+            showCross: {
+                type: Boolean,
+                required: false,
+                default: false,
             }
         },
         computed: {
@@ -53,12 +63,12 @@
             exercises() {
                 return window.app && window.app.exercises || [];
             }
-        }
+        },
     }
 </script>
 
 <style scoped>
-    .draggable-component {
+    .draggable-section {
         padding: 20px 10px 10px;
         margin-bottom: 5px;
         position: relative;

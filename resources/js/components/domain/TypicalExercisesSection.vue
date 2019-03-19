@@ -4,7 +4,13 @@
                 <h2 class="col-md-4 col-form-label text-md-right">Typical exercises</h2>
             </div>
 
-            <TypicalExerciseInput v-for="exercise in exercises" v-bind:key="exercise.id" v-bind:exercise="exercise"/>
+            <TypicalExerciseInput v-for="(exercise, displayPosition) in exercises"
+                                  v-bind:display-position="displayPosition"
+                                  v-bind:show-cross="exercises.length > 1"
+                                  v-bind:key="displayPosition"
+                                  v-bind:exercise="exercise"
+                                  v-on:removeExercise="removeExercise"
+            />
 
             <div class="row">
                 <buton class="add-another-link offset-md-4 col-md-4 btn btn-link" @click="addAnother()">
@@ -40,6 +46,9 @@
         methods: {
             addAnother() {
                 this.exercises.push({});
+            },
+            removeExercise(displayPosition) {
+                this.$delete(this.exercises, displayPosition)
             }
         }
     }

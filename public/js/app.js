@@ -48708,6 +48708,12 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 //
 //
 //
+//
+//
+//
+//
+//
+//
 
 
 
@@ -48733,6 +48739,9 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
     methods: {
         addAnother: function addAnother() {
             this.exercises.push({});
+        },
+        removeExercise: function removeExercise(displayPosition) {
+            this.$delete(this.exercises, displayPosition);
         }
     }
 });
@@ -48823,7 +48832,7 @@ exports = module.exports = __webpack_require__(12)(false);
 
 
 // module
-exports.push([module.i, "\n.draggable-component[data-v-54e0e41c] {\n    padding: 20px 10px 10px;\n    margin-bottom: 5px;\n    position: relative;\n}\n", ""]);
+exports.push([module.i, "\n.draggable-section[data-v-54e0e41c] {\n    padding: 20px 10px 10px;\n    margin-bottom: 5px;\n    position: relative;\n}\n", ""]);
 
 // exports
 
@@ -48882,6 +48891,16 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
                 name: null,
                 numberOfSets: 0
             }
+        },
+        displayPosition: {
+            type: Number,
+            required: false,
+            default: 0
+        },
+        showCross: {
+            type: Boolean,
+            required: false,
+            default: false
         }
     },
     computed: {
@@ -48904,9 +48923,17 @@ var render = function() {
   var _c = _vm._self._c || _h
   return _c(
     "div",
-    { staticClass: "draggable-component" },
+    { staticClass: "draggable-section" },
     [
-      _c("CloseCross"),
+      _vm.showCross
+        ? _c("CloseCross", {
+            nativeOn: {
+              click: function($event) {
+                _vm.$emit("removeExercise", _vm.displayPosition)
+              }
+            }
+          })
+        : _vm._e(),
       _vm._v(" "),
       _c("div", { staticClass: "form-group row" }, [
         _c(
@@ -49048,10 +49075,15 @@ var render = function() {
     [
       _vm._m(0),
       _vm._v(" "),
-      _vm._l(_vm.exercises, function(exercise) {
+      _vm._l(_vm.exercises, function(exercise, displayPosition) {
         return _c("TypicalExerciseInput", {
-          key: exercise.id,
-          attrs: { exercise: exercise }
+          key: displayPosition,
+          attrs: {
+            "display-position": displayPosition,
+            "show-cross": _vm.exercises.length > 1,
+            exercise: exercise
+          },
+          on: { removeExercise: _vm.removeExercise }
         })
       }),
       _vm._v(" "),
