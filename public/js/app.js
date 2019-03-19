@@ -48879,9 +48879,16 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 
 
 
+var uuid = 0;
+
 /* harmony default export */ __webpack_exports__["default"] = ({
     name: 'TypicalExerciseInput',
     components: { CloseCross: __WEBPACK_IMPORTED_MODULE_0__CloseCross___default.a },
+    beforeCreate: function beforeCreate() {
+        this.uuid = uuid.toString();
+        uuid += 1;
+    },
+
     props: {
         exercise: {
             type: Object,
@@ -48909,6 +48916,12 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
         },
         exercises: function exercises() {
             return window.app && window.app.exercises || [];
+        },
+        numberOfSetsId: function numberOfSetsId() {
+            return 'exercise-input-number-of-sets-' + uuid;
+        },
+        nameInputId: function nameInputId() {
+            return 'exercise-input-name-' + uuid;
         }
     }
 });
@@ -49000,7 +49013,7 @@ var render = function() {
           "label",
           {
             staticClass: "col-md-4 col-form-label text-md-right",
-            attrs: { for: _vm.nameInputId }
+            attrs: { for: _vm.numberOfSetsId }
           },
           [_vm._v("Number of sets")]
         ),
@@ -49013,13 +49026,13 @@ var render = function() {
               {
                 name: "model",
                 rawName: "v-model",
-                value: _vm.exercise,
-                expression: "exercise"
+                value: _vm.exercise.numberOfSets,
+                expression: "exercise.numberOfSets"
               }
             ],
             staticClass: "form-control",
             attrs: {
-              id: _vm.exercise.id,
+              id: _vm.numberOfSetsId,
               type: "number",
               min: "1",
               max: "10",
@@ -49027,13 +49040,13 @@ var render = function() {
               name: "name",
               required: ""
             },
-            domProps: { value: _vm.exercise },
+            domProps: { value: _vm.exercise.numberOfSets },
             on: {
               input: function($event) {
                 if ($event.target.composing) {
                   return
                 }
-                _vm.exercise = $event.target.value
+                _vm.$set(_vm.exercise, "numberOfSets", $event.target.value)
               }
             }
           }),

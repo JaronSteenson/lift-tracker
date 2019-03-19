@@ -14,12 +14,12 @@
         </div>
 
         <div class="form-group row">
-            <label v-bind:for="nameInputId"
+            <label v-bind:for="numberOfSetsId"
                    class="col-md-4 col-form-label text-md-right">Number of sets</label>
             <div class="col-md-6">
                 <div v-bind:class="{ 'is-invalid': validationErrors }"></div>
-                <input v-bind:id="exercise.id" type="number" min="1" max="10" step="1" class="form-control"
-                       name="name" required v-model="exercise">
+                <input v-bind:id="numberOfSetsId" type="number" min="1" max="10" step="1" class="form-control"
+                       name="name" required v-model="exercise.numberOfSets">
 
                 <span v-if="validationErrors" class="invalid-feedback" role="alert">
                                         <strong></strong>
@@ -32,9 +32,15 @@
 <script>
     import CloseCross from "../CloseCross";
 
+    let uuid = 0;
+
     export default {
         name: 'TypicalExerciseInput',
         components: {CloseCross},
+        beforeCreate() {
+            this.uuid = uuid.toString();
+            uuid += 1;
+        },
         props: {
             exercise: {
                 type: Object,
@@ -62,7 +68,13 @@
             },
             exercises() {
                 return window.app && window.app.exercises || [];
-            }
+            },
+            numberOfSetsId() {
+                return 'exercise-input-number-of-sets-' + uuid;
+            },
+            nameInputId() {
+                return 'exercise-input-name-' + uuid;
+            },
         },
     }
 </script>
