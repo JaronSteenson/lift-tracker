@@ -1,5 +1,6 @@
 <template>
     <div class="draggable-component">
+        <CloseCross></CloseCross>
         <div class="form-group row">
             <label v-bind:for="nameInputId"
                    class="col-md-4 col-form-label text-md-right">Exercise</label>
@@ -29,8 +30,11 @@
 </template>
 
 <script>
+    import CloseCross from "../CloseCross";
+
     export default {
         name: 'TypicalExerciseInput',
+        components: {CloseCross},
         props: {
             exercise: {
                 type: Object,
@@ -57,5 +61,6 @@
     .draggable-component {
         padding: 20px 10px 10px;
         margin-bottom: 5px;
+        position: relative;
     }
 </style>
