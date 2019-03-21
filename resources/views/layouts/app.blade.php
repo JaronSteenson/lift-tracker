@@ -17,6 +17,10 @@
     <title>{{ config('app.name', 'Laravel') }}</title>
 
     <!-- Scripts -->
+    <script>
+        window.preloadData = window.preloadData || {};
+        window.preloadData.availableExercises = <?= json_encode($availableExercises ?? []) ?>
+    </script>
     <script src="{{ asset('js/app.js') }}" defer></script>
 
     <!-- Fonts -->

@@ -9,6 +9,7 @@ use Illuminate\Contracts\View\Factory;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\View\View;
+use LiftTracker\Domain\Workouts\Exercises\Exercise;
 use LiftTracker\Domain\Workouts\Programs\WorkoutProgram;
 use LiftTracker\Http\Requests\WorkoutProgramRequest;
 use LiftTracker\User;
@@ -38,7 +39,8 @@ class WorkoutProgramController extends Controller
      */
     public function create(): View
     {
-        return view('workouts.workoutProgram.create');
+        $availableExercises = Exercise::all();
+        return view('workouts.workoutProgram.create', ['availableExercises' => $availableExercises]);
     }
 
     /**
@@ -79,7 +81,12 @@ class WorkoutProgramController extends Controller
      */
     public function edit(WorkoutProgram $workoutProgram)
     {
-        return view('workouts.workoutProgram.edit', ['workoutProgram' => $workoutProgram]);
+        $availableExercises = Exercise::all();
+
+        return view('workouts.workoutProgram.edit', [
+            'workoutProgram' => $workoutProgram,
+            'availableExercises' => $availableExercises,
+        ]);
     }
 
     /**
