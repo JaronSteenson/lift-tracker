@@ -67,7 +67,7 @@
                 return this.numberOfSets > 1 ? 'sets of:' : 'set of:';
             },
             exercises() {
-                return window.preloadData && window.preloadData.exercises || [];
+                return window.preloadData && window.preloadData.availableExercises || [];
             },
             numberOfSetsId() {
                 return 'exercise-input-number-of-sets-' + uuid;

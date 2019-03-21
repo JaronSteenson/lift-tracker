@@ -48915,7 +48915,7 @@ var uuid = 0;
             return this.numberOfSets > 1 ? 'sets of:' : 'set of:';
         },
         exercises: function exercises() {
-            return window.preloadData && window.preloadData.exercises || [];
+            return window.preloadData && window.preloadData.availableExercises || [];
         },
         numberOfSetsId: function numberOfSetsId() {
             return 'exercise-input-number-of-sets-' + uuid;
