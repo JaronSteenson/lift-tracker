@@ -5,9 +5,9 @@
  * building robust, powerful web applications using Vue and Laravel.
  */
 
-require('./bootstrap');
+import './bootstrap';
 
-window.Vue = require('vue');
+import Vue from 'vue';
 
 /**
  * Next, we will create a fresh Vue application instance and attach it to
@@ -15,13 +15,13 @@ window.Vue = require('vue');
  * or customize the JavaScript scaffolding to fit your unique needs.
  */
 
-const theMainContent =  require('./components/TheMainContent.vue');
-const TheCreateWorkoutProgramPage =  require('./pages/TheCreateWorkoutProgramPage');
+import TheMainContent from './components/TheMainContent.vue';
+import TheCreateWorkoutProgramPage from './components/pages/TheCreateWorkoutProgramPage';
 
 const vm = new Vue({
     el: '#js-lift-tracker-app',
     components: {
-        'main-content': theMainContent,
+        'main-content': TheMainContent,
         'the-create-workout-program-form': TheCreateWorkoutProgramPage,
     },
 });

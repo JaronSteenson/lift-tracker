@@ -18,3 +18,6 @@ Route::get('/', 'HomeController@index')->name('home');
 
 /** @see \LiftTracker\Http\Controllers\WorkoutProgramController */
 Route::resource('workout-programs', 'WorkoutProgramController')->middleware('auth');
+
+/** @see \LiftTracker\Http\Controllers\Api\WorkoutProgramController */
+Route::resource('api/workout-programs', 'Api\WorkoutProgramController')->middleware('auth');

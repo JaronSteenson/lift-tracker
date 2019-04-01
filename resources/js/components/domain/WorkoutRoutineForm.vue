@@ -45,8 +45,8 @@
     import WeekDaySelect from "../formFields/WeekDaySelect";
 
     export default {
-        name: "WorkoutRoutineForm",
-        props: ['day', 'data'],
+        name: 'WorkoutRoutineForm',
+        props: ['day', 'workoutRoutine'],
         components: {WeekDaySelect, TypicalExercisesSection},
         data() {
             return {

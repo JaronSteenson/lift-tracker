@@ -1,13 +1,13 @@
 <template>
     <bootstrap-card title="Create new workout program">
-        <form>
+        <form @submit.prevent>
             <div class="form-group row">
                 <label for="edit-workout-program-name"
                        class="col-md-4 col-form-label text-md-right">Program name</label>
 
                 <div class="col-md-6">
                     <div v-bind:class="{ 'is-invalid': validationErrors.name }"></div>
-                    <input id="edit-workout-program-name" type="text" v-bind:value="workoutProgram.name"
+                    <input id="edit-workout-program-name" type="text" v-model="workoutProgram.name"
                            class="form-control" name="name" required>
 
                     <span v-if="validationErrors.name" class="invalid-feedback" role="alert">
@@ -35,14 +35,14 @@
             <hr v-if="hasWorkoutRoutines()" class="form-section-divider">
 
             <workout-routine-form v-for="(workoutRoutine, index) in workoutProgram.workoutRoutines"
-                                  v-bind:data="workoutRoutine" v-bind:key="index" v-bind:day="index + 1">
+                                  v-bind:workoutRoutine="workoutRoutine" v-bind:key="index" v-bind:day="index + 1">
 
             </workout-routine-form>
 
 
             <div class="form-group row mb-0">
                 <div class="col-md-8 offset-md-4">
-                    <button type="submit" class="btn btn-primary" v-bind:class="{ disabled: hasNoWorkoutRoutines() }">
+                    <button type="submit" class="btn btn-primary"  @click="save" v-bind:class="{ disabled: hasNoWorkoutRoutines() }">
                         save
                     </button>
 
@@ -57,8 +57,9 @@
 </template>
 
 <script>
-    import BootstrapCard from "../components/BootstrapCard";
-    import WorkoutRoutineForm from "../components/domain/WorkoutRoutineForm";
+    import BootstrapCard from "../BootstrapCard";
+    import WorkoutRoutineForm from "../domain/WorkoutRoutineForm";
+    import axios from "axios";
 
     export default {
         name: 'TheCreateWorkoutProgramPage',
@@ -67,6 +68,7 @@
             return {
                 validationErrors: {},
                 workoutProgram: {
+                    name: '',
                     workoutRoutines: [{}]
                 },
             }
@@ -111,7 +113,14 @@
             },
             hasNoWorkoutRoutines() {
                 return !this.hasWorkoutRoutines();
-            }
+            },
+
+            async save() {
+                const response = await axios.post('/api/workout-programs/', this.workoutProgram);
+
+                debugger;
+                this.workoutProgram = response.data
+            },
         }
     }
 </script>
