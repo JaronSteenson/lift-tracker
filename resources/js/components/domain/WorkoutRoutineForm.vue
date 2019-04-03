@@ -9,12 +9,12 @@
                 <label v-bind:for="nameInputId"
                        class="col-md-4 col-form-label text-md-right">Workout name</label>
                 <div class="col-md-6">
-                    <div v-bind:class="{ 'is-invalid': validationErrors.name }"></div>
+                    <div v-bind:class="{ 'is-invalid': false }"></div>
                     <input v-bind:id="nameInputId" type="text" class="form-control"
                            name="name" required v-model="workoutRoutine.name">
 
-                    <span v-if="validationErrors.name" class="invalid-feedback" role="alert">
-                                        <strong>{{ validationErrors.name}}</strong>
+                    <span v-if="false" class="invalid-feedback" role="alert">
+                                        <strong></strong>
             </span>
                 </div>
             </div>
@@ -46,14 +46,10 @@
 
     export default {
         name: 'WorkoutRoutineForm',
-        props: ['day', 'workoutRoutine'],
+        props: ['day'],
         components: {WeekDaySelect, TypicalExercisesSection},
         data() {
             return {
-                validationErrors: {
-                    name: null,
-                    typicalDay: null,
-                },
                 workoutRoutine: {
                     name: `Workout ${this.day}`,
                     exercises: [{}],

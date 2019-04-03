@@ -51,7 +51,8 @@ class WorkoutProgramRequest extends FormRequest
         }
 
         return [
-            'name'=>'required|max:40',
+            'name' => 'required|max:40',
+            'workoutRoutines.*.id' => 'required|digits',
         ];
     }
 

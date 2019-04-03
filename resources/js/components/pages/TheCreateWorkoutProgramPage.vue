@@ -6,12 +6,12 @@
                        class="col-md-4 col-form-label text-md-right">Program name</label>
 
                 <div class="col-md-6">
-                    <div v-bind:class="{ 'is-invalid': validationErrors.name }"></div>
+                    <div v-bind:class="{ 'is-invalid': false }"></div>
                     <input id="edit-workout-program-name" type="text" v-model="workoutProgram.name"
                            class="form-control" name="name" required>
 
-                    <span v-if="validationErrors.name" class="invalid-feedback" role="alert">
-                                    <strong>{{ validationErrors.name}}</strong>
+                    <span v-if="false" class="invalid-feedback" role="alert">
+                                    <strong></strong>
                     </span>
                 </div>
 
@@ -22,12 +22,12 @@
                        class="col-md-4 col-form-label text-md-right">Workouts per cycle</label>
 
                 <div class="col-md-6">
-                    <div v-bind:class="{ 'is-invalid': validationErrors.name }"></div>
+                    <div v-bind:class="{ 'is-invalid': false}"></div>
                     <input id="workouts-per-cycle" type="number" min="1" step="1" class="form-control"
                            name="name" required v-model="workoutsPerCycle">
 
-                    <span v-if="validationErrors.name" class="invalid-feedback" role="alert">
-                                    <strong>{{ validationErrors.name}}</strong>
+                    <span v-if="false" class="invalid-feedback" role="alert">
+                                    <strong></strong>
                                 </span>
                 </div>
             </div>
@@ -66,7 +66,6 @@
         components: {BootstrapCard, WorkoutRoutineForm},
         data() {
             return {
-                validationErrors: {},
                 workoutProgram: {
                     name: '',
                     workoutRoutines: [{}]
@@ -118,7 +117,6 @@
             async save() {
                 const response = await axios.post('/api/workout-programs/', this.workoutProgram);
 
-                debugger;
                 this.workoutProgram = response.data
             },
         }

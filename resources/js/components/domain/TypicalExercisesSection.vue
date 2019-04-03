@@ -4,11 +4,11 @@
                 <h2 class="col-md-4 col-form-label text-md-right">Typical exercises</h2>
             </div>
 
-            <TypicalExerciseInput v-for="(exercise, displayPosition) in exercises"
-                                  v-bind:display-position="displayPosition"
+            <TypicalExerciseInput v-for="(exercise, index) in exercises"
+                                  v-bind:exercise="exercises[index]"
+                                  v-bind:display-position="index"
                                   v-bind:show-cross="exercises.length > 1"
-                                  v-bind:key="displayPosition"
-                                  v-bind:exercise="exercise"
+                                  v-bind:key="index"
                                   v-on:removeExercise="removeExercise"
             />
 

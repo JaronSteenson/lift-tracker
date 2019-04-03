@@ -52,9 +52,7 @@ class WorkoutProgramController extends Controller
      */
     public function store(WorkoutProgramRequest $request)
     {
-        $workoutProgram = new WorkoutProgram([
-            'name' => $request->get('name'),
-        ]);
+        $workoutProgram = new WorkoutProgram($request->all());
 
         $workoutProgram->user()->associate(Auth::user());
         $workoutProgram->save();

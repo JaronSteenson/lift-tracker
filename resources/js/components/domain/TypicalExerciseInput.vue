@@ -5,8 +5,8 @@
             <label v-bind:for="nameInputId"
                    class="col-md-4 col-form-label text-md-right">Exercise</label>
             <div class="col-md-6">
-                <select v-bind:id="nameInputId" class="form-control" v-model="exercise.id">
-                    <option v-for="exercise in exercises" v-bind:key="exercise.id" v-bind:value="exercise.id">
+                <select v-bind:id="nameInputId" class="form-control" v-model="exercise">
+                    <option v-for="exercise in exercises" v-bind:key="exercise.id" v-bind:value="exercise">
                         {{ exercise.name }}
                     </option>
                 </select>
@@ -17,11 +17,11 @@
             <label v-bind:for="numberOfSetsId"
                    class="col-md-4 col-form-label text-md-right">Number of sets</label>
             <div class="col-md-6">
-                <div v-bind:class="{ 'is-invalid': validationErrors }"></div>
+                <div v-bind:class="{ 'is-invalid': false }"></div>
                 <input v-bind:id="numberOfSetsId" type="number" min="1" max="10" step="1" class="form-control"
-                       name="name" required v-model="exercise.numberOfSets">
+                       name="name" required v-model="numberOfSets">
 
-                <span v-if="validationErrors" class="invalid-feedback" role="alert">
+                <span v-if="false" class="invalid-feedback" role="alert">
                                         <strong></strong>
             </span>
             </div>
@@ -42,15 +42,6 @@
             uuid += 1;
         },
         props: {
-            exercise: {
-                type: Object,
-                required: false,
-                default: {
-                    id: null,
-                    name: null,
-                    numberOfSets: 0,
-                }
-            },
             displayPosition: {
                 type: Number,
                 required: false,
@@ -60,6 +51,15 @@
                 type: Boolean,
                 required: false,
                 default: false,
+            }
+        },
+        data() {
+            return {
+                exercise: {
+                    id: null,
+                    name: null,
+                },
+                numberOfSets: null,
             }
         },
         computed: {
