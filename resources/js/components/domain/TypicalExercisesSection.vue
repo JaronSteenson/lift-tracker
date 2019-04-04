@@ -5,7 +5,7 @@
             </div>
 
             <TypicalExerciseInput v-for="(exercise, index) in exercises"
-                                  v-bind:exercise="exercises[index]"
+                                  v-bind:exercise="exercise"
                                   v-bind:display-position="index"
                                   v-bind:show-cross="exercises.length > 1"
                                   v-bind:key="index"

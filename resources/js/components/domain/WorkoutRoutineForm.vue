@@ -2,7 +2,7 @@
     <div>
         <div class="form-group">
             <div class="row">
-                <h2 class="col-md-4 col-form-label text-md-right">{{ workoutRoutine.name }}</h2>
+                <h2 class="col-md-4 col-form-label text-md-right">{{ workoutRoutine.name || placeHolderName }}</h2>
             </div>
 
             <div class="row">
@@ -27,7 +27,7 @@
                 <label v-bind:for="typicalDayInputId"
                        class="col-md-4 col-form-label text-md-right">Typical day</label>
                 <div class="col-md-6">
-                    <WeekDaySelect v-bind:select-id="typicalDayInputId"/>
+                    <WeekDaySelect v-model="workoutRoutine.typicalDay" v-bind:select-id="typicalDayInputId"/>
                 </div>
             </div>
 
@@ -46,14 +46,11 @@
 
     export default {
         name: 'WorkoutRoutineForm',
-        props: ['day'],
+        props: ['day', 'workoutRoutine'],
         components: {WeekDaySelect, TypicalExercisesSection},
         data() {
             return {
-                workoutRoutine: {
-                    name: `Workout ${this.day}`,
-                    exercises: [{}],
-                }
+
             }
         },
         computed: {
@@ -62,7 +59,10 @@
             },
             typicalDayInputId() {
                 return `workout-routine-typical-day-${this.$vnode.key}`;
+            },
+            placeHolderName() {
+                return `Workout ${this.day}`;
             }
-        }
+        },
     }
 </script>

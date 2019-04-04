@@ -49365,15 +49365,10 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 
 /* harmony default export */ __webpack_exports__["default"] = ({
     name: 'WorkoutRoutineForm',
-    props: ['day'],
+    props: ['day', 'workoutRoutine'],
     components: { WeekDaySelect: __WEBPACK_IMPORTED_MODULE_1__formFields_WeekDaySelect___default.a, TypicalExercisesSection: __WEBPACK_IMPORTED_MODULE_0__TypicalExercisesSection___default.a },
     data: function data() {
-        return {
-            workoutRoutine: {
-                name: 'Workout ' + this.day,
-                exercises: [{}]
-            }
-        };
+        return {};
     },
 
     computed: {
@@ -49382,6 +49377,9 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
         },
         typicalDayInputId: function typicalDayInputId() {
             return 'workout-routine-typical-day-' + this.$vnode.key;
+        },
+        placeHolderName: function placeHolderName() {
+            return 'Workout ' + this.day;
         }
     }
 });
@@ -50043,7 +50041,7 @@ var render = function() {
         return _c("TypicalExerciseInput", {
           key: index,
           attrs: {
-            exercise: _vm.exercises[index],
+            exercise: exercise,
             "display-position": index,
             "show-cross": _vm.exercises.length > 1
           },
@@ -50169,6 +50167,12 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
         return {
             daysOfWeekWithAny: ['any', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
         };
+    },
+
+    methods: {
+        updateSelectedValue: function updateSelectedValue(selectedValue) {
+            this.$emit('input', selectedValue);
+        }
     }
 });
 
@@ -50182,7 +50186,36 @@ var render = function() {
   var _c = _vm._self._c || _h
   return _c(
     "select",
-    { staticClass: "form-control", attrs: { id: _vm.selectId } },
+    {
+      directives: [
+        {
+          name: "model",
+          rawName: "v-model",
+          value: _vm.selectedValue,
+          expression: "selectedValue"
+        }
+      ],
+      staticClass: "form-control",
+      attrs: { id: _vm.selectId },
+      on: {
+        input: function($event) {
+          _vm.updateSelectedValue($event.target.value)
+        },
+        change: function($event) {
+          var $$selectedVal = Array.prototype.filter
+            .call($event.target.options, function(o) {
+              return o.selected
+            })
+            .map(function(o) {
+              var val = "_value" in o ? o._value : o.value
+              return val
+            })
+          _vm.selectedValue = $event.target.multiple
+            ? $$selectedVal
+            : $$selectedVal[0]
+        }
+      }
+    },
     _vm._l(_vm.daysOfWeekWithAny, function(option) {
       return _c("option", { domProps: { value: option } }, [
         _vm._v("\n        " + _vm._s(option) + "\n    ")
@@ -50215,7 +50248,7 @@ var render = function() {
       _c("div", { staticClass: "form-group" }, [
         _c("div", { staticClass: "row" }, [
           _c("h2", { staticClass: "col-md-4 col-form-label text-md-right" }, [
-            _vm._v(_vm._s(_vm.workoutRoutine.name))
+            _vm._v(_vm._s(_vm.workoutRoutine.name || _vm.placeHolderName))
           ])
         ]),
         _vm._v(" "),
@@ -50286,7 +50319,14 @@ var render = function() {
             { staticClass: "col-md-6" },
             [
               _c("WeekDaySelect", {
-                attrs: { "select-id": _vm.typicalDayInputId }
+                attrs: { "select-id": _vm.typicalDayInputId },
+                model: {
+                  value: _vm.workoutRoutine.typicalDay,
+                  callback: function($$v) {
+                    _vm.$set(_vm.workoutRoutine, "typicalDay", $$v)
+                  },
+                  expression: "workoutRoutine.typicalDay"
+                }
               })
             ],
             1

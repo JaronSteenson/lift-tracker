@@ -1,5 +1,5 @@
 <template>
-    <select v-bind:id="selectId" class="form-control">
+    <select v-bind:id="selectId" class="form-control" v-model="selectedValue" @input="updateSelectedValue($event.target.value)">
         <option v-for="option in daysOfWeekWithAny" v-bind:value="option">
             {{ option }}
         </option>
@@ -13,7 +13,7 @@
             selectId: {
                 type: String,
                 required: true,
-            }
+            },
         },
         data() {
             return {
@@ -26,7 +26,12 @@
                     'Friday',
                     'Saturday',
                     'Sunday',
-                ]
+                ],
+            }
+        },
+        methods: {
+            updateSelectedValue(selectedValue) {
+                this.$emit('input', selectedValue);
             }
         }
     }
