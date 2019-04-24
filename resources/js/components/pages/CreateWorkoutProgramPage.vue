@@ -36,13 +36,12 @@
 
             <WorkoutRoutineForm v-for="(workoutRoutine, index) in workoutProgram.workoutRoutines"
                                   v-model="workoutProgram.workoutRoutines[index]" v-bind:key="index">
-
             </WorkoutRoutineForm>
 
 
             <div class="form-group row mb-0">
                 <div class="col-md-8 offset-md-4">
-                    <button type="submit" class="btn btn-primary"  @click="save" v-bind:class="{ disabled: hasNoWorkoutRoutines() }">
+                    <button type="submit" class="btn btn-primary"  @click="saveWorkoutProgram" v-bind:class="{ disabled: hasNoWorkoutRoutines() }">
                         save
                     </button>
 
@@ -59,10 +58,10 @@
 <script>
     import BootstrapCard from "../BootstrapCard";
     import WorkoutRoutineForm from "../domain/WorkoutRoutineForm";
-    import axios from "axios";
+    import WorkoutRoutineService from "../../services/WorkoutRoutineService";
 
     export default {
-        name: 'TheCreateWorkoutProgramPage',
+        name: 'CreateWorkoutProgramPage',
         components: {BootstrapCard, WorkoutRoutineForm},
         data() {
             return {
@@ -98,10 +97,6 @@
             }
         },
         methods: {
-            updateWorkoutRoutine(index, workoutRoutine) {
-                debugger;
-                this.workoutProgram.workoutRoutines[index] = workoutRoutine;
-            },
             addWorkoutToCycle() {
                 this.workoutProgram.workoutRoutines.push({});
             },
@@ -118,10 +113,8 @@
                 return !this.hasWorkoutRoutines();
             },
 
-            async save() {
-                const response = await axios.post('/api/workout-programs/', this.workoutProgram);
-
-                this.workoutProgram = response.data
+            async saveWorkoutProgram() {
+                await WorkoutRoutineService.save(this.workoutProgram);
             },
         }
     }

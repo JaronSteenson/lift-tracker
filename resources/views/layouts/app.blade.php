@@ -16,8 +16,10 @@
 
     <title>{{ config('app.name', 'Laravel') }}</title>
 
-    <!-- Scripts -->
+    <!-- Preload data and js config -->
     <script>
+        window.apiBaseUrl = <?= json_encode($apiBaseUrl ?? []) ?>
+
         window.preloadData = window.preloadData || {};
         window.preloadData.availableExercises = <?= json_encode($availableExercises ?? []) ?>
     </script>

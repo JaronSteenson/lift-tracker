@@ -14357,10 +14357,10 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__bootstrap___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0__bootstrap__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_vue__ = __webpack_require__(39);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_vue___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1_vue__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__components_TheMainContent_vue__ = __webpack_require__(42);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__components_TheMainContent_vue___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_2__components_TheMainContent_vue__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__components_pages_TheCreateWorkoutProgramPage__ = __webpack_require__(45);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__components_pages_TheCreateWorkoutProgramPage___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_3__components_pages_TheCreateWorkoutProgramPage__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__components_MainContent_vue__ = __webpack_require__(83);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__components_MainContent_vue___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_2__components_MainContent_vue__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__components_pages_CreateWorkoutProgramPage__ = __webpack_require__(80);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__components_pages_CreateWorkoutProgramPage___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_3__components_pages_CreateWorkoutProgramPage__);
 
 /**
  * First we will load all of this project's JavaScript dependencies which
@@ -14384,8 +14384,8 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 var vm = new __WEBPACK_IMPORTED_MODULE_1_vue___default.a({
   el: '#js-lift-tracker-app',
   components: {
-    'main-content': __WEBPACK_IMPORTED_MODULE_2__components_TheMainContent_vue___default.a,
-    'the-create-workout-program-form': __WEBPACK_IMPORTED_MODULE_3__components_pages_TheCreateWorkoutProgramPage___default.a
+    MainContent: __WEBPACK_IMPORTED_MODULE_2__components_MainContent_vue___default.a,
+    'create-workout-program-page': __WEBPACK_IMPORTED_MODULE_3__components_pages_CreateWorkoutProgramPage___default.a
   }
 });
 
@@ -14408,47 +14408,6 @@ try {
 
   __webpack_require__(20);
 } catch (e) {}
-
-/**
- * We'll load the axios HTTP library which allows us to easily issue requests
- * to our Laravel back-end. This library automatically handles sending the
- * CSRF token as a header based on the value of the "XSRF" token cookie.
- */
-
-window.axios = __webpack_require__(8);
-
-window.axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
-
-/**
- * Next we will register the CSRF Token as a common header with Axios so that
- * all outgoing HTTP requests automatically have it attached. This is just
- * a simple convenience so we don't have to attach every token manually.
- */
-
-var token = document.head.querySelector('meta[name="csrf-token"]');
-
-if (token) {
-  window.axios.defaults.headers.common['X-CSRF-TOKEN'] = token.content;
-} else {
-  console.error('CSRF token not found: https://laravel.com/docs/csrf#csrf-x-csrf-token');
-}
-
-/**
- * Echo exposes an expressive API for subscribing to channels and listening
- * for events that are broadcast by Laravel. Echo and event broadcasting
- * allows your team to easily build robust real-time web applications.
- */
-
-// import Echo from 'laravel-echo'
-
-// window.Pusher = require('pusher-js');
-
-// window.Echo = new Echo({
-//     broadcaster: 'pusher',
-//     key: process.env.MIX_PUSHER_APP_KEY,
-//     cluster: process.env.MIX_PUSHER_APP_CLUSTER,
-//     encrypted: true
-// });
 
 /***/ }),
 /* 18 */
@@ -48084,306 +48043,11 @@ exports.clearImmediate = (typeof self !== "undefined" && self.clearImmediate) ||
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(2), __webpack_require__(10)))
 
 /***/ }),
-/* 42 */
-/***/ (function(module, exports, __webpack_require__) {
-
-var disposed = false
-var normalizeComponent = __webpack_require__(1)
-/* script */
-var __vue_script__ = __webpack_require__(43)
-/* template */
-var __vue_template__ = __webpack_require__(44)
-/* template functional */
-var __vue_template_functional__ = false
-/* styles */
-var __vue_styles__ = null
-/* scopeId */
-var __vue_scopeId__ = null
-/* moduleIdentifier (server only) */
-var __vue_module_identifier__ = null
-var Component = normalizeComponent(
-  __vue_script__,
-  __vue_template__,
-  __vue_template_functional__,
-  __vue_styles__,
-  __vue_scopeId__,
-  __vue_module_identifier__
-)
-Component.options.__file = "resources/js/components/TheMainContent.vue"
-
-/* hot reload */
-if (false) {(function () {
-  var hotAPI = require("vue-hot-reload-api")
-  hotAPI.install(require("vue"), false)
-  if (!hotAPI.compatible) return
-  module.hot.accept()
-  if (!module.hot.data) {
-    hotAPI.createRecord("data-v-069ca6fa", Component.options)
-  } else {
-    hotAPI.reload("data-v-069ca6fa", Component.options)
-  }
-  module.hot.dispose(function (data) {
-    disposed = true
-  })
-})()}
-
-module.exports = Component.exports
-
-
-/***/ }),
-/* 43 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
-//
-//
-//
-//
-//
-//
-
-/* harmony default export */ __webpack_exports__["default"] = ({});
-
-/***/ }),
-/* 44 */
-/***/ (function(module, exports, __webpack_require__) {
-
-var render = function() {
-  var _vm = this
-  var _h = _vm.$createElement
-  var _c = _vm._self._c || _h
-  return _c("div", { staticClass: "container" }, [_vm._t("default")], 2)
-}
-var staticRenderFns = []
-render._withStripped = true
-module.exports = { render: render, staticRenderFns: staticRenderFns }
-if (false) {
-  module.hot.accept()
-  if (module.hot.data) {
-    require("vue-hot-reload-api")      .rerender("data-v-069ca6fa", module.exports)
-  }
-}
-
-/***/ }),
-/* 45 */
-/***/ (function(module, exports, __webpack_require__) {
-
-var disposed = false
-var normalizeComponent = __webpack_require__(1)
-/* script */
-var __vue_script__ = __webpack_require__(46)
-/* template */
-var __vue_template__ = __webpack_require__(75)
-/* template functional */
-var __vue_template_functional__ = false
-/* styles */
-var __vue_styles__ = null
-/* scopeId */
-var __vue_scopeId__ = null
-/* moduleIdentifier (server only) */
-var __vue_module_identifier__ = null
-var Component = normalizeComponent(
-  __vue_script__,
-  __vue_template__,
-  __vue_template_functional__,
-  __vue_styles__,
-  __vue_scopeId__,
-  __vue_module_identifier__
-)
-Component.options.__file = "resources/js/components/pages/TheCreateWorkoutProgramPage.vue"
-
-/* hot reload */
-if (false) {(function () {
-  var hotAPI = require("vue-hot-reload-api")
-  hotAPI.install(require("vue"), false)
-  if (!hotAPI.compatible) return
-  module.hot.accept()
-  if (!module.hot.data) {
-    hotAPI.createRecord("data-v-0635775d", Component.options)
-  } else {
-    hotAPI.reload("data-v-0635775d", Component.options)
-  }
-  module.hot.dispose(function (data) {
-    disposed = true
-  })
-})()}
-
-module.exports = Component.exports
-
-
-/***/ }),
-/* 46 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_babel_runtime_regenerator__ = __webpack_require__(47);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_babel_runtime_regenerator___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_babel_runtime_regenerator__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__BootstrapCard__ = __webpack_require__(50);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__BootstrapCard___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1__BootstrapCard__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__domain_WorkoutRoutineForm__ = __webpack_require__(53);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__domain_WorkoutRoutineForm___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_2__domain_WorkoutRoutineForm__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_axios__ = __webpack_require__(8);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_axios___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_3_axios__);
-
-
-function _asyncToGenerator(fn) { return function () { var gen = fn.apply(this, arguments); return new Promise(function (resolve, reject) { function step(key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { return Promise.resolve(value).then(function (value) { step("next", value); }, function (err) { step("throw", err); }); } } return step("next"); }); }; }
-
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-
-
-
-
-
-/* harmony default export */ __webpack_exports__["default"] = ({
-    name: 'TheCreateWorkoutProgramPage',
-    components: { BootstrapCard: __WEBPACK_IMPORTED_MODULE_1__BootstrapCard___default.a, WorkoutRoutineForm: __WEBPACK_IMPORTED_MODULE_2__domain_WorkoutRoutineForm___default.a },
-    data: function data() {
-        return {
-            workoutProgram: {
-                name: '',
-                workoutRoutines: [{}]
-            }
-        };
-    },
-
-    computed: {
-        workoutsPerCycle: {
-            get: function get() {
-                return this.getWorkoutRoutineLength() || '';
-            },
-            set: function set(newValue) {
-                newValue = Number.parseInt(newValue);
-                var workoutsPerCycle = this.getWorkoutRoutineLength();
-
-                if (isNaN(newValue) || newValue === workoutsPerCycle || newValue < 0 || newValue > 20) {
-                    return;
-                }
-
-                var mutation = this.addWorkoutToCycle;
-
-                if (workoutsPerCycle > newValue) {
-                    mutation = this.removeWorkoutFromCycle;
-                }
-
-                while (this.getWorkoutRoutineLength() !== newValue) {
-                    mutation();
-                }
-            }
-        }
-    },
-    methods: {
-        updateWorkoutRoutine: function updateWorkoutRoutine(index, workoutRoutine) {
-            debugger;
-            this.workoutProgram.workoutRoutines[index] = workoutRoutine;
-        },
-        addWorkoutToCycle: function addWorkoutToCycle() {
-            this.workoutProgram.workoutRoutines.push({});
-        },
-        removeWorkoutFromCycle: function removeWorkoutFromCycle() {
-            this.workoutProgram.workoutRoutines.pop();
-        },
-        getWorkoutRoutineLength: function getWorkoutRoutineLength() {
-            return this.workoutProgram.workoutRoutines.length;
-        },
-        hasWorkoutRoutines: function hasWorkoutRoutines() {
-            return this.getWorkoutRoutineLength() > 0;
-        },
-        hasNoWorkoutRoutines: function hasNoWorkoutRoutines() {
-            return !this.hasWorkoutRoutines();
-        },
-        save: function () {
-            var _ref = _asyncToGenerator( /*#__PURE__*/__WEBPACK_IMPORTED_MODULE_0_babel_runtime_regenerator___default.a.mark(function _callee() {
-                var response;
-                return __WEBPACK_IMPORTED_MODULE_0_babel_runtime_regenerator___default.a.wrap(function _callee$(_context) {
-                    while (1) {
-                        switch (_context.prev = _context.next) {
-                            case 0:
-                                _context.next = 2;
-                                return __WEBPACK_IMPORTED_MODULE_3_axios___default.a.post('/api/workout-programs/', this.workoutProgram);
-
-                            case 2:
-                                response = _context.sent;
-
-
-                                this.workoutProgram = response.data;
-
-                            case 4:
-                            case "end":
-                                return _context.stop();
-                        }
-                    }
-                }, _callee, this);
-            }));
-
-            function save() {
-                return _ref.apply(this, arguments);
-            }
-
-            return save;
-        }()
-    }
-});
-
-/***/ }),
+/* 42 */,
+/* 43 */,
+/* 44 */,
+/* 45 */,
+/* 46 */,
 /* 47 */
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -50369,7 +50033,222 @@ if (false) {
 }
 
 /***/ }),
-/* 75 */
+/* 75 */,
+/* 76 */
+/***/ (function(module, exports) {
+
+// removed by extract-text-webpack-plugin
+
+/***/ }),
+/* 77 */,
+/* 78 */,
+/* 79 */,
+/* 80 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var disposed = false
+var normalizeComponent = __webpack_require__(1)
+/* script */
+var __vue_script__ = __webpack_require__(81)
+/* template */
+var __vue_template__ = __webpack_require__(82)
+/* template functional */
+var __vue_template_functional__ = false
+/* styles */
+var __vue_styles__ = null
+/* scopeId */
+var __vue_scopeId__ = null
+/* moduleIdentifier (server only) */
+var __vue_module_identifier__ = null
+var Component = normalizeComponent(
+  __vue_script__,
+  __vue_template__,
+  __vue_template_functional__,
+  __vue_styles__,
+  __vue_scopeId__,
+  __vue_module_identifier__
+)
+Component.options.__file = "resources/js/components/pages/CreateWorkoutProgramPage.vue"
+
+/* hot reload */
+if (false) {(function () {
+  var hotAPI = require("vue-hot-reload-api")
+  hotAPI.install(require("vue"), false)
+  if (!hotAPI.compatible) return
+  module.hot.accept()
+  if (!module.hot.data) {
+    hotAPI.createRecord("data-v-47020df0", Component.options)
+  } else {
+    hotAPI.reload("data-v-47020df0", Component.options)
+  }
+  module.hot.dispose(function (data) {
+    disposed = true
+  })
+})()}
+
+module.exports = Component.exports
+
+
+/***/ }),
+/* 81 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_babel_runtime_regenerator__ = __webpack_require__(47);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_babel_runtime_regenerator___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_babel_runtime_regenerator__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__BootstrapCard__ = __webpack_require__(50);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__BootstrapCard___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1__BootstrapCard__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__domain_WorkoutRoutineForm__ = __webpack_require__(53);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__domain_WorkoutRoutineForm___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_2__domain_WorkoutRoutineForm__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__services_WorkoutRoutineService__ = __webpack_require__(86);
+
+
+function _asyncToGenerator(fn) { return function () { var gen = fn.apply(this, arguments); return new Promise(function (resolve, reject) { function step(key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { return Promise.resolve(value).then(function (value) { step("next", value); }, function (err) { step("throw", err); }); } } return step("next"); }); }; }
+
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+
+
+
+
+
+/* harmony default export */ __webpack_exports__["default"] = ({
+    name: 'CreateWorkoutProgramPage',
+    components: { BootstrapCard: __WEBPACK_IMPORTED_MODULE_1__BootstrapCard___default.a, WorkoutRoutineForm: __WEBPACK_IMPORTED_MODULE_2__domain_WorkoutRoutineForm___default.a },
+    data: function data() {
+        return {
+            workoutProgram: {
+                name: '',
+                workoutRoutines: [{}]
+            }
+        };
+    },
+
+    computed: {
+        workoutsPerCycle: {
+            get: function get() {
+                return this.getWorkoutRoutineLength() || '';
+            },
+            set: function set(newValue) {
+                newValue = Number.parseInt(newValue);
+                var workoutsPerCycle = this.getWorkoutRoutineLength();
+
+                if (isNaN(newValue) || newValue === workoutsPerCycle || newValue < 0 || newValue > 20) {
+                    return;
+                }
+
+                var mutation = this.addWorkoutToCycle;
+
+                if (workoutsPerCycle > newValue) {
+                    mutation = this.removeWorkoutFromCycle;
+                }
+
+                while (this.getWorkoutRoutineLength() !== newValue) {
+                    mutation();
+                }
+            }
+        }
+    },
+    methods: {
+        addWorkoutToCycle: function addWorkoutToCycle() {
+            this.workoutProgram.workoutRoutines.push({});
+        },
+        removeWorkoutFromCycle: function removeWorkoutFromCycle() {
+            this.workoutProgram.workoutRoutines.pop();
+        },
+        getWorkoutRoutineLength: function getWorkoutRoutineLength() {
+            return this.workoutProgram.workoutRoutines.length;
+        },
+        hasWorkoutRoutines: function hasWorkoutRoutines() {
+            return this.getWorkoutRoutineLength() > 0;
+        },
+        hasNoWorkoutRoutines: function hasNoWorkoutRoutines() {
+            return !this.hasWorkoutRoutines();
+        },
+        saveWorkoutProgram: function () {
+            var _ref = _asyncToGenerator( /*#__PURE__*/__WEBPACK_IMPORTED_MODULE_0_babel_runtime_regenerator___default.a.mark(function _callee() {
+                return __WEBPACK_IMPORTED_MODULE_0_babel_runtime_regenerator___default.a.wrap(function _callee$(_context) {
+                    while (1) {
+                        switch (_context.prev = _context.next) {
+                            case 0:
+                                _context.next = 2;
+                                return __WEBPACK_IMPORTED_MODULE_3__services_WorkoutRoutineService__["a" /* default */].save(this.workoutProgram);
+
+                            case 2:
+                            case "end":
+                                return _context.stop();
+                        }
+                    }
+                }, _callee, this);
+            }));
+
+            function saveWorkoutProgram() {
+                return _ref.apply(this, arguments);
+            }
+
+            return saveWorkoutProgram;
+        }()
+    }
+});
+
+/***/ }),
+/* 82 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var render = function() {
@@ -50526,7 +50405,7 @@ var render = function() {
                   staticClass: "btn btn-primary",
                   class: { disabled: _vm.hasNoWorkoutRoutines() },
                   attrs: { type: "submit" },
-                  on: { click: _vm.save }
+                  on: { click: _vm.saveWorkoutProgram }
                 },
                 [_vm._v("\n                    save\n                ")]
               ),
@@ -50553,15 +50432,164 @@ module.exports = { render: render, staticRenderFns: staticRenderFns }
 if (false) {
   module.hot.accept()
   if (module.hot.data) {
-    require("vue-hot-reload-api")      .rerender("data-v-0635775d", module.exports)
+    require("vue-hot-reload-api")      .rerender("data-v-47020df0", module.exports)
   }
 }
 
 /***/ }),
-/* 76 */
-/***/ (function(module, exports) {
+/* 83 */
+/***/ (function(module, exports, __webpack_require__) {
 
-// removed by extract-text-webpack-plugin
+var disposed = false
+var normalizeComponent = __webpack_require__(1)
+/* script */
+var __vue_script__ = __webpack_require__(84)
+/* template */
+var __vue_template__ = __webpack_require__(85)
+/* template functional */
+var __vue_template_functional__ = false
+/* styles */
+var __vue_styles__ = null
+/* scopeId */
+var __vue_scopeId__ = null
+/* moduleIdentifier (server only) */
+var __vue_module_identifier__ = null
+var Component = normalizeComponent(
+  __vue_script__,
+  __vue_template__,
+  __vue_template_functional__,
+  __vue_styles__,
+  __vue_scopeId__,
+  __vue_module_identifier__
+)
+Component.options.__file = "resources/js/components/MainContent.vue"
+
+/* hot reload */
+if (false) {(function () {
+  var hotAPI = require("vue-hot-reload-api")
+  hotAPI.install(require("vue"), false)
+  if (!hotAPI.compatible) return
+  module.hot.accept()
+  if (!module.hot.data) {
+    hotAPI.createRecord("data-v-305b4f65", Component.options)
+  } else {
+    hotAPI.reload("data-v-305b4f65", Component.options)
+  }
+  module.hot.dispose(function (data) {
+    disposed = true
+  })
+})()}
+
+module.exports = Component.exports
+
+
+/***/ }),
+/* 84 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
+//
+//
+//
+//
+//
+//
+
+/* harmony default export */ __webpack_exports__["default"] = ({});
+
+/***/ }),
+/* 85 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var render = function() {
+  var _vm = this
+  var _h = _vm.$createElement
+  var _c = _vm._self._c || _h
+  return _c("div", { staticClass: "container" }, [_vm._t("default")], 2)
+}
+var staticRenderFns = []
+render._withStripped = true
+module.exports = { render: render, staticRenderFns: staticRenderFns }
+if (false) {
+  module.hot.accept()
+  if (module.hot.data) {
+    require("vue-hot-reload-api")      .rerender("data-v-305b4f65", module.exports)
+  }
+}
+
+/***/ }),
+/* 86 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__ApiService__ = __webpack_require__(87);
+
+
+var RESOURCE_NAME = 'workout-programs';
+
+var WorkoutRoutineService = {
+    get: function get(workoutRoutineId) {
+        return __WEBPACK_IMPORTED_MODULE_0__ApiService__["a" /* default */].get(RESOURCE_NAME, workoutRoutineId);
+    },
+    save: function save(workoutRoutine) {
+        return __WEBPACK_IMPORTED_MODULE_0__ApiService__["a" /* default */].save(RESOURCE_NAME, workoutRoutine);
+    }
+};
+
+/* harmony default export */ __webpack_exports__["a"] = (WorkoutRoutineService);
+
+/***/ }),
+/* 87 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_axios__ = __webpack_require__(8);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_axios___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_axios__);
+
+
+__WEBPACK_IMPORTED_MODULE_0_axios___default.a.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
+
+// Register the CSRF Token as a common header with Axios requests.
+var csrfToken = document.head.querySelector('meta[name="csrf-token"]');
+
+__WEBPACK_IMPORTED_MODULE_0_axios___default.a.defaults.headers.common['X-CSRF-TOKEN'] = csrfToken.content;
+
+var baseUrl = window.apiBaseUrl;
+
+var ApiService = {
+    get: function get(resourceType, resourceId) {
+        return __WEBPACK_IMPORTED_MODULE_0_axios___default.a.get(this.makeEndpointUrl(resourceType, resourceId));
+    },
+    save: function save(resourceType, payload) {
+        if (payload.id) {
+            return this.put(resourceType, payload.id, payload);
+        }
+
+        debugger;
+        return this.post(resourceType, payload);
+    },
+    post: function post(resourceType, payload) {
+        return __WEBPACK_IMPORTED_MODULE_0_axios___default.a.post(this.makeEndpointUrl(resourceType), payload);
+    },
+    put: function put(resourceType, resourceId, payload) {
+        return __WEBPACK_IMPORTED_MODULE_0_axios___default.a.put(this.makeEndpointUrl(resourceType, resourceId), payload);
+    },
+    delete: function _delete(resourceType, resourceId) {
+        return __WEBPACK_IMPORTED_MODULE_0_axios___default.a.delete(this.makeEndpointUrl(resourceType, resourceId));
+    },
+    makeEndpointUrl: function makeEndpointUrl(resourceType, resourceId) {
+        var url = baseUrl + '/' + resourceType;
+
+        if (resourceId) {
+            url += '/' + resourceId;
+        }
+
+        return url;
+    }
+};
+
+/* harmony default export */ __webpack_exports__["a"] = (ApiService);
 
 /***/ })
 /******/ ]);

@@ -15,13 +15,13 @@ import Vue from 'vue';
  * or customize the JavaScript scaffolding to fit your unique needs.
  */
 
-import TheMainContent from './components/TheMainContent.vue';
-import TheCreateWorkoutProgramPage from './components/pages/TheCreateWorkoutProgramPage';
+import MainContent from './components/MainContent.vue';
+import CreateWorkoutProgramPage from './components/pages/CreateWorkoutProgramPage';
 
 const vm = new Vue({
     el: '#js-lift-tracker-app',
     components: {
-        'main-content': TheMainContent,
-        'the-create-workout-program-form': TheCreateWorkoutProgramPage,
+        MainContent,
+        'create-workout-program-page':  CreateWorkoutProgramPage,
     },
 });
