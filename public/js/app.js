@@ -49363,20 +49363,31 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 
 
 
+var uuid = 0;
+
 /* harmony default export */ __webpack_exports__["default"] = ({
     name: 'WorkoutRoutineForm',
-    props: ['day', 'workoutRoutine'],
     components: { WeekDaySelect: __WEBPACK_IMPORTED_MODULE_1__formFields_WeekDaySelect___default.a, TypicalExercisesSection: __WEBPACK_IMPORTED_MODULE_0__TypicalExercisesSection___default.a },
+    beforeCreate: function beforeCreate() {
+        this.uuid = uuid.toString();
+        uuid += 1;
+    },
     data: function data() {
-        return {};
+        return {
+            workoutRoutine: {
+                name: null,
+                day: 'any',
+                exercises: [{}]
+            }
+        };
     },
 
     computed: {
         nameInputId: function nameInputId() {
-            return 'workout-routine-name-' + this.$vnode.key;
+            return 'workout-routine-name-' + this.uuid;
         },
         typicalDayInputId: function typicalDayInputId() {
-            return 'workout-routine-typical-day-' + this.$vnode.key;
+            return 'workout-routine-typical-day-' + this.uuid;
         },
         placeHolderName: function placeHolderName() {
             return 'Workout ' + this.day;
@@ -49541,23 +49552,24 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 
 
 
+var uuid = 0;
+
 /* harmony default export */ __webpack_exports__["default"] = ({
     name: 'TypicalExercisesSection',
     components: { TypicalExerciseInput: __WEBPACK_IMPORTED_MODULE_0__TypicalExerciseInput___default.a },
-    props: {
-        exercises: {
-            type: Array,
-            required: false,
-            default: [{}]
-        }
+    beforeCreate: function beforeCreate() {
+        this.uuid = uuid.toString();
+        uuid += 1;
     },
     data: function data() {
-        return {};
+        return {
+            exercises: [{}]
+        };
     },
 
     computed: {
         nameInputId: function nameInputId() {
-            return "workouts-routine-name-" + this.$vnode.key;
+            return 'workouts-routine-name-' + this.uuid;
         }
     },
     methods: {
@@ -49566,6 +49578,14 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
         },
         removeExercise: function removeExercise(displayPosition) {
             this.$delete(this.exercises, displayPosition);
+            this.$emit('input', this.exercises);
+        },
+        updateExercise: function updateExercise(index, exercise) {
+            this.exercises[index] = exercise;
+            this.$emit('input', this.exercises);
+        },
+        emitInputEvent: function emitInputEvent() {
+            this.$emit('input', this.exercises);
         }
     }
 });
@@ -49700,6 +49720,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 //
 //
 //
+//
 
 
 
@@ -49735,6 +49756,27 @@ var uuid = 0;
         };
     },
 
+    methods: {
+        updateNumberOfSets: function updateNumberOfSets(selectedValue) {
+            this.numberOfSets = selectedValue;
+            this.$emit('updateExercise', this.displayPosition, {
+                exercise: this.exercise,
+                numberOfSets: this.numberOfSets
+            });
+        },
+        updateExercise: function updateExercise(selectedExerciseId) {
+            this.exercise = this.findExerciseById(selectedExerciseId);
+            this.$emit('updateExercise', this.displayPosition, {
+                exercise: this.exercise,
+                numberOfSets: this.numberOfSets
+            });
+        },
+        findExerciseById: function findExerciseById(id) {
+            return this.exercises.find(function (exercise) {
+                return exercise.id === id;
+            });
+        }
+    },
     computed: {
         setsOfLabelPhrase: function setsOfLabelPhrase() {
             return this.numberOfSets > 1 ? 'sets of:' : 'set of:';
@@ -49913,46 +49955,32 @@ var render = function() {
           _c(
             "select",
             {
-              directives: [
-                {
-                  name: "model",
-                  rawName: "v-model",
-                  value: _vm.exercise,
-                  expression: "exercise"
-                }
-              ],
               staticClass: "form-control",
               attrs: { id: _vm.nameInputId },
               on: {
-                change: function($event) {
-                  var $$selectedVal = Array.prototype.filter
-                    .call($event.target.options, function(o) {
-                      return o.selected
-                    })
-                    .map(function(o) {
-                      var val = "_value" in o ? o._value : o.value
-                      return val
-                    })
-                  _vm.exercise = $event.target.multiple
-                    ? $$selectedVal
-                    : $$selectedVal[0]
+                input: function($event) {
+                  _vm.updateExercise($event.target.value)
                 }
               }
             },
-            _vm._l(_vm.exercises, function(exercise) {
-              return _c(
-                "option",
-                { key: exercise.id, domProps: { value: exercise } },
-                [
-                  _vm._v(
-                    "\n                    " +
-                      _vm._s(exercise.name) +
-                      "\n                "
-                  )
-                ]
-              )
-            }),
-            0
+            [
+              _c("option", { domProps: { value: null } }),
+              _vm._v(" "),
+              _vm._l(_vm.exercises, function(exercise) {
+                return _c(
+                  "option",
+                  { key: exercise.id, domProps: { value: exercise.id } },
+                  [
+                    _vm._v(
+                      "\n                    " +
+                        _vm._s(exercise.name) +
+                        "\n                "
+                    )
+                  ]
+                )
+              })
+            ],
+            2
           )
         ])
       ]),
@@ -49971,14 +49999,6 @@ var render = function() {
           _c("div", { class: { "is-invalid": false } }),
           _vm._v(" "),
           _c("input", {
-            directives: [
-              {
-                name: "model",
-                rawName: "v-model",
-                value: _vm.numberOfSets,
-                expression: "numberOfSets"
-              }
-            ],
             staticClass: "form-control",
             attrs: {
               id: _vm.numberOfSetsId,
@@ -49989,13 +50009,9 @@ var render = function() {
               name: "name",
               required: ""
             },
-            domProps: { value: _vm.numberOfSets },
             on: {
               input: function($event) {
-                if ($event.target.composing) {
-                  return
-                }
-                _vm.numberOfSets = $event.target.value
+                _vm.updateNumberOfSets($event.target.value)
               }
             }
           }),
@@ -50041,33 +50057,32 @@ var render = function() {
         return _c("TypicalExerciseInput", {
           key: index,
           attrs: {
-            exercise: exercise,
             "display-position": index,
             "show-cross": _vm.exercises.length > 1
           },
-          on: { removeExercise: _vm.removeExercise }
+          on: {
+            updateExercise: _vm.updateExercise,
+            removeExercise: _vm.removeExercise
+          }
         })
       }),
       _vm._v(" "),
-      _c(
-        "div",
-        { staticClass: "row" },
-        [
-          _c(
-            "buton",
-            {
-              staticClass: "add-another-link offset-md-4 col-md-4 btn btn-link",
-              on: {
-                click: function($event) {
-                  _vm.addAnother()
-                }
+      _c("div", { staticClass: "row" }, [
+        _c(
+          "a",
+          {
+            staticClass: "add-another-link offset-md-4 col-md-4 btn btn-link",
+            attrs: { href: "" },
+            on: {
+              click: function($event) {
+                $event.preventDefault()
+                _vm.addAnother()
               }
-            },
-            [_vm._v("\n            add another exercise\n        ")]
-          )
-        ],
-        1
-      )
+            }
+          },
+          [_vm._v("\n            add another exercise\n        ")]
+        )
+      ])
     ],
     2
   )
@@ -50187,32 +50202,11 @@ var render = function() {
   return _c(
     "select",
     {
-      directives: [
-        {
-          name: "model",
-          rawName: "v-model",
-          value: _vm.selectedValue,
-          expression: "selectedValue"
-        }
-      ],
       staticClass: "form-control",
       attrs: { id: _vm.selectId },
       on: {
         input: function($event) {
           _vm.updateSelectedValue($event.target.value)
-        },
-        change: function($event) {
-          var $$selectedVal = Array.prototype.filter
-            .call($event.target.options, function(o) {
-              return o.selected
-            })
-            .map(function(o) {
-              var val = "_value" in o ? o._value : o.value
-              return val
-            })
-          _vm.selectedValue = $event.target.multiple
-            ? $$selectedVal
-            : $$selectedVal[0]
         }
       }
     },
@@ -50321,11 +50315,11 @@ var render = function() {
               _c("WeekDaySelect", {
                 attrs: { "select-id": _vm.typicalDayInputId },
                 model: {
-                  value: _vm.workoutRoutine.typicalDay,
+                  value: _vm.workoutRoutine.day,
                   callback: function($$v) {
-                    _vm.$set(_vm.workoutRoutine, "typicalDay", $$v)
+                    _vm.$set(_vm.workoutRoutine, "day", $$v)
                   },
-                  expression: "workoutRoutine.typicalDay"
+                  expression: "workoutRoutine.day"
                 }
               })
             ],
@@ -50335,7 +50329,13 @@ var render = function() {
       ]),
       _vm._v(" "),
       _c("TypicalExercisesSection", {
-        attrs: { exercises: _vm.workoutRoutine.exercises }
+        model: {
+          value: _vm.workoutRoutine.exercises,
+          callback: function($$v) {
+            _vm.$set(_vm.workoutRoutine, "exercises", $$v)
+          },
+          expression: "workoutRoutine.exercises"
+        }
       }),
       _vm._v(" "),
       _c("hr", { staticClass: "form-section-divider" })
@@ -50493,7 +50493,13 @@ var render = function() {
           ) {
             return _c("workout-routine-form", {
               key: index,
-              attrs: { workoutRoutine: workoutRoutine, day: index + 1 }
+              model: {
+                value: _vm.workoutProgram.workoutRoutines[index],
+                callback: function($$v) {
+                  _vm.$set(_vm.workoutProgram.workoutRoutines, index, $$v)
+                },
+                expression: "workoutProgram.workoutRoutines[index]"
+              }
             })
           }),
           _vm._v(" "),

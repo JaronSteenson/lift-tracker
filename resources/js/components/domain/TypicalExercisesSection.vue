@@ -5,7 +5,7 @@
             </div>
 
             <TypicalExerciseInput v-for="(exercise, index) in exercises"
-                                  v-bind:exercise="exercise"
+                                  @updateExercise="updateExercise"
                                   v-bind:display-position="index"
                                   v-bind:show-cross="exercises.length > 1"
                                   v-bind:key="index"
@@ -13,9 +13,9 @@
             />
 
             <div class="row">
-                <buton class="add-another-link offset-md-4 col-md-4 btn btn-link" @click="addAnother()">
+                <a href="" class="add-another-link offset-md-4 col-md-4 btn btn-link" @click.prevent="addAnother()">
                     add another exercise
-                </buton>
+                </a>
             </div>
         </div>
 </template>
@@ -23,24 +23,23 @@
 <script>
     import TypicalExerciseInput from "./TypicalExerciseInput";
 
+    let uuid = 0;
+
     export default {
         name: 'TypicalExercisesSection',
         components: {TypicalExerciseInput},
-        props: {
-            exercises: {
-                type: Array,
-                required: false,
-                default: [{}],
-            }
+        beforeCreate() {
+            this.uuid = uuid.toString();
+            uuid += 1;
         },
         data() {
             return {
-
+                exercises: [{}],
             }
         },
         computed: {
             nameInputId() {
-                return `workouts-routine-name-${this.$vnode.key}`;
+                return `workouts-routine-name-${this.uuid}`;
             }
         },
         methods: {
@@ -48,7 +47,15 @@
                 this.exercises.push({});
             },
             removeExercise(displayPosition) {
-                this.$delete(this.exercises, displayPosition)
+                this.$delete(this.exercises, displayPosition);
+                this.$emit('input', this.exercises)
+            },
+            updateExercise(index, exercise) {
+                this.exercises[index] = exercise;
+                this.$emit('input', this.exercises)
+            },
+            emitInputEvent() {
+                this.$emit('input', this.exercises)
             }
         }
     }

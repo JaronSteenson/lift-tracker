@@ -35,7 +35,7 @@
             <hr v-if="hasWorkoutRoutines()" class="form-section-divider">
 
             <workout-routine-form v-for="(workoutRoutine, index) in workoutProgram.workoutRoutines"
-                                  v-bind:workoutRoutine="workoutRoutine" v-bind:key="index" v-bind:day="index + 1">
+                                  v-model="workoutProgram.workoutRoutines[index]" v-bind:key="index">
 
             </workout-routine-form>
 

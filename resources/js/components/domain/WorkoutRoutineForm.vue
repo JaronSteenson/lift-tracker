@@ -27,13 +27,13 @@
                 <label v-bind:for="typicalDayInputId"
                        class="col-md-4 col-form-label text-md-right">Typical day</label>
                 <div class="col-md-6">
-                    <WeekDaySelect v-model="workoutRoutine.typicalDay" v-bind:select-id="typicalDayInputId"/>
+                    <WeekDaySelect v-model="workoutRoutine.day" v-bind:select-id="typicalDayInputId"/>
                 </div>
             </div>
 
         </div>
 
-        <TypicalExercisesSection v-bind:exercises="workoutRoutine.exercises"/>
+        <TypicalExercisesSection v-model="workoutRoutine.exercises"/>
 
         <hr class="form-section-divider">
 
@@ -44,21 +44,30 @@
     import TypicalExercisesSection from './TypicalExercisesSection';
     import WeekDaySelect from "../formFields/WeekDaySelect";
 
+    let uuid = 0;
+
     export default {
         name: 'WorkoutRoutineForm',
-        props: ['day', 'workoutRoutine'],
         components: {WeekDaySelect, TypicalExercisesSection},
+        beforeCreate() {
+            this.uuid = uuid.toString();
+            uuid += 1;
+        },
         data() {
             return {
-
+                workoutRoutine: {
+                    name: null,
+                    day: 'any',
+                    exercises: [{}],
+                }
             }
         },
         computed: {
             nameInputId() {
-                return `workout-routine-name-${this.$vnode.key}`;
+                return `workout-routine-name-${this.uuid}`;
             },
             typicalDayInputId() {
-                return `workout-routine-typical-day-${this.$vnode.key}`;
+                return `workout-routine-typical-day-${this.uuid}`;
             },
             placeHolderName() {
                 return `Workout ${this.day}`;
