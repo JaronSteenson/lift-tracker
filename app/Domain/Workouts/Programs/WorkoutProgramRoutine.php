@@ -4,30 +4,33 @@ namespace LiftTracker\Domain\Workouts\Programs;
 
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Concerns\HasTimestamps;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasMany;
-use LiftTracker\Domain\Users\DefaultUserOwnershipCheck;
 use LiftTracker\Domain\Users\UserOwnershipInterface;
+use LiftTracker\Traits\HasCamelCaseTimeStampColumns;
 use LiftTracker\Traits\HasCustomCollection;
 use LiftTracker\Traits\HasUUID;
 use LiftTracker\User;
 
 /**
  * @mixin Builder
- * @property string id
+ * @property string id Is a UUID
  * @property string name
- * @property Carbon created_at
- * @property Carbon updated_at
- * @property int user_id
+ * @property string normalDay
+ * @property Carbon createdAt
+ * @property Carbon updatedAt
  *
- * For now these are only admin generated. Will want user generated in the future though.
  */
-class WorkoutProgram extends Model implements UserOwnershipInterface
+class WorkoutProgramRoutine extends Model implements UserOwnershipInterface
 {
     use HasUUID;
     use HasCustomCollection;
-    use DefaultUserOwnershipCheck;
+
+    public const CREATED_AT = 'createdAt';
+    public const UPDATED_AT = 'updatedAt';
+
+    protected $table = 'WorkoutProgramRoutines';
 
     /**
      * The attributes that are mass assignable.
@@ -35,7 +38,8 @@ class WorkoutProgram extends Model implements UserOwnershipInterface
      * @var array
      */
     protected $fillable = [
-        'name'
+        'name',
+        'normalDay',
     ];
 
     /**
@@ -44,14 +48,9 @@ class WorkoutProgram extends Model implements UserOwnershipInterface
      * @var array
      */
     protected $visible = [
-        'name',
         'id',
-        'user_id',
-        'workoutProgramRoutines',
-    ];
-
-    protected $with = [
-        'workoutProgramRoutines',
+        'name',
+        'normalDay',
     ];
 
     /**
@@ -63,17 +62,16 @@ class WorkoutProgram extends Model implements UserOwnershipInterface
         'id' => 'string', //is a uuid
     ];
 
-    /**
-     * Get the user that owns the workout program, null if it is a community program.
-     */
-    public function user(): BelongsTo
+    public function workoutProgram(): BelongsTo
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(WorkoutProgram::class);
     }
 
-    public function workoutProgramRoutines(): HasMany
+    public function userOwnsThis(User $user): bool
     {
-        return $this->hasMany(WorkoutProgramRoutine::class, 'WorkoutProgramRoutines.workoutProgramId');
-    }
+        /** @var WorkoutProgram $parentWorkoutProgram */
+        $parentWorkoutProgram = $this->workoutProgram()->get()->first();
 
+        return $parentWorkoutProgram && $parentWorkoutProgram->user_id === $user->id;
+    }
 }

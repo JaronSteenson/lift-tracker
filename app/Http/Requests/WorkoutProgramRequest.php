@@ -11,12 +11,25 @@ class WorkoutProgramRequest extends ApiRequest
         return [
             'name' => 'required|max:40',
 
-            'workoutRoutines.*.name' => 'required|max:40',
-            'workoutRoutines.*.day' => ['required', new DayOfTheWeek()],
+            'workoutProgramRoutines.*.name' => 'required|max:40',
+            'workoutProgramRoutines.*.normalDay' => ['required', new DayOfTheWeek()],
 
-            'workoutRoutines.*.exercises.*.numberOfSets' => 'numeric|min:1|max:12',
+            'workoutProgramRoutines.*.exercises.*.numberOfSets' => 'numeric|min:1|max:12',
 
-            'workoutRoutines.*.exercises.*.exercise.id' => 'uuid|required',
+            'workoutProgramRoutines.*.exercises.*.exercise.id' => 'uuid|required',
         ];
+    }
+
+    public function getWorkoutProgramFields(): array
+    {
+        return $this->only('name');
+    }
+
+    /**
+     * @return string[]
+     */
+    public function getWorkoutProgramRoutines(): array
+    {
+        return $this->get('workoutProgramRoutines');
     }
 }

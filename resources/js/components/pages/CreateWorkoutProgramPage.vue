@@ -34,8 +34,8 @@
 
             <hr v-if="hasWorkoutRoutines()" class="form-section-divider">
 
-            <WorkoutRoutineForm v-for="(workoutRoutine, index) in workoutProgram.workoutRoutines"
-                                  v-model="workoutProgram.workoutRoutines[index]" v-bind:key="index">
+            <WorkoutRoutineForm v-for="(workoutRoutine, index) in workoutProgram.workoutProgramRoutines"
+                                  v-model="workoutProgram.workoutProgramRoutines[index]" v-bind:key="index">
             </WorkoutRoutineForm>
 
 
@@ -67,7 +67,7 @@
             return {
                 workoutProgram: {
                     name: '',
-                    workoutRoutines: [{}]
+                    workoutProgramRoutines: [{}]
                 },
             }
         },
@@ -98,13 +98,13 @@
         },
         methods: {
             addWorkoutToCycle() {
-                this.workoutProgram.workoutRoutines.push({});
+                this.workoutProgram.workoutProgramRoutines.push({});
             },
             removeWorkoutFromCycle() {
-                this.workoutProgram.workoutRoutines.pop();
+                this.workoutProgram.workoutProgramRoutines.pop();
             },
             getWorkoutRoutineLength() {
-                return this.workoutProgram.workoutRoutines.length;
+                return this.workoutProgram.workoutProgramRoutines.length;
             },
             hasWorkoutRoutines() {
                 return this.getWorkoutRoutineLength() > 0;

@@ -8,9 +8,11 @@ namespace LiftTracker\Http\Controllers\Api;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
 use LiftTracker\Domain\Workouts\Exercises\Exercise;
 use LiftTracker\Domain\Workouts\Programs\WorkoutProgram;
+use LiftTracker\Domain\Workouts\Programs\WorkoutProgramRoutine;
 use LiftTracker\Http\Controllers\Controller;
 use LiftTracker\Http\Requests\WorkoutProgramRequest;
 use LiftTracker\User;
@@ -52,10 +54,27 @@ class WorkoutProgramController extends Controller
      */
     public function store(WorkoutProgramRequest $request)
     {
-        $workoutProgram = new WorkoutProgram($request->all());
+        $workoutProgram = DB::transaction(function() use ($request) {
+            return $this->saveWorkoutProgramAndChildren($request);
+        });
+
+        return $workoutProgram;
+    }
+
+    private function saveWorkoutProgramAndChildren(WorkoutProgramRequest $request)
+    {
+        $workoutProgram = new WorkoutProgram($request->getWorkoutProgramFields());
 
         $workoutProgram->user()->associate(Auth::user());
+
         $workoutProgram->save();
+
+        /** @var WorkoutProgramRoutine[] $workoutProgramRoutines */
+        $workoutProgramRoutines = array_map(function (array $requestWorkoutRoutine) {
+            return new WorkoutProgramRoutine($requestWorkoutRoutine);
+        }, $request->getWorkoutProgramRoutines());
+
+        $workoutProgram->workoutProgramRoutines()->saveMany($workoutProgramRoutines);
 
         return $workoutProgram;
     }
