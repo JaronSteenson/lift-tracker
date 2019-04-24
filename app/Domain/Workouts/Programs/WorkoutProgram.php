@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use LiftTracker\Domain\Users\DefaultUserOwnershipCheck;
+use LiftTracker\Domain\Users\UserOwnershipInterface;
 use LiftTracker\Traits\HasCustomCollection;
 use LiftTracker\Traits\HasUUID;
 use LiftTracker\User;
