@@ -13,6 +13,8 @@
                     <input v-bind:id="nameInputId" type="text" class="form-control"
                            name="name" required v-model="workoutRoutine.name">
 
+                    <!--                           name="name" required v-model="workoutRoutine.name">-->
+
                     <span v-if="false" class="invalid-feedback" role="alert">
                                         <strong></strong>
             </span>
@@ -59,8 +61,16 @@
                     name: null,
                     day: 'any',
                     exercises: [{}],
-                }
-            }
+                },
+            };
+        },
+        watch: {
+            workoutRoutine: {
+                handler(newValue) {
+                    this.$emit('input', newValue)
+                },
+                deep: true,
+            },
         },
         computed: {
             nameInputId() {
@@ -71,7 +81,7 @@
             },
             placeHolderName() {
                 return `Workout ${this.day}`;
-            }
+            },
         },
-    }
+    };
 </script>

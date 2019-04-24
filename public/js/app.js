@@ -48331,6 +48331,10 @@ function _asyncToGenerator(fn) { return function () { var gen = fn.apply(this, a
         }
     },
     methods: {
+        updateWorkoutRoutine: function updateWorkoutRoutine(index, workoutRoutine) {
+            debugger;
+            this.workoutProgram.workoutRoutines[index] = workoutRoutine;
+        },
         addWorkoutToCycle: function addWorkoutToCycle() {
             this.workoutProgram.workoutRoutines.push({});
         },
@@ -49359,6 +49363,8 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 //
 //
 //
+//
+//
 
 
 
@@ -49382,6 +49388,15 @@ var uuid = 0;
         };
     },
 
+    watch: {
+        workoutRoutine: {
+            handler: function handler(newValue) {
+                this.$emit('input', newValue);
+            },
+
+            deep: true
+        }
+    },
     computed: {
         nameInputId: function nameInputId() {
             return 'workout-routine-name-' + this.uuid;
@@ -50362,7 +50377,7 @@ var render = function() {
   var _h = _vm.$createElement
   var _c = _vm._self._c || _h
   return _c(
-    "bootstrap-card",
+    "BootstrapCard",
     { attrs: { title: "Create new workout program" } },
     [
       _c(
@@ -50491,7 +50506,7 @@ var render = function() {
             workoutRoutine,
             index
           ) {
-            return _c("workout-routine-form", {
+            return _c("WorkoutRoutineForm", {
               key: index,
               model: {
                 value: _vm.workoutProgram.workoutRoutines[index],

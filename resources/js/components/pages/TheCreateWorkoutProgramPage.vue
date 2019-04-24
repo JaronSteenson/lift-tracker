@@ -1,5 +1,5 @@
 <template>
-    <bootstrap-card title="Create new workout program">
+    <BootstrapCard title="Create new workout program">
         <form @submit.prevent>
             <div class="form-group row">
                 <label for="edit-workout-program-name"
@@ -34,10 +34,10 @@
 
             <hr v-if="hasWorkoutRoutines()" class="form-section-divider">
 
-            <workout-routine-form v-for="(workoutRoutine, index) in workoutProgram.workoutRoutines"
+            <WorkoutRoutineForm v-for="(workoutRoutine, index) in workoutProgram.workoutRoutines"
                                   v-model="workoutProgram.workoutRoutines[index]" v-bind:key="index">
 
-            </workout-routine-form>
+            </WorkoutRoutineForm>
 
 
             <div class="form-group row mb-0">
@@ -53,7 +53,7 @@
             </div>
 
         </form>
-    </bootstrap-card>
+    </BootstrapCard>
 </template>
 
 <script>
@@ -98,6 +98,10 @@
             }
         },
         methods: {
+            updateWorkoutRoutine(index, workoutRoutine) {
+                debugger;
+                this.workoutProgram.workoutRoutines[index] = workoutRoutine;
+            },
             addWorkoutToCycle() {
                 this.workoutProgram.workoutRoutines.push({});
             },

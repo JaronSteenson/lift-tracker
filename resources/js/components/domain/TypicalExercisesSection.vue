@@ -6,10 +6,10 @@
 
             <TypicalExerciseInput v-for="(exercise, index) in exercises"
                                   @updateExercise="updateExercise"
+                                  @removeExercise="removeExercise"
                                   v-bind:display-position="index"
                                   v-bind:show-cross="exercises.length > 1"
                                   v-bind:key="index"
-                                  v-on:removeExercise="removeExercise"
             />
 
             <div class="row">
