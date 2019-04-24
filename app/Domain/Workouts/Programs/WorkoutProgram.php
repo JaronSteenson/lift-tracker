@@ -6,6 +6,7 @@ use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use LiftTracker\Domain\Users\DefaultUserOwnershipCheck;
 use LiftTracker\Traits\HasCustomCollection;
 use LiftTracker\Traits\HasUUID;
 use LiftTracker\User;
@@ -20,10 +21,11 @@ use LiftTracker\User;
  *
  * For now these are only admin generated. Will want user generated in the future though.
  */
-class WorkoutProgram extends Model
+class WorkoutProgram extends Model implements UserOwnershipInterface
 {
     use HasUUID;
     use HasCustomCollection;
+    use DefaultUserOwnershipCheck;
 
     /**
      * The attributes that are mass assignable.
@@ -59,16 +61,6 @@ class WorkoutProgram extends Model
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
-    }
-
-    /**
-     * Does this user own the workout program, own means they created it.
-     * @param User $user
-     * @return bool
-     */
-    public function isOwnedBy(User $user): bool
-    {
-        return $this->user_id === $user->id;
     }
 
 }

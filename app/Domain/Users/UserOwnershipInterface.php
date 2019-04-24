@@ -1,0 +1,11 @@
+<?php
+
+
+namespace LiftTracker\Domain\Users;
+
+use LiftTracker\User;
+
+interface UserOwnershipInterface
+{
+    public function userOwnsThis(User $user): bool;
+}
