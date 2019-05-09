@@ -66,17 +66,16 @@ class WorkoutProgramController extends Controller
         $workoutProgram = new WorkoutProgram($request->getWorkoutProgramFields());
 
         $workoutProgram->user()->associate(Auth::user());
-
         $workoutProgram->save();
 
         /** @var WorkoutProgramRoutine[] $workoutProgramRoutines */
-        $workoutProgramRoutines = array_map(function (array $requestWorkoutRoutine) {
+        $workoutProgramRoutines = array_map(static function (array $requestWorkoutRoutine) {
             return new WorkoutProgramRoutine($requestWorkoutRoutine);
         }, $request->getWorkoutProgramRoutines());
 
-        $workoutProgram->workoutProgramRoutines()->saveMany($workoutProgramRoutines);
+        $workoutProgram->saveManyProgramRoutines(...$workoutProgramRoutines);
 
-        return $workoutProgram;
+        return dd($workoutProgram);
     }
 
     /**

@@ -7,9 +7,10 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use LiftTracker\Domain\BaseModel;
 use LiftTracker\Domain\Users\DefaultUserOwnershipCheck;
 use LiftTracker\Domain\Users\UserOwnershipInterface;
-use LiftTracker\Traits\HasCustomCollection;
+use LiftTracker\Traits\CanUseCustomCollection;
 use LiftTracker\Traits\HasUUID;
 use LiftTracker\User;
 
@@ -23,10 +24,10 @@ use LiftTracker\User;
  *
  * For now these are only admin generated. Will want user generated in the future though.
  */
-class WorkoutProgram extends Model implements UserOwnershipInterface
+class WorkoutProgram extends BaseModel implements UserOwnershipInterface
 {
     use HasUUID;
-    use HasCustomCollection;
+    use CanUseCustomCollection;
     use DefaultUserOwnershipCheck;
 
     /**
@@ -46,7 +47,6 @@ class WorkoutProgram extends Model implements UserOwnershipInterface
     protected $visible = [
         'name',
         'id',
-        'user_id',
         'workoutProgramRoutines',
     ];
 
@@ -68,12 +68,27 @@ class WorkoutProgram extends Model implements UserOwnershipInterface
      */
     public function user(): BelongsTo
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(User::class, 'userId');
     }
 
     public function workoutProgramRoutines(): HasMany
     {
-        return $this->hasMany(WorkoutProgramRoutine::class, 'WorkoutProgramRoutines.workoutProgramId');
+        return $this->hasMany(WorkoutProgramRoutine::class, 'workoutProgramId');
+    }
+
+    /**
+     * Save and attach in memory many workout program routines.
+     *
+     * @param WorkoutProgramRoutine ...$programRoutines
+     * @return $this
+     */
+    public function saveManyProgramRoutines(WorkoutProgramRoutine ...$programRoutines): self
+    {
+        $this->workoutProgramRoutines()->saveMany($programRoutines);
+
+        $this->setRelation('workoutProgramRoutines', new WorkoutProgramCollection($programRoutines));
+
+        return $this;
     }
 
 }

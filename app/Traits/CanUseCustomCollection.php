@@ -1,8 +1,10 @@
 <?php
 
+/** @noinspection PhpUndefinedClassInspection */
+
 namespace LiftTracker\Traits;
 
-trait HasCustomCollection
+trait CanUseCustomCollection
 {
 
     /**
@@ -13,7 +15,12 @@ trait HasCustomCollection
     public function newCollection(array $models = Array())
     {
         $customCollectionClass = static::class . 'Collection';
-        return new $customCollectionClass($models);
+
+        if (class_exists($customCollectionClass)) {
+            return new $customCollectionClass($models);
+        }
+
+        return parent::newCollection($models);
     }
 
 }

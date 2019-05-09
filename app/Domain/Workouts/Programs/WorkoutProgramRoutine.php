@@ -4,12 +4,11 @@ namespace LiftTracker\Domain\Workouts\Programs;
 
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Concerns\HasTimestamps;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use LiftTracker\Domain\BaseModel;
 use LiftTracker\Domain\Users\UserOwnershipInterface;
 use LiftTracker\Traits\HasCamelCaseTimeStampColumns;
-use LiftTracker\Traits\HasCustomCollection;
+use LiftTracker\Traits\CanUseCustomCollection;
 use LiftTracker\Traits\HasUUID;
 use LiftTracker\User;
 
@@ -22,15 +21,10 @@ use LiftTracker\User;
  * @property Carbon updatedAt
  *
  */
-class WorkoutProgramRoutine extends Model implements UserOwnershipInterface
+class WorkoutProgramRoutine extends BaseModel implements UserOwnershipInterface
 {
     use HasUUID;
-    use HasCustomCollection;
-
-    public const CREATED_AT = 'createdAt';
-    public const UPDATED_AT = 'updatedAt';
-
-    protected $table = 'WorkoutProgramRoutines';
+    use CanUseCustomCollection;
 
     /**
      * The attributes that are mass assignable.
@@ -64,7 +58,7 @@ class WorkoutProgramRoutine extends Model implements UserOwnershipInterface
 
     public function workoutProgram(): BelongsTo
     {
-        return $this->belongsTo(WorkoutProgram::class);
+        return $this->belongsTo(WorkoutProgram::class, 'workoutProgramId');
     }
 
     public function userOwnsThis(User $user): bool

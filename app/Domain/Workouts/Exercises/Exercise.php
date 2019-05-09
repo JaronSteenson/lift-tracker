@@ -6,7 +6,7 @@ use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use LiftTracker\Traits\HasCustomCollection;
+use LiftTracker\Traits\CanUseCustomCollection;
 use LiftTracker\Traits\HasUUID;
 use LiftTracker\User;
 
@@ -23,7 +23,7 @@ use LiftTracker\User;
 class Exercise extends Model
 {
     use HasUUID;
-    use HasCustomCollection;
+    use CanUseCustomCollection;
 
     /**
      * The attributes that are mass assignable.
