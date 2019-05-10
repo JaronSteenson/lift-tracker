@@ -5,11 +5,12 @@ namespace LiftTracker\Domain\Workouts\Programs;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use LiftTracker\Domain\BaseModel;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use LiftTracker\Domain\AbstractModel;
 use LiftTracker\Domain\Users\UserOwnershipInterface;
-use LiftTracker\Traits\HasCamelCaseTimeStampColumns;
+use LiftTracker\Domain\Workouts\Exercises\Exercise;
 use LiftTracker\Traits\CanUseCustomCollection;
-use LiftTracker\Traits\HasUUID;
+use LiftTracker\Traits\HasUuidTrait;
 use LiftTracker\User;
 
 /**
@@ -21,9 +22,9 @@ use LiftTracker\User;
  * @property Carbon updatedAt
  *
  */
-class WorkoutProgramRoutine extends BaseModel implements UserOwnershipInterface
+class WorkoutProgramRoutine extends AbstractModel implements UserOwnershipInterface
 {
-    use HasUUID;
+    use HasUuidTrait;
     use CanUseCustomCollection;
 
     /**
@@ -45,6 +46,7 @@ class WorkoutProgramRoutine extends BaseModel implements UserOwnershipInterface
         'id',
         'name',
         'normalDay',
+        'exercises',
     ];
 
     /**
@@ -67,5 +69,26 @@ class WorkoutProgramRoutine extends BaseModel implements UserOwnershipInterface
         $parentWorkoutProgram = $this->workoutProgram()->get()->first();
 
         return $parentWorkoutProgram && $parentWorkoutProgram->user_id === $user->id;
+    }
+
+    public function exercises(): HasMany
+    {
+        // TODO this is wrong, we need a RoutineExercise link table
+        return $this->hasMany(Exercise::class);
+    }
+
+    /**
+     * Save and attach in memory many workout program routines.
+     *
+     * @param WorkoutProgramRoutine ...$programRoutines
+     * @return $this
+     */
+    public function saveManyExercises(WorkoutProgramRoutine ...$programRoutines): self
+    {
+        $this->exercises()->saveMany($programRoutines);
+
+        $this->setRelation('exercises', new WorkoutProgramCollection($programRoutines));
+
+        return $this;
     }
 }

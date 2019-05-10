@@ -4,15 +4,15 @@ namespace LiftTracker\Traits;
 
 use Webpatser\Uuid\Uuid;
 
-trait HasUUID
+trait HasUuidTrait
 {
 
     /**
      * Trait boot method, run automatic on models using this trait
      */
-    public static function bootHasUUID()
+    public static function bootHasUuidTrait(): void
     {
-        static::creating(function($model) {
+        static::creating(static function($model) {
 
             if(empty($model->id)){
                 $model->id = static::generateUUID();
@@ -33,12 +33,12 @@ trait HasUUID
      * Do not try to increment the uuid
      * @return bool
      */
-    public function getIncrementing()
+    public function getIncrementing(): bool
     {
         return false;
     }
 
-    public function getKeyType()
+    public function getKeyType(): string
     {
         return 'string';
     }

@@ -63,6 +63,7 @@ class WorkoutProgramController extends Controller
 
     private function saveWorkoutProgramAndChildren(WorkoutProgramRequest $request)
     {
+        //TODO separate out request deserialization and saving.
         $workoutProgram = new WorkoutProgram($request->getWorkoutProgramFields());
 
         $workoutProgram->user()->associate(Auth::user());
@@ -70,7 +71,15 @@ class WorkoutProgramController extends Controller
 
         /** @var WorkoutProgramRoutine[] $workoutProgramRoutines */
         $workoutProgramRoutines = array_map(static function (array $requestWorkoutRoutine) {
-            return new WorkoutProgramRoutine($requestWorkoutRoutine);
+
+            $workoutProgramRoutine =  new WorkoutProgramRoutine($requestWorkoutRoutine);
+
+            $exercises = array_map(static function (array $requestExercise) {
+                return new Exercise($requestExercise);
+            }, $requestWorkoutRoutine['exercises']);
+
+            $workoutProgramRoutine->saveManyExercises(...$exercises);
+
         }, $request->getWorkoutProgramRoutines());
 
         $workoutProgram->saveManyProgramRoutines(...$workoutProgramRoutines);

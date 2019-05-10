@@ -43,7 +43,7 @@ class User extends Authenticatable
      */
     public function workoutPrograms(): HasMany
     {
-        return $this->hasMany(WorkoutProgram::class);
+        return $this->hasMany(WorkoutProgram::class, 'userId');
     }
 
     public function findWorkoutPrograms(): WorkoutProgramCollection

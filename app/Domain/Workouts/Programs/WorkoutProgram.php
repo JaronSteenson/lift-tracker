@@ -4,14 +4,13 @@ namespace LiftTracker\Domain\Workouts\Programs;
 
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use LiftTracker\Domain\BaseModel;
-use LiftTracker\Domain\Users\DefaultUserOwnershipCheck;
+use LiftTracker\Domain\AbstractModel;
+use LiftTracker\Domain\Users\CanBeOwnedByUserTrait;
 use LiftTracker\Domain\Users\UserOwnershipInterface;
 use LiftTracker\Traits\CanUseCustomCollection;
-use LiftTracker\Traits\HasUUID;
+use LiftTracker\Traits\HasUuidTrait;
 use LiftTracker\User;
 
 /**
@@ -24,11 +23,11 @@ use LiftTracker\User;
  *
  * For now these are only admin generated. Will want user generated in the future though.
  */
-class WorkoutProgram extends BaseModel implements UserOwnershipInterface
+class WorkoutProgram extends AbstractModel implements UserOwnershipInterface
 {
-    use HasUUID;
+    use HasUuidTrait;
     use CanUseCustomCollection;
-    use DefaultUserOwnershipCheck;
+    use CanBeOwnedByUserTrait;
 
     /**
      * The attributes that are mass assignable.
@@ -73,7 +72,7 @@ class WorkoutProgram extends BaseModel implements UserOwnershipInterface
 
     public function workoutProgramRoutines(): HasMany
     {
-        return $this->hasMany(WorkoutProgramRoutine::class, 'workoutProgramId');
+        return $this->hasMany(WorkoutProgramRoutine::class);
     }
 
     /**

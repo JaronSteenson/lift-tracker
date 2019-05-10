@@ -12,7 +12,7 @@ use LiftTracker\Traits\CanUseCustomCollection;
  * The snake_case field names really irked me so I have made this to mostly use camelCase fields in both the code
  * and database.
  */
-class BaseModel extends Model
+abstract class AbstractModel extends Model
 {
     use CanUseCustomCollection;
 
@@ -42,7 +42,7 @@ class BaseModel extends Model
      */
     public function getForeignKey(): string
     {
-        return class_basename($this).'_'.$this->getKeyName();
+        return lcfirst(class_basename($this)) . ucfirst($this->getKeyName());
     }
 
 }
