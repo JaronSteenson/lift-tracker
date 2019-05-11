@@ -48762,6 +48762,8 @@ exports.push([module.i, "\n.draggable-section[data-v-54e0e41c] {\n    padding: 2
 Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__CloseCross__ = __webpack_require__(45);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__CloseCross___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0__CloseCross__);
+var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
 //
 //
 //
@@ -48832,17 +48834,16 @@ var uuid = 0;
     methods: {
         updateNumberOfSets: function updateNumberOfSets(selectedValue) {
             this.numberOfSets = selectedValue;
-            this.$emit('updateExercise', this.displayPosition, {
-                exercise: this.exercise,
-                numberOfSets: this.numberOfSets
-            });
+            this.emitUpdateExerciseEvent();
         },
         updateExercise: function updateExercise(selectedExerciseId) {
             this.exercise = this.findExerciseById(selectedExerciseId);
-            this.$emit('updateExercise', this.displayPosition, {
-                exercise: this.exercise,
-                numberOfSets: this.numberOfSets
-            });
+            this.emitUpdateExerciseEvent();
+        },
+        emitUpdateExerciseEvent: function emitUpdateExerciseEvent() {
+            var routineExercise = _extends({}, this.exercise, { numberOfSets: this.numberOfSets });
+
+            this.$emit('updateExercise', this.displayPosition, routineExercise);
         },
         findExerciseById: function findExerciseById(id) {
             return this.exercises.find(function (exercise) {

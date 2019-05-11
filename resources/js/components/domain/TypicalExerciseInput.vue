@@ -66,17 +66,16 @@
         methods: {
             updateNumberOfSets(selectedValue) {
                 this.numberOfSets = selectedValue;
-                this.$emit('updateExercise', this.displayPosition, {
-                    exercise: this.exercise,
-                    numberOfSets: this.numberOfSets
-                });
+                this.emitUpdateExerciseEvent();
             },
             updateExercise(selectedExerciseId) {
                 this.exercise = this.findExerciseById(selectedExerciseId);
-                this.$emit('updateExercise', this.displayPosition, {
-                    exercise: this.exercise,
-                    numberOfSets: this.numberOfSets
-                });
+                this.emitUpdateExerciseEvent();
+            },
+            emitUpdateExerciseEvent() {
+                var routineExercise = {...this.exercise, ...{numberOfSets: this.numberOfSets}};
+
+                this.$emit('updateExercise', this.displayPosition, routineExercise);
             },
             findExerciseById(id) {
                 return this.exercises.find(exercise => exercise.id === id);
