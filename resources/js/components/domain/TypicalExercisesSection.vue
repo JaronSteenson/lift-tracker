@@ -4,12 +4,12 @@
                 <h2 class="col-md-4 col-form-label text-md-right">Typical exercises</h2>
             </div>
 
-            <TypicalExerciseInput v-for="(exercise, index) in exercises"
+            <TypicalExerciseInput v-for="(exercise, index) in value"
                                   @updateExercise="updateExercise"
                                   @removeExercise="removeExercise"
                                   :preSelectedExercise="exercise"
                                   :display-position="index"
-                                  :show-cross="exercises.length > 1"
+                                  :show-cross="value.length > 1"
                                   :key="index"
             />
 
@@ -34,11 +34,11 @@
             uuid += 1;
         },
         props: {
-
-        },
-        data() {
-            return {
-                exercises: [{}],
+            value: {
+                required: false,
+                default() {
+                    return [{}]
+                },
             }
         },
         computed: {
@@ -48,18 +48,18 @@
         },
         methods: {
             addAnother() {
-                this.exercises.push({});
+                this.value.push({});
             },
             removeExercise(displayPosition) {
-                this.$delete(this.exercises, displayPosition);
-                this.$emit('input', this.exercises)
+                this.$delete(this.value, displayPosition);
+                this.$emit('input', this.value)
             },
             updateExercise(index, exercise) {
-                this.exercises[index] = exercise;
-                this.$emit('input', this.exercises)
+                this.value[index] = exercise;
+                this.$emit('input', this.value)
             },
             emitInputEvent() {
-                this.$emit('input', this.exercises)
+                this.$emit('input', this.value)
             }
         }
     }

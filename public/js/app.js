@@ -1897,30 +1897,28 @@ var uuid = 0;
       type: Boolean,
       required: false,
       "default": false
+    },
+    value: {
+      required: false,
+      "default": function _default() {
+        return {
+          numberOfSets: 3,
+          selectedExerciseName: null
+        };
+      }
     }
-  },
-  data: function data() {
-    return {
-      numberOfSets: null,
-      selectedExerciseName: null,
-      availableExercises: []
-    };
   },
   methods: {
     updateNumberOfSets: function updateNumberOfSets(selectedValue) {
-      this.numberOfSets = selectedValue;
+      this.value.numberOfSets = selectedValue;
       this.emitUpdateExerciseEvent();
     },
     updateExercise: function updateExercise(selectedExerciseName) {
-      this.selectedExerciseName = selectedExerciseName;
+      this.value.selectedExerciseName = selectedExerciseName;
       this.emitUpdateExerciseEvent();
     },
     emitUpdateExerciseEvent: function emitUpdateExerciseEvent() {
-      var derivedExercise = {
-        numberOfSets: this.numberOfSets,
-        name: this.selectedExerciseName
-      };
-      this.$emit('updateExercise', this.displayPosition, derivedExercise);
+      this.$emit('updateExercise', this.displayPosition, this.value);
     },
     findExerciseById: function findExerciseById(id) {
       return this.availableExercises.find(function (exercise) {
@@ -2021,11 +2019,13 @@ var uuid = 0;
     this.uuid = uuid.toString();
     uuid += 1;
   },
-  props: {},
-  data: function data() {
-    return {
-      exercises: [{}]
-    };
+  props: {
+    value: {
+      required: false,
+      "default": function _default() {
+        return [{}];
+      }
+    }
   },
   computed: {
     nameInputId: function nameInputId() {
@@ -2034,18 +2034,18 @@ var uuid = 0;
   },
   methods: {
     addAnother: function addAnother() {
-      this.exercises.push({});
+      this.value.push({});
     },
     removeExercise: function removeExercise(displayPosition) {
-      this.$delete(this.exercises, displayPosition);
-      this.$emit('input', this.exercises);
+      this.$delete(this.value, displayPosition);
+      this.$emit('input', this.value);
     },
     updateExercise: function updateExercise(index, exercise) {
-      this.exercises[index] = exercise;
-      this.$emit('input', this.exercises);
+      this.value[index] = exercise;
+      this.$emit('input', this.value);
     },
     emitInputEvent: function emitInputEvent() {
-      this.$emit('input', this.exercises);
+      this.$emit('input', this.value);
     }
   }
 });
@@ -22382,7 +22382,7 @@ var render = function() {
               name: "name",
               required: ""
             },
-            domProps: { value: _vm.numberOfSets },
+            domProps: { value: _vm.value.numberOfSets },
             on: {
               input: function($event) {
                 return _vm.updateNumberOfSets($event.target.value)
@@ -22427,13 +22427,13 @@ var render = function() {
     [
       _vm._m(0),
       _vm._v(" "),
-      _vm._l(_vm.exercises, function(exercise, index) {
+      _vm._l(_vm.value, function(exercise, index) {
         return _c("TypicalExerciseInput", {
           key: index,
           attrs: {
             preSelectedExercise: exercise,
             "display-position": index,
-            "show-cross": _vm.exercises.length > 1
+            "show-cross": _vm.value.length > 1
           },
           on: {
             updateExercise: _vm.updateExercise,

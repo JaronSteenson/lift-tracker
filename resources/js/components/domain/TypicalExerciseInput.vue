@@ -20,7 +20,7 @@
                    class="col-md-4 col-form-label text-md-right">Number of sets</label>
             <div class="col-md-6">
                 <div v-bind:class="{ 'is-invalid': false }"></div>
-                <input v-bind:id="numberOfSetsId" type="number" min="1" max="20" step="1" class="form-control" :value="numberOfSets"
+                <input v-bind:id="numberOfSetsId" type="number" min="1" max="20" step="1" class="form-control" :value="value.numberOfSets"
                        name="name" required @input="updateNumberOfSets($event.target.value)">
 
                 <span v-if="false" class="invalid-feedback" role="alert">
@@ -63,32 +63,28 @@
                 type: Boolean,
                 required: false,
                 default: false,
-            }
-        },
-        data() {
-            return {
-                numberOfSets: null,
-                selectedExerciseName: null,
-
-                availableExercises: [],
+            },
+            value: {
+                required: false,
+                default() {
+                    return {
+                        numberOfSets: 3,
+                        selectedExerciseName: null,
+                    }
+                },
             }
         },
         methods: {
             updateNumberOfSets(selectedValue) {
-                this.numberOfSets = selectedValue;
+                this.value.numberOfSets = selectedValue;
                 this.emitUpdateExerciseEvent();
             },
             updateExercise(selectedExerciseName) {
-                this.selectedExerciseName = selectedExerciseName;
+                this.value.selectedExerciseName = selectedExerciseName;
                 this.emitUpdateExerciseEvent();
             },
             emitUpdateExerciseEvent() {
-                const derivedExercise = {
-                    numberOfSets: this.numberOfSets,
-                    name: this.selectedExerciseName,
-                };
-
-                this.$emit('updateExercise', this.displayPosition, derivedExercise);
+                this.$emit('updateExercise', this.displayPosition, this.value);
             },
             findExerciseById(id) {
                 return this.availableExercises.find(exercise => exercise.id === id);
