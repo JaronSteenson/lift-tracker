@@ -48762,8 +48762,6 @@ exports.push([module.i, "\n.draggable-section[data-v-54e0e41c] {\n    padding: 2
 Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__CloseCross__ = __webpack_require__(45);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__CloseCross___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0__CloseCross__);
-var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
-
 //
 //
 //
@@ -48841,9 +48839,12 @@ var uuid = 0;
             this.emitUpdateExerciseEvent();
         },
         emitUpdateExerciseEvent: function emitUpdateExerciseEvent() {
-            var routineExercise = _extends({}, this.exercise, { numberOfSets: this.numberOfSets });
+            var derivedExercise = {
+                numberOfSets: this.numberOfSets,
+                name: this.exercise.name
+            };
 
-            this.$emit('updateExercise', this.displayPosition, routineExercise);
+            this.$emit('updateExercise', this.displayPosition, derivedExercise);
         },
         findExerciseById: function findExerciseById(id) {
             return this.exercises.find(function (exercise) {
@@ -49475,7 +49476,6 @@ var ApiService = {
             return this.put(resourceType, payload.id, payload);
         }
 
-        debugger;
         return this.post(resourceType, payload);
     },
     post: function post(resourceType, payload) {

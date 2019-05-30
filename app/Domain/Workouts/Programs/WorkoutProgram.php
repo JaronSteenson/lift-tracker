@@ -83,6 +83,10 @@ class WorkoutProgram extends AbstractModel implements UserOwnershipInterface
      */
     public function saveManyProgramRoutines(WorkoutProgramRoutine ...$programRoutines): self
     {
+        foreach ($programRoutines as $routine) {
+            $routine->workoutProgramId = $this->id;
+        }
+
         $this->workoutProgramRoutines()->saveMany($programRoutines);
 
         $this->setRelation('workoutProgramRoutines', new WorkoutProgramCollection($programRoutines));

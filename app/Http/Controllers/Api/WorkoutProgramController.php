@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
 use LiftTracker\Domain\Workouts\Exercises\Exercise;
+use LiftTracker\Domain\Workouts\Programs\RoutineExercise;
 use LiftTracker\Domain\Workouts\Programs\WorkoutProgram;
 use LiftTracker\Domain\Workouts\Programs\WorkoutProgramRoutine;
 use LiftTracker\Http\Controllers\Controller;
@@ -71,20 +72,22 @@ class WorkoutProgramController extends Controller
 
         /** @var WorkoutProgramRoutine[] $workoutProgramRoutines */
         $workoutProgramRoutines = array_map(static function (array $requestWorkoutRoutine) {
-
-            $workoutProgramRoutine =  new WorkoutProgramRoutine($requestWorkoutRoutine);
-
-            $exercises = array_map(static function (array $requestExercise) {
-                return new Exercise($requestExercise);
-            }, $requestWorkoutRoutine['exercises']);
-
-            $workoutProgramRoutine->saveManyExercises(...$exercises);
-
+            return new WorkoutProgramRoutine($requestWorkoutRoutine);
         }, $request->getWorkoutProgramRoutines());
 
         $workoutProgram->saveManyProgramRoutines(...$workoutProgramRoutines);
 
-        return dd($workoutProgram);
+        foreach ($workoutProgramRoutines as $index => $workoutProgramRoutine) {
+            $requestRoutines = $request->getWorkoutProgramRoutines();
+
+            $exercises = array_map(static function (array $requestExercise) {
+                return new RoutineExercise($requestExercise);
+            }, $requestRoutines[$index]['exercises']);
+
+            $workoutProgramRoutine->saveManyRoutineExercises(...$exercises);
+        }
+
+        return $workoutProgram;
     }
 
     /**

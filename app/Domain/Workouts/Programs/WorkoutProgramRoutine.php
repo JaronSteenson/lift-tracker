@@ -3,6 +3,7 @@
 namespace LiftTracker\Domain\Workouts\Programs;
 
 use Carbon\Carbon;
+use RuntimeException;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -16,6 +17,7 @@ use LiftTracker\User;
 /**
  * @mixin Builder
  * @property string id Is a UUID
+ * @property string workoutProgramId Is a UUID
  * @property string name
  * @property string normalDay
  * @property Carbon createdAt
@@ -47,6 +49,7 @@ class WorkoutProgramRoutine extends AbstractModel implements UserOwnershipInterf
         'name',
         'normalDay',
         'exercises',
+        'workoutProgramId',
     ];
 
     /**
@@ -80,14 +83,22 @@ class WorkoutProgramRoutine extends AbstractModel implements UserOwnershipInterf
     /**
      * Save and attach in memory many workout program routines.
      *
-     * @param WorkoutProgramRoutine ...$programRoutines
+     * @param RoutineExercise[] $routineExercises
      * @return $this
      */
-    public function saveManyExercises(WorkoutProgramRoutine ...$programRoutines): self
+    public function saveManyRoutineExercises(RoutineExercise ...$routineExercises): self
     {
-        $this->exercises()->saveMany($programRoutines);
+        if ($this->id === null) {
+            throw new RuntimeException('Cannot save many routine exercises until this WorkoutProgramRoutine has an id (has been saved)');
+        }
 
-        $this->setRelation('exercises', new WorkoutProgramCollection($programRoutines));
+        foreach ($routineExercises as $routine) {
+            $routine->workoutProgramRoutineId = $this->id;
+        }
+
+        $this->exercises()->saveMany($routineExercises);
+
+        $this->setRelation('exercises', new RoutineExerciseCollection($routineExercises));
 
         return $this;
     }

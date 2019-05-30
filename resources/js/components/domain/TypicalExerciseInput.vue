@@ -19,7 +19,7 @@
                    class="col-md-4 col-form-label text-md-right">Number of sets</label>
             <div class="col-md-6">
                 <div v-bind:class="{ 'is-invalid': false }"></div>
-                <input v-bind:id="numberOfSetsId" type="number" min="1" max="10" step="1" class="form-control"
+                <input v-bind:id="numberOfSetsId" type="number" min="1" max="20" step="1" class="form-control"
                        name="name" required @input="updateNumberOfSets($event.target.value)">
 
                 <span v-if="false" class="invalid-feedback" role="alert">
@@ -73,9 +73,12 @@
                 this.emitUpdateExerciseEvent();
             },
             emitUpdateExerciseEvent() {
-                var routineExercise = {...this.exercise, ...{numberOfSets: this.numberOfSets}};
+                const derivedExercise = {
+                    numberOfSets: this.numberOfSets,
+                    name: this.exercise.name,
+                };
 
-                this.$emit('updateExercise', this.displayPosition, routineExercise);
+                this.$emit('updateExercise', this.displayPosition, derivedExercise);
             },
             findExerciseById(id) {
                 return this.exercises.find(exercise => exercise.id === id);

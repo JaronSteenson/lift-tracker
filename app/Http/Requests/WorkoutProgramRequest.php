@@ -14,9 +14,7 @@ class WorkoutProgramRequest extends ApiRequest
             'workoutProgramRoutines.*.name' => 'required|max:40',
             'workoutProgramRoutines.*.normalDay' => ['required', new DayOfTheWeek()],
 
-            'workoutProgramRoutines.*.exercises.*.numberOfSets' => 'numeric|min:1|max:12',
-
-            'workoutProgramRoutines.*.exercises.*.exercise.id' => 'uuid|required',
+            'workoutProgramRoutines.*.exercises.*.numberOfSets' => 'numeric|min:1|max:20',
         ];
     }
 

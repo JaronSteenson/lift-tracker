@@ -16,10 +16,12 @@ use LiftTracker\User;
 /**
  * This class/table doesn't link to exercise instead when adding an exercise to a routine
  * it will copy and extend an Exercise.
+ *
  * @see Exercise
  *
  * @mixin Builder
  * @property string id Is a UUID
+ * @property string workoutProgramRoutineId Is a UUID
  * @property string name
  * @property string normalDay
  * @property Carbon createdAt
@@ -49,6 +51,7 @@ class RoutineExercise extends AbstractModel
         'id',
         'name',
         'numberOfSets',
+        'workoutProgramRoutineId',
     ];
 
     public function routine(): BelongsTo

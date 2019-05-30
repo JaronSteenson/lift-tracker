@@ -20,7 +20,6 @@ const ApiService = {
             return this.put(resourceType, payload.id, payload);
         }
 
-        debugger;
         return this.post(resourceType, payload);
     },
 
