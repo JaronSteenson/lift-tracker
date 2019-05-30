@@ -1824,6 +1824,14 @@ __webpack_require__.r(__webpack_exports__);
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _CloseCross__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../CloseCross */ "./resources/js/components/CloseCross.vue");
+function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _nonIterableSpread(); }
+
+function _nonIterableSpread() { throw new TypeError("Invalid attempt to spread non-iterable instance"); }
+
+function _iterableToArray(iter) { if (Symbol.iterator in Object(iter) || Object.prototype.toString.call(iter) === "[object Arguments]") return Array.from(iter); }
+
+function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = new Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } }
+
 function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; var ownKeys = Object.keys(source); if (typeof Object.getOwnPropertySymbols === 'function') { ownKeys = ownKeys.concat(Object.getOwnPropertySymbols(source).filter(function (sym) { return Object.getOwnPropertyDescriptor(source, sym).enumerable; })); } ownKeys.forEach(function (key) { _defineProperty(target, key, source[key]); }); } return target; }
 
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
@@ -1924,28 +1932,34 @@ var uuid = 0;
     },
     fetchAvailableExercises: function fetchAvailableExercises() {
       // TODO api service layer.
-      this.availableExercises = window.preloadData && window.preloadData.availableExercises || [];
+      var availableExercises = window.preloadData && window.preloadData.availableExercises || [];
+      this.availableExercises = availableExercises.map(function (exercise) {
+        return _objectSpread({}, exercise);
+      });
     },
     getAvailableExercises: function getAvailableExercises() {
-      var availableExercises = this.splicePreselectionIntoAvailable();
-      return this.availableExercises;
+      return this.splicePreselectionIntoAvailable();
     },
     splicePreselectionIntoAvailable: function splicePreselectionIntoAvailable() {
-      var availableExercises = _objectSpread({}, this.availableExercises);
+      var availableExercises = _toConsumableArray(this.availableExercises);
 
-      if (this.preSelectedExercise === null || !this.preSelectedExercise.name) {
+      var preSelectedExercise = this.preSelectedExercise;
+
+      if (!preSelectedExercise.name) {
         return availableExercises;
       }
 
-      this.numberOfSets = this.preSelectedExercise.numberOfSets;
+      this.numberOfSets = preSelectedExercise.numberOfSets; // let foundByName = availableExercises.find(exercise => Object.assign({}, exercise).name === preSelectedExercise.name);
+
       var foundByName = availableExercises.find(function (exercise) {
-        return exercise.name === name;
+        return exercise.name === preSelectedExercise.name;
       });
 
       if (foundByName) {
         foundByName.selected = true;
       } else {
-        availableExercises.unshift(this.preSelectedExercise);
+        preSelectedExercise.selected = true;
+        availableExercises.unshift(preSelectedExercise);
       }
 
       return availableExercises;

@@ -97,28 +97,33 @@
             },
             fetchAvailableExercises() {
                 // TODO api service layer.
-                this.availableExercises = window.preloadData && window.preloadData.availableExercises || [];
+                const availableExercises = window.preloadData && window.preloadData.availableExercises || [];
+
+                this.availableExercises = availableExercises.map(exercise => {
+                    return {...exercise};
+                });
             },
             getAvailableExercises() {
-                let availableExercises = this.splicePreselectionIntoAvailable();
-
-                return this.availableExercises;
+                return this.splicePreselectionIntoAvailable();
             },
             splicePreselectionIntoAvailable() {
-                const availableExercises = {...this.availableExercises};
+                const availableExercises = [...this.availableExercises];
+                const preSelectedExercise = this.preSelectedExercise;
 
-                if (this.preSelectedExercise === null || !this.preSelectedExercise.name) {
+                if (!preSelectedExercise.name) {
                     return availableExercises;
                 }
 
-                this.numberOfSets = this.preSelectedExercise.numberOfSets;
+                this.numberOfSets = preSelectedExercise.numberOfSets;
 
-                let foundByName = availableExercises.find(exercise => exercise.name === name);
+                // let foundByName = availableExercises.find(exercise => Object.assign({}, exercise).name === preSelectedExercise.name);
+                let foundByName = availableExercises.find(exercise => exercise.name === preSelectedExercise.name);
 
                 if (foundByName) {
                     foundByName.selected = true;
                 } else {
-                    availableExercises.unshift(this.preSelectedExercise);
+                    preSelectedExercise.selected = true;
+                    availableExercises.unshift(preSelectedExercise);
                 }
 
                 return availableExercises;
