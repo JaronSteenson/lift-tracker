@@ -34,7 +34,9 @@ class WorkoutProgramController extends Controller
         /** @var User $loggedInUser */
         $loggedInUser = $request->user();
 
-        return $loggedInUser->workoutPrograms()->without('workoutProgramRoutines')->get();
+        return $loggedInUser->workoutPrograms()
+            ->without('workoutProgramRoutines')
+            ->get();
     }
 
     /**

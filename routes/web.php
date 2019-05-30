@@ -13,11 +13,12 @@
 
 Auth::routes();
 
-/** @see \LiftTracker\Http\Controllers\HomeController */
-Route::get('/', 'HomeController@index')->name('home');
-
 /** @see \LiftTracker\Http\Controllers\WorkoutProgramController */
 Route::resource('workout-programs', 'WorkoutProgramController')->middleware('auth');
 
 /** @see \LiftTracker\Http\Controllers\Api\WorkoutProgramController */
 Route::apiResource('api/workout-programs', 'Api\WorkoutProgramController')->middleware('auth');
+
+
+/** @see \LiftTracker\Http\Controllers\VueAppController */
+Route::get('/{any}', 'VueAppController@index')->where('any','.*');

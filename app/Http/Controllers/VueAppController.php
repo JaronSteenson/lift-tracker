@@ -2,12 +2,12 @@
 
 namespace LiftTracker\Http\Controllers;
 
-use Illuminate\Support\Facades\Auth;
-use LiftTracker\Domain\Workouts\Programs\WorkoutProgram;
+use Illuminate\Http\Request;
+use Illuminate\View\View;
 use LiftTracker\Domain\Workouts\Programs\WorkoutProgramCollection;
 use LiftTracker\User;
 
-class HomeController extends Controller
+class VueAppController extends Controller
 {
     /**
      * Create a new controller instance.
@@ -16,22 +16,31 @@ class HomeController extends Controller
      */
     public function __construct()
     {
+        parent::__construct();
         $this->middleware('auth');
     }
 
     /**
      * Show the application dashboard.
      *
-     * @return \Illuminate\Http\Response
+     * @param Request $request
+     * @return View
      */
-    public function index()
+    public function index(Request $request): View
+    {
+        return view('vue-app', ['preloadData' => $this->getPreloadData($request)]);
+    }
+
+    private function getPreloadData(Request $request): array
     {
         /** @var User $user */
-        $user = Auth::user();
+        $user = $request->user();
 
         /** @var WorkoutProgramCollection $workoutPrograms */
         $workoutPrograms = $user->workoutPrograms()->get();
 
-        return view('home', ['workoutPrograms' => $workoutPrograms]);
+        return [
+            'workoutPrograms' => $workoutPrograms
+        ];
     }
 }

@@ -21,7 +21,7 @@
         window.apiBaseUrl = <?= json_encode($apiBaseUrl ?? []) ?>
 
         window.preloadData = window.preloadData || {};
-        window.preloadData.availableExercises = <?= json_encode($availableExercises ?? []) ?>
+        window.preloadData = <?= json_encode($preloadData ?? []) ?>
     </script>
     <script src="{{ asset('js/app.js') }}" defer></script>
 
@@ -54,11 +54,7 @@
     @include('layouts.partials.main_nav_bar')
 
     <main class="main-content py-4 container">
-        <div id="js-lift-tracker-app">
-            <main-content>
-                @yield('content')
-            </main-content>
-        </div>
+        @yield('content')
     </main>
 </body>
 </html>
