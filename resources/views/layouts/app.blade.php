@@ -51,10 +51,12 @@
     <meta name="theme-color" content="{{ config('app.brand_color_dark') }}">
 </head>
 <body>
-    @include('layouts.partials.main_nav_bar')
+    <div id="app">
+        @include('layouts.partials.main_nav_bar')
 
-    <main class="main-content py-4 container">
-        @yield('content')
-    </main>
+        <main class="main-content py-4 container">
+            @yield('content')
+        </main>
+    </div>
 </body>
 </html>

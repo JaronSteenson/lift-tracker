@@ -1,5 +1,5 @@
 @extends('layouts.app')
 
 @section('content')
-    <lift-tracker-app></lift-tracker-app>
+    <router-view></router-view>
 @endsection

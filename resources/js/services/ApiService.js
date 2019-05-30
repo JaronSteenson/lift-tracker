@@ -11,7 +11,7 @@ const baseUrl = window.apiBaseUrl;
 
 const ApiService = {
 
-    get(resourceType, resourceId) {
+    get(resourceType, resourceId = null) {
         return axios.get(this.makeEndpointUrl(resourceType, resourceId));
     },
 
@@ -35,10 +35,10 @@ const ApiService = {
         return axios.delete(this.makeEndpointUrl(resourceType, resourceId));
     },
 
-    makeEndpointUrl(resourceType, resourceId) {
+    makeEndpointUrl(resourceType, resourceId = null) {
         let url = `${baseUrl}/${resourceType}`;
 
-        if (resourceId) {
+        if (resourceId === null) {
             url += `/${resourceId}`
         }
 
