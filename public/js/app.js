@@ -1901,11 +1901,8 @@ var uuid = 0;
   },
   data: function data() {
     return {
-      exercise: {
-        id: null,
-        name: null
-      },
       numberOfSets: null,
+      selectedExerciseName: null,
       availableExercises: []
     };
   },
@@ -1914,14 +1911,14 @@ var uuid = 0;
       this.numberOfSets = selectedValue;
       this.emitUpdateExerciseEvent();
     },
-    updateExercise: function updateExercise(selectedExerciseId) {
-      this.exercise = this.findExerciseById(selectedExerciseId);
+    updateExercise: function updateExercise(selectedExerciseName) {
+      this.selectedExerciseName = selectedExerciseName;
       this.emitUpdateExerciseEvent();
     },
     emitUpdateExerciseEvent: function emitUpdateExerciseEvent() {
       var derivedExercise = {
         numberOfSets: this.numberOfSets,
-        name: this.exercise.name
+        name: this.selectedExerciseName
       };
       this.$emit('updateExercise', this.displayPosition, derivedExercise);
     },
@@ -22347,10 +22344,8 @@ var render = function() {
                 return _c(
                   "option",
                   {
-                    key: exercise.id,
                     domProps: {
-                      value: exercise.id,
-                      value: _vm.numberOfSets,
+                      value: exercise.name,
                       selected: exercise.selected
                     }
                   },

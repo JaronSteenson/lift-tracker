@@ -8,7 +8,7 @@
             <div class="col-md-6">
                 <select v-bind:id="nameInputId" class="form-control" @input="updateExercise($event.target.value)">
                     <option :value="null"></option>
-                    <option v-for="exercise in getAvailableExercises()" v-bind:key="exercise.id" v-bind:value="exercise.id" :value="numberOfSets" :selected="exercise.selected">
+                    <option v-for="exercise in getAvailableExercises()" :value="exercise.name" :selected="exercise.selected">
                         {{ exercise.name }}
                     </option>
                 </select>
@@ -67,11 +67,9 @@
         },
         data() {
             return {
-                exercise: {
-                    id: null,
-                    name: null,
-                },
                 numberOfSets: null,
+                selectedExerciseName: null,
+
                 availableExercises: [],
             }
         },
@@ -80,14 +78,14 @@
                 this.numberOfSets = selectedValue;
                 this.emitUpdateExerciseEvent();
             },
-            updateExercise(selectedExerciseId) {
-                this.exercise = this.findExerciseById(selectedExerciseId);
+            updateExercise(selectedExerciseName) {
+                this.selectedExerciseName = selectedExerciseName;
                 this.emitUpdateExerciseEvent();
             },
             emitUpdateExerciseEvent() {
                 const derivedExercise = {
                     numberOfSets: this.numberOfSets,
-                    name: this.exercise.name,
+                    name: this.selectedExerciseName,
                 };
 
                 this.$emit('updateExercise', this.displayPosition, derivedExercise);
