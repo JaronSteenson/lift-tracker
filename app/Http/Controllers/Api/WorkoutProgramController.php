@@ -6,6 +6,7 @@
 namespace LiftTracker\Http\Controllers\Api;
 
 use Illuminate\Contracts\View\Factory;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -13,6 +14,7 @@ use Illuminate\View\View;
 use LiftTracker\Domain\Workouts\Exercises\Exercise;
 use LiftTracker\Domain\Workouts\Programs\RoutineExercise;
 use LiftTracker\Domain\Workouts\Programs\WorkoutProgram;
+use LiftTracker\Domain\Workouts\Programs\WorkoutProgramCollection;
 use LiftTracker\Domain\Workouts\Programs\WorkoutProgramRoutine;
 use LiftTracker\Http\Controllers\Controller;
 use LiftTracker\Http\Requests\WorkoutProgramRequest;
@@ -24,27 +26,27 @@ class WorkoutProgramController extends Controller
     /**
      * Display a listing of the resource.
      *
-     * @return View
+     * @param WorkoutProgramRequest $request
+     * @return Collection|WorkoutProgramCollection
      */
-    public function index(): View
+    public function index(WorkoutProgramRequest $request): WorkoutProgramCollection
     {
-        /** @var User $user */
-        $user = Auth::user();
-
-        $workoutPrograms = $user->findWorkoutPrograms();
-
-        return view('workouts.workoutProgram.index', ['workoutPrograms' => $workoutPrograms]);
+        return $request->user()->workoutPrograms()->get();
     }
 
     /**
-     * Show the form for creating a new resource.
+     * Display the specified resource.
      *
-     * @return View
+     * @param WorkoutProgram $workoutProgram
+     * @return WorkoutProgram
      */
-    public function create(): View
+    public function show(WorkoutProgram $workoutProgram): WorkoutProgram
     {
-        $availableExercises = Exercise::all();
-        return view('workouts.workoutProgram.create', ['availableExercises' => $availableExercises]);
+        $workoutProgram->workoutProgramRoutines()->get()->each(static function (WorkoutProgramRoutine $routine) {
+            $routine->exercises()->get();
+        });
+
+        return $workoutProgram;
     }
 
     /**
@@ -88,33 +90,6 @@ class WorkoutProgramController extends Controller
         }
 
         return $workoutProgram;
-    }
-
-    /**
-     * Display the specified resource.
-     *
-     * @param WorkoutProgram $workoutProgram
-     * @return void|View|Factory
-     */
-    public function show(WorkoutProgram $workoutProgram)
-    {
-        return $this->edit($workoutProgram);
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param WorkoutProgram $workoutProgram
-     * @return void
-     */
-    public function edit(WorkoutProgram $workoutProgram)
-    {
-        $availableExercises = Exercise::all();
-
-        return view('workouts.workoutProgram.edit', [
-            'workoutProgram' => $workoutProgram,
-            'availableExercises' => $availableExercises,
-        ]);
     }
 
     /**

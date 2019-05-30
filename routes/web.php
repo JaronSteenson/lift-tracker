@@ -20,4 +20,4 @@ Route::get('/', 'HomeController@index')->name('home');
 Route::resource('workout-programs', 'WorkoutProgramController')->middleware('auth');
 
 /** @see \LiftTracker\Http\Controllers\Api\WorkoutProgramController */
-Route::resource('api/workout-programs', 'Api\WorkoutProgramController')->middleware('auth');
+Route::apiResource('api/workout-programs', 'Api\WorkoutProgramController')->middleware('auth');

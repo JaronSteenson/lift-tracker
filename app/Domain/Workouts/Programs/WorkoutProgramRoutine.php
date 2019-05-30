@@ -76,8 +76,7 @@ class WorkoutProgramRoutine extends AbstractModel implements UserOwnershipInterf
 
     public function exercises(): HasMany
     {
-        // TODO this is wrong, we need a RoutineExercise link table
-        return $this->hasMany(Exercise::class);
+        return $this->hasMany(RoutineExercise::class);
     }
 
     /**
