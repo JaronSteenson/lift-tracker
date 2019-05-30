@@ -31,7 +31,10 @@ class WorkoutProgramController extends Controller
      */
     public function index(WorkoutProgramRequest $request): WorkoutProgramCollection
     {
-        return $request->user()->workoutPrograms()->get();
+        /** @var User $loggedInUser */
+        $loggedInUser = $request->user();
+
+        return $loggedInUser->workoutPrograms()->without('workoutProgramRoutines')->get();
     }
 
     /**
@@ -42,10 +45,6 @@ class WorkoutProgramController extends Controller
      */
     public function show(WorkoutProgram $workoutProgram): WorkoutProgram
     {
-        $workoutProgram->workoutProgramRoutines()->get()->each(static function (WorkoutProgramRoutine $routine) {
-            $routine->exercises()->get();
-        });
-
         return $workoutProgram;
     }
 

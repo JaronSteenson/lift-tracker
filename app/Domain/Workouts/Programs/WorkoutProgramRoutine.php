@@ -52,6 +52,10 @@ class WorkoutProgramRoutine extends AbstractModel implements UserOwnershipInterf
         'workoutProgramId',
     ];
 
+    protected $with = [
+        'exercises',
+    ];
+
     /**
      * The attributes that should be cast to native types.
      *
