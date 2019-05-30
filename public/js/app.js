@@ -1903,7 +1903,7 @@ var uuid = 0;
       "default": function _default() {
         return {
           numberOfSets: 3,
-          selectedExerciseName: null
+          name: null
         };
       }
     }
@@ -1913,8 +1913,8 @@ var uuid = 0;
       this.value.numberOfSets = selectedValue;
       this.emitUpdateExerciseEvent();
     },
-    updateExercise: function updateExercise(selectedExerciseName) {
-      this.value.selectedExerciseName = selectedExerciseName;
+    updateExercise: function updateExercise(name) {
+      this.value.name = name;
       this.emitUpdateExerciseEvent();
     },
     emitUpdateExerciseEvent: function emitUpdateExerciseEvent() {
@@ -2135,14 +2135,17 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
   },
   props: {
     workoutProgram: {
-      "default": {
-        name: '',
-        workoutProgramRoutines: [{}]
+      "default": function _default() {
+        return {
+          name: '',
+          workoutProgramRoutines: [{
+            name: null,
+            normalDay: 'any',
+            exercises: [{}]
+          }]
+        };
       }
     }
-  },
-  data: function data() {
-    return {};
   },
   computed: {
     workoutsPerCycle: {
@@ -2370,10 +2373,12 @@ var uuid = 0;
   },
   props: {
     workoutRoutine: {
-      "default": {
-        name: null,
-        normalDay: 'any',
-        exercises: [{}]
+      "default": function _default() {
+        return {
+          name: null,
+          normalDay: 'any',
+          exercises: [{}]
+        };
       }
     }
   },
@@ -2426,6 +2431,11 @@ __webpack_require__.r(__webpack_exports__);
     selectId: {
       type: String,
       required: true
+    },
+    value: {
+      "default": function _default() {
+        return 'any';
+      }
     }
   },
   data: function data() {
@@ -2435,6 +2445,7 @@ __webpack_require__.r(__webpack_exports__);
   },
   methods: {
     updateSelectedValue: function updateSelectedValue(selectedValue) {
+      this.value = selectedValue;
       this.$emit('input', selectedValue);
     }
   }
@@ -2517,7 +2528,11 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       workoutProgram: {
         id: null,
         name: '',
-        workoutProgramRoutines: [{}]
+        workoutProgramRoutines: [{
+          name: null,
+          normalDay: 'any',
+          exercises: [{}]
+        }]
       }
     };
   },
@@ -38555,7 +38570,7 @@ var ApiService = {
     var resourceId = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
     var url = "".concat(baseUrl, "/").concat(resourceType);
 
-    if (resourceId === null) {
+    if (resourceId !== null) {
       url += "/".concat(resourceId);
     }
 

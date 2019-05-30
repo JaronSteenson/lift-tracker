@@ -24,7 +24,11 @@
                 workoutProgram: {
                     id: null,
                     name: '',
-                    workoutProgramRoutines: [{}]
+                    workoutProgramRoutines: [{
+                        name: null,
+                        normalDay: 'any',
+                        exercises: [{}],
+                    }]
                 },
             }
         },

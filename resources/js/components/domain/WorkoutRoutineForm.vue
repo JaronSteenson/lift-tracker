@@ -55,10 +55,12 @@
         },
         props: {
             workoutRoutine: {
-                default: {
-                    name: null,
-                    normalDay: 'any',
-                    exercises: [{}],
+                default() {
+                    return {
+                        name: null,
+                        normalDay: 'any',
+                        exercises: [{}],
+                    }
                 },
             },
         },

@@ -69,7 +69,7 @@
                 default() {
                     return {
                         numberOfSets: 3,
-                        selectedExerciseName: null,
+                        name: null,
                     }
                 },
             }
@@ -79,8 +79,8 @@
                 this.value.numberOfSets = selectedValue;
                 this.emitUpdateExerciseEvent();
             },
-            updateExercise(selectedExerciseName) {
-                this.value.selectedExerciseName = selectedExerciseName;
+            updateExercise(name) {
+                this.value.name = name;
                 this.emitUpdateExerciseEvent();
             },
             emitUpdateExerciseEvent() {

@@ -14,8 +14,7 @@
 Auth::routes();
 
 /** @see \LiftTracker\Http\Controllers\Api\WorkoutProgramController */
-//Route::apiResource('api/workout-programs', 'Api\WorkoutProgramController')->middleware('auth');
-Route::resource('api/workout-programs', 'Api\WorkoutProgramController')->middleware('auth');
+Route::apiResource('api/workout-programs', 'Api\WorkoutProgramController')->middleware('auth');
 
 
 /** @see \LiftTracker\Http\Controllers\VueAppController */

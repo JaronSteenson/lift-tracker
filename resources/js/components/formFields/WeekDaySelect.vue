@@ -14,6 +14,11 @@
                 type: String,
                 required: true,
             },
+            value: {
+                default() {
+                    return 'any';
+                }
+            }
         },
         data() {
             return {
@@ -31,6 +36,7 @@
         },
         methods: {
             updateSelectedValue(selectedValue) {
+                this.value = selectedValue;
                 this.$emit('input', selectedValue);
             }
         }

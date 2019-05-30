@@ -38,7 +38,7 @@ const ApiService = {
     makeEndpointUrl(resourceType, resourceId = null) {
         let url = `${baseUrl}/${resourceType}`;
 
-        if (resourceId === null) {
+        if (resourceId !== null) {
             url += `/${resourceId}`
         }
 

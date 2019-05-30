@@ -62,15 +62,16 @@
         components: {WorkoutRoutineForm},
         props: {
             workoutProgram: {
-                default: {
-                    name: '',
-                    workoutProgramRoutines: [{}]
+                default() {
+                    return {
+                        name: '',
+                        workoutProgramRoutines: [{
+                            name: null,
+                            normalDay: 'any',
+                            exercises: [{}],
+                        }],
+                    };
                 }
-            }
-        },
-        data() {
-            return {
-
             }
         },
         computed: {

@@ -58,11 +58,25 @@ class WorkoutProgramController extends Controller
      */
     public function store(WorkoutProgramRequest $request)
     {
-        $workoutProgram = DB::transaction(function() use ($request) {
+        return $this->saveFromRequest($request);
+    }
+
+    /**
+     * Update the specified resource in storage.
+     *
+     * @param WorkoutProgramRequest $request
+     * @return void|RedirectResponse
+     */
+    public function update(WorkoutProgramRequest $request)
+    {
+        return $this->saveFromRequest($request);
+    }
+
+    private function saveFromRequest(WorkoutProgramRequest $request)
+    {
+        return DB::transaction(function() use ($request) {
             return $this->saveWorkoutProgramAndChildren($request);
         });
-
-        return $workoutProgram;
     }
 
     private function saveWorkoutProgramAndChildren(WorkoutProgramRequest $request)
@@ -93,20 +107,6 @@ class WorkoutProgramController extends Controller
         return $workoutProgram;
     }
 
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param WorkoutProgramRequest $request
-     * @param WorkoutProgram $workoutProgram
-     * @return void|RedirectResponse
-     */
-    public function update(WorkoutProgramRequest $request, WorkoutProgram $workoutProgram)
-    {
-        $workoutProgram->name = $request->get('name');
-        $workoutProgram->save();
-
-        return redirect(route('workout-programs.index'))->with('success-alert', 'Workout program has been updated');
-    }
 
     /**
      * Remove the specified resource from storage.
