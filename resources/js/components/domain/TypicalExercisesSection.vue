@@ -7,9 +7,10 @@
             <TypicalExerciseInput v-for="(exercise, index) in exercises"
                                   @updateExercise="updateExercise"
                                   @removeExercise="removeExercise"
-                                  v-bind:display-position="index"
-                                  v-bind:show-cross="exercises.length > 1"
-                                  v-bind:key="index"
+                                  :preSelectedExercise="exercise"
+                                  :display-position="index"
+                                  :show-cross="exercises.length > 1"
+                                  :key="index"
             />
 
             <div class="row">
@@ -32,9 +33,15 @@
             this.uuid = uuid.toString();
             uuid += 1;
         },
+        props: {
+            exercises: {
+                default() {
+                    return [{}]
+                },
+            },
+        },
         data() {
             return {
-                exercises: [{}],
             }
         },
         computed: {

@@ -34,7 +34,7 @@
         <hr v-if="hasWorkoutRoutines()" class="form-section-divider">
 
         <WorkoutRoutineForm v-for="(workoutRoutine, index) in workoutProgram.workoutProgramRoutines"
-                            v-model="workoutProgram.workoutProgramRoutines[index]" v-bind:key="index">
+                            :workoutRoutine="workoutProgram.workoutProgramRoutines[index]" v-bind:key="index">
         </WorkoutRoutineForm>
 
 
@@ -60,12 +60,17 @@
     export default {
         name: 'WorkoutProgramForm',
         components: {WorkoutRoutineForm},
-        data() {
-            return {
-                workoutProgram: {
+        props: {
+            workoutProgram: {
+                default: {
                     name: '',
                     workoutProgramRoutines: [{}]
-                },
+                }
+            }
+        },
+        data() {
+            return {
+
             }
         },
         computed: {

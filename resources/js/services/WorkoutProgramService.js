@@ -8,7 +8,7 @@ let cache = window.preloadData.workoutPrograms || [];
 const WorkoutProgramService = {
 
     get(workoutRoutineId) {
-        const foundInCache = cache.find(id => Number(id) === Number(workoutRoutineId));
+        const foundInCache = cache.find(workoutProgram => workoutProgram.id === workoutRoutineId);
 
         if (foundInCache) {
             return foundInCache;
@@ -18,7 +18,6 @@ const WorkoutProgramService = {
     },
 
     getAll() {
-        debugger;
         if (cache) {
             return cache;
         }

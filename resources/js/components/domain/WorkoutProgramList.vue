@@ -28,6 +28,7 @@
         },
         data() {
             return {
+                wtf: 'wtf',
                 workoutPrograms: [],
             }
         },

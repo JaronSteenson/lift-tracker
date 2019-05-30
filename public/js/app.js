@@ -1824,6 +1824,11 @@ __webpack_require__.r(__webpack_exports__);
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _CloseCross__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../CloseCross */ "./resources/js/components/CloseCross.vue");
+function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; var ownKeys = Object.keys(source); if (typeof Object.getOwnPropertySymbols === 'function') { ownKeys = ownKeys.concat(Object.getOwnPropertySymbols(source).filter(function (sym) { return Object.getOwnPropertyDescriptor(source, sym).enumerable; })); } ownKeys.forEach(function (key) { _defineProperty(target, key, source[key]); }); } return target; }
+
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
+//
 //
 //
 //
@@ -1867,7 +1872,14 @@ var uuid = 0;
     this.uuid = uuid.toString();
     uuid += 1;
   },
+  created: function created() {
+    this.fetchAvailableExercises();
+  },
   props: {
+    preSelectedExercise: {
+      required: false,
+      "default": null
+    },
     displayPosition: {
       type: Number,
       required: false,
@@ -1885,7 +1897,8 @@ var uuid = 0;
         id: null,
         name: null
       },
-      numberOfSets: null
+      numberOfSets: null,
+      availableExercises: []
     };
   },
   methods: {
@@ -1905,17 +1918,42 @@ var uuid = 0;
       this.$emit('updateExercise', this.displayPosition, derivedExercise);
     },
     findExerciseById: function findExerciseById(id) {
-      return this.exercises.find(function (exercise) {
+      return this.availableExercises.find(function (exercise) {
         return exercise.id === id;
       });
+    },
+    fetchAvailableExercises: function fetchAvailableExercises() {
+      // TODO api service layer.
+      this.availableExercises = window.preloadData && window.preloadData.availableExercises || [];
+    },
+    getAvailableExercises: function getAvailableExercises() {
+      var availableExercises = this.splicePreselectionIntoAvailable();
+      return this.availableExercises;
+    },
+    splicePreselectionIntoAvailable: function splicePreselectionIntoAvailable() {
+      var availableExercises = _objectSpread({}, this.availableExercises);
+
+      if (this.preSelectedExercise === null || !this.preSelectedExercise.name) {
+        return availableExercises;
+      }
+
+      this.numberOfSets = this.preSelectedExercise.numberOfSets;
+      var foundByName = availableExercises.find(function (exercise) {
+        return exercise.name === name;
+      });
+
+      if (foundByName) {
+        foundByName.selected = true;
+      } else {
+        availableExercises.unshift(this.preSelectedExercise);
+      }
+
+      return availableExercises;
     }
   },
   computed: {
     setsOfLabelPhrase: function setsOfLabelPhrase() {
       return this.numberOfSets > 1 ? 'sets of:' : 'set of:';
-    },
-    exercises: function exercises() {
-      return window.preloadData && window.preloadData.availableExercises || [];
     },
     numberOfSetsId: function numberOfSetsId() {
       return 'exercise-input-number-of-sets-' + uuid;
@@ -1960,6 +1998,7 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
 
 var uuid = 0;
 /* harmony default export */ __webpack_exports__["default"] = ({
@@ -1971,10 +2010,15 @@ var uuid = 0;
     this.uuid = uuid.toString();
     uuid += 1;
   },
+  props: {
+    exercises: {
+      "default": function _default() {
+        return [{}];
+      }
+    }
+  },
   data: function data() {
-    return {
-      exercises: [{}]
-    };
+    return {};
   },
   computed: {
     nameInputId: function nameInputId() {
@@ -2082,13 +2126,16 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
   components: {
     WorkoutRoutineForm: _domain_WorkoutRoutineForm__WEBPACK_IMPORTED_MODULE_1__["default"]
   },
-  data: function data() {
-    return {
-      workoutProgram: {
+  props: {
+    workoutProgram: {
+      "default": {
         name: '',
         workoutProgramRoutines: [{}]
       }
-    };
+    }
+  },
+  data: function data() {
+    return {};
   },
   computed: {
     workoutsPerCycle: {
@@ -2210,6 +2257,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
   },
   data: function data() {
     return {
+      wtf: 'wtf',
       workoutPrograms: []
     };
   },
@@ -2315,14 +2363,17 @@ var uuid = 0;
     this.uuid = uuid.toString();
     uuid += 1;
   },
-  data: function data() {
-    return {
-      workoutRoutine: {
+  props: {
+    workoutRoutine: {
+      "default": {
         name: null,
         normalDay: 'any',
         exercises: [{}]
       }
-    };
+    }
+  },
+  data: function data() {
+    return {};
   },
   watch: {
     workoutRoutine: {
@@ -2340,7 +2391,7 @@ var uuid = 0;
       return "workout-routine-typical-day-".concat(this.uuid);
     },
     placeHolderName: function placeHolderName() {
-      return "Workout ".concat(this.day);
+      return "Workout ".concat(this.workoutRoutine.normalDay);
     }
   }
 });
@@ -2423,29 +2474,93 @@ __webpack_require__.r(__webpack_exports__);
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony import */ var _BootstrapCard__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../BootstrapCard */ "./resources/js/components/BootstrapCard.vue");
-/* harmony import */ var _domain_WorkoutProgramForm__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../domain/WorkoutProgramForm */ "./resources/js/components/domain/WorkoutProgramForm.vue");
+/* harmony import */ var _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @babel/runtime/regenerator */ "./node_modules/@babel/runtime/regenerator/index.js");
+/* harmony import */ var _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var _BootstrapCard__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../BootstrapCard */ "./resources/js/components/BootstrapCard.vue");
+/* harmony import */ var _domain_WorkoutProgramForm__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../domain/WorkoutProgramForm */ "./resources/js/components/domain/WorkoutProgramForm.vue");
+/* harmony import */ var _services_WorkoutProgramService__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../../services/WorkoutProgramService */ "./resources/js/services/WorkoutProgramService.js");
+
+
+function asyncGeneratorStep(gen, resolve, reject, _next, _throw, key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { Promise.resolve(value).then(_next, _throw); } }
+
+function _asyncToGenerator(fn) { return function () { var self = this, args = arguments; return new Promise(function (resolve, reject) { var gen = fn.apply(self, args); function _next(value) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "next", value); } function _throw(err) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "throw", err); } _next(undefined); }); }; }
+
 //
 //
 //
 //
 //
 //
+
 
 
 /* harmony default export */ __webpack_exports__["default"] = ({
   name: 'CreateWorkoutProgramPage',
   components: {
-    BootstrapCard: _BootstrapCard__WEBPACK_IMPORTED_MODULE_0__["default"],
-    WorkoutProgramForm: _domain_WorkoutProgramForm__WEBPACK_IMPORTED_MODULE_1__["default"]
+    BootstrapCard: _BootstrapCard__WEBPACK_IMPORTED_MODULE_1__["default"],
+    WorkoutProgramForm: _domain_WorkoutProgramForm__WEBPACK_IMPORTED_MODULE_2__["default"]
+  },
+  created: function created() {
+    this.fetchWorkoutProgram();
+  },
+  watch: {
+    // call again the method if the route changes
+    '$route': 'fetchWorkoutProgram'
   },
   data: function data() {
     return {
       workoutProgram: {
+        id: null,
         name: '',
         workoutProgramRoutines: [{}]
       }
     };
+  },
+  computed: {
+    title: function title() {
+      return this.isNew() ? 'Create new workout program' : "Edit ".concat(this.workoutProgram.name);
+    }
+  },
+  methods: {
+    fetchWorkoutProgram: function () {
+      var _fetchWorkoutProgram = _asyncToGenerator(
+      /*#__PURE__*/
+      _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.mark(function _callee() {
+        var id;
+        return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.wrap(function _callee$(_context) {
+          while (1) {
+            switch (_context.prev = _context.next) {
+              case 0:
+                id = this.$route.params.id;
+
+                if (!id) {
+                  _context.next = 5;
+                  break;
+                }
+
+                _context.next = 4;
+                return _services_WorkoutProgramService__WEBPACK_IMPORTED_MODULE_3__["default"].get(id);
+
+              case 4:
+                this.workoutProgram = _context.sent;
+
+              case 5:
+              case "end":
+                return _context.stop();
+            }
+          }
+        }, _callee, this);
+      }));
+
+      function fetchWorkoutProgram() {
+        return _fetchWorkoutProgram.apply(this, arguments);
+      }
+
+      return fetchWorkoutProgram;
+    }(),
+    isNew: function isNew() {
+      return !this.$route.params.id;
+    }
   }
 });
 
@@ -22214,10 +22329,17 @@ var render = function() {
             [
               _c("option", { domProps: { value: null } }),
               _vm._v(" "),
-              _vm._l(_vm.exercises, function(exercise) {
+              _vm._l(_vm.getAvailableExercises(), function(exercise) {
                 return _c(
                   "option",
-                  { key: exercise.id, domProps: { value: exercise.id } },
+                  {
+                    key: exercise.id,
+                    domProps: {
+                      value: exercise.id,
+                      value: _vm.numberOfSets,
+                      selected: exercise.selected
+                    }
+                  },
                   [
                     _vm._v(
                       "\n                    " +
@@ -22257,6 +22379,7 @@ var render = function() {
               name: "name",
               required: ""
             },
+            domProps: { value: _vm.numberOfSets },
             on: {
               input: function($event) {
                 return _vm.updateNumberOfSets($event.target.value)
@@ -22305,6 +22428,7 @@ var render = function() {
         return _c("TypicalExerciseInput", {
           key: index,
           attrs: {
+            preSelectedExercise: exercise,
             "display-position": index,
             "show-cross": _vm.exercises.length > 1
           },
@@ -22482,12 +22606,8 @@ var render = function() {
       ) {
         return _c("WorkoutRoutineForm", {
           key: index,
-          model: {
-            value: _vm.workoutProgram.workoutProgramRoutines[index],
-            callback: function($$v) {
-              _vm.$set(_vm.workoutProgram.workoutProgramRoutines, index, $$v)
-            },
-            expression: "workoutProgram.workoutProgramRoutines[index]"
+          attrs: {
+            workoutRoutine: _vm.workoutProgram.workoutProgramRoutines[index]
           }
         })
       }),
@@ -22676,11 +22796,11 @@ var render = function() {
               _c("WeekDaySelect", {
                 attrs: { "select-id": _vm.typicalDayInputId },
                 model: {
-                  value: _vm.workoutRoutine.normalDay,
+                  value: _vm.workoutRoutine.day,
                   callback: function($$v) {
-                    _vm.$set(_vm.workoutRoutine, "normalDay", $$v)
+                    _vm.$set(_vm.workoutRoutine, "day", $$v)
                   },
-                  expression: "workoutRoutine.normalDay"
+                  expression: "workoutRoutine.day"
                 }
               })
             ],
@@ -22690,13 +22810,7 @@ var render = function() {
       ]),
       _vm._v(" "),
       _c("TypicalExercisesSection", {
-        model: {
-          value: _vm.workoutRoutine.exercises,
-          callback: function($$v) {
-            _vm.$set(_vm.workoutRoutine, "exercises", $$v)
-          },
-          expression: "workoutRoutine.exercises"
-        }
+        attrs: { exercises: _vm.workoutRoutine.exercises }
       }),
       _vm._v(" "),
       _c("hr", { staticClass: "form-section-divider" })
@@ -22797,16 +22911,10 @@ var render = function() {
   var _c = _vm._self._c || _h
   return _c(
     "BootstrapCard",
-    { attrs: { title: "Create new workout program" } },
+    { attrs: { title: _vm.title } },
     [
       _c("WorkoutProgramForm", {
-        model: {
-          value: _vm.workoutProgram,
-          callback: function($$v) {
-            _vm.workoutProgram = $$v
-          },
-          expression: "workoutProgram"
-        }
+        attrs: { workoutProgram: _vm.workoutProgram }
       })
     ],
     1
@@ -38465,8 +38573,8 @@ var RESOURCE_NAME = 'workout-programs'; // "getAll" only cache.
 var cache = window.preloadData.workoutPrograms || [];
 var WorkoutProgramService = {
   get: function get(workoutRoutineId) {
-    var foundInCache = cache.find(function (id) {
-      return Number(id) === Number(workoutRoutineId);
+    var foundInCache = cache.find(function (workoutProgram) {
+      return workoutProgram.id === workoutRoutineId;
     });
 
     if (foundInCache) {
@@ -38476,8 +38584,6 @@ var WorkoutProgramService = {
     return _ApiService__WEBPACK_IMPORTED_MODULE_0__["default"].get(RESOURCE_NAME, workoutRoutineId);
   },
   getAll: function getAll() {
-    debugger;
-
     if (cache) {
       return cache;
     }

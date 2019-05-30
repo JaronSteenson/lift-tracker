@@ -29,13 +29,13 @@
                 <label v-bind:for="typicalDayInputId"
                        class="col-md-4 col-form-label text-md-right">Typical day</label>
                 <div class="col-md-6">
-                    <WeekDaySelect v-model="workoutRoutine.normalDay" v-bind:select-id="typicalDayInputId"/>
+                    <WeekDaySelect v-model="workoutRoutine.day" v-bind:select-id="typicalDayInputId"/>
                 </div>
             </div>
 
         </div>
 
-        <TypicalExercisesSection v-model="workoutRoutine.exercises"/>
+        <TypicalExercisesSection :exercises="workoutRoutine.exercises"/>
 
         <hr class="form-section-divider">
 
@@ -55,13 +55,17 @@
             this.uuid = uuid.toString();
             uuid += 1;
         },
-        data() {
-            return {
-                workoutRoutine: {
+        props: {
+            workoutRoutine: {
+                default: {
                     name: null,
                     normalDay: 'any',
                     exercises: [{}],
                 },
+            },
+        },
+        data() {
+            return {
             };
         },
         watch: {
@@ -80,7 +84,7 @@
                 return `workout-routine-typical-day-${this.uuid}`;
             },
             placeHolderName() {
-                return `Workout ${this.day}`;
+                return `Workout ${this.workoutRoutine.normalDay}`;
             },
         },
     };

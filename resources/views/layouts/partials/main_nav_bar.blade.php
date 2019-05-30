@@ -1,8 +1,8 @@
 <nav class="navbar navbar-expand-lg main-nav-bar">
 
-            <a class="navbar-brand" href="{{ url('/') }}">
-                {{ config('app.name', 'Laravel') }}
-            </a>
+            <router-link class="navbar-brand"  tag="a" to="/">
+                {{ config('app.name', 'Lift Tracker') }}
+            </router-link>
 
             <a class="navbar-toggler" href="#" data-toggle="collapse" data-target="#js-navbar-options" aria-controls="js-navbar-options" aria-expanded="false" aria-label="Toggle navigation">
                 <div class="navbar-burger">
