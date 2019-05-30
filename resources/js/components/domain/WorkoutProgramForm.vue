@@ -93,7 +93,7 @@
                     }
 
                     while (this.getWorkoutRoutineLength() !== newValue) {
-                        mutation();
+                        mutation.call(this);
                     }
                 }
             }

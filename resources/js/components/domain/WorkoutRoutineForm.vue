@@ -13,8 +13,6 @@
                     <input v-bind:id="nameInputId" type="text" class="form-control"
                            name="name" required v-model="workoutRoutine.name">
 
-                    <!--                           name="name" required v-model="workoutRoutine.name">-->
-
                     <span v-if="false" class="invalid-feedback" role="alert">
                                         <strong></strong>
             </span>
@@ -29,13 +27,13 @@
                 <label v-bind:for="typicalDayInputId"
                        class="col-md-4 col-form-label text-md-right">Typical day</label>
                 <div class="col-md-6">
-                    <WeekDaySelect v-model="workoutRoutine.day" v-bind:select-id="typicalDayInputId"/>
+                    <WeekDaySelect v-model="workoutRoutine.normalDay" :select-id="typicalDayInputId"/>
                 </div>
             </div>
 
         </div>
 
-        <TypicalExercisesSection :exercises="workoutRoutine.exercises"/>
+        <TypicalExercisesSection v-model="workoutRoutine.exercises"/>
 
         <hr class="form-section-divider">
 

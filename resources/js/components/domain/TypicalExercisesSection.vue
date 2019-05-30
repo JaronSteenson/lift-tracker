@@ -34,14 +34,11 @@
             uuid += 1;
         },
         props: {
-            exercises: {
-                default() {
-                    return [{}]
-                },
-            },
+
         },
         data() {
             return {
+                exercises: [{}],
             }
         },
         computed: {

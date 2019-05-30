@@ -2021,15 +2021,11 @@ var uuid = 0;
     this.uuid = uuid.toString();
     uuid += 1;
   },
-  props: {
-    exercises: {
-      "default": function _default() {
-        return [{}];
-      }
-    }
-  },
+  props: {},
   data: function data() {
-    return {};
+    return {
+      exercises: [{}]
+    };
   },
   computed: {
     nameInputId: function nameInputId() {
@@ -2168,7 +2164,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         }
 
         while (this.getWorkoutRoutineLength() !== newValue) {
-          mutation();
+          mutation.call(this);
         }
       }
     }
@@ -2317,8 +2313,6 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _TypicalExercisesSection__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./TypicalExercisesSection */ "./resources/js/components/domain/TypicalExercisesSection.vue");
 /* harmony import */ var _formFields_WeekDaySelect__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../formFields/WeekDaySelect */ "./resources/js/components/formFields/WeekDaySelect.vue");
-//
-//
 //
 //
 //
@@ -22805,11 +22799,11 @@ var render = function() {
               _c("WeekDaySelect", {
                 attrs: { "select-id": _vm.typicalDayInputId },
                 model: {
-                  value: _vm.workoutRoutine.day,
+                  value: _vm.workoutRoutine.normalDay,
                   callback: function($$v) {
-                    _vm.$set(_vm.workoutRoutine, "day", $$v)
+                    _vm.$set(_vm.workoutRoutine, "normalDay", $$v)
                   },
-                  expression: "workoutRoutine.day"
+                  expression: "workoutRoutine.normalDay"
                 }
               })
             ],
@@ -22819,7 +22813,13 @@ var render = function() {
       ]),
       _vm._v(" "),
       _c("TypicalExercisesSection", {
-        attrs: { exercises: _vm.workoutRoutine.exercises }
+        model: {
+          value: _vm.workoutRoutine.exercises,
+          callback: function($$v) {
+            _vm.$set(_vm.workoutRoutine, "exercises", $$v)
+          },
+          expression: "workoutRoutine.exercises"
+        }
       }),
       _vm._v(" "),
       _c("hr", { staticClass: "form-section-divider" })
