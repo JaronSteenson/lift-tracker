@@ -6,6 +6,7 @@ use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Facades\DB;
 use LiftTracker\Domain\AbstractModel;
 use LiftTracker\Domain\Users\CanBeOwnedByUserTrait;
 use LiftTracker\Domain\Users\UserOwnershipInterface;
@@ -80,7 +81,57 @@ class WorkoutProgram extends AbstractModel implements UserOwnershipInterface
 
     public function saveWithChildren()
     {
+        return DB::transaction(function() {
+            $this->save();
+            $this->saveRoutinesWithChildren();
 
+            dd($this->toArray());
+        });
+    }
+
+    private function saveRoutinesWithChildren()
+    {
+        $routines = $this->getRelation('workoutProgramRoutines');
+
+        $routines->each(function (WorkoutProgramRoutine $routine) {
+            $routine->id = $this->id;
+        });
+
+        $this->workoutProgramRoutines()->saveMany($routines);
+
+        $routines->each(static function (WorkoutProgramRoutine $routine) {
+            $routine->saveExercises();
+        });
+
+        return $this;
+    }
+
+    private function saveWorkoutProgramAndChildren(WorkoutProgramRequest $request)
+    {
+        //TODO separate out request deserialization and saving.
+        $workoutProgram = new WorkoutProgram($request->getWorkoutProgramFields());
+
+        $workoutProgram->user()->associate(Auth::user());
+        $workoutProgram->save();
+
+        /** @var WorkoutProgramRoutine[] $workoutProgramRoutines */
+        $workoutProgramRoutines = array_map(static function (array $requestWorkoutRoutine) {
+            return new WorkoutProgramRoutine($requestWorkoutRoutine);
+        }, $request->getWorkoutProgramRoutines());
+
+        $workoutProgram->saveManyProgramRoutines(...$workoutProgramRoutines);
+
+        foreach ($workoutProgramRoutines as $index => $workoutProgramRoutine) {
+            $requestRoutines = $request->getWorkoutProgramRoutines();
+
+            $exercises = array_map(static function (array $requestExercise) {
+                return new RoutineExercise($requestExercise);
+            }, $requestRoutines[$index]['exercises']);
+
+            $workoutProgramRoutine->saveManyRoutineExercises(...$exercises);
+        }
+
+        return $workoutProgram;
     }
 
     /**
@@ -94,25 +145,6 @@ class WorkoutProgram extends AbstractModel implements UserOwnershipInterface
     public function workoutProgramRoutines(): HasMany
     {
         return $this->hasMany(WorkoutProgramRoutine::class);
-    }
-
-    /**
-     * Save and attach in memory many workout program routines.
-     *
-     * @param WorkoutProgramRoutine ...$programRoutines
-     * @return $this
-     */
-    public function saveManyProgramRoutines(WorkoutProgramRoutine ...$programRoutines): self
-    {
-        foreach ($programRoutines as $routine) {
-            $routine->workoutProgramId = $this->id;
-        }
-
-        $this->workoutProgramRoutines()->saveMany($programRoutines);
-
-        $this->setRelation('workoutProgramRoutines', new WorkoutProgramRoutineCollection($programRoutines));
-
-        return $this;
     }
 
     protected function associateProgramRoutines(WorkoutProgramRoutineCollection $programRoutines): self

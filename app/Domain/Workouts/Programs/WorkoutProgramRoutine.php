@@ -114,4 +114,17 @@ class WorkoutProgramRoutine extends AbstractModel implements UserOwnershipInterf
 
         return $this;
     }
+
+    public function saveExercises()
+    {
+        $exercises = $this->getRelation('exercises');
+
+        $exercises->each(function (RoutineExercise $exercises) {
+            $exercises->id = $this->id;
+        });
+
+        $this->exercises()->saveMany($exercises);
+
+        return $this;
+    }
 }
