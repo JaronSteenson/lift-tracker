@@ -3,11 +3,12 @@
 namespace LiftTracker\Http\Requests;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Query\Builder;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Arr;
 use LiftTracker\Domain\Users\UserOwnershipInterface;
 
-class ApiRequest extends FormRequest
+abstract class ApiRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -16,7 +17,7 @@ class ApiRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        $model = $this->getModel();
+        $model = $this->getExistingModel();
 
         if ($model !== null) {
             return $this->checkModelOwnership($model);
@@ -35,17 +36,23 @@ class ApiRequest extends FormRequest
         return true;
     }
 
-    private function getModel(): ?Model
+    private function getExistingModel(): ?Model
     {
-        $modelParameterName = Arr::first($this->route()->parameterNames());
+        $modelId = Arr::first($this->route()->parameters());
 
-        if ($modelParameterName !== null) {
-            /** @noinspection PhpIncompatibleReturnTypeInspection */
-            return $this->route()->parameter($modelParameterName);
+        if ($modelId !== null) {
+            $modelClass = $this->getModelClass();
+
+            /** @var Builder $model */
+            $model = new $modelClass;
+
+            return $model->find($modelId);
         }
 
         return null;
     }
+
+    abstract protected function getModelClass(): string;
 
     /**
      * Get the validation rules that apply to the request.

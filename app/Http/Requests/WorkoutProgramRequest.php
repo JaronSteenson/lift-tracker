@@ -2,6 +2,7 @@
 
 namespace LiftTracker\Http\Requests;
 
+use LiftTracker\Domain\Workouts\Programs\WorkoutProgram;
 use LiftTracker\Rules\DayOfTheWeek;
 
 class WorkoutProgramRequest extends ApiRequest
@@ -29,5 +30,10 @@ class WorkoutProgramRequest extends ApiRequest
     public function getWorkoutProgramRoutines(): array
     {
         return $this->get('workoutProgramRoutines');
+    }
+
+    protected function getModelClass(): string
+    {
+        return WorkoutProgram::class;
     }
 }

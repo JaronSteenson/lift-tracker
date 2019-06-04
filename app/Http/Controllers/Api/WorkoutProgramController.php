@@ -115,7 +115,7 @@ class WorkoutProgramController extends Controller
      * @param WorkoutProgram $workoutProgram
      * @return void
      */
-    public function destroy(WorkoutProgramRequest $request, WorkoutProgram $workoutProgram)
+    public function destroy(WorkoutProgramRequest $request)
     {
         $workoutProgram->delete();
         return redirect(route('workout-programs.index'))->with('success-alert', 'Workout program has been deleted');
