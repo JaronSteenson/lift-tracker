@@ -1903,7 +1903,8 @@ var uuid = 0;
       "default": function _default() {
         return {
           numberOfSets: 3,
-          name: null
+          name: null,
+          id: null
         };
       }
     }
@@ -1944,7 +1945,7 @@ var uuid = 0;
         return availableExercises;
       }
 
-      this.numberOfSets = preSelectedExercise.numberOfSets; // let foundByName = availableExercises.find(exercise => Object.assign({}, exercise).name === preSelectedExercise.name);
+      this.value.numberOfSets = preSelectedExercise.numberOfSets; // let foundByName = availableExercises.find(exercise => Object.assign({}, exercise).name === preSelectedExercise.name);
 
       var foundByName = availableExercises.find(function (exercise) {
         return exercise.name === preSelectedExercise.name;

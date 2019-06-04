@@ -124,7 +124,11 @@ class WorkoutProgram extends AbstractModel implements UserOwnershipInterface
 
         $routinesToBeDeleted = $alreadyPersistedRoutines->diff($routinesToBeSaved);
 
-        WorkoutProgramRoutine::destroy($routinesToBeDeleted);
+        $toBeDeletedIds = $routinesToBeDeleted->keys()->toArray();
+
+        if ($toBeDeletedIds) {
+            WorkoutProgramRoutine::destroy($toBeDeletedIds);
+        }
     }
 
     /**
