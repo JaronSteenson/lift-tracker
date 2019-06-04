@@ -5,6 +5,7 @@
 
 namespace LiftTracker\Http\Controllers\Api;
 
+use Exception;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
@@ -59,6 +60,22 @@ class WorkoutProgramController extends Controller
      */
     public function store(WorkoutProgramRequest $request)
     {
+        return $this->saveFromRequest($request);
+    }
+
+    /**
+     * Update the specified resource in storage.
+     *
+     * @param WorkoutProgramRequest $request
+     * @return WorkoutProgram
+     */
+    public function update(WorkoutProgramRequest $request)
+    {
+        return $this->saveFromRequest($request);
+    }
+
+    private function saveFromRequest(WorkoutProgramRequest $request): WorkoutProgram
+    {
         $workoutProgram = WorkoutProgram::createFromRequest($request);
 
         $workoutProgram->saveWithChildren();
@@ -66,65 +83,17 @@ class WorkoutProgramController extends Controller
         return $workoutProgram;
     }
 
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param WorkoutProgramRequest $request
-     * @return void|RedirectResponse
-     */
-    public function update(WorkoutProgramRequest $request)
-    {
-        return $this->saveFromRequest($request);
-    }
-
-    private function saveFromRequest(WorkoutProgramRequest $request)
-    {
-        return DB::transaction(function() use ($request) {
-            return $this->saveWorkoutProgramAndChildren($request);
-        });
-    }
-
-    private function saveWorkoutProgramAndChildren(WorkoutProgramRequest $request)
-    {
-        //TODO separate out request deserialization and saving.
-        $workoutProgram = new WorkoutProgram($request->getWorkoutProgramFields());
-
-        $workoutProgram->user()->associate(Auth::user());
-        $workoutProgram->save();
-
-        /** @var WorkoutProgramRoutine[] $workoutProgramRoutines */
-        $workoutProgramRoutines = array_map(static function (array $requestWorkoutRoutine) {
-            return new WorkoutProgramRoutine($requestWorkoutRoutine);
-        }, $request->getWorkoutProgramRoutines());
-
-        $workoutProgram->saveManyProgramRoutines(...$workoutProgramRoutines);
-
-        foreach ($workoutProgramRoutines as $index => $workoutProgramRoutine) {
-            $requestRoutines = $request->getWorkoutProgramRoutines();
-
-            $exercises = array_map(static function (array $requestExercise) {
-                return new RoutineExercise($requestExercise);
-            }, $requestRoutines[$index]['exercises']);
-
-            $workoutProgramRoutine->saveManyRoutineExercises(...$exercises);
-        }
-
-        return $workoutProgram;
-    }
-
 
     /**
-     * Remove the specified resource from storage.
+     * Remove the specified resource from storage.HasUuidTrait.php
      *
      * @param WorkoutProgramRequest $request Validates ownership, do not remove
      * @return void
-     * @throws \Exception
+     * @throws Exception
      */
     public function destroy(WorkoutProgramRequest $request)
     {
         $request->getModelOr404()->delete();
-
-        return redirect(route('workout-programs.index'))->with('success-alert', 'Workout program has been deleted');
     }
 
 }

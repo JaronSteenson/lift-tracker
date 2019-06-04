@@ -14,6 +14,7 @@ use LiftTracker\Domain\Workouts\Exercises\Exercise;
 use LiftTracker\Traits\CanUseCustomCollection;
 use LiftTracker\Traits\HasUuidTrait;
 use LiftTracker\User;
+use Traversable;
 
 /**
  * @mixin Builder
@@ -23,6 +24,7 @@ use LiftTracker\User;
  * @property string normalDay
  * @property Carbon createdAt
  * @property Carbon updatedAt
+ * @property RoutineExerciseCollection exercises
  *
  */
 class WorkoutProgramRoutine extends AbstractModel implements UserOwnershipInterface
@@ -117,10 +119,10 @@ class WorkoutProgramRoutine extends AbstractModel implements UserOwnershipInterf
 
     public function saveExercises()
     {
-        $exercises = $this->getRelation('exercises');
+        $exercises = $this->exercises;
 
         $exercises->each(function (RoutineExercise $exercises) {
-            $exercises->id = $this->id;
+            $exercises->workoutProgramRoutineId = $this->id;
         });
 
         $this->exercises()->saveMany($exercises);

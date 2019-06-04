@@ -14,7 +14,7 @@ trait HasUuidTrait
     {
         static::creating(static function($model) {
 
-            if(empty($model->id)){
+            if (empty($model->id)){
                 $model->id = static::generateUUID();
             }
         });

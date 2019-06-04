@@ -22,6 +22,7 @@ use LiftTracker\User;
  * @property Carbon created_at
  * @property Carbon updated_at
  * @property int user_id
+ * @property WorkoutProgramRoutineCollection workoutProgramRoutines
  *
  * For now these are only admin generated. Will want user generated in the future though.
  */
@@ -69,6 +70,10 @@ class WorkoutProgram extends AbstractModel implements UserOwnershipInterface
         // Populate the top level fields.
         $workoutProgram = new static($request->getWorkoutProgramFields());
 
+        if ($request->method() === 'PUT') {
+            $workoutProgram->id = $request->getWorkoutProgramId();
+        }
+
         // Associate the user with the top level entity.
         $workoutProgram->user()->associate($request->user());
 
@@ -82,56 +87,44 @@ class WorkoutProgram extends AbstractModel implements UserOwnershipInterface
     public function saveWithChildren()
     {
         return DB::transaction(function() {
+            $this->exists = (bool) $this->id;
+
             $this->save();
             $this->saveRoutinesWithChildren();
 
-            dd($this->toArray());
+            return $this;
         });
     }
 
     private function saveRoutinesWithChildren()
     {
-        $routines = $this->getRelation('workoutProgramRoutines');
+        return DB::transaction(function() {
+            $routines = $this->workoutProgramRoutines;
 
-        $routines->each(function (WorkoutProgramRoutine $routine) {
-            $routine->id = $this->id;
+            $routines->each(function (WorkoutProgramRoutine $routine) {
+                $routine->workoutProgramId = $this->id;
+            });
+
+            $this->deleteRemovedRoutines();
+            $this->workoutProgramRoutines()->saveMany($routines);
+
+            $routines->each(static function (WorkoutProgramRoutine $routine) {
+                $routine->saveExercises();
+            });
+
+            return $this;
         });
-
-        $this->workoutProgramRoutines()->saveMany($routines);
-
-        $routines->each(static function (WorkoutProgramRoutine $routine) {
-            $routine->saveExercises();
-        });
-
-        return $this;
     }
 
-    private function saveWorkoutProgramAndChildren(WorkoutProgramRequest $request)
+    private function deleteRemovedRoutines()
     {
-        //TODO separate out request deserialization and saving.
-        $workoutProgram = new WorkoutProgram($request->getWorkoutProgramFields());
+        $routinesToBeSaved = $this->workoutProgramRoutines;
 
-        $workoutProgram->user()->associate(Auth::user());
-        $workoutProgram->save();
+        $alreadyPersistedRoutines = $this->workoutProgramRoutines()->get();
 
-        /** @var WorkoutProgramRoutine[] $workoutProgramRoutines */
-        $workoutProgramRoutines = array_map(static function (array $requestWorkoutRoutine) {
-            return new WorkoutProgramRoutine($requestWorkoutRoutine);
-        }, $request->getWorkoutProgramRoutines());
+        $routinesToBeDeleted = $alreadyPersistedRoutines->diff($routinesToBeSaved);
 
-        $workoutProgram->saveManyProgramRoutines(...$workoutProgramRoutines);
-
-        foreach ($workoutProgramRoutines as $index => $workoutProgramRoutine) {
-            $requestRoutines = $request->getWorkoutProgramRoutines();
-
-            $exercises = array_map(static function (array $requestExercise) {
-                return new RoutineExercise($requestExercise);
-            }, $requestRoutines[$index]['exercises']);
-
-            $workoutProgramRoutine->saveManyRoutineExercises(...$exercises);
-        }
-
-        return $workoutProgram;
+        WorkoutProgramRoutine::destroy($routinesToBeDeleted);
     }
 
     /**

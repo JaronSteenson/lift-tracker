@@ -70,6 +70,7 @@
                     return {
                         numberOfSets: 3,
                         name: null,
+                        id: null,
                     }
                 },
             }
@@ -108,7 +109,7 @@
                     return availableExercises;
                 }
 
-                this.numberOfSets = preSelectedExercise.numberOfSets;
+                this.value.numberOfSets = preSelectedExercise.numberOfSets;
 
                 // let foundByName = availableExercises.find(exercise => Object.assign({}, exercise).name === preSelectedExercise.name);
                 let foundByName = availableExercises.find(exercise => exercise.name === preSelectedExercise.name);

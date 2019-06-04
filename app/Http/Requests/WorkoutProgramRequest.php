@@ -24,6 +24,11 @@ class WorkoutProgramRequest extends ApiRequest
         return $this->only('name');
     }
 
+    public function getWorkoutProgramId(): string
+    {
+        return $this->get('id');
+    }
+
     /**
      * @return string[]
      */
