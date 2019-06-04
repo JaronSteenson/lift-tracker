@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use LiftTracker\Domain\AbstractModel;
 use LiftTracker\Domain\Users\CanBeOwnedByUserTrait;
 use LiftTracker\Domain\Users\UserOwnershipInterface;
+use LiftTracker\Http\Requests\WorkoutProgramRequest;
 use LiftTracker\Traits\CanUseCustomCollection;
 use LiftTracker\Traits\HasUuidTrait;
 use LiftTracker\User;
@@ -62,6 +63,26 @@ class WorkoutProgram extends AbstractModel implements UserOwnershipInterface
         'id' => 'string', //is a uuid
     ];
 
+    public static function createFromRequest(WorkoutProgramRequest $request)
+    {
+        // Populate the top level fields.
+        $workoutProgram = new static($request->getWorkoutProgramFields());
+
+        // Associate the user with the top level entity.
+        $workoutProgram->user()->associate($request->user());
+
+        // Associate the workoutProgramRoutines (first level child).
+        $routines = WorkoutProgramRoutineCollection::createFromWorkoutRequest($request);
+        $workoutProgram->associateProgramRoutines($routines);
+
+        return $workoutProgram;
+    }
+
+    public function saveWithChildren()
+    {
+
+    }
+
     /**
      * Get the user that owns the workout program, null if it is a community program.
      */
@@ -89,7 +110,14 @@ class WorkoutProgram extends AbstractModel implements UserOwnershipInterface
 
         $this->workoutProgramRoutines()->saveMany($programRoutines);
 
-        $this->setRelation('workoutProgramRoutines', new WorkoutProgramCollection($programRoutines));
+        $this->setRelation('workoutProgramRoutines', new WorkoutProgramRoutineCollection($programRoutines));
+
+        return $this;
+    }
+
+    protected function associateProgramRoutines(WorkoutProgramRoutineCollection $programRoutines): self
+    {
+        $this->setRelation('workoutProgramRoutines', $programRoutines);
 
         return $this;
     }

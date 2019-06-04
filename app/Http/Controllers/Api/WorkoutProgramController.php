@@ -7,6 +7,7 @@ namespace LiftTracker\Http\Controllers\Api;
 
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -42,12 +43,12 @@ class WorkoutProgramController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param WorkoutProgram $workoutProgram
-     * @return WorkoutProgram
+     * @param WorkoutProgramRequest $request
+     * @return WorkoutProgram|Model
      */
-    public function show(WorkoutProgram $workoutProgram): WorkoutProgram
+    public function show(WorkoutProgramRequest $request): WorkoutProgram
     {
-        return $workoutProgram;
+        return $request->getModelOr404();
     }
 
     /**
@@ -58,7 +59,11 @@ class WorkoutProgramController extends Controller
      */
     public function store(WorkoutProgramRequest $request)
     {
-        return $this->saveFromRequest($request);
+        $workoutProgram = WorkoutProgram::createFromRequest($request);
+
+        $workoutProgram->saveWithChildren();
+
+        return $workoutProgram;
     }
 
     /**
@@ -112,12 +117,13 @@ class WorkoutProgramController extends Controller
      * Remove the specified resource from storage.
      *
      * @param WorkoutProgramRequest $request Validates ownership, do not remove
-     * @param WorkoutProgram $workoutProgram
      * @return void
+     * @throws \Exception
      */
     public function destroy(WorkoutProgramRequest $request)
     {
-        $workoutProgram->delete();
+        $request->getModelOr404()->delete();
+
         return redirect(route('workout-programs.index'))->with('success-alert', 'Workout program has been deleted');
     }
 

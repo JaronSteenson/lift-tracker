@@ -7,9 +7,17 @@ use Illuminate\Database\Query\Builder;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Arr;
 use LiftTracker\Domain\Users\UserOwnershipInterface;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 abstract class ApiRequest extends FormRequest
 {
+    private $hasAttemptedToFindModel = false;
+
+    /**
+     * @var Model|null
+     */
+    private $existingModel;
+
     /**
      * Determine if the user is authorized to make this request.
      *
@@ -17,28 +25,41 @@ abstract class ApiRequest extends FormRequest
      */
     public function authorize(): bool
     {
+        if ($this->isDealingWithExistingEntityMethod()) {
+            $this->getModelOr404();
+        }
+
+        return true;
+    }
+
+    public function getExistingModel(): ?Model
+    {
+        if (!$this->hasAttemptedToFindModel) {
+            $this->hasAttemptedToFindModel = true;
+            $this->existingModel = $this->findExistingModel();
+        }
+
+        return $this->existingModel;
+    }
+
+    /**
+     * @return Model
+     * @throws NotFoundHttpException
+     */
+    public function getModelOr404(): Model
+    {
         $model = $this->getExistingModel();
 
-        if ($model !== null) {
-            return $this->checkModelOwnership($model);
+        if ($model === null) {
+            throw new NotFoundHttpException();
         }
 
-        return true;
+        return $model;
     }
 
-    protected function checkModelOwnership(Model $model)
+    private function findExistingModel(): ?Model
     {
-        if ($model instanceof UserOwnershipInterface) {
-            return $model->userOwnsThis($this->user());
-        }
-
-        // No ownership checks are rehired.
-        return true;
-    }
-
-    private function getExistingModel(): ?Model
-    {
-        $modelId = Arr::first($this->route()->parameters());
+        $modelId = $this->getModelId();
 
         if ($modelId !== null) {
             $modelClass = $this->getModelClass();
@@ -50,6 +71,11 @@ abstract class ApiRequest extends FormRequest
         }
 
         return null;
+    }
+
+    protected function getModelId()
+    {
+        return Arr::first($this->route()->parameters());
     }
 
     abstract protected function getModelClass(): string;
@@ -75,6 +101,26 @@ abstract class ApiRequest extends FormRequest
     protected function getValidationRules(): array
     {
         return [];
+    }
+
+    private function isDealingWithExistingEntityMethod(): bool
+    {
+        // Are we trying to GET all of the resources.
+        if ($this->isGetAllRequest()) {
+            return false;
+        }
+
+        return in_array($this->method(), $this->getExistingEntityMethods(), true);
+    }
+
+    private function isGetAllRequest(): bool
+    {
+        return $this->method() === 'GET' && $this->getModelId() === null;
+    }
+
+    private function getExistingEntityMethods(): array
+    {
+        return ['GET', 'DELETE', 'PUT', 'PATCH'];
     }
 
     private function isNonValidateMethod()

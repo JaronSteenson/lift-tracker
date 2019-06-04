@@ -32,6 +32,15 @@ class WorkoutProgramRequest extends ApiRequest
         return $this->get('workoutProgramRoutines');
     }
 
+    /**
+     * @param int $programRoutineIndex
+     * @return string[]
+     */
+    public function getRoutinesExercise(int $programRoutineIndex): array
+    {
+        return $this->getWorkoutProgramRoutines()[$programRoutineIndex]['exercises'];
+    }
+
     protected function getModelClass(): string
     {
         return WorkoutProgram::class;

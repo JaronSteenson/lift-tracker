@@ -3,6 +3,7 @@
 namespace LiftTracker\Domain\Workouts\Programs;
 
 use Carbon\Carbon;
+use LiftTracker\Http\Requests\WorkoutProgramRequest;
 use RuntimeException;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -102,6 +103,14 @@ class WorkoutProgramRoutine extends AbstractModel implements UserOwnershipInterf
         $this->exercises()->saveMany($routineExercises);
 
         $this->setRelation('exercises', new RoutineExerciseCollection($routineExercises));
+
+        return $this;
+    }
+
+
+    public function associateRoutineExercises(RoutineExerciseCollection $routineExercises): self
+    {
+        $this->setRelation('exercises', $routineExercises);
 
         return $this;
     }
