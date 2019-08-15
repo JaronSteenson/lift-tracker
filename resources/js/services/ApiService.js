@@ -9,6 +9,10 @@ axios.defaults.headers.common['X-CSRF-TOKEN'] = csrfToken.content;
 
 const baseUrl = window.apiBaseUrl;
 
+if (typeof baseUrl !== 'string') {
+    throw new Error('Base url not configure ' + JSON.stringify(baseUrl) + ' was supplied')
+}
+
 const ApiService = {
 
     get(resourceType, resourceId = null) {

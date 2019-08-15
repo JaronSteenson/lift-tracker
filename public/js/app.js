@@ -38472,6 +38472,11 @@ axios__WEBPACK_IMPORTED_MODULE_0___default.a.defaults.headers.common['X-Requeste
 var csrfToken = document.head.querySelector('meta[name="csrf-token"]');
 axios__WEBPACK_IMPORTED_MODULE_0___default.a.defaults.headers.common['X-CSRF-TOKEN'] = csrfToken.content;
 var baseUrl = window.apiBaseUrl;
+
+if (typeof baseUrl !== 'string') {
+  throw new Error('Base url not configure ' + JSON.stringify(baseUrl) + ' was supplied');
+}
+
 var ApiService = {
   get: function get(resourceType) {
     var resourceId = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
