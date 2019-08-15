@@ -18,7 +18,7 @@
 
     <!-- Preload data and js config -->
     <script>
-        window.apiBaseUrl = <?= json_encode($apiBaseUrl ?? []) ?>
+        window.apiBaseUrl = <?= json_encode($apiBaseUrl) ?>
 
         window.preloadData = window.preloadData || {};
         window.preloadData = <?= json_encode($preloadData ?? []) ?>

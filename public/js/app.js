@@ -38471,10 +38471,11 @@ axios__WEBPACK_IMPORTED_MODULE_0___default.a.defaults.headers.common['X-Requeste
 
 var csrfToken = document.head.querySelector('meta[name="csrf-token"]');
 axios__WEBPACK_IMPORTED_MODULE_0___default.a.defaults.headers.common['X-CSRF-TOKEN'] = csrfToken.content;
-var baseUrl = window.apiBaseUrl;
+var url = window.apiBaseUrl;
+var baseUrl = url.replace(/\/+$/, '');
 
 if (typeof baseUrl !== 'string') {
-  throw new Error('Base url not configure ' + JSON.stringify(baseUrl) + ' was supplied');
+  throw new Error('Base url not configure ' + JSON.stringify(url) + ' was supplied');
 }
 
 var ApiService = {
