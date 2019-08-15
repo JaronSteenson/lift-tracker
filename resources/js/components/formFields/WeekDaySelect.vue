@@ -14,11 +14,11 @@
                 type: String,
                 required: true,
             },
-            value: {
+            initialSelection : {
                 default() {
                     return 'any';
                 }
-            }
+            },
         },
         data() {
             return {
@@ -32,10 +32,12 @@
                     'Saturday',
                     'Sunday',
                 ],
+                value: null,
             }
         },
         methods: {
             updateSelectedValue(selectedValue) {
+                debugger
                 this.value = selectedValue;
                 this.$emit('input', selectedValue);
             }

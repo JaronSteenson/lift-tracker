@@ -27,7 +27,7 @@
                 <label v-bind:for="typicalDayInputId"
                        class="col-md-4 col-form-label text-md-right">Typical day</label>
                 <div class="col-md-6">
-                    <WeekDaySelect v-model="workoutRoutine.normalDay" :select-id="typicalDayInputId"/>
+                    <WeekDaySelect v-model="workoutRoutine.normalDay" :initial-selection="workoutRoutine.normalDay" :select-id="typicalDayInputId"/>
                 </div>
             </div>
 

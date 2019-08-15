@@ -2391,7 +2391,7 @@ __webpack_require__.r(__webpack_exports__);
       type: String,
       required: true
     },
-    value: {
+    initialSelection: {
       "default": function _default() {
         return 'any';
       }
@@ -2399,11 +2399,13 @@ __webpack_require__.r(__webpack_exports__);
   },
   data: function data() {
     return {
-      daysOfWeekWithAny: ['any', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
+      daysOfWeekWithAny: ['any', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'],
+      value: null
     };
   },
   methods: {
     updateSelectedValue: function updateSelectedValue(selectedValue) {
+      debugger;
       this.value = selectedValue;
       this.$emit('input', selectedValue);
     }
@@ -22739,7 +22741,10 @@ var render = function() {
             { staticClass: "col-md-6" },
             [
               _c("WeekDaySelect", {
-                attrs: { "select-id": _vm.typicalDayInputId },
+                attrs: {
+                  "initial-selection": _vm.workoutRoutine.normalDay,
+                  "select-id": _vm.typicalDayInputId
+                },
                 model: {
                   value: _vm.workoutRoutine.normalDay,
                   callback: function($$v) {
