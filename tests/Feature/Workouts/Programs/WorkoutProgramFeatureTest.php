@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use Carbon\Carbon;
 use Illuminate\Foundation\Testing\DatabaseMigrations;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Support\Str;
@@ -30,7 +31,7 @@ class WorkoutProgramFeatureTest extends TestCase
         $this->actingAs($user)
             ->get(route('workout-programs.index'))
             ->assertStatus(200)
-            ->assertSeeInOrder(['You do not have any workout programs', 'Add one']);
+            ->assertExactJson([]);
     }
 
     /**
@@ -40,16 +41,23 @@ class WorkoutProgramFeatureTest extends TestCase
     {
         $user = factory(User::class)->create();
 
-        $first = factory(WorkoutProgram::class)->create(['name' => 'AAA', 'user_id' => $user->id]);
-        $second = factory(WorkoutProgram::class)->create(['name' => 'BBB', 'user_id' => $user->id]);
-        $third = factory(WorkoutProgram::class)->create(['name' => 'CCC', 'user_id' => $user->id]);
+        /** @var WorkoutProgram $first */
+        $first = factory(WorkoutProgram::class)->create(['name' => 'AAA', 'userId' => $user->id, 'createdAt' => Carbon::yesterday()]);
+
+        /** @var WorkoutProgram $second */
+        $third = factory(WorkoutProgram::class)->create(['name' => 'BBB', 'userId' => $user->id, 'createdAt' => Carbon::today()]);
+
+        /** @var WorkoutProgram $third */
+        $second = factory(WorkoutProgram::class)->create(['name' => 'BBB', 'userId' => $user->id, 'createdAt' => Carbon::tomorrow()]);
 
         $this->actingAs($user)
             ->get(route('workout-programs.index'))
             ->assertStatus(200)
-            ->assertDontSeeText('You do not have any workout programs')
-            ->assertSeeTextInOrder([$first->name, $second->name, $third->name])
-            ->assertSeeText('Add another program');
+            ->assertJson([
+                $first->toArray(),
+                $second->toArray(),
+                $third->toArray(),
+            ]);
     }
 
     public function testUserCanSaveNewProgram(): void

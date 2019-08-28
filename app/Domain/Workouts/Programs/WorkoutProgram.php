@@ -49,6 +49,7 @@ class WorkoutProgram extends AbstractModel implements UserOwnershipInterface
     protected $visible = [
         'name',
         'id',
+        'createdAt',
         'workoutProgramRoutines',
     ];
 

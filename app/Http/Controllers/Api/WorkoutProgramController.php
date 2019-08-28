@@ -38,6 +38,8 @@ class WorkoutProgramController extends Controller
 
         return $loggedInUser->workoutPrograms()
             ->without('workoutProgramRoutines')
+            ->orderBy('name')
+            ->orderBy('createdAt', 'desc')
             ->get();
     }
 
