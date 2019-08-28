@@ -11,9 +11,4 @@ use Illuminate\Support\Facades\View;
 class Controller extends BaseController
 {
     use AuthorizesRequests, DispatchesJobs, ValidatesRequests;
-
-    public function __construct()
-    {
-        View::share('apiBaseUrl', env('API_BASE_URL'));
-    }
 }
