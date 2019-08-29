@@ -4,6 +4,8 @@ namespace LiftTracker\Http\Requests;
 
 use Illuminate\Support\Arr;
 use LiftTracker\Domain\Workouts\Programs\WorkoutProgram;
+use LiftTracker\Domain\Workouts\Programs\WorkoutProgramRoutine;
+use LiftTracker\Domain\Workouts\Programs\WorkoutProgramRoutineCollection;
 use LiftTracker\Rules\DayOfTheWeek;
 
 class WorkoutProgramRequest extends ApiRequest
@@ -30,12 +32,44 @@ class WorkoutProgramRequest extends ApiRequest
         return $this->get('id');
     }
 
-    /**
-     * @return string[]
-     */
-    public function getWorkoutProgramRoutines(): array
+    public function getWorkoutProgramRoutines(): WorkoutProgramRoutineCollection
     {
-        return $this->get('workoutProgramRoutines', []);
+        $routines = array_map(static function (array $routine) {
+            return new WorkoutProgramRoutine($routine);
+        }, $this->get('workoutProgramRoutines', []));
+
+        return new WorkoutProgramRoutineCollection($routines);
+    }
+
+    public function mergeExistingAndNewWorkoutRoutines(): WorkoutProgramRoutineCollection
+    {
+        $existingRoutines = $this->getExistingRoutines();
+        $mergedRoutines = clone $existingRoutines;
+
+        foreach ($this->getWorkoutProgramRoutines() as $index => $requestWorkoutRoutine) {
+            $foundExisting = $mergedRoutines->find($requestWorkoutRoutine);
+
+            if ($foundExisting) {
+                $foundExisting->fill($requestWorkoutRoutine);
+            } else {
+                $mergedRoutines->add($requestWorkoutRoutine);
+            }
+        }
+
+        return $mergedRoutines;
+    }
+
+    public function getExistingRoutines(): WorkoutProgramRoutineCollection
+    {
+        /** @var WorkoutProgram $existingWorkoutProgram */
+        $existingWorkoutProgram = $this->getExistingModel();
+        $existingWorkoutPrograms = new WorkoutProgramRoutineCollection();
+
+        if ($existingWorkoutProgram) {
+            $existingWorkoutPrograms = $existingWorkoutProgram->workoutProgramRoutines;
+        }
+
+        return $existingWorkoutPrograms;
     }
 
     /**

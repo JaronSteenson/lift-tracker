@@ -129,4 +129,21 @@ class WorkoutProgramRoutine extends AbstractModel implements UserOwnershipInterf
 
         return $this;
     }
+
+    private function deleteRemoved()
+    {
+        // TODO make some sort of generic dlete remvoed
+        $toBeSaved = $this->workoutProgramRoutines;
+
+        $alreadyPersistedRoutines = $this->workoutProgramRoutines()->get();
+
+        $routinesToBeDeleted = $alreadyPersistedRoutines->diff($routinesToBeSaved);
+
+        $toBeDeletedIds = $routinesToBeDeleted->keys()->toArray();
+
+        if ($toBeDeletedIds) {
+            WorkoutProgramRoutine::destroy($toBeDeletedIds);
+        }
+    }
+
 }

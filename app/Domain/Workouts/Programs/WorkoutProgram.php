@@ -69,17 +69,15 @@ class WorkoutProgram extends AbstractModel implements UserOwnershipInterface
     public static function createFromRequest(WorkoutProgramRequest $request)
     {
         // Populate the top level fields.
-        $workoutProgram = new static($request->getWorkoutProgramFields());
-
-        if ($request->method() === 'PUT') {
-            $workoutProgram->id = $request->getWorkoutProgramId();
-        }
+        $workoutProgram = $request->getExistingModel() ?? new static($request->getWorkoutProgramFields());
 
         // Associate the user with the top level entity.
-        $workoutProgram->user()->associate($request->user());
+        if (!$workoutProgram->exists) {
+            $workoutProgram->user()->associate($request->user());
+        }
 
         // Associate the workoutProgramRoutines (first level child).
-        $routines = WorkoutProgramRoutineCollection::createFromWorkoutRequest($request);
+        $routines = $request->mergeExistingAndNewWorkoutRoutines();
         $workoutProgram->associateProgramRoutines($routines);
 
         return $workoutProgram;
