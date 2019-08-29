@@ -81,6 +81,7 @@ class WorkoutProgramController extends Controller
         $workoutProgram = WorkoutProgram::createFromRequest($request);
 
         $workoutProgram->saveWithChildren();
+        $workoutProgram->refresh(); // Ensure partial payloads return the full response.
 
         return $workoutProgram;
     }
