@@ -220,11 +220,8 @@ class WorkoutProgramFeatureTest extends TestCase
         $usersProgram->save();
 
         $this->actingAs($user)
-            ->delete(route('workout-programs.destroy', $usersProgram))
-            ->assertStatus(302)
-            ->assertSessionDoesntHaveErrors()
-            ->assertRedirect(route('workout-programs.index'))
-            ->assertSessionHas('success-alert', 'Workout program has been deleted');
+            ->delete(route('workout-programs.destroy', $usersProgram->id))
+            ->assertStatus(200);
     }
 
     /**
@@ -240,7 +237,7 @@ class WorkoutProgramFeatureTest extends TestCase
         $otherUsersProgram->save();
 
         $this->actingAs($user)
-            ->delete(route('workout-programs.destroy', [$otherUsersProgram]))
+            ->delete(route('workout-programs.destroy', $otherUsersProgram->id))
             ->assertStatus(403);
     }
 
