@@ -19,9 +19,9 @@ use LiftTracker\User;
  * @mixin Builder
  * @property string id
  * @property string name
- * @property Carbon created_at
- * @property Carbon updated_at
- * @property int user_id
+ * @property Carbon createdAt
+ * @property Carbon updatedAt
+ * @property int userId
  * @property WorkoutProgramRoutineCollection workoutProgramRoutines
  *
  * For now these are only admin generated. Will want user generated in the future though.

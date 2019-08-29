@@ -3,14 +3,12 @@
 namespace Tests\Feature;
 
 use Carbon\Carbon;
-use Illuminate\Foundation\Testing\DatabaseMigrations;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Support\Str;
 use LiftTracker\Domain\Workouts\Programs\RoutineExercise;
 use LiftTracker\Domain\Workouts\Programs\WorkoutProgram;
 use LiftTracker\Domain\Workouts\Programs\WorkoutProgramRoutine;
 use LiftTracker\Http\Middleware\VerifyCsrfToken;
-use LiftTracker\Http\Requests\WorkoutProgramRequest;
 use LiftTracker\User;
 use Tests\TestCase;
 

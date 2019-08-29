@@ -2,6 +2,7 @@
 
 namespace LiftTracker\Traits;
 
+use Exception;
 use Webpatser\Uuid\Uuid;
 
 trait HasUuidTrait
@@ -22,7 +23,7 @@ trait HasUuidTrait
 
     /**
      * @return string
-     * @throws \Exception
+     * @throws Exception
      */
     protected static function generateUUID(): string
     {

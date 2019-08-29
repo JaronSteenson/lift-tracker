@@ -2,13 +2,24 @@
 
 namespace LiftTracker\Tests\Unit\Domain\Workouts\Programs;
 
+use Exception;
+use Illuminate\Foundation\Testing\DatabaseTransactions;
+use LiftTracker\Domain\Workouts\Programs\RoutineExercise;
 use LiftTracker\Domain\Workouts\Programs\WorkoutProgram;
+use LiftTracker\Http\Middleware\VerifyCsrfToken;
 use LiftTracker\User;
 use PHPUnit\Framework\Constraint\Constraint;
 use Tests\TestCase;
 
-class WorkoutProgramTest extends TestCase
+class WorkoutRoutineExerciseTest extends TestCase
 {
+    use DatabaseTransactions;
+
+    public function setUp(): void
+    {
+        parent::setUp();
+        $this->withoutMiddleware([VerifyCsrfToken::class]);
+    }
 
     /**
      * @param int $attachedUserId
@@ -36,6 +47,31 @@ class WorkoutProgramTest extends TestCase
             'Attached id differs from the other user id' => [123, 321, static::isFalse()],
             'The other user id is not set' => [123, null, static::isFalse()],
         ];
+    }
+
+    /**
+     * @throws Exception
+     */
+    public function testMultipleRoutesWithSameIdCannotBeSaved(): void
+    {
+//        $this->expectException(Exception::class);
+
+        $exerciseOne = new RoutineExercise([
+            'name' => 'exercise one',
+            'numberOfSets' => 0,
+        ]);
+
+        $exerciseOne->workoutProgramRoutineId = '123e4567-e89b-12d3-a456-426655440000';
+        $exerciseOne->save();
+
+        $exerciseTwo = new RoutineExercise([
+            'name' => 'exercise two',
+            'numberOfSets' => 0,
+        ]);
+        $exerciseTwo->id = $exerciseOne->id;
+        $exerciseTwo->workoutProgramRoutineId = '123e4567-e89b-12d3-a456-000000000000';
+
+        $exerciseTwo->save();
     }
 
 }
