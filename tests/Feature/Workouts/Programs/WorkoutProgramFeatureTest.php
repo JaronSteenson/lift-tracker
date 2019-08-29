@@ -160,7 +160,6 @@ class WorkoutProgramFeatureTest extends TestCase
     public function testUserCannotSaveNewProgramWithANameTooLong(): void
     {
         $data = [
-            '_token' => csrf_token(),
             'name' => Str::random(500),
         ];
 
@@ -169,8 +168,7 @@ class WorkoutProgramFeatureTest extends TestCase
 
         $this->actingAs($user)
             ->post(route('workout-programs.store'), $data)
-            ->assertStatus(302)
-            ->assertSessionHasErrors();
+            ->assertStatus(302);
     }
 
     /**
@@ -180,22 +178,17 @@ class WorkoutProgramFeatureTest extends TestCase
     {
         $user = factory(User::class)->create();
 
-        $usersProgram = new WorkoutProgram(['name' => 'Program 1']);
+        $usersProgram = new WorkoutProgram([
+            'name' => 'Program 1',
+        ]);
+
         $usersProgram->user()->associate($user);
         $usersProgram->save();
 
-        $data = [
-            '_token' => csrf_token(),
-            '_method' => 'PUT',
-            'name' => 'Program One',
-        ];
-
         $this->actingAs($user)
-            ->post(route('workout-programs.update', $usersProgram), $data)
-            ->assertStatus(302)
-            ->assertSessionDoesntHaveErrors()
-            ->assertRedirect(route('workout-programs.index'))
-            ->assertSessionHas('success-alert', 'Workout program has been updated');
+            ->put(route('workout-programs.update', $usersProgram->id), $usersProgram->toArray())
+            ->assertStatus(200)
+            ->assertJson($usersProgram->toArray());
     }
 
     /**
@@ -210,14 +203,8 @@ class WorkoutProgramFeatureTest extends TestCase
         $otherUsersProgram->user()->associate($otherUser);
         $otherUsersProgram->save();
 
-        $data = [
-            '_token' => csrf_token(),
-            '_method' => 'PUT',
-            'name' => 'Program 1',
-        ];
-
         $this->actingAs($user)
-            ->post(route('workout-programs.update', [$otherUsersProgram]), $data)
+            ->put(route('workout-programs.update', $otherUsersProgram->id), $otherUsersProgram->toArray())
             ->assertStatus(403);
     }
 

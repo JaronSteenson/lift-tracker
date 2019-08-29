@@ -13,7 +13,7 @@ use Faker\Generator as Faker;
 |
 */
 
-$factory->define(LiftTracker\User::class, function (Faker $faker) {
+$factory->define(LiftTracker\User::class, static function (Faker $faker) {
     return [
         'name' => $faker->name,
         'email' => $faker->unique()->safeEmail,

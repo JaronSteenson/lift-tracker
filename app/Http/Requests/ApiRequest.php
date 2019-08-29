@@ -25,10 +25,26 @@ abstract class ApiRequest extends FormRequest
      */
     public function authorize(): bool
     {
+        $model = null;
+
         if ($this->isDealingWithExistingEntityMethod()) {
-            $this->getModelOr404();
+            $model = $this->getModelOr404();
         }
 
+        if ($model !== null) {
+            return $this->checkModelOwnership($model);
+        }
+
+        return true;
+    }
+
+    protected function checkModelOwnership(Model $model)
+    {
+        if ($model instanceof UserOwnershipInterface) {
+            return $model->userOwnsThis($this->user());
+        }
+
+        // No ownership checks are rehired.
         return true;
     }
 
