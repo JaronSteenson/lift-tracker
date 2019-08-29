@@ -26,6 +26,7 @@ use LiftTracker\User;
  * @property string normalDay
  * @property Carbon createdAt
  * @property Carbon updatedAt
+ * @property int numberOfSets
  *
  */
 class RoutineExercise extends AbstractModel

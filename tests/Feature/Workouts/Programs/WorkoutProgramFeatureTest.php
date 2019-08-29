@@ -6,8 +6,11 @@ use Carbon\Carbon;
 use Illuminate\Foundation\Testing\DatabaseMigrations;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Support\Str;
+use LiftTracker\Domain\Workouts\Programs\RoutineExercise;
 use LiftTracker\Domain\Workouts\Programs\WorkoutProgram;
+use LiftTracker\Domain\Workouts\Programs\WorkoutProgramRoutine;
 use LiftTracker\Http\Middleware\VerifyCsrfToken;
+use LiftTracker\Http\Requests\WorkoutProgramRequest;
 use LiftTracker\User;
 use Tests\TestCase;
 
@@ -60,10 +63,9 @@ class WorkoutProgramFeatureTest extends TestCase
             ]);
     }
 
-    public function testUserCanSaveNewProgram(): void
+    public function testUserCanSaveNewProgramWithoutRoutines(): void
     {
         $data = [
-            '_token' => csrf_token(),
             'name' => 'Program 1',
         ];
 
@@ -72,13 +74,87 @@ class WorkoutProgramFeatureTest extends TestCase
 
         $this->actingAs($user)
             ->post(route('workout-programs.store'), $data)
-            ->assertStatus(302)
-            ->assertRedirect(route('workout-programs.index'))
-            ->assertSessionHas('success-alert', 'Workout program has been added');
+            ->assertStatus(201)
+            ->assertJson(['name' => 'Program 1']);
 
         $savedProgram = $user->findWorkoutPrograms()->first();
 
         static::assertThat($savedProgram->name, static::equalTo($data['name']));
+    }
+
+    public function testUserCanSaveNewProgramWithARoutine(): void
+    {
+        $data = [
+            'name' => 'Program 1',
+            'workoutProgramRoutines' => [
+                [
+                    'name' => 'Day one',
+                    'normalDay' => 'Saturday',
+                ]
+            ]
+        ];
+
+        /** @var User $user */
+        $user = factory(User::class)->create();
+
+        $this->actingAs($user)
+            ->post(route('workout-programs.store'), $data)
+            ->assertStatus(201)
+            ->assertJson($data);
+
+        /** @var WorkoutProgram $savedProgram */
+        $savedProgram = $user->findWorkoutPrograms()->first();
+
+        static::assertThat($savedProgram->name, static::equalTo($data['name']));
+
+        /** @var WorkoutProgramRoutine $routine */
+        $routine = $savedProgram->workoutProgramRoutines->first();
+
+        static::assertThat($routine->name, static::equalTo('Day one'));
+        static::assertTrue($routine->exercises->isEmpty());
+    }
+
+    public function testUserCanSaveNewProgramWithARoutineAndExercise(): void
+    {
+        $data = [
+            'name' => 'Program 1',
+            'workoutProgramRoutines' => [
+                [
+                    'name' => 'Day one',
+                    'normalDay' => 'Monday',
+                    'exercises' => [
+                        [
+                            'name' => 'Push ups',
+                            'numberOfSets' => 100,
+                        ]
+                    ]
+                ]
+            ]
+        ];
+
+        /** @var User $user */
+        $user = factory(User::class)->create();
+
+        $this->actingAs($user)
+            ->post(route('workout-programs.store'), $data)
+            ->assertStatus(201)
+            ->assertJson($data);
+
+        /** @var WorkoutProgram $savedProgram */
+        $savedProgram = $user->findWorkoutPrograms()->first();
+
+        static::assertThat($savedProgram->name, static::equalTo($data['name']));
+
+        /** @var WorkoutProgramRoutine $routine */
+        $routine = $savedProgram->workoutProgramRoutines->first();
+
+        static::assertThat($routine->name, static::equalTo('Day one'));
+        static::assertFalse($routine->exercises->isEmpty());
+
+        /** @var RoutineExercise $exercise */
+        $exercise = $routine->exercises->first();
+        static::assertThat($exercise->name, static::equalTo('Push ups'));
+        static::assertThat($exercise->numberOfSets, static::equalTo(100));
     }
 
     public function testUserCannotSaveNewProgramWithANameTooLong(): void

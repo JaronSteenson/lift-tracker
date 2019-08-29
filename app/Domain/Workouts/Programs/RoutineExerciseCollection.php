@@ -11,7 +11,7 @@ class RoutineExerciseCollection extends Collection
 
     public static function createFromWorkoutRequest(WorkoutProgramRequest $request, $programRoutineIndex): self
     {
-        $exercises = array_map(static function ($requestExercise) use ($request) {
+        $exercises = array_map(static function (array $requestExercise) use ($request) {
             $exercise =  new RoutineExercise($requestExercise);
 
             if ($request->method() === 'PUT') {

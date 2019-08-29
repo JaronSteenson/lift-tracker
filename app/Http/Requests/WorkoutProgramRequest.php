@@ -2,6 +2,7 @@
 
 namespace LiftTracker\Http\Requests;
 
+use Illuminate\Support\Arr;
 use LiftTracker\Domain\Workouts\Programs\WorkoutProgram;
 use LiftTracker\Rules\DayOfTheWeek;
 
@@ -15,7 +16,7 @@ class WorkoutProgramRequest extends ApiRequest
             'workoutProgramRoutines.*.name' => 'required|max:40',
             'workoutProgramRoutines.*.normalDay' => ['required', new DayOfTheWeek()],
 
-            'workoutProgramRoutines.*.exercises.*.numberOfSets' => 'numeric|min:1|max:20',
+            'workoutProgramRoutines.*.exercises.*.numberOfSets' => 'numeric|min:1|max:100',
         ];
     }
 
@@ -34,7 +35,7 @@ class WorkoutProgramRequest extends ApiRequest
      */
     public function getWorkoutProgramRoutines(): array
     {
-        return $this->get('workoutProgramRoutines');
+        return $this->get('workoutProgramRoutines', []);
     }
 
     /**
@@ -43,7 +44,12 @@ class WorkoutProgramRequest extends ApiRequest
      */
     public function getRoutinesExercise(int $programRoutineIndex): array
     {
-        return $this->getWorkoutProgramRoutines()[$programRoutineIndex]['exercises'];
+        return Arr::get($this->getProgramRoutine($programRoutineIndex), 'exercises', []);
+    }
+
+    protected function getProgramRoutine(int $programRoutineIndex): array
+    {
+        return $this->getWorkoutProgramRoutines()[$programRoutineIndex];
     }
 
     protected function getModelClass(): string
