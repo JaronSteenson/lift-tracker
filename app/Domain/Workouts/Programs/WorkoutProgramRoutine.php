@@ -68,6 +68,15 @@ class WorkoutProgramRoutine extends AbstractModel implements UserOwnershipInterf
         'id' => 'string', //is a uuid
     ];
 
+    public static function boot() {
+        parent::boot();
+
+        static::deleting(static function(WorkoutProgramRoutine $routine) {
+            // Delete exercises also on delete.
+            $routine->exercises()->delete();
+        });
+    }
+
     public function workoutProgram(): BelongsTo
     {
         return $this->belongsTo(WorkoutProgram::class, 'workoutProgramId');
@@ -110,7 +119,7 @@ class WorkoutProgramRoutine extends AbstractModel implements UserOwnershipInterf
     }
 
 
-    public function associateRoutineExercises(RoutineExerciseCollection $routineExercises): self
+    public function associateExercises(RoutineExerciseCollection $routineExercises): self
     {
         $this->setRelation('exercises', $routineExercises);
 
@@ -119,31 +128,14 @@ class WorkoutProgramRoutine extends AbstractModel implements UserOwnershipInterf
 
     public function saveExercises()
     {
-        $exercises = $this->exercises;
-
-        $exercises->each(function (RoutineExercise $exercises) {
+        $this->exercises->each(function (RoutineExercise $exercises) {
             $exercises->workoutProgramRoutineId = $this->id;
         });
 
-        $this->exercises()->saveMany($exercises);
+        $this->deleteRemovedChildren('exercises');
+        $this->exercises()->saveMany($this->exercises);
 
         return $this;
-    }
-
-    private function deleteRemoved()
-    {
-        // TODO make some sort of generic dlete remvoed
-        $toBeSaved = $this->workoutProgramRoutines;
-
-        $alreadyPersistedRoutines = $this->workoutProgramRoutines()->get();
-
-        $routinesToBeDeleted = $alreadyPersistedRoutines->diff($routinesToBeSaved);
-
-        $toBeDeletedIds = $routinesToBeDeleted->keys()->toArray();
-
-        if ($toBeDeletedIds) {
-            WorkoutProgramRoutine::destroy($toBeDeletedIds);
-        }
     }
 
 }

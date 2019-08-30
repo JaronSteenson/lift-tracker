@@ -4,6 +4,8 @@ namespace LiftTracker\Domain;
 
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
 use LiftTracker\Traits\CanUseCustomCollection;
 
@@ -43,6 +45,27 @@ abstract class AbstractModel extends Model
     public function getForeignKey(): string
     {
         return lcfirst(class_basename($this)) . ucfirst($this->getKeyName());
+    }
+
+    /**
+     * @param string $relationName Delete has many relation children where they are not present in memory but are present in the database.
+     */
+    public function deleteRemovedChildren(string $relationName): void
+    {
+        /** @var Collection $toBeSaved */
+        $toBeSaved = $this->$relationName;
+
+        /** @var HasMany $relation */
+        $relation = $this->$relationName();
+
+        /** @var Collection $alreadyPersisted */
+        $alreadyPersisted = $relation->get();
+
+        $toBeDeleted = $alreadyPersisted->diff($toBeSaved);
+
+        $idsToDelete = $toBeDeleted->pluck('id')->toArray();
+
+        $relation->getRelated()::destroy($idsToDelete);
     }
 
 }

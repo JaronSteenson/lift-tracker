@@ -82,11 +82,8 @@ class WorkoutProgramController extends Controller
 
         $workoutProgram->saveWithChildren();
 
-        // Ensure partial payloads return the full response. We can't jut use refresh by it's self because
-        // it will double up all the relation entries, probably from manually setting the relations
-        // in memory. I'm not sure how you are meant to bulk load and save nested models.
-         return $workoutProgram->refresh();
-//        return $workoutProgram->findOrFail($workoutProgram->id);
+        // Ensure partial payloads return the full response.
+        return $workoutProgram->refresh();
     }
 
 

@@ -3,6 +3,8 @@
 namespace LiftTracker\Http\Requests;
 
 use Illuminate\Support\Arr;
+use LiftTracker\Domain\Workouts\Programs\RoutineExercise;
+use LiftTracker\Domain\Workouts\Programs\RoutineExerciseCollection;
 use LiftTracker\Domain\Workouts\Programs\WorkoutProgram;
 use LiftTracker\Domain\Workouts\Programs\WorkoutProgramRoutine;
 use LiftTracker\Domain\Workouts\Programs\WorkoutProgramRoutineCollection;
@@ -27,36 +29,61 @@ class WorkoutProgramRequest extends ApiRequest
         return $this->only('name');
     }
 
-    public function getWorkoutProgramId(): string
+    public function getRequestWorkoutProgramRoutines(): WorkoutProgramRoutineCollection
     {
-        return $this->get('id');
-    }
+        $routines = array_map(function (array $requestRoutine) {
+            $routine = new WorkoutProgramRoutine($requestRoutine);
+            $routine->id = Arr::get($requestRoutine, 'id');
 
-    public function getWorkoutProgramRoutines(): WorkoutProgramRoutineCollection
-    {
-        $routines = array_map(static function (array $routine) {
-            return new WorkoutProgramRoutine($routine);
+            $routine->exercises = $this->getRequestExercises($requestRoutine);
+
+            return $routine;
         }, $this->get('workoutProgramRoutines', []));
 
         return new WorkoutProgramRoutineCollection($routines);
     }
 
+    private function getRequestExercises(array $requestRoutine): RoutineExerciseCollection
+    {
+        $requestExercises = Arr::get($requestRoutine, 'exercises', []);
+
+        $requestExerciseModels = array_map(static function (array $requestExercise) {
+            $exercise =  new RoutineExercise($requestExercise);
+            $exercise->id = $requestExercise['id'];
+
+            return $exercise;
+        }, $requestExercises);
+
+        return new RoutineExerciseCollection($requestExerciseModels);
+    }
+
     public function mergeExistingAndNewWorkoutRoutines(): WorkoutProgramRoutineCollection
     {
         $existingRoutines = $this->getExistingRoutines();
-        $mergedRoutines = clone $existingRoutines;
+        $newAndExisting = new WorkoutProgramRoutineCollection();
 
-        foreach ($this->getWorkoutProgramRoutines() as $index => $requestWorkoutRoutine) {
-            $foundExisting = $mergedRoutines->find($requestWorkoutRoutine);
+        foreach ($this->getRequestWorkoutProgramRoutines() as $index => $requestWorkoutRoutine) {
+            /** @var WorkoutProgramRoutine $foundExisting */
+            $foundExisting = $existingRoutines->find($requestWorkoutRoutine);
 
             if ($foundExisting) {
-                $foundExisting->fill($requestWorkoutRoutine);
+                $existing = clone $foundExisting;
+                $existing->fill($requestWorkoutRoutine->toArray());
+                $existing->exercises = $requestWorkoutRoutine->exercises;
+
+                $newAndExisting->add($existing);
+                $updatedRoutine = $existing;
             } else {
-                $mergedRoutines->add($requestWorkoutRoutine);
+                $newAndExisting->add($requestWorkoutRoutine);
+                $updatedRoutine = $requestWorkoutRoutine;
             }
+
+            // Apply the same again for this records children.
+            $newAndExistingExercises = $this->mergeExistingAndNewExercises($updatedRoutine);
+            $updatedRoutine->associateExercises($newAndExistingExercises);
         }
 
-        return $mergedRoutines;
+        return $newAndExisting;
     }
 
     public function getExistingRoutines(): WorkoutProgramRoutineCollection
@@ -72,6 +99,43 @@ class WorkoutProgramRequest extends ApiRequest
         return $existingWorkoutPrograms;
     }
 
+    public function mergeExistingAndNewExercises(WorkoutProgramRoutine $routine): RoutineExerciseCollection
+    {
+        $existingExercises = $this->getExistingExercises($routine);
+        $newAndExisting = new RoutineExerciseCollection();
+
+        foreach ($routine->exercises as $index => $requestExercise) {
+            $foundExisting = $existingExercises->find($requestExercise);
+
+            if ($foundExisting) {
+                $existing = clone $foundExisting;
+                $existing->fill($requestExercise->toArray());
+
+                $newAndExisting->add($existing);
+            } else {
+                $newAndExisting->add($requestExercise);
+            }
+        }
+
+        return $newAndExisting;
+    }
+
+    /**
+     * @param mixed $routine
+     * @return RoutineExerciseCollection
+     */
+    public function getExistingExercises($routine): RoutineExerciseCollection
+    {
+        /** @var WorkoutProgramRoutine $existingRoutine */
+        $existingRoutine = $this->getExistingRoutines()->find($routine);
+
+        if ($existingRoutine) {
+            return $existingRoutine->exercises;
+        }
+
+        return new RoutineExerciseCollection();
+    }
+
     /**
      * @param int $programRoutineIndex
      * @return string[]
@@ -83,11 +147,12 @@ class WorkoutProgramRequest extends ApiRequest
 
     protected function getProgramRoutine(int $programRoutineIndex): array
     {
-        return $this->getWorkoutProgramRoutines()[$programRoutineIndex];
+        return $this->getRequestWorkoutProgramRoutines()[$programRoutineIndex];
     }
 
     protected function getModelClass(): string
     {
         return WorkoutProgram::class;
     }
+
 }

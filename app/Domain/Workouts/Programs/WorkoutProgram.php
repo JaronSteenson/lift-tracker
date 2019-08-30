@@ -6,6 +6,7 @@ use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use LiftTracker\Domain\AbstractModel;
 use LiftTracker\Domain\Users\CanBeOwnedByUserTrait;
@@ -86,8 +87,6 @@ class WorkoutProgram extends AbstractModel implements UserOwnershipInterface
     public function saveWithChildren()
     {
         return DB::transaction(function() {
-            $this->exists = (bool) $this->id;
-
             $this->save();
             $this->saveRoutinesWithChildren();
 
@@ -98,36 +97,15 @@ class WorkoutProgram extends AbstractModel implements UserOwnershipInterface
     private function saveRoutinesWithChildren()
     {
         return DB::transaction(function() {
-            $routines = $this->workoutProgramRoutines;
+            $this->deleteRemovedChildren('workoutProgramRoutines');
+            $this->workoutProgramRoutines()->saveMany($this->workoutProgramRoutines);
 
-            $routines->each(function (WorkoutProgramRoutine $routine) {
-                $routine->workoutProgramId = $this->id;
-            });
-
-            $this->deleteRemovedRoutines();
-            $this->workoutProgramRoutines()->saveMany($routines);
-
-            $routines->each(static function (WorkoutProgramRoutine $routine) {
+            $this->workoutProgramRoutines->each(static function (WorkoutProgramRoutine $routine) {
                 $routine->saveExercises();
             });
 
             return $this;
         });
-    }
-
-    private function deleteRemovedRoutines()
-    {
-        $routinesToBeSaved = $this->workoutProgramRoutines;
-
-        $alreadyPersistedRoutines = $this->workoutProgramRoutines()->get();
-
-        $routinesToBeDeleted = $alreadyPersistedRoutines->diff($routinesToBeSaved);
-
-        $toBeDeletedIds = $routinesToBeDeleted->keys()->toArray();
-
-        if ($toBeDeletedIds) {
-            WorkoutProgramRoutine::destroy($toBeDeletedIds);
-        }
     }
 
     /**
