@@ -109,7 +109,7 @@ class WorkoutProgramFeatureTest extends TestCase
         $routine = $savedProgram->workoutProgramRoutines->first();
 
         static::assertThat($routine->name, static::equalTo('Day one'));
-        static::assertTrue($routine->exercises->isEmpty());
+        static::assertTrue($routine->routineExercises->isEmpty());
     }
 
     public function testUserCanSaveNewProgramWithARoutineAndExercise(): void
@@ -147,10 +147,10 @@ class WorkoutProgramFeatureTest extends TestCase
         $routine = $savedProgram->workoutProgramRoutines->first();
 
         static::assertThat($routine->name, static::equalTo('Day one'));
-        static::assertFalse($routine->exercises->isEmpty());
+        static::assertFalse($routine->routineExercises->isEmpty());
 
         /** @var RoutineExercise $exercise */
-        $exercise = $routine->exercises->first();
+        $exercise = $routine->routineExercises->first();
         static::assertThat($exercise->name, static::equalTo('Push ups'));
         static::assertThat($exercise->numberOfSets, static::equalTo(100));
     }

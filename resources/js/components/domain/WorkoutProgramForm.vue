@@ -68,7 +68,7 @@
                         workoutProgramRoutines: [{
                             name: null,
                             normalDay: 'any',
-                            exercises: [{}],
+                            routineExercises: [{}],
                         }],
                     };
                 }

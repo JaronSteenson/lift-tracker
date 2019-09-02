@@ -35,7 +35,7 @@ class WorkoutProgramRequest extends ApiRequest
             $routine = new WorkoutProgramRoutine($requestRoutine);
             $routine->id = Arr::get($requestRoutine, 'id');
 
-            $routine->exercises = $this->getRequestExercises($requestRoutine);
+            $routine->setRoutineExercises($this->getRequestExercises($requestRoutine));
 
             return $routine;
         }, $this->get('workoutProgramRoutines', []));
@@ -69,7 +69,7 @@ class WorkoutProgramRequest extends ApiRequest
             if ($foundExisting) {
                 $existing = clone $foundExisting;
                 $existing->fill($requestWorkoutRoutine->toArray());
-                $existing->exercises = $requestWorkoutRoutine->exercises;
+                $existing->setRoutineExercises($requestWorkoutRoutine->routineExercises);
 
                 $newAndExisting->add($existing);
                 $updatedRoutine = $existing;
@@ -104,7 +104,7 @@ class WorkoutProgramRequest extends ApiRequest
         $existingExercises = $this->getExistingExercises($routine);
         $newAndExisting = new RoutineExerciseCollection();
 
-        foreach ($routine->exercises as $index => $requestExercise) {
+        foreach ($routine->routineExercises as $index => $requestExercise) {
             $foundExisting = $existingExercises->find($requestExercise);
 
             if ($foundExisting) {
@@ -130,24 +130,10 @@ class WorkoutProgramRequest extends ApiRequest
         $existingRoutine = $this->getExistingRoutines()->find($routine);
 
         if ($existingRoutine) {
-            return $existingRoutine->exercises;
+            return $existingRoutine->routineExercises;
         }
 
         return new RoutineExerciseCollection();
-    }
-
-    /**
-     * @param int $programRoutineIndex
-     * @return string[]
-     */
-    public function getRoutinesExercise(int $programRoutineIndex): array
-    {
-        return Arr::get($this->getProgramRoutine($programRoutineIndex), 'exercises', []);
-    }
-
-    protected function getProgramRoutine(int $programRoutineIndex): array
-    {
-        return $this->getRequestWorkoutProgramRoutines()[$programRoutineIndex];
     }
 
     protected function getModelClass(): string

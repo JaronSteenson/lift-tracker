@@ -3,18 +3,15 @@
 namespace LiftTracker\Domain\Workouts\Programs;
 
 use Carbon\Carbon;
-use LiftTracker\Http\Requests\WorkoutProgramRequest;
 use RuntimeException;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use LiftTracker\Domain\AbstractModel;
 use LiftTracker\Domain\Users\UserOwnershipInterface;
-use LiftTracker\Domain\Workouts\Exercises\Exercise;
 use LiftTracker\Traits\CanUseCustomCollection;
 use LiftTracker\Traits\HasUuidTrait;
 use LiftTracker\User;
-use Traversable;
 
 /**
  * @mixin Builder
@@ -24,7 +21,7 @@ use Traversable;
  * @property string normalDay
  * @property Carbon createdAt
  * @property Carbon updatedAt
- * @property RoutineExerciseCollection exercises
+ * @property RoutineExerciseCollection $routineExercises
  *
  */
 class WorkoutProgramRoutine extends AbstractModel implements UserOwnershipInterface
@@ -51,12 +48,12 @@ class WorkoutProgramRoutine extends AbstractModel implements UserOwnershipInterf
         'id',
         'name',
         'normalDay',
-        'exercises',
+        'routineExercises',
         'workoutProgramId',
     ];
 
     protected $with = [
-        'exercises',
+        'routineExercises',
     ];
 
     /**
@@ -73,13 +70,13 @@ class WorkoutProgramRoutine extends AbstractModel implements UserOwnershipInterf
 
         static::deleting(static function(WorkoutProgramRoutine $routine) {
             // Delete exercises also on delete.
-            $routine->exercises()->delete();
+            $routine->routineExercises()->delete();
         });
     }
 
     public function workoutProgram(): BelongsTo
     {
-        return $this->belongsTo(WorkoutProgram::class, 'workoutProgramId');
+        return $this->belongsTo(WorkoutProgram::class);
     }
 
     public function userOwnsThis(User $user): bool
@@ -87,12 +84,17 @@ class WorkoutProgramRoutine extends AbstractModel implements UserOwnershipInterf
         /** @var WorkoutProgram $parentWorkoutProgram */
         $parentWorkoutProgram = $this->workoutProgram()->get()->first();
 
-        return $parentWorkoutProgram && $parentWorkoutProgram->user_id === $user->id;
+        return $parentWorkoutProgram && $parentWorkoutProgram->userId === $user->id;
     }
 
-    public function exercises(): HasMany
+    public function routineExercises(): HasMany
     {
         return $this->hasMany(RoutineExercise::class);
+    }
+
+    public function setRoutineExercises(RoutineExerciseCollection $exercises)
+    {
+        return $this->setRelation('routineExercises', $exercises);
     }
 
     /**
@@ -111,9 +113,9 @@ class WorkoutProgramRoutine extends AbstractModel implements UserOwnershipInterf
             $routine->workoutProgramRoutineId = $this->id;
         }
 
-        $this->exercises()->saveMany($routineExercises);
+        $this->routineExercises()->saveMany($routineExercises);
 
-        $this->setRelation('exercises', new RoutineExerciseCollection($routineExercises));
+        $this->setRelation('routineExercises', new RoutineExerciseCollection($routineExercises));
 
         return $this;
     }
@@ -128,12 +130,12 @@ class WorkoutProgramRoutine extends AbstractModel implements UserOwnershipInterf
 
     public function saveExercises()
     {
-        $this->exercises->each(function (RoutineExercise $exercises) {
+        $this->routineExercises->each(function (RoutineExercise $exercises) {
             $exercises->workoutProgramRoutineId = $this->id;
         });
 
-        $this->deleteRemovedChildren('exercises');
-        $this->exercises()->saveMany($this->exercises);
+        $this->deleteRemovedChildren('routineExercises');
+        $this->routineExercises()->saveMany($this->routineExercises);
 
         return $this;
     }

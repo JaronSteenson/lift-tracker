@@ -2100,7 +2100,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
           workoutProgramRoutines: [{
             name: null,
             normalDay: 'any',
-            exercises: [{}]
+            routineExercises: [{}]
           }]
         };
       }
@@ -2336,7 +2336,7 @@ var uuid = 0;
         return {
           name: null,
           normalDay: 'any',
-          exercises: [{}]
+          routineExercises: [{}]
         };
       }
     }
@@ -2492,7 +2492,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         workoutProgramRoutines: [{
           name: null,
           normalDay: 'any',
-          exercises: [{}]
+          routineExercises: [{}]
         }]
       }
     };

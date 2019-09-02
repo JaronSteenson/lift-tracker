@@ -47,6 +47,16 @@ abstract class AbstractModel extends Model
         return lcfirst(class_basename($this)) . ucfirst($this->getKeyName());
     }
 
+    public function belongsTo($related, $foreignKey = null, $ownerKey = null, $relation = null)
+    {
+        if ($foreignKey === null) {
+            $lcFirstRelated = Str::upper(Str::substr($related, 0, 1)).Str::substr($related, 1);
+            $foreignKey = $lcFirstRelated. 'Id';
+        }
+
+        parent::belongsTo($related, $foreignKey, $ownerKey, $relation);
+    }
+
     /**
      * @param string $relationName Delete has many relation children where they are not present in memory but are present in the database.
      */
