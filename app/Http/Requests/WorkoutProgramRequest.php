@@ -49,7 +49,7 @@ class WorkoutProgramRequest extends ApiRequest
 
         $requestExerciseModels = array_map(static function (array $requestExercise) {
             $exercise =  new RoutineExercise($requestExercise);
-            $exercise->id = $requestExercise['id'];
+            $exercise->id = Arr::get($requestExercise, 'id');
 
             return $exercise;
         }, $requestExercises);

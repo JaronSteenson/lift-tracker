@@ -4,6 +4,7 @@ namespace LiftTracker\Domain;
 
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
@@ -45,16 +46,6 @@ abstract class AbstractModel extends Model
     public function getForeignKey(): string
     {
         return lcfirst(class_basename($this)) . ucfirst($this->getKeyName());
-    }
-
-    public function belongsTo($related, $foreignKey = null, $ownerKey = null, $relation = null)
-    {
-        if ($foreignKey === null) {
-            $lcFirstRelated = Str::upper(Str::substr($related, 0, 1)).Str::substr($related, 1);
-            $foreignKey = $lcFirstRelated. 'Id';
-        }
-
-        parent::belongsTo($related, $foreignKey, $ownerKey, $relation);
     }
 
     /**

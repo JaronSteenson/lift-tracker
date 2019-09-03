@@ -133,13 +133,14 @@ class WorkoutProgramFeatureTest extends TestCase
         /** @var User $user */
         $user = factory(User::class)->create();
 
-        $this->actingAs($user)
+        $request = $this->actingAs($user)
             ->post(route('workout-programs.store'), $data)
-            ->assertStatus(201)
-            ->assertJson($data);
+            ->assertStatus(201);
 
         /** @var WorkoutProgram $savedProgram */
         $savedProgram = $user->findWorkoutPrograms()->first();
+
+        $request->assertJson($savedProgram->toArray());
 
         static::assertThat($savedProgram->name, static::equalTo($data['name']));
 

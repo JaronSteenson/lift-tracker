@@ -108,14 +108,6 @@ class WorkoutProgram extends AbstractModel implements UserOwnershipInterface
         });
     }
 
-    /**
-     * Get the user that owns the workout program, null if it is a community program.
-     */
-    public function user(): BelongsTo
-    {
-        return $this->belongsTo(User::class, 'userId');
-    }
-
     public function workoutProgramRoutines(): HasMany
     {
         return $this->hasMany(WorkoutProgramRoutine::class);

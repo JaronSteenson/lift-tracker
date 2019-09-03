@@ -76,7 +76,7 @@ class WorkoutProgramRoutine extends AbstractModel implements UserOwnershipInterf
 
     public function workoutProgram(): BelongsTo
     {
-        return $this->belongsTo(WorkoutProgram::class);
+        return $this->belongsTo(WorkoutProgram::class, 'workoutProgramId');
     }
 
     public function userOwnsThis(User $user): bool
