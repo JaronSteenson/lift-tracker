@@ -97,37 +97,6 @@ class WorkoutProgramRoutine extends AbstractModel implements UserOwnershipInterf
         return $this->setRelation('routineExercises', $exercises);
     }
 
-    /**
-     * Save and attach in memory many workout program routines.
-     *
-     * @param RoutineExercise[] $routineExercises
-     * @return $this
-     */
-    public function saveManyRoutineExercises(RoutineExercise ...$routineExercises): self
-    {
-        if ($this->id === null) {
-            throw new RuntimeException('Cannot save many routine exercises until this WorkoutProgramRoutine has an id (has been saved)');
-        }
-
-        foreach ($routineExercises as $routine) {
-            $routine->workoutProgramRoutineId = $this->id;
-        }
-
-        $this->routineExercises()->saveMany($routineExercises);
-
-        $this->setRelation('routineExercises', new RoutineExerciseCollection($routineExercises));
-
-        return $this;
-    }
-
-
-    public function associateExercises(RoutineExerciseCollection $routineExercises): self
-    {
-        $this->setRelation('exercises', $routineExercises);
-
-        return $this;
-    }
-
     public function saveExercises()
     {
         $this->routineExercises->each(function (RoutineExercise $exercises) {

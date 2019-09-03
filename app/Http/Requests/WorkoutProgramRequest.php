@@ -69,7 +69,6 @@ class WorkoutProgramRequest extends ApiRequest
             if ($foundExisting) {
                 $existing = clone $foundExisting;
                 $existing->fill($requestWorkoutRoutine->toArray());
-                $existing->setRoutineExercises($requestWorkoutRoutine->routineExercises);
 
                 $newAndExisting->add($existing);
                 $updatedRoutine = $existing;
@@ -79,8 +78,8 @@ class WorkoutProgramRequest extends ApiRequest
             }
 
             // Apply the same again for this records children.
-            $newAndExistingExercises = $this->mergeExistingAndNewExercises($updatedRoutine);
-            $updatedRoutine->associateExercises($newAndExistingExercises);
+            $newAndExistingExercises = $this->mergeExistingAndNewExercises($requestWorkoutRoutine);
+            $updatedRoutine->setRoutineExercises($newAndExistingExercises);
         }
 
         return $newAndExisting;
@@ -99,12 +98,12 @@ class WorkoutProgramRequest extends ApiRequest
         return $existingWorkoutPrograms;
     }
 
-    public function mergeExistingAndNewExercises(WorkoutProgramRoutine $routine): RoutineExerciseCollection
+    public function mergeExistingAndNewExercises(WorkoutProgramRoutine $requestRoutine): RoutineExerciseCollection
     {
-        $existingExercises = $this->getExistingExercises($routine);
+        $existingExercises = $this->getExistingExercises($requestRoutine);
         $newAndExisting = new RoutineExerciseCollection();
 
-        foreach ($routine->routineExercises as $index => $requestExercise) {
+        foreach ($requestRoutine->routineExercises as $index => $requestExercise) {
             $foundExisting = $existingExercises->find($requestExercise);
 
             if ($foundExisting) {

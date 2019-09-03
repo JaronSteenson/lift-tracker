@@ -4,8 +4,10 @@ namespace Tests\Feature;
 
 use Carbon\Carbon;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
 use LiftTracker\Domain\Workouts\Programs\RoutineExercise;
+use LiftTracker\Domain\Workouts\Programs\RoutineExerciseCollection;
 use LiftTracker\Domain\Workouts\Programs\WorkoutProgram;
 use LiftTracker\Domain\Workouts\Programs\WorkoutProgramRoutine;
 use LiftTracker\Http\Middleware\VerifyCsrfToken;
@@ -154,6 +156,68 @@ class WorkoutProgramFeatureTest extends TestCase
         $exercise = $routine->routineExercises->first();
         static::assertThat($exercise->name, static::equalTo('Push ups'));
         static::assertThat($exercise->numberOfSets, static::equalTo(100));
+    }
+
+    public function testExercisesCanBeSwappedInAndOut(): void
+    {
+        $data = [
+            'name' => 'Program 1',
+            'workoutProgramRoutines' => [
+                [
+                    'name' => 'Day one',
+                    'normalDay' => 'Monday',
+                    'routineExercises' => [
+                        [
+                            'name' => 'Push ups',
+                            'numberOfSets' => 100,
+                        ]
+                    ]
+                ]
+            ]
+        ];
+
+        /** @var User $user */
+        $user = factory(User::class)->create();
+
+        $request = $this->actingAs($user)
+            ->post(route('workout-programs.store'), $data)
+            ->assertStatus(201);
+
+        /** @var WorkoutProgram $savedProgram */
+        $savedProgram = $user->findWorkoutPrograms()->first();
+
+        $request->assertJson($savedProgram->toArray());
+
+        /** @var RoutineExerciseCollection $routineExercises */
+        $savedExercise = $savedProgram->workoutProgramRoutines->first()
+            ->routineExercises()->first();
+
+        static::assertThat($savedExercise->name, static::equalTo('Push ups'));
+        static::assertThat($savedExercise->numberOfSets, static::equalTo(100));
+
+        // Now swap out the push ups with sit ups.
+        /** @var RoutineExerciseCollection $routineExercises */
+        $savedProgram->workoutProgramRoutines->first()
+            ->setRoutineExercises(new RoutineExerciseCollection(new RoutineExercise([
+                'name' => 'Sit ups',
+                'numberOfSets' => 50,
+            ])));
+
+        $exerciseSwapRequest = $this->actingAs($user)
+            ->put(route('workout-programs.update', $savedProgram->id), $savedProgram->toArray())
+            ->assertStatus(200);
+
+        /** @var WorkoutProgram $withSwappedExercises */
+        $withSwappedExercises = $user->findWorkoutPrograms()->first();
+
+        $exerciseSwapRequest->assertJson($withSwappedExercises->toArray());
+
+        /** @var RoutineExercise $exercise */
+        $swappedExercise = $withSwappedExercises->workoutProgramRoutines->first()
+            ->routineExercises()->first();
+
+        static::assertThat($swappedExercise->name, static::equalTo('Sit ups'));
+        static::assertThat($swappedExercise->numberOfSets, static::equalTo(50));
     }
 
     public function testUserCannotSaveNewProgramWithANameTooLong(): void
