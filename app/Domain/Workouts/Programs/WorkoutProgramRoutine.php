@@ -3,10 +3,10 @@
 namespace LiftTracker\Domain\Workouts\Programs;
 
 use Carbon\Carbon;
-use RuntimeException;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Facades\DB;
 use LiftTracker\Domain\AbstractModel;
 use LiftTracker\Domain\Users\UserOwnershipInterface;
 use LiftTracker\Traits\CanUseCustomCollection;
@@ -95,6 +95,18 @@ class WorkoutProgramRoutine extends AbstractModel implements UserOwnershipInterf
     public function setRoutineExercises(RoutineExerciseCollection $exercises)
     {
         return $this->setRelation('routineExercises', $exercises);
+    }
+
+    public function saveWithExercises()
+    {
+        return DB::transaction(function() {
+            $saveResult = $this->save();
+
+            $this->saveExercises();
+
+            return $saveResult;
+        });
+
     }
 
     public function saveExercises()
