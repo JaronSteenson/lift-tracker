@@ -32,12 +32,11 @@
                     'Saturday',
                     'Sunday',
                 ],
-                value: null,
+                value: {...this.initialSelection},
             }
         },
         methods: {
             updateSelectedValue(selectedValue) {
-                debugger
                 this.value = selectedValue;
                 this.$emit('input', selectedValue);
             }
