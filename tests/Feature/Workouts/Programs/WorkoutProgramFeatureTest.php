@@ -24,9 +24,6 @@ class WorkoutProgramFeatureTest extends TestCase
         $this->withoutMiddleware([VerifyCsrfToken::class]);
     }
 
-    /**
-     * @return void
-     */
     public function testIndexWithoutAnyWorkouts(): void
     {
         $user = factory(User::class)->create();
@@ -37,9 +34,6 @@ class WorkoutProgramFeatureTest extends TestCase
             ->assertExactJson([]);
     }
 
-    /**
-     * @return void
-     */
     public function testIndexWithSomeWorkouts(): void
     {
         $user = factory(User::class)->create();
@@ -220,6 +214,52 @@ class WorkoutProgramFeatureTest extends TestCase
         static::assertThat($swappedExercise->numberOfSets, static::equalTo(50));
     }
 
+    public function testWorkoutProgramsCanBeSwappedInAndOut(): void
+    {
+        $data = [
+            'name' => 'Program 1',
+            'workoutProgramRoutines' => [
+                [
+                    'name' => 'Day one',
+                    'normalDay' => 'Monday',
+                ]
+            ]
+        ];
+
+        /** @var User $user */
+        $user = factory(User::class)->create();
+
+        $request = $this->actingAs($user)
+            ->post(route('workout-programs.store'), $data)
+            ->assertStatus(201);
+
+        /** @var WorkoutProgram $savedProgram */
+        $savedProgram = $user->findWorkoutPrograms()->first();
+
+        $request->assertJson($savedProgram->toArray());
+
+        // Now swap out and entire day
+        $withSwappedRoutine =  $savedProgram->toArray();
+
+        $withSwappedRoutine['workoutProgramRoutines'] = [
+            [
+                'name' => 'Day A',
+                'normalDay' => 'Tuesday',
+            ]
+        ];
+
+        $this->actingAs($user)
+            ->put(route('workout-programs.update', $savedProgram->id), $withSwappedRoutine)
+            ->assertStatus(200);
+
+        /** @var RoutineExercise $exercise */
+        $swappedRoutine = $user->findWorkoutPrograms()->first()
+            ->workoutProgramRoutines()->first();
+
+        static::assertThat($swappedRoutine->name, static::equalTo('Day A'));
+        static::assertThat($swappedRoutine->normalDay, static::equalTo('Tuesday'));
+    }
+
     public function testUserCannotSaveNewProgramWithANameTooLong(): void
     {
         $data = [
@@ -234,9 +274,6 @@ class WorkoutProgramFeatureTest extends TestCase
             ->assertStatus(302);
     }
 
-    /**
-     * @return void
-     */
     public function testUsersCanUpdateTheirOwnPrograms(): void
     {
         $user = factory(User::class)->create();
@@ -254,9 +291,6 @@ class WorkoutProgramFeatureTest extends TestCase
             ->assertJson($usersProgram->toArray());
     }
 
-    /**
-     * @return void
-     */
     public function testUsersCannotUpdateOtherUsersPrograms(): void
     {
         $user = factory(User::class)->create();
@@ -271,9 +305,6 @@ class WorkoutProgramFeatureTest extends TestCase
             ->assertStatus(403);
     }
 
-    /**
-     * @return void
-     */
     public function testUsersCanDeleteTheirOwnPrograms(): void
     {
         $user = factory(User::class)->create();
@@ -287,9 +318,6 @@ class WorkoutProgramFeatureTest extends TestCase
             ->assertStatus(200);
     }
 
-    /**
-     * @return void
-     */
     public function testUsersCannotDeleteOtherUsersPrograms(): void
     {
         $user = factory(User::class)->create();
