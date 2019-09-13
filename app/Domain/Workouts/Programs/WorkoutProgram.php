@@ -88,13 +88,13 @@ class WorkoutProgram extends AbstractModel implements UserOwnershipInterface
     {
         return DB::transaction(function() {
             $this->save();
-            $this->saveRoutinesWithChildren();
+            $this->saveRoutinesWithExercises();
 
             return $this;
         });
     }
 
-    private function saveRoutinesWithChildren()
+    private function saveRoutinesWithExercises()
     {
         return DB::transaction(function() {
             $this->deleteRemovedChildren('workoutProgramRoutines');

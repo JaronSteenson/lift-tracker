@@ -122,7 +122,7 @@ class WorkoutProgramFeatureTest extends TestCase
                 [
                     'name' => 'Day one',
                     'normalDay' => 'Monday',
-                    'exercises' => [
+                    'routineExercises' => [
                         [
                             'name' => 'Push ups',
                             'numberOfSets' => 100,
@@ -198,10 +198,10 @@ class WorkoutProgramFeatureTest extends TestCase
         // Now swap out the push ups with sit ups.
         /** @var RoutineExerciseCollection $routineExercises */
         $savedProgram->workoutProgramRoutines->first()
-            ->setRoutineExercises(new RoutineExerciseCollection(new RoutineExercise([
+            ->setRoutineExercises(new RoutineExerciseCollection([new RoutineExercise([
                 'name' => 'Sit ups',
                 'numberOfSets' => 50,
-            ])));
+            ])]));
 
         $exerciseSwapRequest = $this->actingAs($user)
             ->put(route('workout-programs.update', $savedProgram->id), $savedProgram->toArray())

@@ -45,7 +45,7 @@ class WorkoutProgramRequest extends ApiRequest
 
     private function getRequestExercises(array $requestRoutine): RoutineExerciseCollection
     {
-        $requestExercises = Arr::get($requestRoutine, 'exercises', []);
+        $requestExercises = Arr::get($requestRoutine, 'routineExercises', []);
 
         $requestExerciseModels = array_map(static function (array $requestExercise) {
             $exercise =  new RoutineExercise($requestExercise);
@@ -100,7 +100,7 @@ class WorkoutProgramRequest extends ApiRequest
 
     public function mergeExistingAndNewExercises(WorkoutProgramRoutine $requestRoutine): RoutineExerciseCollection
     {
-        $existingExercises = $this->getExistingExercises($requestRoutine);
+        $existingExercises = $this->getExistingExercisesForRoutine($requestRoutine);
         $newAndExisting = new RoutineExerciseCollection();
 
         foreach ($requestRoutine->routineExercises as $index => $requestExercise) {
@@ -123,7 +123,7 @@ class WorkoutProgramRequest extends ApiRequest
      * @param mixed $routine
      * @return RoutineExerciseCollection
      */
-    public function getExistingExercises($routine): RoutineExerciseCollection
+    public function getExistingExercisesForRoutine($routine): RoutineExerciseCollection
     {
         /** @var WorkoutProgramRoutine $existingRoutine */
         $existingRoutine = $this->getExistingRoutines()->find($routine);
