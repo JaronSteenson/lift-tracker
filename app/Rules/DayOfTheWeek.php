@@ -37,6 +37,7 @@ class DayOfTheWeek implements Rule
 
         if ($includeAny) {
             $days []= 'any';
+            $days []= null; // Equivalent to any.
         }
 
         return $days;
