@@ -1806,6 +1806,7 @@ __webpack_require__.r(__webpack_exports__);
     }
   },
   mounted: function mounted() {
+    this.randomizeStartingColors();
     this.startColorToggling();
   },
   destroyed: function destroyed() {
@@ -1823,6 +1824,29 @@ __webpack_require__.r(__webpack_exports__);
       }
 
       return changedValue;
+    },
+    randomizeStartingColors: function randomizeStartingColors() {
+      var predefinedStartColor = Math.floor(Math.random() * 3);
+
+      switch (predefinedStartColor) {
+        case 0:
+          this.red = 20;
+          this.green = 200;
+          this.blue = 100;
+          break;
+
+        case 1:
+          this.red = 100;
+          this.green = 20;
+          this.blue = 200;
+          break;
+
+        case 2:
+          this.red = 20;
+          this.green = 100;
+          this.blue = 200;
+          break;
+      }
     },
     startColorToggling: function startColorToggling() {
       var _this = this;
@@ -2344,8 +2368,9 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
               case 2:
                 this.workoutPrograms = _context.sent;
+                this.loading = false;
 
-              case 3:
+              case 4:
               case "end":
                 return _context.stop();
             }

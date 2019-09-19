@@ -26,6 +26,7 @@
             }
         },
         mounted() {
+            this.randomizeStartingColors();
             this.startColorToggling();
         },
         destroyed() {
@@ -44,6 +45,27 @@
                 }
 
                 return changedValue;
+            },
+            randomizeStartingColors() {
+                const predefinedStartColor = Math.floor(Math.random() * 3);
+
+                switch (predefinedStartColor) {
+                    case 0:
+                        this.red = 20;
+                        this.green = 200;
+                        this.blue = 100;
+                        break;
+                    case 1:
+                        this.red = 100;
+                        this.green = 20;
+                        this.blue = 200;
+                        break;
+                    case 2:
+                        this.red = 20;
+                        this.green = 100;
+                        this.blue = 200;
+                        break;
+                }
             },
             startColorToggling() {
                 this.colorChanging = setInterval(() => {

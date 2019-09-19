@@ -37,7 +37,7 @@
         methods: {
             async fetchWorkoutPrograms() {
                 this.workoutPrograms = await WorkoutProgramService.getAll();
-                // this.loading = false;
+                this.loading = false;
             }
         }
     }
