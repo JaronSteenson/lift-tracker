@@ -1,7 +1,10 @@
 <template>
-    <div class="spinner-border" :style="'color: ' + colorRgb" role="status">
-        <span class="sr-only">Loading...</span>
+    <div>
+        <div class="spinner-border" :style="'color: ' + colorRgb" role="status">
+            <span class="sr-only">Loading...</span>
+        </div>
     </div>
+
 </template>
 
 <script>
@@ -9,10 +12,12 @@
         name: 'LoadingSpinner',
         data() {
             return {
-                red: 22,
-                green: 22,
-                blue: 22,
+                red: 20,
+                green: 200,
+                blue: 100,
                 colorChangeStepSize: 20,
+                topBound: 200,
+                lowerBound: 20,
             }
         },
         computed: {
@@ -32,10 +37,10 @@
 
                 var changedValue = currentValue + change;
 
-                if (changedValue <= 1) {
-                    return this.colorChangeStepSize;
-                } else if (changedValue >= 255) {
-                    return 255 - this.colorChangeStepSize;
+                if (changedValue <= this.lowerBound) {
+                    return this.colorChangeStepSize * 2;
+                } else if (changedValue >= this.topBound) {
+                    return this.topBound - this.colorChangeStepSize * 2;
                 }
 
                 return changedValue;
@@ -55,7 +60,7 @@
                             this.blue = this.safeRgbChange(this.blue);
                             break;
                     }
-                }, 100);
+                }, 250);
             },
             stopColorToggling() {
                 clearTimeout(this.colorChanging);

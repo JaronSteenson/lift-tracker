@@ -1785,14 +1785,19 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
 /* harmony default export */ __webpack_exports__["default"] = ({
   name: 'LoadingSpinner',
   data: function data() {
     return {
-      red: 22,
-      green: 22,
-      blue: 22,
-      colorChangeStepSize: 20
+      red: 20,
+      green: 200,
+      blue: 100,
+      colorChangeStepSize: 20,
+      topBound: 200,
+      lowerBound: 20
     };
   },
   computed: {
@@ -1811,10 +1816,10 @@ __webpack_require__.r(__webpack_exports__);
       var change = Math.random() >= 0.5 ? this.colorChangeStepSize : -this.colorChangeStepSize;
       var changedValue = currentValue + change;
 
-      if (changedValue <= 1) {
-        return this.colorChangeStepSize;
-      } else if (changedValue >= 255) {
-        return 255 - this.colorChangeStepSize;
+      if (changedValue <= this.lowerBound) {
+        return this.colorChangeStepSize * 2;
+      } else if (changedValue >= this.topBound) {
+        return this.topBound - this.colorChangeStepSize * 2;
       }
 
       return changedValue;
@@ -1838,7 +1843,7 @@ __webpack_require__.r(__webpack_exports__);
             _this.blue = _this.safeRgbChange(_this.blue);
             break;
         }
-      }, 100);
+      }, 250);
     },
     stopColorToggling: function stopColorToggling() {
       clearTimeout(this.colorChanging);
@@ -22337,15 +22342,17 @@ var render = function() {
   var _vm = this
   var _h = _vm.$createElement
   var _c = _vm._self._c || _h
-  return _c(
-    "div",
-    {
-      staticClass: "spinner-border",
-      style: "color: " + _vm.colorRgb,
-      attrs: { role: "status" }
-    },
-    [_c("span", { staticClass: "sr-only" }, [_vm._v("Loading...")])]
-  )
+  return _c("div", [
+    _c(
+      "div",
+      {
+        staticClass: "spinner-border",
+        style: "color: " + _vm.colorRgb,
+        attrs: { role: "status" }
+      },
+      [_c("span", { staticClass: "sr-only" }, [_vm._v("Loading...")])]
+    )
+  ])
 }
 var staticRenderFns = []
 render._withStripped = true
