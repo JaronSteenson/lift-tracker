@@ -1770,6 +1770,60 @@ __webpack_require__.r(__webpack_exports__);
 
 /***/ }),
 
+/***/ "./node_modules/babel-loader/lib/index.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/components/LoadingSpinner.vue?vue&type=script&lang=js&":
+/*!*************************************************************************************************************************************************************************!*\
+  !*** ./node_modules/babel-loader/lib??ref--4-0!./node_modules/vue-loader/lib??vue-loader-options!./resources/js/components/LoadingSpinner.vue?vue&type=script&lang=js& ***!
+  \*************************************************************************************************************************************************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+//
+//
+//
+//
+//
+//
+/* harmony default export */ __webpack_exports__["default"] = ({
+  name: 'LoadingSpinner',
+  data: function data() {
+    return {
+      colorClasses: ['text-primary', 'text-secondary', 'text-success'],
+      currentColorClassIndex: 0
+    };
+  },
+  computed: {
+    colorClass: function colorClass() {
+      return this.colorClasses[this.currentColorClassIndex];
+    }
+  },
+  mounted: function mounted() {
+    this.startColorToggling();
+  },
+  destroyed: function destroyed() {
+    this.stopColorToggling();
+  },
+  methods: {
+    startColorToggling: function startColorToggling() {
+      var _this = this;
+
+      this.colorToggling = setInterval(function () {
+        if (_this.currentColorClassIndex < _this.colorClasses.length) {
+          _this.currentColorClassIndex++;
+        } else {
+          _this.currentColorClassIndex = 0;
+        }
+      }, 1000);
+    },
+    stopColorToggling: function stopColorToggling() {
+      clearTimeout(this.colorToggling);
+    }
+  }
+});
+
+/***/ }),
+
 /***/ "./node_modules/babel-loader/lib/index.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/components/domain/TypicalExerciseInput.vue?vue&type=script&lang=js&":
 /*!**************************************************************************************************************************************************************************************!*\
   !*** ./node_modules/babel-loader/lib??ref--4-0!./node_modules/vue-loader/lib??vue-loader-options!./resources/js/components/domain/TypicalExerciseInput.vue?vue&type=script&lang=js& ***!
@@ -2190,6 +2244,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0__);
 /* harmony import */ var _BootstrapCard__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../BootstrapCard */ "./resources/js/components/BootstrapCard.vue");
 /* harmony import */ var _services_WorkoutProgramService__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../../services/WorkoutProgramService */ "./resources/js/services/WorkoutProgramService.js");
+/* harmony import */ var _LoadingSpinner__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../LoadingSpinner */ "./resources/js/components/LoadingSpinner.vue");
 
 
 function asyncGeneratorStep(gen, resolve, reject, _next, _throw, key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { Promise.resolve(value).then(_next, _throw); } }
@@ -2210,11 +2265,18 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 //
 //
 //
+//
+//
+//
+//
+//
+
 
 
 /* harmony default export */ __webpack_exports__["default"] = ({
   name: 'CreateWorkoutProgramList',
   components: {
+    LoadingSpinner: _LoadingSpinner__WEBPACK_IMPORTED_MODULE_3__["default"],
     BootstrapCard: _BootstrapCard__WEBPACK_IMPORTED_MODULE_1__["default"]
   },
   created: function created() {
@@ -2226,8 +2288,8 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
   },
   data: function data() {
     return {
-      wtf: 'wtf',
-      workoutPrograms: []
+      workoutPrograms: [],
+      loading: true
     };
   },
   methods: {
@@ -2244,8 +2306,9 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
               case 2:
                 this.workoutPrograms = _context.sent;
+                this.loading = false;
 
-              case 3:
+              case 4:
               case "end":
                 return _context.stop();
             }
@@ -2376,6 +2439,12 @@ var uuid = 0;
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
+function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); keys.push.apply(keys, symbols); } return keys; }
+
+function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; if (i % 2) { ownKeys(source, true).forEach(function (key) { _defineProperty(target, key, source[key]); }); } else if (Object.getOwnPropertyDescriptors) { Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)); } else { ownKeys(source).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } } return target; }
+
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
 //
 //
 //
@@ -2400,12 +2469,11 @@ __webpack_require__.r(__webpack_exports__);
   data: function data() {
     return {
       daysOfWeekWithAny: ['any', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'],
-      value: null
+      value: _objectSpread({}, this.initialSelection)
     };
   },
   methods: {
     updateSelectedValue: function updateSelectedValue(selectedValue) {
-      debugger;
       this.value = selectedValue;
       this.$emit('input', selectedValue);
     }
@@ -2424,8 +2492,6 @@ __webpack_require__.r(__webpack_exports__);
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _domain_WorkoutProgramList__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../domain/WorkoutProgramList */ "./resources/js/components/domain/WorkoutProgramList.vue");
-//
-//
 //
 //
 //
@@ -22224,6 +22290,34 @@ render._withStripped = true
 
 /***/ }),
 
+/***/ "./node_modules/vue-loader/lib/loaders/templateLoader.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/components/LoadingSpinner.vue?vue&type=template&id=41495c30&":
+/*!*****************************************************************************************************************************************************************************************************************!*\
+  !*** ./node_modules/vue-loader/lib/loaders/templateLoader.js??vue-loader-options!./node_modules/vue-loader/lib??vue-loader-options!./resources/js/components/LoadingSpinner.vue?vue&type=template&id=41495c30& ***!
+  \*****************************************************************************************************************************************************************************************************************/
+/*! exports provided: render, staticRenderFns */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "render", function() { return render; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "staticRenderFns", function() { return staticRenderFns; });
+var render = function() {
+  var _vm = this
+  var _h = _vm.$createElement
+  var _c = _vm._self._c || _h
+  return _c(
+    "div",
+    { class: "spinner-border " + _vm.colorClass, attrs: { role: "status" } },
+    [_c("span", { staticClass: "sr-only" }, [_vm._v("Loading...")])]
+  )
+}
+var staticRenderFns = []
+render._withStripped = true
+
+
+
+/***/ }),
+
 /***/ "./node_modules/vue-loader/lib/loaders/templateLoader.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/components/domain/TypicalExerciseInput.vue?vue&type=template&id=54e0e41c&scoped=true&":
 /*!******************************************************************************************************************************************************************************************************************************************!*\
   !*** ./node_modules/vue-loader/lib/loaders/templateLoader.js??vue-loader-options!./node_modules/vue-loader/lib??vue-loader-options!./resources/js/components/domain/TypicalExerciseInput.vue?vue&type=template&id=54e0e41c&scoped=true& ***!
@@ -22617,23 +22711,29 @@ var render = function() {
     "BootstrapCard",
     { attrs: { title: "Your workout programs" } },
     [
-      _vm._l(_vm.workoutPrograms, function(program) {
-        return _c(
-          "div",
-          { key: program.id },
-          [
-            _c(
-              "router-link",
-              {
-                staticClass: "a",
-                attrs: { to: "/workout-programs/" + program.id }
-              },
-              [_vm._v(_vm._s(program.name))]
-            )
-          ],
-          1
-        )
-      }),
+      _vm.loading
+        ? _c("div", [_c("loading-spinner")], 1)
+        : _c(
+            "div",
+            _vm._l(_vm.workoutPrograms, function(program) {
+              return _c(
+                "div",
+                { key: program.id },
+                [
+                  _c(
+                    "router-link",
+                    {
+                      staticClass: "a",
+                      attrs: { to: "/workout-programs/" + program.id }
+                    },
+                    [_vm._v(_vm._s(program.name))]
+                  )
+                ],
+                1
+              )
+            }),
+            0
+          ),
       _vm._v(" "),
       _c("hr"),
       _vm._v(" "),
@@ -22643,7 +22743,7 @@ var render = function() {
         [_vm._v("\n        Add new/another\n    ")]
       )
     ],
-    2
+    1
   )
 }
 var staticRenderFns = []
@@ -22837,11 +22937,7 @@ var render = function() {
   var _vm = this
   var _h = _vm.$createElement
   var _c = _vm._self._c || _h
-  return _c(
-    "div",
-    [_c("p", [_vm._v("Hi.")]), _vm._v(" "), _c("WorkoutProgramList")],
-    1
-  )
+  return _c("div", [_c("WorkoutProgramList")], 1)
 }
 var staticRenderFns = []
 render._withStripped = true
@@ -37872,6 +37968,75 @@ __webpack_require__.r(__webpack_exports__);
 
 /***/ }),
 
+/***/ "./resources/js/components/LoadingSpinner.vue":
+/*!****************************************************!*\
+  !*** ./resources/js/components/LoadingSpinner.vue ***!
+  \****************************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _LoadingSpinner_vue_vue_type_template_id_41495c30___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./LoadingSpinner.vue?vue&type=template&id=41495c30& */ "./resources/js/components/LoadingSpinner.vue?vue&type=template&id=41495c30&");
+/* harmony import */ var _LoadingSpinner_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./LoadingSpinner.vue?vue&type=script&lang=js& */ "./resources/js/components/LoadingSpinner.vue?vue&type=script&lang=js&");
+/* empty/unused harmony star reexport *//* harmony import */ var _node_modules_vue_loader_lib_runtime_componentNormalizer_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../../../node_modules/vue-loader/lib/runtime/componentNormalizer.js */ "./node_modules/vue-loader/lib/runtime/componentNormalizer.js");
+
+
+
+
+
+/* normalize component */
+
+var component = Object(_node_modules_vue_loader_lib_runtime_componentNormalizer_js__WEBPACK_IMPORTED_MODULE_2__["default"])(
+  _LoadingSpinner_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_1__["default"],
+  _LoadingSpinner_vue_vue_type_template_id_41495c30___WEBPACK_IMPORTED_MODULE_0__["render"],
+  _LoadingSpinner_vue_vue_type_template_id_41495c30___WEBPACK_IMPORTED_MODULE_0__["staticRenderFns"],
+  false,
+  null,
+  null,
+  null
+  
+)
+
+/* hot reload */
+if (false) { var api; }
+component.options.__file = "resources/js/components/LoadingSpinner.vue"
+/* harmony default export */ __webpack_exports__["default"] = (component.exports);
+
+/***/ }),
+
+/***/ "./resources/js/components/LoadingSpinner.vue?vue&type=script&lang=js&":
+/*!*****************************************************************************!*\
+  !*** ./resources/js/components/LoadingSpinner.vue?vue&type=script&lang=js& ***!
+  \*****************************************************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _node_modules_babel_loader_lib_index_js_ref_4_0_node_modules_vue_loader_lib_index_js_vue_loader_options_LoadingSpinner_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../../../node_modules/babel-loader/lib??ref--4-0!../../../node_modules/vue-loader/lib??vue-loader-options!./LoadingSpinner.vue?vue&type=script&lang=js& */ "./node_modules/babel-loader/lib/index.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/components/LoadingSpinner.vue?vue&type=script&lang=js&");
+/* empty/unused harmony star reexport */ /* harmony default export */ __webpack_exports__["default"] = (_node_modules_babel_loader_lib_index_js_ref_4_0_node_modules_vue_loader_lib_index_js_vue_loader_options_LoadingSpinner_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_0__["default"]); 
+
+/***/ }),
+
+/***/ "./resources/js/components/LoadingSpinner.vue?vue&type=template&id=41495c30&":
+/*!***********************************************************************************!*\
+  !*** ./resources/js/components/LoadingSpinner.vue?vue&type=template&id=41495c30& ***!
+  \***********************************************************************************/
+/*! exports provided: render, staticRenderFns */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_node_modules_vue_loader_lib_index_js_vue_loader_options_LoadingSpinner_vue_vue_type_template_id_41495c30___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../../../node_modules/vue-loader/lib/loaders/templateLoader.js??vue-loader-options!../../../node_modules/vue-loader/lib??vue-loader-options!./LoadingSpinner.vue?vue&type=template&id=41495c30& */ "./node_modules/vue-loader/lib/loaders/templateLoader.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/components/LoadingSpinner.vue?vue&type=template&id=41495c30&");
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "render", function() { return _node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_node_modules_vue_loader_lib_index_js_vue_loader_options_LoadingSpinner_vue_vue_type_template_id_41495c30___WEBPACK_IMPORTED_MODULE_0__["render"]; });
+
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "staticRenderFns", function() { return _node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_node_modules_vue_loader_lib_index_js_vue_loader_options_LoadingSpinner_vue_vue_type_template_id_41495c30___WEBPACK_IMPORTED_MODULE_0__["staticRenderFns"]; });
+
+
+
+/***/ }),
+
 /***/ "./resources/js/components/domain/TypicalExerciseInput.vue":
 /*!*****************************************************************!*\
   !*** ./resources/js/components/domain/TypicalExerciseInput.vue ***!
@@ -38469,13 +38634,21 @@ __webpack_require__.r(__webpack_exports__);
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony import */ var axios__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! axios */ "./node_modules/axios/index.js");
-/* harmony import */ var axios__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(axios__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @babel/runtime/regenerator */ "./node_modules/@babel/runtime/regenerator/index.js");
+/* harmony import */ var _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var axios__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! axios */ "./node_modules/axios/index.js");
+/* harmony import */ var axios__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(axios__WEBPACK_IMPORTED_MODULE_1__);
 
-axios__WEBPACK_IMPORTED_MODULE_0___default.a.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest'; // Register the CSRF Token as a common header with Axios requests.
+
+function asyncGeneratorStep(gen, resolve, reject, _next, _throw, key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { Promise.resolve(value).then(_next, _throw); } }
+
+function _asyncToGenerator(fn) { return function () { var self = this, args = arguments; return new Promise(function (resolve, reject) { var gen = fn.apply(self, args); function _next(value) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "next", value); } function _throw(err) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "throw", err); } _next(undefined); }); }; }
+
+
+axios__WEBPACK_IMPORTED_MODULE_1___default.a.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest'; // Register the CSRF Token as a common header with Axios requests.
 
 var csrfToken = document.head.querySelector('meta[name="csrf-token"]');
-axios__WEBPACK_IMPORTED_MODULE_0___default.a.defaults.headers.common['X-CSRF-TOKEN'] = csrfToken.content;
+axios__WEBPACK_IMPORTED_MODULE_1___default.a.defaults.headers.common['X-CSRF-TOKEN'] = csrfToken.content;
 var url = window.apiBaseUrl;
 var baseUrl = url.replace(/\/+$/, '');
 
@@ -38486,7 +38659,7 @@ if (typeof baseUrl !== 'string') {
 var ApiService = {
   get: function get(resourceType) {
     var resourceId = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
-    return axios__WEBPACK_IMPORTED_MODULE_0___default.a.get(this.makeEndpointUrl(resourceType, resourceId));
+    return this.dataFrom(axios__WEBPACK_IMPORTED_MODULE_1___default.a.get(this.makeEndpointUrl(resourceType, resourceId)));
   },
   save: function save(resourceType, payload) {
     if (payload.id) {
@@ -38496,13 +38669,13 @@ var ApiService = {
     return this.post(resourceType, payload);
   },
   post: function post(resourceType, payload) {
-    return axios__WEBPACK_IMPORTED_MODULE_0___default.a.post(this.makeEndpointUrl(resourceType), payload);
+    return this.dataFrom(axios__WEBPACK_IMPORTED_MODULE_1___default.a.post(this.makeEndpointUrl(resourceType), payload));
   },
   put: function put(resourceType, resourceId, payload) {
-    return axios__WEBPACK_IMPORTED_MODULE_0___default.a.put(this.makeEndpointUrl(resourceType, resourceId), payload);
+    return this.dataFrom(axios__WEBPACK_IMPORTED_MODULE_1___default.a.put(this.makeEndpointUrl(resourceType, resourceId), payload));
   },
   "delete": function _delete(resourceType, resourceId) {
-    return axios__WEBPACK_IMPORTED_MODULE_0___default.a["delete"](this.makeEndpointUrl(resourceType, resourceId));
+    return this.dataFrom(axios__WEBPACK_IMPORTED_MODULE_1___default.a["delete"](this.makeEndpointUrl(resourceType, resourceId)));
   },
   makeEndpointUrl: function makeEndpointUrl(resourceType) {
     var resourceId = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
@@ -38513,7 +38686,37 @@ var ApiService = {
     }
 
     return url;
-  }
+  },
+  dataFrom: function () {
+    var _dataFrom = _asyncToGenerator(
+    /*#__PURE__*/
+    _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.mark(function _callee(request) {
+      var result;
+      return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.wrap(function _callee$(_context) {
+        while (1) {
+          switch (_context.prev = _context.next) {
+            case 0:
+              _context.next = 2;
+              return request;
+
+            case 2:
+              result = _context.sent;
+              return _context.abrupt("return", result.data);
+
+            case 4:
+            case "end":
+              return _context.stop();
+          }
+        }
+      }, _callee);
+    }));
+
+    function dataFrom(_x) {
+      return _dataFrom.apply(this, arguments);
+    }
+
+    return dataFrom;
+  }()
 };
 /* harmony default export */ __webpack_exports__["default"] = (ApiService);
 
@@ -38530,30 +38733,15 @@ var ApiService = {
 __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _ApiService__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./ApiService */ "./resources/js/services/ApiService.js");
 
-var RESOURCE_NAME = 'workout-programs'; // "getAll" only cache.
-
-var cache = window.preloadData.workoutPrograms || [];
+var RESOURCE_NAME = 'workout-programs';
 var WorkoutProgramService = {
   get: function get(workoutRoutineId) {
-    var foundInCache = cache.find(function (workoutProgram) {
-      return workoutProgram.id === workoutRoutineId;
-    });
-
-    if (foundInCache) {
-      return foundInCache;
-    }
-
     return _ApiService__WEBPACK_IMPORTED_MODULE_0__["default"].get(RESOURCE_NAME, workoutRoutineId);
   },
   getAll: function getAll() {
-    if (cache) {
-      return cache;
-    }
-
     return _ApiService__WEBPACK_IMPORTED_MODULE_0__["default"].get(RESOURCE_NAME);
   },
   save: function save(workoutRoutine) {
-    cache = null;
     return _ApiService__WEBPACK_IMPORTED_MODULE_0__["default"].save(RESOURCE_NAME, workoutRoutine);
   }
 };

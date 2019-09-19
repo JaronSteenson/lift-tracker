@@ -1,7 +1,5 @@
 <template>
     <div>
-        <p>Hi.</p>
-
         <WorkoutProgramList></WorkoutProgramList>
     </div>
 </template>
