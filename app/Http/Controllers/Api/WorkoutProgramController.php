@@ -90,7 +90,7 @@ class WorkoutProgramController extends Controller
     /**
      * Remove the specified resource from storage.HasUuidTrait.php
      *
-     * @param WorkoutProgramRequest $request Validates ownership, do not remove
+     * @param WorkoutProgramRequest $request Validates ownership, dataFrom not remove
      * @return void
      * @throws Exception
      */

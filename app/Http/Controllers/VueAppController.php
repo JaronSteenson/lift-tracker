@@ -34,14 +34,7 @@ class VueAppController extends Controller
 
     private function getPreloadData(Request $request): array
     {
-        /** @var User $user */
-        $user = $request->user();
-
-        /** @var WorkoutProgramCollection $workoutPrograms */
-        $workoutPrograms = $user->workoutPrograms()->get();
-
         return [
-            'workoutPrograms' => $workoutPrograms,
             'availableExercises' => Exercise::all(),
         ];
     }
