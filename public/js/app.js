@@ -1789,13 +1789,15 @@ __webpack_require__.r(__webpack_exports__);
   name: 'LoadingSpinner',
   data: function data() {
     return {
-      colorClasses: ['text-primary', 'text-secondary', 'text-success'],
-      currentColorClassIndex: 0
+      red: 22,
+      green: 22,
+      blue: 22,
+      colorChangeStepSize: 20
     };
   },
   computed: {
-    colorClass: function colorClass() {
-      return this.colorClasses[this.currentColorClassIndex];
+    colorRgb: function colorRgb() {
+      return "rgb(".concat(this.red, ", ").concat(this.green, ", ").concat(this.blue, ")");
     }
   },
   mounted: function mounted() {
@@ -1805,19 +1807,41 @@ __webpack_require__.r(__webpack_exports__);
     this.stopColorToggling();
   },
   methods: {
+    safeRgbChange: function safeRgbChange(currentValue) {
+      var change = Math.random() >= 0.5 ? this.colorChangeStepSize : -this.colorChangeStepSize;
+      var changedValue = currentValue + change;
+
+      if (changedValue <= 1) {
+        return this.colorChangeStepSize;
+      } else if (changedValue >= 255) {
+        return 255 - this.colorChangeStepSize;
+      }
+
+      return changedValue;
+    },
     startColorToggling: function startColorToggling() {
       var _this = this;
 
-      this.colorToggling = setInterval(function () {
-        if (_this.currentColorClassIndex < _this.colorClasses.length) {
-          _this.currentColorClassIndex++;
-        } else {
-          _this.currentColorClassIndex = 0;
+      this.colorChanging = setInterval(function () {
+        var partToChange = Math.floor(Math.random() * 3);
+
+        switch (partToChange) {
+          case 0:
+            _this.red = _this.safeRgbChange(_this.red);
+            break;
+
+          case 1:
+            _this.green = _this.safeRgbChange(_this.green);
+            break;
+
+          case 2:
+            _this.blue = _this.safeRgbChange(_this.blue);
+            break;
         }
-      }, 1000);
+      }, 100);
     },
     stopColorToggling: function stopColorToggling() {
-      clearTimeout(this.colorToggling);
+      clearTimeout(this.colorChanging);
     }
   }
 });
@@ -2078,6 +2102,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0__);
 /* harmony import */ var _domain_WorkoutRoutineForm__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../domain/WorkoutRoutineForm */ "./resources/js/components/domain/WorkoutRoutineForm.vue");
 /* harmony import */ var _services_WorkoutProgramService__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../../services/WorkoutProgramService */ "./resources/js/services/WorkoutProgramService.js");
+/* harmony import */ var _LoadingSpinner__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../LoadingSpinner */ "./resources/js/components/LoadingSpinner.vue");
 
 
 function asyncGeneratorStep(gen, resolve, reject, _next, _throw, key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { Promise.resolve(value).then(_next, _throw); } }
@@ -2139,11 +2164,14 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 //
 //
 //
+//
+
 
 
 /* harmony default export */ __webpack_exports__["default"] = ({
   name: 'WorkoutProgramForm',
   components: {
+    LoadingSpinner: _LoadingSpinner__WEBPACK_IMPORTED_MODULE_3__["default"],
     WorkoutRoutineForm: _domain_WorkoutRoutineForm__WEBPACK_IMPORTED_MODULE_1__["default"]
   },
   props: {
@@ -2159,6 +2187,11 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         };
       }
     }
+  },
+  data: function data() {
+    return {
+      loading: false
+    };
   },
   computed: {
     workoutsPerCycle: {
@@ -2209,10 +2242,14 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
           while (1) {
             switch (_context.prev = _context.next) {
               case 0:
-                _context.next = 2;
+                this.loading = true;
+                _context.next = 3;
                 return _services_WorkoutProgramService__WEBPACK_IMPORTED_MODULE_2__["default"].save(this.workoutProgram);
 
-              case 2:
+              case 3:
+                this.loading = false;
+
+              case 4:
               case "end":
                 return _context.stop();
             }
@@ -2266,10 +2303,6 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 //
 //
 //
-//
-//
-//
-//
 
 
 
@@ -2306,9 +2339,8 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
               case 2:
                 this.workoutPrograms = _context.sent;
-                this.loading = false;
 
-              case 4:
+              case 3:
               case "end":
                 return _context.stop();
             }
@@ -22307,7 +22339,11 @@ var render = function() {
   var _c = _vm._self._c || _h
   return _c(
     "div",
-    { class: "spinner-border " + _vm.colorClass, attrs: { role: "status" } },
+    {
+      staticClass: "spinner-border",
+      style: "color: " + _vm.colorRgb,
+      attrs: { role: "status" }
+    },
     [_c("span", { staticClass: "sr-only" }, [_vm._v("Loading...")])]
   )
 }
@@ -22533,157 +22569,159 @@ var render = function() {
   var _vm = this
   var _h = _vm.$createElement
   var _c = _vm._self._c || _h
-  return _c(
-    "form",
-    {
-      on: {
-        submit: function($event) {
-          $event.preventDefault()
-        }
-      }
-    },
-    [
-      _c("div", { staticClass: "form-group row" }, [
-        _c(
-          "label",
-          {
-            staticClass: "col-md-4 col-form-label text-md-right",
-            attrs: { for: "edit-workout-program-name" }
-          },
-          [_vm._v("Program name")]
-        ),
-        _vm._v(" "),
-        _c("div", { staticClass: "col-md-6" }, [
-          _c("div", { class: { "is-invalid": false } }),
-          _vm._v(" "),
-          _c("input", {
-            directives: [
-              {
-                name: "model",
-                rawName: "v-model",
-                value: _vm.workoutProgram.name,
-                expression: "workoutProgram.name"
-              }
-            ],
-            staticClass: "form-control",
-            attrs: {
-              id: "edit-workout-program-name",
-              type: "text",
-              name: "name",
-              required: ""
-            },
-            domProps: { value: _vm.workoutProgram.name },
-            on: {
-              input: function($event) {
-                if ($event.target.composing) {
-                  return
-                }
-                _vm.$set(_vm.workoutProgram, "name", $event.target.value)
-              }
+  return _vm.loading
+    ? _c("loading-spinner")
+    : _c(
+        "form",
+        {
+          on: {
+            submit: function($event) {
+              $event.preventDefault()
             }
-          }),
-          _vm._v(" "),
-          false
-            ? undefined
-            : _vm._e()
-        ])
-      ]),
-      _vm._v(" "),
-      _c("div", { staticClass: "form-group row" }, [
-        _c(
-          "label",
-          {
-            staticClass: "col-md-4 col-form-label text-md-right",
-            attrs: { for: "workouts-per-cycle" }
-          },
-          [_vm._v("Workouts per cycle")]
-        ),
-        _vm._v(" "),
-        _c("div", { staticClass: "col-md-6" }, [
-          _c("div", { class: { "is-invalid": false } }),
-          _vm._v(" "),
-          _c("input", {
-            directives: [
-              {
-                name: "model",
-                rawName: "v-model",
-                value: _vm.workoutsPerCycle,
-                expression: "workoutsPerCycle"
-              }
-            ],
-            staticClass: "form-control",
-            attrs: {
-              id: "workouts-per-cycle",
-              type: "number",
-              min: "1",
-              step: "1",
-              name: "name",
-              required: ""
-            },
-            domProps: { value: _vm.workoutsPerCycle },
-            on: {
-              input: function($event) {
-                if ($event.target.composing) {
-                  return
-                }
-                _vm.workoutsPerCycle = $event.target.value
-              }
-            }
-          }),
-          _vm._v(" "),
-          false
-            ? undefined
-            : _vm._e()
-        ])
-      ]),
-      _vm._v(" "),
-      _vm.hasWorkoutRoutines()
-        ? _c("hr", { staticClass: "form-section-divider" })
-        : _vm._e(),
-      _vm._v(" "),
-      _vm._l(_vm.workoutProgram.workoutProgramRoutines, function(
-        workoutRoutine,
-        index
-      ) {
-        return _c("WorkoutRoutineForm", {
-          key: index,
-          attrs: {
-            workoutRoutine: _vm.workoutProgram.workoutProgramRoutines[index]
           }
-        })
-      }),
-      _vm._v(" "),
-      _c("div", { staticClass: "form-group row mb-0" }, [
-        _c(
-          "div",
-          { staticClass: "col-md-8 offset-md-4" },
-          [
+        },
+        [
+          _c("div", { staticClass: "form-group row" }, [
             _c(
-              "button",
+              "label",
               {
-                staticClass: "btn btn-primary",
-                class: { disabled: _vm.hasNoWorkoutRoutines() },
-                attrs: { type: "submit" },
-                on: { click: _vm.saveWorkoutProgram }
+                staticClass: "col-md-4 col-form-label text-md-right",
+                attrs: { for: "edit-workout-program-name" }
               },
-              [_vm._v("\n                save\n            ")]
+              [_vm._v("Program name")]
             ),
             _vm._v(" "),
+            _c("div", { staticClass: "col-md-6" }, [
+              _c("div", { class: { "is-invalid": false } }),
+              _vm._v(" "),
+              _c("input", {
+                directives: [
+                  {
+                    name: "model",
+                    rawName: "v-model",
+                    value: _vm.workoutProgram.name,
+                    expression: "workoutProgram.name"
+                  }
+                ],
+                staticClass: "form-control",
+                attrs: {
+                  id: "edit-workout-program-name",
+                  type: "text",
+                  name: "name",
+                  required: ""
+                },
+                domProps: { value: _vm.workoutProgram.name },
+                on: {
+                  input: function($event) {
+                    if ($event.target.composing) {
+                      return
+                    }
+                    _vm.$set(_vm.workoutProgram, "name", $event.target.value)
+                  }
+                }
+              }),
+              _vm._v(" "),
+              false
+                ? undefined
+                : _vm._e()
+            ])
+          ]),
+          _vm._v(" "),
+          _c("div", { staticClass: "form-group row" }, [
             _c(
-              "router-link",
+              "label",
               {
-                staticClass: "btn btn-link",
-                attrs: { tag: "a", to: "/workout-programs" }
+                staticClass: "col-md-4 col-form-label text-md-right",
+                attrs: { for: "workouts-per-cycle" }
               },
-              [_vm._v("\n                Cancel\n            ")]
+              [_vm._v("Workouts per cycle")]
+            ),
+            _vm._v(" "),
+            _c("div", { staticClass: "col-md-6" }, [
+              _c("div", { class: { "is-invalid": false } }),
+              _vm._v(" "),
+              _c("input", {
+                directives: [
+                  {
+                    name: "model",
+                    rawName: "v-model",
+                    value: _vm.workoutsPerCycle,
+                    expression: "workoutsPerCycle"
+                  }
+                ],
+                staticClass: "form-control",
+                attrs: {
+                  id: "workouts-per-cycle",
+                  type: "number",
+                  min: "1",
+                  step: "1",
+                  name: "name",
+                  required: ""
+                },
+                domProps: { value: _vm.workoutsPerCycle },
+                on: {
+                  input: function($event) {
+                    if ($event.target.composing) {
+                      return
+                    }
+                    _vm.workoutsPerCycle = $event.target.value
+                  }
+                }
+              }),
+              _vm._v(" "),
+              false
+                ? undefined
+                : _vm._e()
+            ])
+          ]),
+          _vm._v(" "),
+          _vm.hasWorkoutRoutines()
+            ? _c("hr", { staticClass: "form-section-divider" })
+            : _vm._e(),
+          _vm._v(" "),
+          _vm._l(_vm.workoutProgram.workoutProgramRoutines, function(
+            workoutRoutine,
+            index
+          ) {
+            return _c("WorkoutRoutineForm", {
+              key: index,
+              attrs: {
+                workoutRoutine: _vm.workoutProgram.workoutProgramRoutines[index]
+              }
+            })
+          }),
+          _vm._v(" "),
+          _c("div", { staticClass: "form-group row mb-0" }, [
+            _c(
+              "div",
+              { staticClass: "col-md-8 offset-md-4" },
+              [
+                _c(
+                  "button",
+                  {
+                    staticClass: "btn btn-primary",
+                    class: { disabled: _vm.hasNoWorkoutRoutines() },
+                    attrs: { type: "submit" },
+                    on: { click: _vm.saveWorkoutProgram }
+                  },
+                  [_vm._v("\n                save\n            ")]
+                ),
+                _vm._v(" "),
+                _c(
+                  "router-link",
+                  {
+                    staticClass: "btn btn-link",
+                    attrs: { tag: "a", to: "/workout-programs" }
+                  },
+                  [_vm._v("\n                Cancel\n            ")]
+                )
+              ],
+              1
             )
-          ],
-          1
-        )
-      ])
-    ],
-    2
-  )
+          ])
+        ],
+        2
+      )
 }
 var staticRenderFns = []
 render._withStripped = true
@@ -22712,28 +22750,24 @@ var render = function() {
     { attrs: { title: "Your workout programs" } },
     [
       _vm.loading
-        ? _c("div", [_c("loading-spinner")], 1)
-        : _c(
-            "div",
-            _vm._l(_vm.workoutPrograms, function(program) {
-              return _c(
-                "div",
-                { key: program.id },
-                [
-                  _c(
-                    "router-link",
-                    {
-                      staticClass: "a",
-                      attrs: { to: "/workout-programs/" + program.id }
-                    },
-                    [_vm._v(_vm._s(program.name))]
-                  )
-                ],
-                1
-              )
-            }),
-            0
-          ),
+        ? _c("loading-spinner")
+        : _vm._l(_vm.workoutPrograms, function(program) {
+            return _c(
+              "div",
+              { key: program.id },
+              [
+                _c(
+                  "router-link",
+                  {
+                    staticClass: "a",
+                    attrs: { to: "/workout-programs/" + program.id }
+                  },
+                  [_vm._v(_vm._s(program.name))]
+                )
+              ],
+              1
+            )
+          }),
       _vm._v(" "),
       _c("hr"),
       _vm._v(" "),
@@ -22743,7 +22777,7 @@ var render = function() {
         [_vm._v("\n        Add new/another\n    ")]
       )
     ],
-    1
+    2
   )
 }
 var staticRenderFns = []

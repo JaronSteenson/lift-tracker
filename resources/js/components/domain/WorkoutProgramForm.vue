@@ -1,5 +1,6 @@
 <template>
-    <form @submit.prevent>
+    <loading-spinner v-if="loading"></loading-spinner>
+    <form v-else @submit.prevent>
         <div class="form-group row">
             <label for="edit-workout-program-name"
                    class="col-md-4 col-form-label text-md-right">Program name</label>
@@ -56,10 +57,11 @@
 <script>
     import WorkoutRoutineForm from "../domain/WorkoutRoutineForm";
     import WorkoutProgramService from "../../services/WorkoutProgramService";
+    import LoadingSpinner from "../LoadingSpinner";
 
     export default {
         name: 'WorkoutProgramForm',
-        components: {WorkoutRoutineForm},
+        components: {LoadingSpinner, WorkoutRoutineForm},
         props: {
             workoutProgram: {
                 default() {
@@ -72,6 +74,11 @@
                         }],
                     };
                 }
+            }
+        },
+        data () {
+            return {
+                loading: false,
             }
         },
         computed: {
@@ -117,7 +124,9 @@
             },
 
             async saveWorkoutProgram() {
+                this.loading = true;
                 await WorkoutProgramService.save(this.workoutProgram);
+                this.loading = false;
             },
         }
     }

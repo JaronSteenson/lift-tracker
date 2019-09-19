@@ -1,12 +1,8 @@
 <template>
     <BootstrapCard title="Your workout programs">
-        <div v-if="loading">
-            <loading-spinner></loading-spinner>
-        </div>
-        <div v-else>
-            <div v-for="program in workoutPrograms" v-bind:key="program.id">
-                <router-link v-bind:to="'/workout-programs/' + program.id" class="a">{{ program.name }}</router-link>
-            </div>
+        <loading-spinner v-if="loading"></loading-spinner>
+        <div v-else v-for="program in workoutPrograms" v-bind:key="program.id">
+            <router-link v-bind:to="'/workout-programs/' + program.id" class="a">{{ program.name }}</router-link>
         </div>
 
         <hr>
@@ -41,7 +37,7 @@
         methods: {
             async fetchWorkoutPrograms() {
                 this.workoutPrograms = await WorkoutProgramService.getAll();
-                this.loading = false;
+                // this.loading = false;
             }
         }
     }
