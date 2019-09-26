@@ -14,5 +14,6 @@ class Controller extends BaseController
 
     public function __construct()
     {
+        View::share('apiBaseUrl', env('API_BASE_URL'));
     }
 }
