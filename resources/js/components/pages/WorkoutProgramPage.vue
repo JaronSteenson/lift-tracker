@@ -1,22 +1,24 @@
 <template>
-    <BootstrapCard v-bind:title="title">
-        <WorkoutProgramForm :workoutProgram="workoutProgram"></WorkoutProgramForm>
+    <BootstrapCard v-bind:title="loading ? 'Loading program...' : title">
+        <LoadingSpinner v-if="loading"></LoadingSpinner>
+        <WorkoutProgramForm v-else :workoutProgram="workoutProgram"></WorkoutProgramForm>
     </BootstrapCard>
 </template>
 
 <script>
     import BootstrapCard from "../BootstrapCard";
     import WorkoutProgramForm from "../domain/WorkoutProgramForm";
+    import LoadingSpinner from "../LoadingSpinner";
     import WorkoutProgramService from "../../services/WorkoutProgramService";
 
     export default {
         name: 'CreateWorkoutProgramPage',
-        components: {BootstrapCard, WorkoutProgramForm},
+        components: { BootstrapCard, WorkoutProgramForm, LoadingSpinner },
         created () {
             this.fetchWorkoutProgram()
         },
         watch: {
-            // call again the method if the route changes
+            // call again if the route changes
             '$route': 'fetchWorkoutProgram'
         },
         data() {
@@ -30,6 +32,7 @@
                         routineExercises: [{}],
                     }]
                 },
+                loading: true,
             }
         },
         computed: {
@@ -39,11 +42,15 @@
         },
         methods: {
             async fetchWorkoutProgram() {
+                this.loading = true;
+
                 const id = this.$route.params.id;
 
                 if (id) {
                     this.workoutProgram = await WorkoutProgramService.get(id);
                 }
+
+                this.loading = false;
             },
             isNew() {
                 return !this.$route.params.id;

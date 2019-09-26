@@ -2363,14 +2363,15 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
           while (1) {
             switch (_context.prev = _context.next) {
               case 0:
-                _context.next = 2;
+                this.loading = true;
+                _context.next = 3;
                 return _services_WorkoutProgramService__WEBPACK_IMPORTED_MODULE_2__["default"].getAll();
 
-              case 2:
+              case 3:
                 this.workoutPrograms = _context.sent;
                 this.loading = false;
 
-              case 4:
+              case 5:
               case "end":
                 return _context.stop();
             }
@@ -2583,7 +2584,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0__);
 /* harmony import */ var _BootstrapCard__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../BootstrapCard */ "./resources/js/components/BootstrapCard.vue");
 /* harmony import */ var _domain_WorkoutProgramForm__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../domain/WorkoutProgramForm */ "./resources/js/components/domain/WorkoutProgramForm.vue");
-/* harmony import */ var _services_WorkoutProgramService__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../../services/WorkoutProgramService */ "./resources/js/services/WorkoutProgramService.js");
+/* harmony import */ var _LoadingSpinner__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../LoadingSpinner */ "./resources/js/components/LoadingSpinner.vue");
+/* harmony import */ var _services_WorkoutProgramService__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../../services/WorkoutProgramService */ "./resources/js/services/WorkoutProgramService.js");
 
 
 function asyncGeneratorStep(gen, resolve, reject, _next, _throw, key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { Promise.resolve(value).then(_next, _throw); } }
@@ -2596,6 +2598,8 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 //
 //
 //
+//
+
 
 
 
@@ -2603,13 +2607,14 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
   name: 'CreateWorkoutProgramPage',
   components: {
     BootstrapCard: _BootstrapCard__WEBPACK_IMPORTED_MODULE_1__["default"],
-    WorkoutProgramForm: _domain_WorkoutProgramForm__WEBPACK_IMPORTED_MODULE_2__["default"]
+    WorkoutProgramForm: _domain_WorkoutProgramForm__WEBPACK_IMPORTED_MODULE_2__["default"],
+    LoadingSpinner: _LoadingSpinner__WEBPACK_IMPORTED_MODULE_3__["default"]
   },
   created: function created() {
     this.fetchWorkoutProgram();
   },
   watch: {
-    // call again the method if the route changes
+    // call again if the route changes
     '$route': 'fetchWorkoutProgram'
   },
   data: function data() {
@@ -2622,7 +2627,8 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
           normalDay: 'any',
           routineExercises: [{}]
         }]
-      }
+      },
+      loading: true
     };
   },
   computed: {
@@ -2640,20 +2646,24 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
           while (1) {
             switch (_context.prev = _context.next) {
               case 0:
+                this.loading = true;
                 id = this.$route.params.id;
 
                 if (!id) {
-                  _context.next = 5;
+                  _context.next = 6;
                   break;
                 }
 
-                _context.next = 4;
-                return _services_WorkoutProgramService__WEBPACK_IMPORTED_MODULE_3__["default"].get(id);
-
-              case 4:
-                this.workoutProgram = _context.sent;
+                _context.next = 5;
+                return _services_WorkoutProgramService__WEBPACK_IMPORTED_MODULE_4__["default"].get(id);
 
               case 5:
+                this.workoutProgram = _context.sent;
+
+              case 6:
+                this.loading = false;
+
+              case 7:
               case "end":
                 return _context.stop();
             }
@@ -22789,7 +22799,7 @@ var render = function() {
               { key: program.id },
               [
                 _c(
-                  "router-link",
+                  "routerLink",
                   {
                     staticClass: "a",
                     attrs: { to: "/workout-programs/" + program.id }
@@ -22804,7 +22814,7 @@ var render = function() {
       _c("hr"),
       _vm._v(" "),
       _c(
-        "router-link",
+        "routerLink",
         { attrs: { tag: "a", to: "/workout-programs/create" } },
         [_vm._v("\n        Add new/another\n    ")]
       )
@@ -23029,11 +23039,13 @@ var render = function() {
   var _c = _vm._self._c || _h
   return _c(
     "BootstrapCard",
-    { attrs: { title: _vm.title } },
+    { attrs: { title: _vm.loading ? "Loading program..." : _vm.title } },
     [
-      _c("WorkoutProgramForm", {
-        attrs: { workoutProgram: _vm.workoutProgram }
-      })
+      _vm.loading
+        ? _c("LoadingSpinner")
+        : _c("WorkoutProgramForm", {
+            attrs: { workoutProgram: _vm.workoutProgram }
+          })
     ],
     1
   )
