@@ -15,12 +15,10 @@ if (typeof baseUrl !== 'string') {
     throw new Error('Base url not configure ' + JSON.stringify(url) + ' was supplied')
 }
 
-
-
 const ApiService = {
 
     get(resourceType, resourceId = null) {
-        return this.dataFrom(axios.get(this.makeEndpointUrl(resourceType, resourceId)));
+        return axios.get(this.makeEndpointUrl(resourceType, resourceId));
     },
 
     save(resourceType, payload) {
@@ -32,15 +30,15 @@ const ApiService = {
     },
 
     post(resourceType, payload) {
-        return this.dataFrom(axios.post(this.makeEndpointUrl(resourceType), payload));
+        return axios.post(this.makeEndpointUrl(resourceType), payload);
     },
 
     put(resourceType, resourceId, payload) {
-        return this.dataFrom(axios.put(this.makeEndpointUrl(resourceType, resourceId), payload));
+        return axios.put(this.makeEndpointUrl(resourceType, resourceId), payload);
     },
 
     delete(resourceType, resourceId) {
-        return this.dataFrom(axios.delete(this.makeEndpointUrl(resourceType, resourceId)));
+        return axios.delete(this.makeEndpointUrl(resourceType, resourceId));
     },
 
     makeEndpointUrl(resourceType, resourceId = null) {
@@ -53,11 +51,6 @@ const ApiService = {
         return url;
     },
 
-    async dataFrom(request) {
-        const result =  await request;
-
-        return result.data;
-    },
 };
 
 export default ApiService;

@@ -15,7 +15,7 @@
 
 <script>
     import BootstrapCard from "../BootstrapCard";
-    import WorkoutProgramService from "../../services/WorkoutProgramService";
+    import WorkoutProgramService from "../../api/WorkoutProgramService";
     import LoadingSpinner from "../LoadingSpinner";
 
     export default {

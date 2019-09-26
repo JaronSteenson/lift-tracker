@@ -56,7 +56,7 @@
 
 <script>
     import WorkoutRoutineForm from "../domain/WorkoutRoutineForm";
-    import WorkoutProgramService from "../../services/WorkoutProgramService";
+    import WorkoutProgramService from "../../api/WorkoutProgramService";
     import LoadingSpinner from "../LoadingSpinner";
 
     export default {

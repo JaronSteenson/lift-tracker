@@ -1,7 +1,7 @@
 <template>
     <BootstrapCard v-bind:title="loading ? 'Loading program...' : title">
         <LoadingSpinner v-if="loading"></LoadingSpinner>
-        <WorkoutProgramForm v-else :workoutProgram="workoutProgram"></WorkoutProgramForm>
+        <WorkoutProgramForm v-else></WorkoutProgramForm>
     </BootstrapCard>
 </template>
 
@@ -9,7 +9,8 @@
     import BootstrapCard from "../BootstrapCard";
     import WorkoutProgramForm from "../domain/WorkoutProgramForm";
     import LoadingSpinner from "../LoadingSpinner";
-    import WorkoutProgramService from "../../services/WorkoutProgramService";
+    import { mapState } from 'vuex'
+    import WorkoutProgramService from "../../api/WorkoutProgramService";
 
     export default {
         name: 'CreateWorkoutProgramPage',
@@ -18,39 +19,28 @@
             this.fetchWorkoutProgram()
         },
         watch: {
-            // call again if the route changes
-            '$route': 'fetchWorkoutProgram'
+            '$route': 'fetchWorkoutProgram' // Call again if the route changes.
         },
         data() {
             return {
-                workoutProgram: {
-                    id: null,
-                    name: '',
-                    workoutProgramRoutines: [{
-                        name: null,
-                        normalDay: 'any',
-                        routineExercises: [{}],
-                    }]
-                },
                 loading: true,
             }
         },
         computed: {
             title () {
-                return this.isNew() ? 'Create new workout program' : `Edit ${this.workoutProgram.name}`;
-            }
+                return this.isNew() ? 'Create new workout program' : `Edit ${this.name}`;
+            },
+            ...mapState('programBuilder', ['id', 'name', 'workoutProgramRoutines']),
         },
         methods: {
             async fetchWorkoutProgram() {
-                this.loading = true;
-
                 const id = this.$route.params.id;
 
                 if (id) {
-                    this.workoutProgram = await WorkoutProgramService.get(id);
+                    this.loading = true;
+                    await this.$store.dispatch('programBuilder/fetchById', id);
+                    this.loading = false;
                 }
-
-                this.loading = false;
             },
             isNew() {
                 return !this.$route.params.id;
