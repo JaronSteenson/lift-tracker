@@ -82,7 +82,7 @@
                             this.blue = this.safeRgbChange(this.blue);
                             break;
                     }
-                }, 250);
+                }, 100);
             },
             stopColorToggling() {
                 clearTimeout(this.colorChanging);

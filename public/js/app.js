@@ -1867,7 +1867,7 @@ __webpack_require__.r(__webpack_exports__);
             _this.blue = _this.safeRgbChange(_this.blue);
             break;
         }
-      }, 250);
+      }, 100);
     },
     stopColorToggling: function stopColorToggling() {
       clearTimeout(this.colorChanging);
@@ -2132,12 +2132,19 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _domain_WorkoutRoutineForm__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../domain/WorkoutRoutineForm */ "./resources/js/components/domain/WorkoutRoutineForm.vue");
 /* harmony import */ var _api_WorkoutProgramService__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../../api/WorkoutProgramService */ "./resources/js/api/WorkoutProgramService.js");
 /* harmony import */ var _LoadingSpinner__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../LoadingSpinner */ "./resources/js/components/LoadingSpinner.vue");
+/* harmony import */ var vuex__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! vuex */ "./node_modules/vuex/dist/vuex.esm.js");
 
 
 function asyncGeneratorStep(gen, resolve, reject, _next, _throw, key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { Promise.resolve(value).then(_next, _throw); } }
 
 function _asyncToGenerator(fn) { return function () { var self = this, args = arguments; return new Promise(function (resolve, reject) { var gen = fn.apply(self, args); function _next(value) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "next", value); } function _throw(err) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "throw", err); } _next(undefined); }); }; }
 
+function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); keys.push.apply(keys, symbols); } return keys; }
+
+function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; if (i % 2) { ownKeys(source, true).forEach(function (key) { _defineProperty(target, key, source[key]); }); } else if (Object.getOwnPropertyDescriptors) { Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)); } else { ownKeys(source).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } } return target; }
+
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
 //
 //
 //
@@ -2193,7 +2200,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 //
 //
 //
-//
+
 
 
 
@@ -2203,26 +2210,12 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     LoadingSpinner: _LoadingSpinner__WEBPACK_IMPORTED_MODULE_3__["default"],
     WorkoutRoutineForm: _domain_WorkoutRoutineForm__WEBPACK_IMPORTED_MODULE_1__["default"]
   },
-  props: {
-    workoutProgram: {
-      "default": function _default() {
-        return {
-          name: '',
-          workoutProgramRoutines: [{
-            name: null,
-            normalDay: 'any',
-            routineExercises: [{}]
-          }]
-        };
-      }
-    }
-  },
   data: function data() {
     return {
       loading: false
     };
   },
-  computed: {
+  computed: _objectSpread({
     workoutsPerCycle: {
       get: function get() {
         return this.getWorkoutRoutineLength() || '';
@@ -2246,16 +2239,16 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         }
       }
     }
-  },
+  }, Object(vuex__WEBPACK_IMPORTED_MODULE_4__["mapState"])('programBuilder', ['id', 'name', 'workoutProgramRoutines'])),
   methods: {
     addWorkoutToCycle: function addWorkoutToCycle() {
-      this.workoutProgram.workoutProgramRoutines.push({});
+      this.workoutProgramRoutines.push({});
     },
     removeWorkoutFromCycle: function removeWorkoutFromCycle() {
-      this.workoutProgram.workoutProgramRoutines.pop();
+      this.workoutProgramRoutines.pop();
     },
     getWorkoutRoutineLength: function getWorkoutRoutineLength() {
-      return this.workoutProgram.workoutProgramRoutines.length;
+      return this.workoutProgramRoutines.length;
     },
     hasWorkoutRoutines: function hasWorkoutRoutines() {
       return this.getWorkoutRoutineLength() > 0;
@@ -22637,8 +22630,8 @@ var render = function() {
                   {
                     name: "model",
                     rawName: "v-model",
-                    value: _vm.workoutProgram.name,
-                    expression: "workoutProgram.name"
+                    value: _vm.name,
+                    expression: "name"
                   }
                 ],
                 staticClass: "form-control",
@@ -22648,13 +22641,13 @@ var render = function() {
                   name: "name",
                   required: ""
                 },
-                domProps: { value: _vm.workoutProgram.name },
+                domProps: { value: _vm.name },
                 on: {
                   input: function($event) {
                     if ($event.target.composing) {
                       return
                     }
-                    _vm.$set(_vm.workoutProgram, "name", $event.target.value)
+                    _vm.name = $event.target.value
                   }
                 }
               }),
@@ -22717,15 +22710,10 @@ var render = function() {
             ? _c("hr", { staticClass: "form-section-divider" })
             : _vm._e(),
           _vm._v(" "),
-          _vm._l(_vm.workoutProgram.workoutProgramRoutines, function(
-            workoutRoutine,
-            index
-          ) {
+          _vm._l(_vm.workoutProgramRoutines, function(workoutRoutine, index) {
             return _c("WorkoutRoutineForm", {
               key: index,
-              attrs: {
-                workoutRoutine: _vm.workoutProgram.workoutProgramRoutines[index]
-              }
+              attrs: { workoutRoutine: _vm.workoutProgramRoutines[index] }
             })
           }),
           _vm._v(" "),

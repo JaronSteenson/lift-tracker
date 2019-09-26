@@ -7,14 +7,13 @@
 
             <div class="col-md-6">
                 <div v-bind:class="{ 'is-invalid': false }"></div>
-                <input id="edit-workout-program-name" type="text" v-model="workoutProgram.name"
+                <input id="edit-workout-program-name" type="text" v-model="name"
                        class="form-control" name="name" required>
 
                 <span v-if="false" class="invalid-feedback" role="alert">
                                     <strong></strong>
                     </span>
             </div>
-
         </div>
 
         <div class="form-group row">
@@ -34,8 +33,8 @@
 
         <hr v-if="hasWorkoutRoutines()" class="form-section-divider">
 
-        <WorkoutRoutineForm v-for="(workoutRoutine, index) in workoutProgram.workoutProgramRoutines"
-                            :workoutRoutine="workoutProgram.workoutProgramRoutines[index]" v-bind:key="index">
+        <WorkoutRoutineForm v-for="(workoutRoutine, index) in workoutProgramRoutines"
+                            :workoutRoutine="workoutProgramRoutines[index]" v-bind:key="index">
         </WorkoutRoutineForm>
 
 
@@ -58,24 +57,11 @@
     import WorkoutRoutineForm from "../domain/WorkoutRoutineForm";
     import WorkoutProgramService from "../../api/WorkoutProgramService";
     import LoadingSpinner from "../LoadingSpinner";
+    import { mapState } from 'vuex'
 
     export default {
         name: 'WorkoutProgramForm',
         components: {LoadingSpinner, WorkoutRoutineForm},
-        props: {
-            workoutProgram: {
-                default() {
-                    return {
-                        name: '',
-                        workoutProgramRoutines: [{
-                            name: null,
-                            normalDay: 'any',
-                            routineExercises: [{}],
-                        }],
-                    };
-                }
-            }
-        },
         data () {
             return {
                 loading: false,
@@ -104,17 +90,18 @@
                         mutation.call(this);
                     }
                 }
-            }
+            },
+            ...mapState('programBuilder', ['id', 'name', 'workoutProgramRoutines']),
         },
         methods: {
             addWorkoutToCycle() {
-                this.workoutProgram.workoutProgramRoutines.push({});
+                this.workoutProgramRoutines.push({});
             },
             removeWorkoutFromCycle() {
-                this.workoutProgram.workoutProgramRoutines.pop();
+                this.workoutProgramRoutines.pop();
             },
             getWorkoutRoutineLength() {
-                return this.workoutProgram.workoutProgramRoutines.length;
+                return this.workoutProgramRoutines.length;
             },
             hasWorkoutRoutines() {
                 return this.getWorkoutRoutineLength() > 0;
