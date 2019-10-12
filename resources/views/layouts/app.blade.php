@@ -18,7 +18,8 @@
 
     <!-- Preload data and js config -->
     <script>
-        window.apiBaseUrl = <?= json_encode($apiBaseUrl) ?>
+        {{--    Alow this to be unset, for things like the built in login system.    --}}
+        window.apiBaseUrl = <?= isset($apiBaseUrl) ? json_encode($apiBaseUrl) : null; ?>
 
         window.preloadData = window.preloadData || {};
         window.preloadData = <?= json_encode($preloadData ?? []) ?>

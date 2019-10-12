@@ -1877,6 +1877,103 @@ __webpack_require__.r(__webpack_exports__);
 
 /***/ }),
 
+/***/ "./node_modules/babel-loader/lib/index.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/components/domain/ProgramBuilder.vue?vue&type=script&lang=js&":
+/*!********************************************************************************************************************************************************************************!*\
+  !*** ./node_modules/babel-loader/lib??ref--4-0!./node_modules/vue-loader/lib??vue-loader-options!./resources/js/components/domain/ProgramBuilder.vue?vue&type=script&lang=js& ***!
+  \********************************************************************************************************************************************************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @babel/runtime/regenerator */ "./node_modules/@babel/runtime/regenerator/index.js");
+/* harmony import */ var _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var _domain_WorkoutRoutineForm__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../domain/WorkoutRoutineForm */ "./resources/js/components/domain/WorkoutRoutineForm.vue");
+/* harmony import */ var _LoadingSpinner__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../LoadingSpinner */ "./resources/js/components/LoadingSpinner.vue");
+/* harmony import */ var vuex__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! vuex */ "./node_modules/vuex/dist/vuex.esm.js");
+
+
+function asyncGeneratorStep(gen, resolve, reject, _next, _throw, key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { Promise.resolve(value).then(_next, _throw); } }
+
+function _asyncToGenerator(fn) { return function () { var self = this, args = arguments; return new Promise(function (resolve, reject) { var gen = fn.apply(self, args); function _next(value) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "next", value); } function _throw(err) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "throw", err); } _next(undefined); }); }; }
+
+function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); keys.push.apply(keys, symbols); } return keys; }
+
+function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; if (i % 2) { ownKeys(source, true).forEach(function (key) { _defineProperty(target, key, source[key]); }); } else if (Object.getOwnPropertyDescriptors) { Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)); } else { ownKeys(source).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } } return target; }
+
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
+//
+//
+//
+//
+//
+
+
+
+/* harmony default export */ __webpack_exports__["default"] = ({
+  name: 'ProgramBuilder',
+  components: {
+    LoadingSpinner: _LoadingSpinner__WEBPACK_IMPORTED_MODULE_2__["default"],
+    WorkoutRoutineForm: _domain_WorkoutRoutineForm__WEBPACK_IMPORTED_MODULE_1__["default"]
+  },
+  props: {
+    workoutProgramId: {
+      type: String,
+      required: false
+    }
+  },
+  created: function created() {
+    if (!this.workoutProgramId) {
+      this.$store.dispatch('programBuilder/startNew');
+    } else {// TODO go fetch existing.
+    }
+  },
+  data: function data() {
+    return {
+      loading: false
+    };
+  },
+  computed: _objectSpread({}, Object(vuex__WEBPACK_IMPORTED_MODULE_3__["mapState"])('programBuilder', ['id', 'name', 'workoutProgramRoutines'])),
+  methods: {
+    addWorkoutToProgram: function addWorkoutToProgram() {
+      // this.$store.dispatch('programBuilder/addWorkoutToProgram', null, { root: true } );
+      this.$store.dispatch('programBuilder/addWorkoutToProgram');
+    },
+    updateName: function updateName(e) {
+      this.$store.dispatch('programBuilder/updateName', e.target.value);
+    },
+    save: function () {
+      var _save = _asyncToGenerator(
+      /*#__PURE__*/
+      _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.mark(function _callee() {
+        return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.wrap(function _callee$(_context) {
+          while (1) {
+            switch (_context.prev = _context.next) {
+              case 0:
+                this.loading = true; // await WorkoutProgramService.save(this.workoutProgram); TODO move to store
+
+                this.loading = false;
+
+              case 2:
+              case "end":
+                return _context.stop();
+            }
+          }
+        }, _callee, this);
+      }));
+
+      function save() {
+        return _save.apply(this, arguments);
+      }
+
+      return save;
+    }()
+  }
+});
+
+/***/ }),
+
 /***/ "./node_modules/babel-loader/lib/index.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/components/domain/TypicalExerciseInput.vue?vue&type=script&lang=js&":
 /*!**************************************************************************************************************************************************************************************!*\
   !*** ./node_modules/babel-loader/lib??ref--4-0!./node_modules/vue-loader/lib??vue-loader-options!./resources/js/components/domain/TypicalExerciseInput.vue?vue&type=script&lang=js& ***!
@@ -2118,178 +2215,6 @@ var uuid = 0;
 
 /***/ }),
 
-/***/ "./node_modules/babel-loader/lib/index.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/components/domain/WorkoutProgramForm.vue?vue&type=script&lang=js&":
-/*!************************************************************************************************************************************************************************************!*\
-  !*** ./node_modules/babel-loader/lib??ref--4-0!./node_modules/vue-loader/lib??vue-loader-options!./resources/js/components/domain/WorkoutProgramForm.vue?vue&type=script&lang=js& ***!
-  \************************************************************************************************************************************************************************************/
-/*! exports provided: default */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony import */ var _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @babel/runtime/regenerator */ "./node_modules/@babel/runtime/regenerator/index.js");
-/* harmony import */ var _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0__);
-/* harmony import */ var _domain_WorkoutRoutineForm__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../domain/WorkoutRoutineForm */ "./resources/js/components/domain/WorkoutRoutineForm.vue");
-/* harmony import */ var _api_WorkoutProgramService__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../../api/WorkoutProgramService */ "./resources/js/api/WorkoutProgramService.js");
-/* harmony import */ var _LoadingSpinner__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../LoadingSpinner */ "./resources/js/components/LoadingSpinner.vue");
-/* harmony import */ var vuex__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! vuex */ "./node_modules/vuex/dist/vuex.esm.js");
-
-
-function asyncGeneratorStep(gen, resolve, reject, _next, _throw, key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { Promise.resolve(value).then(_next, _throw); } }
-
-function _asyncToGenerator(fn) { return function () { var self = this, args = arguments; return new Promise(function (resolve, reject) { var gen = fn.apply(self, args); function _next(value) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "next", value); } function _throw(err) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "throw", err); } _next(undefined); }); }; }
-
-function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); keys.push.apply(keys, symbols); } return keys; }
-
-function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; if (i % 2) { ownKeys(source, true).forEach(function (key) { _defineProperty(target, key, source[key]); }); } else if (Object.getOwnPropertyDescriptors) { Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)); } else { ownKeys(source).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } } return target; }
-
-function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
-
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-
-
-
-
-/* harmony default export */ __webpack_exports__["default"] = ({
-  name: 'WorkoutProgramForm',
-  components: {
-    LoadingSpinner: _LoadingSpinner__WEBPACK_IMPORTED_MODULE_3__["default"],
-    WorkoutRoutineForm: _domain_WorkoutRoutineForm__WEBPACK_IMPORTED_MODULE_1__["default"]
-  },
-  data: function data() {
-    return {
-      loading: false
-    };
-  },
-  computed: _objectSpread({
-    workoutsPerCycle: {
-      get: function get() {
-        return this.getWorkoutRoutineLength() || '';
-      },
-      set: function set(newValue) {
-        newValue = Number.parseInt(newValue);
-        var workoutsPerCycle = this.getWorkoutRoutineLength();
-
-        if (isNaN(newValue) || newValue === workoutsPerCycle || newValue < 0 || newValue > 20) {
-          return;
-        }
-
-        var mutation = this.addWorkoutToCycle;
-
-        if (workoutsPerCycle > newValue) {
-          mutation = this.removeWorkoutFromCycle;
-        }
-
-        while (this.getWorkoutRoutineLength() !== newValue) {
-          mutation.call(this);
-        }
-      }
-    }
-  }, Object(vuex__WEBPACK_IMPORTED_MODULE_4__["mapState"])('programBuilder', ['id', 'name', 'workoutProgramRoutines'])),
-  methods: {
-    addWorkoutToCycle: function addWorkoutToCycle() {
-      this.workoutProgramRoutines.push({});
-    },
-    removeWorkoutFromCycle: function removeWorkoutFromCycle() {
-      this.workoutProgramRoutines.pop();
-    },
-    getWorkoutRoutineLength: function getWorkoutRoutineLength() {
-      return this.workoutProgramRoutines.length;
-    },
-    hasWorkoutRoutines: function hasWorkoutRoutines() {
-      return this.getWorkoutRoutineLength() > 0;
-    },
-    hasNoWorkoutRoutines: function hasNoWorkoutRoutines() {
-      return !this.hasWorkoutRoutines();
-    },
-    saveWorkoutProgram: function () {
-      var _saveWorkoutProgram = _asyncToGenerator(
-      /*#__PURE__*/
-      _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.mark(function _callee() {
-        return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.wrap(function _callee$(_context) {
-          while (1) {
-            switch (_context.prev = _context.next) {
-              case 0:
-                this.loading = true;
-                _context.next = 3;
-                return _api_WorkoutProgramService__WEBPACK_IMPORTED_MODULE_2__["default"].save(this.workoutProgram);
-
-              case 3:
-                this.loading = false;
-
-              case 4:
-              case "end":
-                return _context.stop();
-            }
-          }
-        }, _callee, this);
-      }));
-
-      function saveWorkoutProgram() {
-        return _saveWorkoutProgram.apply(this, arguments);
-      }
-
-      return saveWorkoutProgram;
-    }()
-  }
-});
-
-/***/ }),
-
 /***/ "./node_modules/babel-loader/lib/index.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/components/domain/WorkoutProgramList.vue?vue&type=script&lang=js&":
 /*!************************************************************************************************************************************************************************************!*\
   !*** ./node_modules/babel-loader/lib??ref--4-0!./node_modules/vue-loader/lib??vue-loader-options!./resources/js/components/domain/WorkoutProgramList.vue?vue&type=script&lang=js& ***!
@@ -2362,9 +2287,10 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
               case 3:
                 this.workoutPrograms = _context.sent;
+                debugger;
                 this.loading = false;
 
-              case 5:
+              case 6:
               case "end":
                 return _context.stop();
             }
@@ -2576,10 +2502,9 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @babel/runtime/regenerator */ "./node_modules/@babel/runtime/regenerator/index.js");
 /* harmony import */ var _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0__);
 /* harmony import */ var _BootstrapCard__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../BootstrapCard */ "./resources/js/components/BootstrapCard.vue");
-/* harmony import */ var _domain_WorkoutProgramForm__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../domain/WorkoutProgramForm */ "./resources/js/components/domain/WorkoutProgramForm.vue");
+/* harmony import */ var _domain_ProgramBuilder__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../domain/ProgramBuilder */ "./resources/js/components/domain/ProgramBuilder.vue");
 /* harmony import */ var _LoadingSpinner__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../LoadingSpinner */ "./resources/js/components/LoadingSpinner.vue");
 /* harmony import */ var vuex__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! vuex */ "./node_modules/vuex/dist/vuex.esm.js");
-/* harmony import */ var _api_WorkoutProgramService__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../../api/WorkoutProgramService */ "./resources/js/api/WorkoutProgramService.js");
 
 
 function asyncGeneratorStep(gen, resolve, reject, _next, _throw, key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { Promise.resolve(value).then(_next, _throw); } }
@@ -2596,10 +2521,6 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 //
 //
 //
-//
-//
-//
-
 
 
 
@@ -2607,8 +2528,8 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 /* harmony default export */ __webpack_exports__["default"] = ({
   name: 'CreateWorkoutProgramPage',
   components: {
+    ProgramBuilder: _domain_ProgramBuilder__WEBPACK_IMPORTED_MODULE_2__["default"],
     BootstrapCard: _BootstrapCard__WEBPACK_IMPORTED_MODULE_1__["default"],
-    WorkoutProgramForm: _domain_WorkoutProgramForm__WEBPACK_IMPORTED_MODULE_2__["default"],
     LoadingSpinner: _LoadingSpinner__WEBPACK_IMPORTED_MODULE_3__["default"]
   },
   created: function created() {
@@ -7132,6 +7053,25 @@ exports = module.exports = __webpack_require__(/*! ../../../node_modules/css-loa
 
 // module
 exports.push([module.i, "\n.close-cross-icon[data-v-2fb2c45a]:before {\n    content: '\\D7';\n    font-size: 20px;\n    margin-right: 15px;\n}\n.close-cross-icon[data-v-2fb2c45a] {\n    position: absolute;\n    top: 0;\n    right: 0;\n    cursor: pointer;\n}\n", ""]);
+
+// exports
+
+
+/***/ }),
+
+/***/ "./node_modules/css-loader/index.js?!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/postcss-loader/src/index.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/components/domain/ProgramBuilder.vue?vue&type=style&index=0&id=ba94d9f2&scoped=true&lang=css&":
+/*!***************************************************************************************************************************************************************************************************************************************************************************************************************!*\
+  !*** ./node_modules/css-loader??ref--6-1!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/postcss-loader/src??ref--6-2!./node_modules/vue-loader/lib??vue-loader-options!./resources/js/components/domain/ProgramBuilder.vue?vue&type=style&index=0&id=ba94d9f2&scoped=true&lang=css& ***!
+  \***************************************************************************************************************************************************************************************************************************************************************************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+exports = module.exports = __webpack_require__(/*! ../../../../node_modules/css-loader/lib/css-base.js */ "./node_modules/css-loader/lib/css-base.js")(false);
+// imports
+
+
+// module
+exports.push([module.i, "\n.program-builder__name[data-v-ba94d9f2] {\n    border: none;\n    border-bottom: solid 3px #524f52;\n    background: none;\n    min-height: 30px;\n    min-width: 300px;\n    font-size: 20px;\n}\n.program-builder__name[data-v-ba94d9f2]:focus {\n    border: none;\n    border-bottom: solid 3px #524f52;\n    outline: none;\n    box-shadow: none !important;\n}\n", ""]);
 
 // exports
 
@@ -21651,6 +21591,36 @@ if(false) {}
 
 /***/ }),
 
+/***/ "./node_modules/style-loader/index.js!./node_modules/css-loader/index.js?!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/postcss-loader/src/index.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/components/domain/ProgramBuilder.vue?vue&type=style&index=0&id=ba94d9f2&scoped=true&lang=css&":
+/*!*******************************************************************************************************************************************************************************************************************************************************************************************************************************************!*\
+  !*** ./node_modules/style-loader!./node_modules/css-loader??ref--6-1!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/postcss-loader/src??ref--6-2!./node_modules/vue-loader/lib??vue-loader-options!./resources/js/components/domain/ProgramBuilder.vue?vue&type=style&index=0&id=ba94d9f2&scoped=true&lang=css& ***!
+  \*******************************************************************************************************************************************************************************************************************************************************************************************************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+
+var content = __webpack_require__(/*! !../../../../node_modules/css-loader??ref--6-1!../../../../node_modules/vue-loader/lib/loaders/stylePostLoader.js!../../../../node_modules/postcss-loader/src??ref--6-2!../../../../node_modules/vue-loader/lib??vue-loader-options!./ProgramBuilder.vue?vue&type=style&index=0&id=ba94d9f2&scoped=true&lang=css& */ "./node_modules/css-loader/index.js?!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/postcss-loader/src/index.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/components/domain/ProgramBuilder.vue?vue&type=style&index=0&id=ba94d9f2&scoped=true&lang=css&");
+
+if(typeof content === 'string') content = [[module.i, content, '']];
+
+var transform;
+var insertInto;
+
+
+
+var options = {"hmr":true}
+
+options.transform = transform
+options.insertInto = undefined;
+
+var update = __webpack_require__(/*! ../../../../node_modules/style-loader/lib/addStyles.js */ "./node_modules/style-loader/lib/addStyles.js")(content, options);
+
+if(content.locals) module.exports = content.locals;
+
+if(false) {}
+
+/***/ }),
+
 /***/ "./node_modules/style-loader/index.js!./node_modules/css-loader/index.js?!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/postcss-loader/src/index.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/components/domain/TypicalExerciseInput.vue?vue&type=style&index=0&id=54e0e41c&scoped=true&lang=css&":
 /*!*************************************************************************************************************************************************************************************************************************************************************************************************************************************************!*\
   !*** ./node_modules/style-loader!./node_modules/css-loader??ref--6-1!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/postcss-loader/src??ref--6-2!./node_modules/vue-loader/lib??vue-loader-options!./resources/js/components/domain/TypicalExerciseInput.vue?vue&type=style&index=0&id=54e0e41c&scoped=true&lang=css& ***!
@@ -22385,6 +22355,36 @@ render._withStripped = true
 
 /***/ }),
 
+/***/ "./node_modules/vue-loader/lib/loaders/templateLoader.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/components/domain/ProgramBuilder.vue?vue&type=template&id=ba94d9f2&scoped=true&class=program-builder&":
+/*!**********************************************************************************************************************************************************************************************************************************************************!*\
+  !*** ./node_modules/vue-loader/lib/loaders/templateLoader.js??vue-loader-options!./node_modules/vue-loader/lib??vue-loader-options!./resources/js/components/domain/ProgramBuilder.vue?vue&type=template&id=ba94d9f2&scoped=true&class=program-builder& ***!
+  \**********************************************************************************************************************************************************************************************************************************************************/
+/*! exports provided: render, staticRenderFns */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "render", function() { return render; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "staticRenderFns", function() { return staticRenderFns; });
+var render = function() {
+  var _vm = this
+  var _h = _vm.$createElement
+  var _c = _vm._self._c || _h
+  return _vm.loading
+    ? _c("loading-spinner")
+    : _c("input", {
+        staticClass: "program-builder__name",
+        domProps: { value: _vm.name },
+        on: { input: _vm.updateName }
+      })
+}
+var staticRenderFns = []
+render._withStripped = true
+
+
+
+/***/ }),
+
 /***/ "./node_modules/vue-loader/lib/loaders/templateLoader.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/components/domain/TypicalExerciseInput.vue?vue&type=template&id=54e0e41c&scoped=true&":
 /*!******************************************************************************************************************************************************************************************************************************************!*\
   !*** ./node_modules/vue-loader/lib/loaders/templateLoader.js??vue-loader-options!./node_modules/vue-loader/lib??vue-loader-options!./resources/js/components/domain/TypicalExerciseInput.vue?vue&type=template&id=54e0e41c&scoped=true& ***!
@@ -22579,177 +22579,6 @@ var staticRenderFns = [
     ])
   }
 ]
-render._withStripped = true
-
-
-
-/***/ }),
-
-/***/ "./node_modules/vue-loader/lib/loaders/templateLoader.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/components/domain/WorkoutProgramForm.vue?vue&type=template&id=614f6f1b&":
-/*!****************************************************************************************************************************************************************************************************************************!*\
-  !*** ./node_modules/vue-loader/lib/loaders/templateLoader.js??vue-loader-options!./node_modules/vue-loader/lib??vue-loader-options!./resources/js/components/domain/WorkoutProgramForm.vue?vue&type=template&id=614f6f1b& ***!
-  \****************************************************************************************************************************************************************************************************************************/
-/*! exports provided: render, staticRenderFns */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "render", function() { return render; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "staticRenderFns", function() { return staticRenderFns; });
-var render = function() {
-  var _vm = this
-  var _h = _vm.$createElement
-  var _c = _vm._self._c || _h
-  return _vm.loading
-    ? _c("loading-spinner")
-    : _c(
-        "form",
-        {
-          on: {
-            submit: function($event) {
-              $event.preventDefault()
-            }
-          }
-        },
-        [
-          _c("div", { staticClass: "form-group row" }, [
-            _c(
-              "label",
-              {
-                staticClass: "col-md-4 col-form-label text-md-right",
-                attrs: { for: "edit-workout-program-name" }
-              },
-              [_vm._v("Program name")]
-            ),
-            _vm._v(" "),
-            _c("div", { staticClass: "col-md-6" }, [
-              _c("div", { class: { "is-invalid": false } }),
-              _vm._v(" "),
-              _c("input", {
-                directives: [
-                  {
-                    name: "model",
-                    rawName: "v-model",
-                    value: _vm.name,
-                    expression: "name"
-                  }
-                ],
-                staticClass: "form-control",
-                attrs: {
-                  id: "edit-workout-program-name",
-                  type: "text",
-                  name: "name",
-                  required: ""
-                },
-                domProps: { value: _vm.name },
-                on: {
-                  input: function($event) {
-                    if ($event.target.composing) {
-                      return
-                    }
-                    _vm.name = $event.target.value
-                  }
-                }
-              }),
-              _vm._v(" "),
-              false
-                ? undefined
-                : _vm._e()
-            ])
-          ]),
-          _vm._v(" "),
-          _c("div", { staticClass: "form-group row" }, [
-            _c(
-              "label",
-              {
-                staticClass: "col-md-4 col-form-label text-md-right",
-                attrs: { for: "workouts-per-cycle" }
-              },
-              [_vm._v("Workouts per cycle")]
-            ),
-            _vm._v(" "),
-            _c("div", { staticClass: "col-md-6" }, [
-              _c("div", { class: { "is-invalid": false } }),
-              _vm._v(" "),
-              _c("input", {
-                directives: [
-                  {
-                    name: "model",
-                    rawName: "v-model",
-                    value: _vm.workoutsPerCycle,
-                    expression: "workoutsPerCycle"
-                  }
-                ],
-                staticClass: "form-control",
-                attrs: {
-                  id: "workouts-per-cycle",
-                  type: "number",
-                  min: "1",
-                  step: "1",
-                  name: "name",
-                  required: ""
-                },
-                domProps: { value: _vm.workoutsPerCycle },
-                on: {
-                  input: function($event) {
-                    if ($event.target.composing) {
-                      return
-                    }
-                    _vm.workoutsPerCycle = $event.target.value
-                  }
-                }
-              }),
-              _vm._v(" "),
-              false
-                ? undefined
-                : _vm._e()
-            ])
-          ]),
-          _vm._v(" "),
-          _vm.hasWorkoutRoutines()
-            ? _c("hr", { staticClass: "form-section-divider" })
-            : _vm._e(),
-          _vm._v(" "),
-          _vm._l(_vm.workoutProgramRoutines, function(workoutRoutine, index) {
-            return _c("WorkoutRoutineForm", {
-              key: index,
-              attrs: { workoutRoutine: _vm.workoutProgramRoutines[index] }
-            })
-          }),
-          _vm._v(" "),
-          _c("div", { staticClass: "form-group row mb-0" }, [
-            _c(
-              "div",
-              { staticClass: "col-md-8 offset-md-4" },
-              [
-                _c(
-                  "button",
-                  {
-                    staticClass: "btn btn-primary",
-                    class: { disabled: _vm.hasNoWorkoutRoutines() },
-                    attrs: { type: "submit" },
-                    on: { click: _vm.saveWorkoutProgram }
-                  },
-                  [_vm._v("\n                save\n            ")]
-                ),
-                _vm._v(" "),
-                _c(
-                  "router-link",
-                  {
-                    staticClass: "btn btn-link",
-                    attrs: { tag: "a", to: "/workout-programs" }
-                  },
-                  [_vm._v("\n                Cancel\n            ")]
-                )
-              ],
-              1
-            )
-          ])
-        ],
-        2
-      )
-}
-var staticRenderFns = []
 render._withStripped = true
 
 
@@ -23021,12 +22850,7 @@ var render = function() {
   var _vm = this
   var _h = _vm.$createElement
   var _c = _vm._self._c || _h
-  return _c(
-    "BootstrapCard",
-    { attrs: { title: _vm.loading ? "Loading program..." : _vm.title } },
-    [_vm.loading ? _c("LoadingSpinner") : _c("WorkoutProgramForm")],
-    1
-  )
+  return _c("ProgramBuilder")
 }
 var staticRenderFns = []
 render._withStripped = true
@@ -39216,6 +39040,93 @@ __webpack_require__.r(__webpack_exports__);
 
 /***/ }),
 
+/***/ "./resources/js/components/domain/ProgramBuilder.vue":
+/*!***********************************************************!*\
+  !*** ./resources/js/components/domain/ProgramBuilder.vue ***!
+  \***********************************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _ProgramBuilder_vue_vue_type_template_id_ba94d9f2_scoped_true_class_program_builder___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./ProgramBuilder.vue?vue&type=template&id=ba94d9f2&scoped=true&class=program-builder& */ "./resources/js/components/domain/ProgramBuilder.vue?vue&type=template&id=ba94d9f2&scoped=true&class=program-builder&");
+/* harmony import */ var _ProgramBuilder_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./ProgramBuilder.vue?vue&type=script&lang=js& */ "./resources/js/components/domain/ProgramBuilder.vue?vue&type=script&lang=js&");
+/* empty/unused harmony star reexport *//* harmony import */ var _ProgramBuilder_vue_vue_type_style_index_0_id_ba94d9f2_scoped_true_lang_css___WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./ProgramBuilder.vue?vue&type=style&index=0&id=ba94d9f2&scoped=true&lang=css& */ "./resources/js/components/domain/ProgramBuilder.vue?vue&type=style&index=0&id=ba94d9f2&scoped=true&lang=css&");
+/* harmony import */ var _node_modules_vue_loader_lib_runtime_componentNormalizer_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../../../../node_modules/vue-loader/lib/runtime/componentNormalizer.js */ "./node_modules/vue-loader/lib/runtime/componentNormalizer.js");
+
+
+
+
+
+
+/* normalize component */
+
+var component = Object(_node_modules_vue_loader_lib_runtime_componentNormalizer_js__WEBPACK_IMPORTED_MODULE_3__["default"])(
+  _ProgramBuilder_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_1__["default"],
+  _ProgramBuilder_vue_vue_type_template_id_ba94d9f2_scoped_true_class_program_builder___WEBPACK_IMPORTED_MODULE_0__["render"],
+  _ProgramBuilder_vue_vue_type_template_id_ba94d9f2_scoped_true_class_program_builder___WEBPACK_IMPORTED_MODULE_0__["staticRenderFns"],
+  false,
+  null,
+  "ba94d9f2",
+  null
+  
+)
+
+/* hot reload */
+if (false) { var api; }
+component.options.__file = "resources/js/components/domain/ProgramBuilder.vue"
+/* harmony default export */ __webpack_exports__["default"] = (component.exports);
+
+/***/ }),
+
+/***/ "./resources/js/components/domain/ProgramBuilder.vue?vue&type=script&lang=js&":
+/*!************************************************************************************!*\
+  !*** ./resources/js/components/domain/ProgramBuilder.vue?vue&type=script&lang=js& ***!
+  \************************************************************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _node_modules_babel_loader_lib_index_js_ref_4_0_node_modules_vue_loader_lib_index_js_vue_loader_options_ProgramBuilder_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../../../../node_modules/babel-loader/lib??ref--4-0!../../../../node_modules/vue-loader/lib??vue-loader-options!./ProgramBuilder.vue?vue&type=script&lang=js& */ "./node_modules/babel-loader/lib/index.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/components/domain/ProgramBuilder.vue?vue&type=script&lang=js&");
+/* empty/unused harmony star reexport */ /* harmony default export */ __webpack_exports__["default"] = (_node_modules_babel_loader_lib_index_js_ref_4_0_node_modules_vue_loader_lib_index_js_vue_loader_options_ProgramBuilder_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_0__["default"]); 
+
+/***/ }),
+
+/***/ "./resources/js/components/domain/ProgramBuilder.vue?vue&type=style&index=0&id=ba94d9f2&scoped=true&lang=css&":
+/*!********************************************************************************************************************!*\
+  !*** ./resources/js/components/domain/ProgramBuilder.vue?vue&type=style&index=0&id=ba94d9f2&scoped=true&lang=css& ***!
+  \********************************************************************************************************************/
+/*! no static exports found */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _node_modules_style_loader_index_js_node_modules_css_loader_index_js_ref_6_1_node_modules_vue_loader_lib_loaders_stylePostLoader_js_node_modules_postcss_loader_src_index_js_ref_6_2_node_modules_vue_loader_lib_index_js_vue_loader_options_ProgramBuilder_vue_vue_type_style_index_0_id_ba94d9f2_scoped_true_lang_css___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../../../../node_modules/style-loader!../../../../node_modules/css-loader??ref--6-1!../../../../node_modules/vue-loader/lib/loaders/stylePostLoader.js!../../../../node_modules/postcss-loader/src??ref--6-2!../../../../node_modules/vue-loader/lib??vue-loader-options!./ProgramBuilder.vue?vue&type=style&index=0&id=ba94d9f2&scoped=true&lang=css& */ "./node_modules/style-loader/index.js!./node_modules/css-loader/index.js?!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/postcss-loader/src/index.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/components/domain/ProgramBuilder.vue?vue&type=style&index=0&id=ba94d9f2&scoped=true&lang=css&");
+/* harmony import */ var _node_modules_style_loader_index_js_node_modules_css_loader_index_js_ref_6_1_node_modules_vue_loader_lib_loaders_stylePostLoader_js_node_modules_postcss_loader_src_index_js_ref_6_2_node_modules_vue_loader_lib_index_js_vue_loader_options_ProgramBuilder_vue_vue_type_style_index_0_id_ba94d9f2_scoped_true_lang_css___WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_node_modules_style_loader_index_js_node_modules_css_loader_index_js_ref_6_1_node_modules_vue_loader_lib_loaders_stylePostLoader_js_node_modules_postcss_loader_src_index_js_ref_6_2_node_modules_vue_loader_lib_index_js_vue_loader_options_ProgramBuilder_vue_vue_type_style_index_0_id_ba94d9f2_scoped_true_lang_css___WEBPACK_IMPORTED_MODULE_0__);
+/* harmony reexport (unknown) */ for(var __WEBPACK_IMPORT_KEY__ in _node_modules_style_loader_index_js_node_modules_css_loader_index_js_ref_6_1_node_modules_vue_loader_lib_loaders_stylePostLoader_js_node_modules_postcss_loader_src_index_js_ref_6_2_node_modules_vue_loader_lib_index_js_vue_loader_options_ProgramBuilder_vue_vue_type_style_index_0_id_ba94d9f2_scoped_true_lang_css___WEBPACK_IMPORTED_MODULE_0__) if(__WEBPACK_IMPORT_KEY__ !== 'default') (function(key) { __webpack_require__.d(__webpack_exports__, key, function() { return _node_modules_style_loader_index_js_node_modules_css_loader_index_js_ref_6_1_node_modules_vue_loader_lib_loaders_stylePostLoader_js_node_modules_postcss_loader_src_index_js_ref_6_2_node_modules_vue_loader_lib_index_js_vue_loader_options_ProgramBuilder_vue_vue_type_style_index_0_id_ba94d9f2_scoped_true_lang_css___WEBPACK_IMPORTED_MODULE_0__[key]; }) }(__WEBPACK_IMPORT_KEY__));
+ /* harmony default export */ __webpack_exports__["default"] = (_node_modules_style_loader_index_js_node_modules_css_loader_index_js_ref_6_1_node_modules_vue_loader_lib_loaders_stylePostLoader_js_node_modules_postcss_loader_src_index_js_ref_6_2_node_modules_vue_loader_lib_index_js_vue_loader_options_ProgramBuilder_vue_vue_type_style_index_0_id_ba94d9f2_scoped_true_lang_css___WEBPACK_IMPORTED_MODULE_0___default.a); 
+
+/***/ }),
+
+/***/ "./resources/js/components/domain/ProgramBuilder.vue?vue&type=template&id=ba94d9f2&scoped=true&class=program-builder&":
+/*!****************************************************************************************************************************!*\
+  !*** ./resources/js/components/domain/ProgramBuilder.vue?vue&type=template&id=ba94d9f2&scoped=true&class=program-builder& ***!
+  \****************************************************************************************************************************/
+/*! exports provided: render, staticRenderFns */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_node_modules_vue_loader_lib_index_js_vue_loader_options_ProgramBuilder_vue_vue_type_template_id_ba94d9f2_scoped_true_class_program_builder___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../../../../node_modules/vue-loader/lib/loaders/templateLoader.js??vue-loader-options!../../../../node_modules/vue-loader/lib??vue-loader-options!./ProgramBuilder.vue?vue&type=template&id=ba94d9f2&scoped=true&class=program-builder& */ "./node_modules/vue-loader/lib/loaders/templateLoader.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/components/domain/ProgramBuilder.vue?vue&type=template&id=ba94d9f2&scoped=true&class=program-builder&");
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "render", function() { return _node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_node_modules_vue_loader_lib_index_js_vue_loader_options_ProgramBuilder_vue_vue_type_template_id_ba94d9f2_scoped_true_class_program_builder___WEBPACK_IMPORTED_MODULE_0__["render"]; });
+
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "staticRenderFns", function() { return _node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_node_modules_vue_loader_lib_index_js_vue_loader_options_ProgramBuilder_vue_vue_type_template_id_ba94d9f2_scoped_true_class_program_builder___WEBPACK_IMPORTED_MODULE_0__["staticRenderFns"]; });
+
+
+
+/***/ }),
+
 /***/ "./resources/js/components/domain/TypicalExerciseInput.vue":
 /*!*****************************************************************!*\
   !*** ./resources/js/components/domain/TypicalExerciseInput.vue ***!
@@ -39385,75 +39296,6 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "render", function() { return _node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_node_modules_vue_loader_lib_index_js_vue_loader_options_TypicalExercisesSection_vue_vue_type_template_id_1449d1da_scoped_true___WEBPACK_IMPORTED_MODULE_0__["render"]; });
 
 /* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "staticRenderFns", function() { return _node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_node_modules_vue_loader_lib_index_js_vue_loader_options_TypicalExercisesSection_vue_vue_type_template_id_1449d1da_scoped_true___WEBPACK_IMPORTED_MODULE_0__["staticRenderFns"]; });
-
-
-
-/***/ }),
-
-/***/ "./resources/js/components/domain/WorkoutProgramForm.vue":
-/*!***************************************************************!*\
-  !*** ./resources/js/components/domain/WorkoutProgramForm.vue ***!
-  \***************************************************************/
-/*! exports provided: default */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony import */ var _WorkoutProgramForm_vue_vue_type_template_id_614f6f1b___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./WorkoutProgramForm.vue?vue&type=template&id=614f6f1b& */ "./resources/js/components/domain/WorkoutProgramForm.vue?vue&type=template&id=614f6f1b&");
-/* harmony import */ var _WorkoutProgramForm_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./WorkoutProgramForm.vue?vue&type=script&lang=js& */ "./resources/js/components/domain/WorkoutProgramForm.vue?vue&type=script&lang=js&");
-/* empty/unused harmony star reexport *//* harmony import */ var _node_modules_vue_loader_lib_runtime_componentNormalizer_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../../../../node_modules/vue-loader/lib/runtime/componentNormalizer.js */ "./node_modules/vue-loader/lib/runtime/componentNormalizer.js");
-
-
-
-
-
-/* normalize component */
-
-var component = Object(_node_modules_vue_loader_lib_runtime_componentNormalizer_js__WEBPACK_IMPORTED_MODULE_2__["default"])(
-  _WorkoutProgramForm_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_1__["default"],
-  _WorkoutProgramForm_vue_vue_type_template_id_614f6f1b___WEBPACK_IMPORTED_MODULE_0__["render"],
-  _WorkoutProgramForm_vue_vue_type_template_id_614f6f1b___WEBPACK_IMPORTED_MODULE_0__["staticRenderFns"],
-  false,
-  null,
-  null,
-  null
-  
-)
-
-/* hot reload */
-if (false) { var api; }
-component.options.__file = "resources/js/components/domain/WorkoutProgramForm.vue"
-/* harmony default export */ __webpack_exports__["default"] = (component.exports);
-
-/***/ }),
-
-/***/ "./resources/js/components/domain/WorkoutProgramForm.vue?vue&type=script&lang=js&":
-/*!****************************************************************************************!*\
-  !*** ./resources/js/components/domain/WorkoutProgramForm.vue?vue&type=script&lang=js& ***!
-  \****************************************************************************************/
-/*! exports provided: default */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony import */ var _node_modules_babel_loader_lib_index_js_ref_4_0_node_modules_vue_loader_lib_index_js_vue_loader_options_WorkoutProgramForm_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../../../../node_modules/babel-loader/lib??ref--4-0!../../../../node_modules/vue-loader/lib??vue-loader-options!./WorkoutProgramForm.vue?vue&type=script&lang=js& */ "./node_modules/babel-loader/lib/index.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/components/domain/WorkoutProgramForm.vue?vue&type=script&lang=js&");
-/* empty/unused harmony star reexport */ /* harmony default export */ __webpack_exports__["default"] = (_node_modules_babel_loader_lib_index_js_ref_4_0_node_modules_vue_loader_lib_index_js_vue_loader_options_WorkoutProgramForm_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_0__["default"]); 
-
-/***/ }),
-
-/***/ "./resources/js/components/domain/WorkoutProgramForm.vue?vue&type=template&id=614f6f1b&":
-/*!**********************************************************************************************!*\
-  !*** ./resources/js/components/domain/WorkoutProgramForm.vue?vue&type=template&id=614f6f1b& ***!
-  \**********************************************************************************************/
-/*! exports provided: render, staticRenderFns */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony import */ var _node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_node_modules_vue_loader_lib_index_js_vue_loader_options_WorkoutProgramForm_vue_vue_type_template_id_614f6f1b___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../../../../node_modules/vue-loader/lib/loaders/templateLoader.js??vue-loader-options!../../../../node_modules/vue-loader/lib??vue-loader-options!./WorkoutProgramForm.vue?vue&type=template&id=614f6f1b& */ "./node_modules/vue-loader/lib/loaders/templateLoader.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/components/domain/WorkoutProgramForm.vue?vue&type=template&id=614f6f1b&");
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "render", function() { return _node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_node_modules_vue_loader_lib_index_js_vue_loader_options_WorkoutProgramForm_vue_vue_type_template_id_614f6f1b___WEBPACK_IMPORTED_MODULE_0__["render"]; });
-
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "staticRenderFns", function() { return _node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_node_modules_vue_loader_lib_index_js_vue_loader_options_WorkoutProgramForm_vue_vue_type_template_id_614f6f1b___WEBPACK_IMPORTED_MODULE_0__["staticRenderFns"]; });
 
 
 
@@ -39872,21 +39714,37 @@ var getters = {
   }
 };
 var actions = {
-  addWorkoutToProgram: function addWorkoutToProgram(_ref, workout, position) {
+  startNew: function startNew(_ref) {
     var state = _ref.state,
         commit = _ref.commit;
+    commit('reset', {
+      id: null,
+      name: 'New workout program',
+      workoutProgramRoutines: [{
+        name: 'Day one'
+      }]
+    });
+  },
+  updateName: function updateName(_ref2, name) {
+    var state = _ref2.state,
+        commit = _ref2.commit;
+    commit('updateName', name);
+  },
+  addWorkoutToProgram: function addWorkoutToProgram(_ref3, workout, position) {
+    var state = _ref3.state,
+        commit = _ref3.commit;
     commit('addWorkout', workout, position);
   },
   fetchById: function () {
     var _fetchById = _asyncToGenerator(
     /*#__PURE__*/
-    _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.mark(function _callee(_ref2, id) {
+    _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.mark(function _callee(_ref4, id) {
       var state, commit, response;
       return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.wrap(function _callee$(_context) {
         while (1) {
           switch (_context.prev = _context.next) {
             case 0:
-              state = _ref2.state, commit = _ref2.commit;
+              state = _ref4.state, commit = _ref4.commit;
               _context.next = 3;
               return _api_WorkoutProgramService__WEBPACK_IMPORTED_MODULE_1__["default"].get(id);
 
@@ -39916,7 +39774,16 @@ var mutations = {
       state[key] = newState[key];
     });
   },
+  updateName: function updateName(state, name) {
+    state.name = name;
+  },
   addWorkout: function addWorkout(state, workout, position) {
+    if (!workout) {
+      workout = {
+        name: 'New workout'
+      };
+    }
+
     workout.position = position;
 
     if (state.workoutProgramRoutines.length === 0) {

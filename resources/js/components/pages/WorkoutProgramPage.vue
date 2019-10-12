@@ -1,20 +1,16 @@
 <template>
-    <BootstrapCard v-bind:title="loading ? 'Loading program...' : title">
-        <LoadingSpinner v-if="loading"></LoadingSpinner>
-        <WorkoutProgramForm v-else></WorkoutProgramForm>
-    </BootstrapCard>
+    <ProgramBuilder></ProgramBuilder>
 </template>
 
 <script>
     import BootstrapCard from "../BootstrapCard";
-    import WorkoutProgramForm from "../domain/WorkoutProgramForm";
+    import ProgramBuilder from "../domain/ProgramBuilder";
     import LoadingSpinner from "../LoadingSpinner";
     import { mapState } from 'vuex'
-    import WorkoutProgramService from "../../api/WorkoutProgramService";
 
     export default {
         name: 'CreateWorkoutProgramPage',
-        components: { BootstrapCard, WorkoutProgramForm, LoadingSpinner },
+        components: {ProgramBuilder, BootstrapCard, LoadingSpinner },
         created () {
             this.fetchWorkoutProgram()
         },

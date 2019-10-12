@@ -23,6 +23,20 @@ const getters = {
 };
 
 const actions = {
+    startNew({state, commit}) {
+        commit('reset', {
+            id: null,
+            name: 'New workout program',
+            workoutProgramRoutines: [
+                {
+                    name: 'Day one'
+                }
+            ],
+        });
+    },
+    updateName({state, commit}, name) {
+        commit('updateName', name);
+    },
     addWorkoutToProgram({state, commit}, workout, position) {
         commit('addWorkout', workout, position);
     },
@@ -41,7 +55,14 @@ const mutations = {
             state[key] = newState[key]
         })
     },
+    updateName(state, name) {
+        state.name = name;
+    },
     addWorkout(state, workout, position) {
+        if (!workout) {
+            workout = { name: 'New workout' };
+        }
+
         workout.position = position;
 
         if (state.workoutProgramRoutines.length === 0) {
