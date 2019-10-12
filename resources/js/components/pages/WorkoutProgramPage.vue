@@ -4,13 +4,13 @@
 
 <script>
     import BootstrapCard from "../BootstrapCard";
-    import ProgramBuilder from "../domain/ProgramBuilder";
+    import ProgramBuilder from "../domain/programBuilder/ProgramBuilder";
     import LoadingSpinner from "../LoadingSpinner";
     import { mapState } from 'vuex'
 
     export default {
         name: 'CreateWorkoutProgramPage',
-        components: {ProgramBuilder, BootstrapCard, LoadingSpinner },
+        components: { ProgramBuilder, BootstrapCard, LoadingSpinner },
         created () {
             this.fetchWorkoutProgram()
         },

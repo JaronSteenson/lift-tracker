@@ -1,16 +1,21 @@
-<template class="program-builder">
-    <loading-spinner v-if="loading"></loading-spinner>
-    <input v-else class="program-builder__name" :value="name" @input="updateName">
+<template>
+    <div>
+        <loading-spinner v-if="loading"></loading-spinner>
+        <title-input v-else :value="name" @input="updateName" :auto-grow="true"></title-input>
+
+        <routine-card v-for="(routine, index) in workoutProgramRoutines" :key="index" :position="index"></routine-card>
+    </div>
 </template>
 
 <script>
-    import WorkoutRoutineForm from "../domain/WorkoutRoutineForm";
-    import LoadingSpinner from "../LoadingSpinner";
-    import { mapState } from 'vuex'
+    import LoadingSpinner from "../../LoadingSpinner";
+    import { mapState } from 'vuex';
+    import TitleInput from "../../formFields/TitleInput";
+    import RoutineCard from "./RoutineCard";
 
     export default {
         name: 'ProgramBuilder',
-        components: {LoadingSpinner, WorkoutRoutineForm},
+        components: { RoutineCard, TitleInput, LoadingSpinner },
         props: {
             workoutProgramId: {
                 type: String,
@@ -50,21 +55,3 @@
         }
     }
 </script>
-
-<style scoped>
-    .program-builder__name {
-        border: none;
-        border-bottom: solid 3px #524f52;
-        background: none;
-        min-height: 30px;
-        min-width: 300px;
-        font-size: 20px;
-    }
-
-    .program-builder__name:focus {
-        border: none;
-        border-bottom: solid 3px #524f52;
-        outline: none;
-        box-shadow: none !important;
-    }
-</style>

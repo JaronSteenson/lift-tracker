@@ -15,8 +15,11 @@ const state = {
 //             ]}
 
 const getters = {
-    getExercisesInRoutine: (state) => (routinePosition) => {
-        const routine = state.workoutProgramRoutines.find(routine => routine.position === routinePosition);
+    getRoutineByPosition: (state) => (position) => {
+        return state.workoutProgramRoutines.find(routine => routine.position === position);
+    },
+    getExercisesInRoutine: (state) => (position) => {
+        const routine = state.getRoutineByPosition(position);
 
         return routine.routineExercises || [];
     }
