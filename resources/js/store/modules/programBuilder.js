@@ -32,13 +32,17 @@ const actions = {
             name: 'New workout program',
             workoutProgramRoutines: [
                 {
-                    name: 'Day one'
+                    name: 'Day one',
+                    position: 0,
                 }
             ],
         });
     },
     updateName({state, commit}, name) {
         commit('updateName', name);
+    },
+    updateRoutineName({state, commit}, { position, name }) {
+        commit('updateRoutineName', { position, name });
     },
     addWorkoutToProgram({state, commit}, workout, position) {
         commit('addWorkout', workout, position);
@@ -60,6 +64,10 @@ const mutations = {
     },
     updateName(state, name) {
         state.name = name;
+    },
+    updateRoutineName(state, { position, name }) {
+        const routine = state.workoutProgramRoutines.find(routine => routine.position === position);
+        routine.name = name;
     },
     addWorkout(state, workout, position) {
         if (!workout) {

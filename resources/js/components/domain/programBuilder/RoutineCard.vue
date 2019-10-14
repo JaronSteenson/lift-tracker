@@ -1,6 +1,6 @@
 <template>
     <div class="routine-card d-flex justify-content-center">
-        <title-input :placeholder="'Enter workout name'" :value="name" @input="updateRoutineName"></title-input>
+        <title-input :placeholder="'Enter workout name'" :initial-value="getName()" @input="updateRoutineName"></title-input>
     </div>
 </template>
 
@@ -11,21 +11,21 @@
     export default {
         name: "RoutineCard",
         components: { TitleInput },
-        created() {
-            // this.$store.dispatch('programBuilder/startNew');
-        },
         props: {
             position: {
                 type: Number,
                 required: true,
             }
         },
-        computed: mapState('programBuilder', {
-            routine: state => state.getRoutineByPosition(position),
-        }),
         methods: {
-            updateRoutineName() {
-
+            getName() {
+              return this.getRoutineByPosition().name;
+            },
+            getRoutineByPosition() {
+                return this.$store.getters['programBuilder/getRoutineByPosition'](this.position);
+            },
+            updateRoutineName(e) {
+                this.$store.dispatch('programBuilder/updateRoutineName', { position: this.position, name:  e.target.value });
             }
         }
     }

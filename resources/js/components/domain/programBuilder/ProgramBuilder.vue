@@ -2,7 +2,7 @@
     <div>
         <loading-spinner v-if="loading"></loading-spinner>
         <div v-else class="d-flex justify-content-center">
-            <title-input class="program-title col-xs-12 col-md-8 col-lg-4" :placeholder="'Enter program name'" :value="name" @input="updateName"></title-input>
+            <title-input class="program-title col-xs-12 col-md-8 col-lg-4" :placeholder="'Enter program name'" :initial-value="name" @input="updateName"></title-input>
         </div>
 
         <routine-card v-for="(routine, index) in workoutProgramRoutines" :key="index" :position="index"></routine-card>

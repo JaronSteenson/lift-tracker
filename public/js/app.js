@@ -2082,21 +2082,25 @@ __webpack_require__.r(__webpack_exports__);
   components: {
     TitleInput: _formFields_TitleInput__WEBPACK_IMPORTED_MODULE_1__["default"]
   },
-  created: function created() {// this.$store.dispatch('programBuilder/startNew');
-  },
   props: {
     position: {
       type: Number,
       required: true
     }
   },
-  computed: Object(vuex__WEBPACK_IMPORTED_MODULE_0__["mapState"])('programBuilder', {
-    routine: function routine(state) {
-      return state.getRoutineByPosition(position);
-    }
-  }),
   methods: {
-    updateRoutineName: function updateRoutineName() {}
+    getName: function getName() {
+      return this.getRoutineByPosition().name;
+    },
+    getRoutineByPosition: function getRoutineByPosition() {
+      return this.$store.getters['programBuilder/getRoutineByPosition'](this.position);
+    },
+    updateRoutineName: function updateRoutineName(e) {
+      this.$store.dispatch('programBuilder/updateRoutineName', {
+        position: this.position,
+        name: e.target.value
+      });
+    }
   }
 });
 
@@ -2118,14 +2122,19 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony default export */ __webpack_exports__["default"] = ({
   name: "TitleInput",
   props: {
-    value: {
+    initialValue: {
       type: String,
-      required: true
+      required: false
     },
     placeholder: {
       type: String,
       required: false
     }
+  },
+  data: function data() {
+    return {
+      value: ''
+    };
   },
   methods: {
     resizeTextarea: function resizeTextarea(event) {
@@ -2135,6 +2144,14 @@ __webpack_require__.r(__webpack_exports__);
       }
 
       event.target.style.height = event.target.scrollHeight + 'px';
+    },
+    emitInput: function emitInput(e) {
+      this.$emit('input', e);
+    }
+  },
+  created: function created() {
+    if (this.initialValue) {
+      this.value = this.initialValue;
     }
   },
   mounted: function mounted() {
@@ -22004,7 +22021,10 @@ var render = function() {
             [
               _c("title-input", {
                 staticClass: "program-title col-xs-12 col-md-8 col-lg-4",
-                attrs: { placeholder: "Enter program name", value: _vm.name },
+                attrs: {
+                  placeholder: "Enter program name",
+                  "initial-value": _vm.name
+                },
                 on: { input: _vm.updateName }
               })
             ],
@@ -22045,7 +22065,10 @@ var render = function() {
     { staticClass: "routine-card d-flex justify-content-center" },
     [
       _c("title-input", {
-        attrs: { placeholder: "Enter workout name", value: _vm.name },
+        attrs: {
+          placeholder: "Enter workout name",
+          "initial-value": _vm.getName()
+        },
         on: { input: _vm.updateRoutineName }
       })
     ],
@@ -22087,12 +22110,15 @@ var render = function() {
     attrs: { placeholder: _vm.placeholder },
     domProps: { value: _vm.value },
     on: {
-      input: function($event) {
-        if ($event.target.composing) {
-          return
-        }
-        _vm.value = $event.target.value
-      }
+      input: [
+        function($event) {
+          if ($event.target.composing) {
+            return
+          }
+          _vm.value = $event.target.value
+        },
+        _vm.emitInput
+      ]
     }
   })
 }
@@ -38775,7 +38801,8 @@ var actions = {
       id: null,
       name: 'New workout program',
       workoutProgramRoutines: [{
-        name: 'Day one'
+        name: 'Day one',
+        position: 0
       }]
     });
   },
@@ -38784,21 +38811,31 @@ var actions = {
         commit = _ref2.commit;
     commit('updateName', name);
   },
-  addWorkoutToProgram: function addWorkoutToProgram(_ref3, workout, position) {
+  updateRoutineName: function updateRoutineName(_ref3, _ref4) {
     var state = _ref3.state,
         commit = _ref3.commit;
+    var position = _ref4.position,
+        name = _ref4.name;
+    commit('updateRoutineName', {
+      position: position,
+      name: name
+    });
+  },
+  addWorkoutToProgram: function addWorkoutToProgram(_ref5, workout, position) {
+    var state = _ref5.state,
+        commit = _ref5.commit;
     commit('addWorkout', workout, position);
   },
   fetchById: function () {
     var _fetchById = _asyncToGenerator(
     /*#__PURE__*/
-    _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.mark(function _callee(_ref4, id) {
+    _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.mark(function _callee(_ref6, id) {
       var state, commit, response;
       return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.wrap(function _callee$(_context) {
         while (1) {
           switch (_context.prev = _context.next) {
             case 0:
-              state = _ref4.state, commit = _ref4.commit;
+              state = _ref6.state, commit = _ref6.commit;
               _context.next = 3;
               return _api_WorkoutProgramService__WEBPACK_IMPORTED_MODULE_1__["default"].get(id);
 
@@ -38830,6 +38867,14 @@ var mutations = {
   },
   updateName: function updateName(state, name) {
     state.name = name;
+  },
+  updateRoutineName: function updateRoutineName(state, _ref7) {
+    var position = _ref7.position,
+        name = _ref7.name;
+    var routine = state.workoutProgramRoutines.find(function (routine) {
+      return routine.position === position;
+    });
+    routine.name = name;
   },
   addWorkout: function addWorkout(state, workout, position) {
     if (!workout) {
