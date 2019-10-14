@@ -1,11 +1,8 @@
 <template>
-    <input class="title-input" :value="value" @input="$emit('input', $event)"
-           :style="{ width }">
+    <textarea class="title-input" v-model="value" v-bind:placeholder="placeholder"></textarea>
 </template>
 
 <script>
-    const FONT_SIZE_PX = 20;
-
     export default {
         name: "TitleInput",
         props: {
@@ -13,52 +10,50 @@
                 type: String,
                 required: true,
             },
-            autoGrow: {
-                type: Boolean,
+            placeholder: {
+                type: String,
                 required: false,
-                default: false,
-            }
+            },
         },
-        computed: {
-            width() {
-                if (!this.autoGrow) {
-                    return '220px';
+
+        methods: {
+            resizeTextarea (event) {
+                // I have no idea why, but backspacing doesn't resize properly, so if it gets fully empty reset to single line.
+                if (this.value.length === 0) {
+                    event.target.style.height = '36px';
                 }
 
-                let characters = this.value.length;
+                event.target.style.height = (event.target.scrollHeight) + 'px'
+            },
+        },
+        mounted () {
+            this.$nextTick(() => {
+                this.$el.setAttribute('style', `height: ${this.$el.scrollHeight}px;`)
+            });
 
-                if (characters >= 40) {
-                    return '520px';
-                }
-
-                if (characters >= 30) {
-                    return '420px';
-                }
-
-                if (characters >= 20) {
-                    return '320px';
-                }
-
-                return '280px';
-            }
-        }
+            this.$el.addEventListener('input', this.resizeTextarea)
+        },
+        beforeDestroy () {
+            this.$el.removeEventListener('input', this.resizeTextarea)
+        },
 
     }
 </script>
 
 <style scoped>
     .title-input {
-        border: none;
-        background: none;
-        min-height: 30px;
+        height: 36px;
+        resize: none;
         font-size: 20px;
         min-width: 280px;
         margin: 10px;
+        overflow-y: hidden;
+        text-align: center;
     }
 
-    .title-input:focus {
+    .title-input:not(:focus) {
         border: none;
-        outline: none;
-        box-shadow: none !important;
+        border-bottom: solid 1px;
+        background: none;
     }
 </style>

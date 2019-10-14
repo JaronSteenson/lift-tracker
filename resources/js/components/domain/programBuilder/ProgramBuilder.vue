@@ -1,7 +1,9 @@
 <template>
     <div>
         <loading-spinner v-if="loading"></loading-spinner>
-        <title-input v-else :value="name" @input="updateName" :auto-grow="true"></title-input>
+        <div v-else class="d-flex justify-content-center">
+            <title-input class="program-title col-xs-12 col-md-8 col-lg-4" :placeholder="'Enter program name'" :value="name" @input="updateName"></title-input>
+        </div>
 
         <routine-card v-for="(routine, index) in workoutProgramRoutines" :key="index" :position="index"></routine-card>
     </div>
@@ -55,3 +57,6 @@
         }
     }
 </script>
+
+<style scoped>
+</style>

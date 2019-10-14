@@ -1,6 +1,6 @@
 <template>
-    <div class="routine-card">
-        <title-input :value="name" @input="updateRoutineName"></title-input>
+    <div class="routine-card d-flex justify-content-center">
+        <title-input :placeholder="'Enter workout name'" :value="name" @input="updateRoutineName"></title-input>
     </div>
 </template>
 
