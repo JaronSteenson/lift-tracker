@@ -1,5 +1,11 @@
 import WorkoutProgramService from '../../api/WorkoutProgramService'
 
+const find = {
+    byPosition: (collection, position) => {
+        return collection.find(routine => routine.position === position);
+    },
+};
+
 // initial state
 const state = {
     id: null,
@@ -16,7 +22,7 @@ const state = {
 
 const getters = {
     getRoutineByPosition: (state) => (position) => {
-        return state.workoutProgramRoutines.find(routine => routine.position === position);
+        return find.byPosition(state.workoutProgramRoutines, position);
     },
     getExercisesInRoutine: (state) => (position) => {
         const routine = state.getRoutineByPosition(position);
@@ -29,10 +35,10 @@ const actions = {
     startNew({state, commit}) {
         commit('reset', {
             id: null,
-            name: 'New workout program',
+            name: null,
             workoutProgramRoutines: [
                 {
-                    name: 'Day one',
+                    name: null,
                     position: 0,
                 }
             ],
@@ -41,10 +47,12 @@ const actions = {
     updateName({state, commit}, name) {
         commit('updateName', name);
     },
-    updateRoutineName({state, commit}, { position, name }) {
-        commit('updateRoutineName', { position, name });
+    updateRoutineName({ state, commit }, { position, name }) {
+        const routine = find.byPosition(state.workoutProgramRoutines, position);
+
+        commit('updateRoutine', { routine, newState: { name }  });
     },
-    addWorkoutToProgram({state, commit}, workout, position) {
+    addWorkoutToProgram({ state, commit }, workout, position) {
         commit('addWorkout', workout, position);
     },
     async fetchById({state, commit}, id) {
@@ -65,9 +73,10 @@ const mutations = {
     updateName(state, name) {
         state.name = name;
     },
-    updateRoutineName(state, { position, name }) {
-        const routine = state.workoutProgramRoutines.find(routine => routine.position === position);
-        routine.name = name;
+    updateRoutine(state, { routine, newState }) {
+        Object.keys(newState).forEach(key => {
+            routine[key] = newState[key]
+        })
     },
     addWorkout(state, workout, position) {
         if (!workout) {

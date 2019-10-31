@@ -1,16 +1,25 @@
 <template>
-    <BootstrapCard title="Your workout programs">
-        <loading-spinner v-if="loading"></loading-spinner>
-        <div v-else v-for="program in workoutPrograms" v-bind:key="program.id">
-            <routerLink v-bind:to="'/workout-programs/' + program.id" class="a">{{ program.name }}</routerLink>
+    <div class="row justify-content-center">
+        `
+        <div class="col-md-8">
+            <BootstrapCard title="Your workout programs">
+                <div v-if="loading" class="row justify-content-center">
+                    <loading-spinner></loading-spinner>
+                </div>
+
+                <div v-else v-for="program in workoutPrograms" v-bind:key="program.id">
+                    <routerLink v-bind:to="'/workout-programs/' + program.id" class="a">{{ program.name }}</routerLink>
+                </div>
+
+                <hr>
+
+                <routerLink tag="a" to="/workout-programs/create">
+                    Add new/another
+                </routerLink>
+            </BootstrapCard>
         </div>
-
-        <hr>
-
-        <routerLink tag="a" to="/workout-programs/create">
-            Add new/another
-        </routerLink>
-    </BootstrapCard>
+        `
+    </div>
 </template>
 
 <script>
@@ -20,7 +29,7 @@
 
     export default {
         name: 'CreateWorkoutProgramList',
-        components: { LoadingSpinner, BootstrapCard },
+        components: {LoadingSpinner, BootstrapCard},
         created() {
             this.fetchWorkoutPrograms()
         },

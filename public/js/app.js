@@ -1743,7 +1743,6 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
-//
 /* harmony default export */ __webpack_exports__["default"] = ({
   name: 'BootstrapCard',
   props: ['title']
@@ -1893,6 +1892,15 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
 
 
 
@@ -1990,6 +1998,12 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 //
 //
 //
+//
+//
+//
+//
+//
+//
 
 
 
@@ -2069,18 +2083,26 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var vuex__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! vuex */ "./node_modules/vuex/dist/vuex.esm.js");
 /* harmony import */ var _formFields_TitleInput__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../../formFields/TitleInput */ "./resources/js/components/formFields/TitleInput.vue");
+/* harmony import */ var _BootstrapCard__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../../BootstrapCard */ "./resources/js/components/BootstrapCard.vue");
 //
 //
 //
 //
 //
 //
+//
+//
+//
+//
+//
+
 
 
 /* harmony default export */ __webpack_exports__["default"] = ({
   name: "RoutineCard",
   components: {
-    TitleInput: _formFields_TitleInput__WEBPACK_IMPORTED_MODULE_1__["default"]
+    TitleInput: _formFields_TitleInput__WEBPACK_IMPORTED_MODULE_1__["default"],
+    BootstrapCard: _BootstrapCard__WEBPACK_IMPORTED_MODULE_2__["default"]
   },
   props: {
     position: {
@@ -6745,6 +6767,25 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 
 /***/ }),
 
+/***/ "./node_modules/css-loader/index.js?!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/postcss-loader/src/index.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/components/BootstrapCard.vue?vue&type=style&index=0&id=4ee67343&scoped=true&lang=css&":
+/*!*******************************************************************************************************************************************************************************************************************************************************************************************************!*\
+  !*** ./node_modules/css-loader??ref--6-1!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/postcss-loader/src??ref--6-2!./node_modules/vue-loader/lib??vue-loader-options!./resources/js/components/BootstrapCard.vue?vue&type=style&index=0&id=4ee67343&scoped=true&lang=css& ***!
+  \*******************************************************************************************************************************************************************************************************************************************************************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+exports = module.exports = __webpack_require__(/*! ../../../node_modules/css-loader/lib/css-base.js */ "./node_modules/css-loader/lib/css-base.js")(false);
+// imports
+
+
+// module
+exports.push([module.i, "\n.title-text[data-v-4ee67343] {\n    font-size: 16px;\n}\n", ""]);
+
+// exports
+
+
+/***/ }),
+
 /***/ "./node_modules/css-loader/index.js?!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/postcss-loader/src/index.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/components/domain/programBuilder/RoutineCard.vue?vue&type=style&index=0&id=1212ffa8&scoped=true&lang=css&":
 /*!***************************************************************************************************************************************************************************************************************************************************************************************************************************!*\
   !*** ./node_modules/css-loader??ref--6-1!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/postcss-loader/src??ref--6-2!./node_modules/vue-loader/lib??vue-loader-options!./resources/js/components/domain/programBuilder/RoutineCard.vue?vue&type=style&index=0&id=1212ffa8&scoped=true&lang=css& ***!
@@ -6757,7 +6798,7 @@ exports = module.exports = __webpack_require__(/*! ../../../../../node_modules/c
 
 
 // module
-exports.push([module.i, "\n.routine-card[data-v-1212ffa8] {\n    width: 300px;\n    min-height: 300px;\n    border: solid 3px #524f52;\n}\n", ""]);
+exports.push([module.i, "\n.title-input[data-v-1212ffa8] {\n    width: 100%;\n}\n", ""]);
 
 // exports
 
@@ -6776,7 +6817,7 @@ exports = module.exports = __webpack_require__(/*! ../../../../node_modules/css-
 
 
 // module
-exports.push([module.i, "\n.title-input[data-v-871e242e] {\n    height: 36px;\n    resize: none;\n    font-size: 20px;\n    min-width: 280px;\n    margin: 10px;\n    overflow-y: hidden;\n    text-align: center;\n}\n.title-input[data-v-871e242e]:not(:focus) {\n    border: none;\n    border-bottom: solid 1px;\n    background: none;\n}\n", ""]);
+exports.push([module.i, "\n.title-input[data-v-871e242e] {\n    height: 36px;\n    resize: none;\n    font-size: 20px;\n    min-width: 280px;\n    margin: 10px;\n    overflow-y: hidden;\n    text-align: center;\n}\n.title-input[data-v-871e242e]:not(:focus) {\n    border: none;\n    background: none;\n}\n", ""]);
 
 // exports
 
@@ -21228,6 +21269,36 @@ try {
 
 /***/ }),
 
+/***/ "./node_modules/style-loader/index.js!./node_modules/css-loader/index.js?!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/postcss-loader/src/index.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/components/BootstrapCard.vue?vue&type=style&index=0&id=4ee67343&scoped=true&lang=css&":
+/*!***********************************************************************************************************************************************************************************************************************************************************************************************************************************!*\
+  !*** ./node_modules/style-loader!./node_modules/css-loader??ref--6-1!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/postcss-loader/src??ref--6-2!./node_modules/vue-loader/lib??vue-loader-options!./resources/js/components/BootstrapCard.vue?vue&type=style&index=0&id=4ee67343&scoped=true&lang=css& ***!
+  \***********************************************************************************************************************************************************************************************************************************************************************************************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+
+var content = __webpack_require__(/*! !../../../node_modules/css-loader??ref--6-1!../../../node_modules/vue-loader/lib/loaders/stylePostLoader.js!../../../node_modules/postcss-loader/src??ref--6-2!../../../node_modules/vue-loader/lib??vue-loader-options!./BootstrapCard.vue?vue&type=style&index=0&id=4ee67343&scoped=true&lang=css& */ "./node_modules/css-loader/index.js?!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/postcss-loader/src/index.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/components/BootstrapCard.vue?vue&type=style&index=0&id=4ee67343&scoped=true&lang=css&");
+
+if(typeof content === 'string') content = [[module.i, content, '']];
+
+var transform;
+var insertInto;
+
+
+
+var options = {"hmr":true}
+
+options.transform = transform
+options.insertInto = undefined;
+
+var update = __webpack_require__(/*! ../../../node_modules/style-loader/lib/addStyles.js */ "./node_modules/style-loader/lib/addStyles.js")(content, options);
+
+if(content.locals) module.exports = content.locals;
+
+if(false) {}
+
+/***/ }),
+
 /***/ "./node_modules/style-loader/index.js!./node_modules/css-loader/index.js?!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/postcss-loader/src/index.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/components/domain/programBuilder/RoutineCard.vue?vue&type=style&index=0&id=1212ffa8&scoped=true&lang=css&":
 /*!*******************************************************************************************************************************************************************************************************************************************************************************************************************************************************!*\
   !*** ./node_modules/style-loader!./node_modules/css-loader??ref--6-1!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/postcss-loader/src??ref--6-2!./node_modules/vue-loader/lib??vue-loader-options!./resources/js/components/domain/programBuilder/RoutineCard.vue?vue&type=style&index=0&id=1212ffa8&scoped=true&lang=css& ***!
@@ -21872,10 +21943,10 @@ exports.clearImmediate = (typeof self !== "undefined" && self.clearImmediate) ||
 
 /***/ }),
 
-/***/ "./node_modules/vue-loader/lib/loaders/templateLoader.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/components/BootstrapCard.vue?vue&type=template&id=4ee67343&":
-/*!****************************************************************************************************************************************************************************************************************!*\
-  !*** ./node_modules/vue-loader/lib/loaders/templateLoader.js??vue-loader-options!./node_modules/vue-loader/lib??vue-loader-options!./resources/js/components/BootstrapCard.vue?vue&type=template&id=4ee67343& ***!
-  \****************************************************************************************************************************************************************************************************************/
+/***/ "./node_modules/vue-loader/lib/loaders/templateLoader.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/components/BootstrapCard.vue?vue&type=template&id=4ee67343&scoped=true&":
+/*!****************************************************************************************************************************************************************************************************************************!*\
+  !*** ./node_modules/vue-loader/lib/loaders/templateLoader.js??vue-loader-options!./node_modules/vue-loader/lib??vue-loader-options!./resources/js/components/BootstrapCard.vue?vue&type=template&id=4ee67343&scoped=true& ***!
+  \****************************************************************************************************************************************************************************************************************************/
 /*! exports provided: render, staticRenderFns */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
@@ -21887,14 +21958,21 @@ var render = function() {
   var _vm = this
   var _h = _vm.$createElement
   var _c = _vm._self._c || _h
-  return _c("div", { staticClass: "row justify-content-center" }, [
-    _c("div", { staticClass: "col-md-8" }, [
-      _c("div", { staticClass: "card" }, [
-        _c("div", { staticClass: "card-header" }, [_vm._v(_vm._s(_vm.title))]),
-        _vm._v(" "),
-        _c("div", { staticClass: "card-body" }, [_vm._t("default")], 2)
-      ])
-    ])
+  return _c("div", { staticClass: "card" }, [
+    _c(
+      "div",
+      { staticClass: "card-header d-flex justify-content-center" },
+      [
+        _vm.title
+          ? _c("span", { staticClass: "title-text" }, [
+              _vm._v(_vm._s(_vm.title))
+            ])
+          : _vm._t("header")
+      ],
+      2
+    ),
+    _vm._v(" "),
+    _c("div", { staticClass: "card-body" }, [_vm._t("default")], 2)
   ])
 }
 var staticRenderFns = []
@@ -21953,40 +22031,56 @@ var render = function() {
   var _vm = this
   var _h = _vm.$createElement
   var _c = _vm._self._c || _h
-  return _c(
-    "BootstrapCard",
-    { attrs: { title: "Your workout programs" } },
-    [
-      _vm.loading
-        ? _c("loading-spinner")
-        : _vm._l(_vm.workoutPrograms, function(program) {
-            return _c(
-              "div",
-              { key: program.id },
-              [
-                _c(
-                  "routerLink",
-                  {
-                    staticClass: "a",
-                    attrs: { to: "/workout-programs/" + program.id }
-                  },
-                  [_vm._v(_vm._s(program.name))]
+  return _c("div", { staticClass: "row justify-content-center" }, [
+    _vm._v("\n    `\n    "),
+    _c(
+      "div",
+      { staticClass: "col-md-8" },
+      [
+        _c(
+          "BootstrapCard",
+          { attrs: { title: "Your workout programs" } },
+          [
+            _vm.loading
+              ? _c(
+                  "div",
+                  { staticClass: "row justify-content-center" },
+                  [_c("loading-spinner")],
+                  1
                 )
-              ],
-              1
+              : _vm._l(_vm.workoutPrograms, function(program) {
+                  return _c(
+                    "div",
+                    { key: program.id },
+                    [
+                      _c(
+                        "routerLink",
+                        {
+                          staticClass: "a",
+                          attrs: { to: "/workout-programs/" + program.id }
+                        },
+                        [_vm._v(_vm._s(program.name))]
+                      )
+                    ],
+                    1
+                  )
+                }),
+            _vm._v(" "),
+            _c("hr"),
+            _vm._v(" "),
+            _c(
+              "routerLink",
+              { attrs: { tag: "a", to: "/workout-programs/create" } },
+              [_vm._v("\n                Add new/another\n            ")]
             )
-          }),
-      _vm._v(" "),
-      _c("hr"),
-      _vm._v(" "),
-      _c(
-        "routerLink",
-        { attrs: { tag: "a", to: "/workout-programs/create" } },
-        [_vm._v("\n        Add new/another\n    ")]
-      )
-    ],
-    2
-  )
+          ],
+          2
+        )
+      ],
+      1
+    ),
+    _vm._v("\n    `\n")
+  ])
 }
 var staticRenderFns = []
 render._withStripped = true
@@ -22031,11 +22125,27 @@ var render = function() {
             1
           ),
       _vm._v(" "),
-      _vm._l(_vm.workoutProgramRoutines, function(routine, index) {
-        return _c("routine-card", { key: index, attrs: { position: index } })
-      })
+      _c(
+        "div",
+        { staticClass: "container" },
+        [
+          _vm._l(_vm.workoutProgramRoutines, function(routine, index) {
+            return [
+              _c(
+                "div",
+                { staticClass: "col-sm-4" },
+                [
+                  _c("routine-card", { key: index, attrs: { position: index } })
+                ],
+                1
+              )
+            ]
+          })
+        ],
+        2
+      )
     ],
-    2
+    1
   )
 }
 var staticRenderFns = []
@@ -22061,18 +22171,28 @@ var render = function() {
   var _h = _vm.$createElement
   var _c = _vm._self._c || _h
   return _c(
-    "div",
-    { staticClass: "routine-card d-flex justify-content-center" },
-    [
-      _c("title-input", {
-        attrs: {
-          placeholder: "Enter workout name",
-          "initial-value": _vm.getName()
-        },
-        on: { input: _vm.updateRoutineName }
-      })
-    ],
-    1
+    "BootstrapCard",
+    {
+      scopedSlots: _vm._u([
+        {
+          key: "header",
+          fn: function() {
+            return [
+              _c("title-input", {
+                staticClass: "title-input",
+                attrs: {
+                  placeholder: "Enter workout name",
+                  "initial-value": _vm.getName()
+                },
+                on: { input: _vm.updateRoutineName }
+              })
+            ]
+          },
+          proxy: true
+        }
+      ])
+    },
+    [_vm._v("\n\n    Things go here\n\n")]
   )
 }
 var staticRenderFns = []
@@ -38142,9 +38262,11 @@ var app = new vue__WEBPACK_IMPORTED_MODULE_0___default.a({
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony import */ var _BootstrapCard_vue_vue_type_template_id_4ee67343___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./BootstrapCard.vue?vue&type=template&id=4ee67343& */ "./resources/js/components/BootstrapCard.vue?vue&type=template&id=4ee67343&");
+/* harmony import */ var _BootstrapCard_vue_vue_type_template_id_4ee67343_scoped_true___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./BootstrapCard.vue?vue&type=template&id=4ee67343&scoped=true& */ "./resources/js/components/BootstrapCard.vue?vue&type=template&id=4ee67343&scoped=true&");
 /* harmony import */ var _BootstrapCard_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./BootstrapCard.vue?vue&type=script&lang=js& */ "./resources/js/components/BootstrapCard.vue?vue&type=script&lang=js&");
-/* empty/unused harmony star reexport *//* harmony import */ var _node_modules_vue_loader_lib_runtime_componentNormalizer_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../../../node_modules/vue-loader/lib/runtime/componentNormalizer.js */ "./node_modules/vue-loader/lib/runtime/componentNormalizer.js");
+/* empty/unused harmony star reexport *//* harmony import */ var _BootstrapCard_vue_vue_type_style_index_0_id_4ee67343_scoped_true_lang_css___WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./BootstrapCard.vue?vue&type=style&index=0&id=4ee67343&scoped=true&lang=css& */ "./resources/js/components/BootstrapCard.vue?vue&type=style&index=0&id=4ee67343&scoped=true&lang=css&");
+/* harmony import */ var _node_modules_vue_loader_lib_runtime_componentNormalizer_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../../../node_modules/vue-loader/lib/runtime/componentNormalizer.js */ "./node_modules/vue-loader/lib/runtime/componentNormalizer.js");
+
 
 
 
@@ -38152,13 +38274,13 @@ __webpack_require__.r(__webpack_exports__);
 
 /* normalize component */
 
-var component = Object(_node_modules_vue_loader_lib_runtime_componentNormalizer_js__WEBPACK_IMPORTED_MODULE_2__["default"])(
+var component = Object(_node_modules_vue_loader_lib_runtime_componentNormalizer_js__WEBPACK_IMPORTED_MODULE_3__["default"])(
   _BootstrapCard_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_1__["default"],
-  _BootstrapCard_vue_vue_type_template_id_4ee67343___WEBPACK_IMPORTED_MODULE_0__["render"],
-  _BootstrapCard_vue_vue_type_template_id_4ee67343___WEBPACK_IMPORTED_MODULE_0__["staticRenderFns"],
+  _BootstrapCard_vue_vue_type_template_id_4ee67343_scoped_true___WEBPACK_IMPORTED_MODULE_0__["render"],
+  _BootstrapCard_vue_vue_type_template_id_4ee67343_scoped_true___WEBPACK_IMPORTED_MODULE_0__["staticRenderFns"],
   false,
   null,
-  null,
+  "4ee67343",
   null
   
 )
@@ -38184,19 +38306,35 @@ __webpack_require__.r(__webpack_exports__);
 
 /***/ }),
 
-/***/ "./resources/js/components/BootstrapCard.vue?vue&type=template&id=4ee67343&":
-/*!**********************************************************************************!*\
-  !*** ./resources/js/components/BootstrapCard.vue?vue&type=template&id=4ee67343& ***!
-  \**********************************************************************************/
+/***/ "./resources/js/components/BootstrapCard.vue?vue&type=style&index=0&id=4ee67343&scoped=true&lang=css&":
+/*!************************************************************************************************************!*\
+  !*** ./resources/js/components/BootstrapCard.vue?vue&type=style&index=0&id=4ee67343&scoped=true&lang=css& ***!
+  \************************************************************************************************************/
+/*! no static exports found */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _node_modules_style_loader_index_js_node_modules_css_loader_index_js_ref_6_1_node_modules_vue_loader_lib_loaders_stylePostLoader_js_node_modules_postcss_loader_src_index_js_ref_6_2_node_modules_vue_loader_lib_index_js_vue_loader_options_BootstrapCard_vue_vue_type_style_index_0_id_4ee67343_scoped_true_lang_css___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../../../node_modules/style-loader!../../../node_modules/css-loader??ref--6-1!../../../node_modules/vue-loader/lib/loaders/stylePostLoader.js!../../../node_modules/postcss-loader/src??ref--6-2!../../../node_modules/vue-loader/lib??vue-loader-options!./BootstrapCard.vue?vue&type=style&index=0&id=4ee67343&scoped=true&lang=css& */ "./node_modules/style-loader/index.js!./node_modules/css-loader/index.js?!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/postcss-loader/src/index.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/components/BootstrapCard.vue?vue&type=style&index=0&id=4ee67343&scoped=true&lang=css&");
+/* harmony import */ var _node_modules_style_loader_index_js_node_modules_css_loader_index_js_ref_6_1_node_modules_vue_loader_lib_loaders_stylePostLoader_js_node_modules_postcss_loader_src_index_js_ref_6_2_node_modules_vue_loader_lib_index_js_vue_loader_options_BootstrapCard_vue_vue_type_style_index_0_id_4ee67343_scoped_true_lang_css___WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_node_modules_style_loader_index_js_node_modules_css_loader_index_js_ref_6_1_node_modules_vue_loader_lib_loaders_stylePostLoader_js_node_modules_postcss_loader_src_index_js_ref_6_2_node_modules_vue_loader_lib_index_js_vue_loader_options_BootstrapCard_vue_vue_type_style_index_0_id_4ee67343_scoped_true_lang_css___WEBPACK_IMPORTED_MODULE_0__);
+/* harmony reexport (unknown) */ for(var __WEBPACK_IMPORT_KEY__ in _node_modules_style_loader_index_js_node_modules_css_loader_index_js_ref_6_1_node_modules_vue_loader_lib_loaders_stylePostLoader_js_node_modules_postcss_loader_src_index_js_ref_6_2_node_modules_vue_loader_lib_index_js_vue_loader_options_BootstrapCard_vue_vue_type_style_index_0_id_4ee67343_scoped_true_lang_css___WEBPACK_IMPORTED_MODULE_0__) if(__WEBPACK_IMPORT_KEY__ !== 'default') (function(key) { __webpack_require__.d(__webpack_exports__, key, function() { return _node_modules_style_loader_index_js_node_modules_css_loader_index_js_ref_6_1_node_modules_vue_loader_lib_loaders_stylePostLoader_js_node_modules_postcss_loader_src_index_js_ref_6_2_node_modules_vue_loader_lib_index_js_vue_loader_options_BootstrapCard_vue_vue_type_style_index_0_id_4ee67343_scoped_true_lang_css___WEBPACK_IMPORTED_MODULE_0__[key]; }) }(__WEBPACK_IMPORT_KEY__));
+ /* harmony default export */ __webpack_exports__["default"] = (_node_modules_style_loader_index_js_node_modules_css_loader_index_js_ref_6_1_node_modules_vue_loader_lib_loaders_stylePostLoader_js_node_modules_postcss_loader_src_index_js_ref_6_2_node_modules_vue_loader_lib_index_js_vue_loader_options_BootstrapCard_vue_vue_type_style_index_0_id_4ee67343_scoped_true_lang_css___WEBPACK_IMPORTED_MODULE_0___default.a); 
+
+/***/ }),
+
+/***/ "./resources/js/components/BootstrapCard.vue?vue&type=template&id=4ee67343&scoped=true&":
+/*!**********************************************************************************************!*\
+  !*** ./resources/js/components/BootstrapCard.vue?vue&type=template&id=4ee67343&scoped=true& ***!
+  \**********************************************************************************************/
 /*! exports provided: render, staticRenderFns */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony import */ var _node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_node_modules_vue_loader_lib_index_js_vue_loader_options_BootstrapCard_vue_vue_type_template_id_4ee67343___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../../../node_modules/vue-loader/lib/loaders/templateLoader.js??vue-loader-options!../../../node_modules/vue-loader/lib??vue-loader-options!./BootstrapCard.vue?vue&type=template&id=4ee67343& */ "./node_modules/vue-loader/lib/loaders/templateLoader.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/components/BootstrapCard.vue?vue&type=template&id=4ee67343&");
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "render", function() { return _node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_node_modules_vue_loader_lib_index_js_vue_loader_options_BootstrapCard_vue_vue_type_template_id_4ee67343___WEBPACK_IMPORTED_MODULE_0__["render"]; });
+/* harmony import */ var _node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_node_modules_vue_loader_lib_index_js_vue_loader_options_BootstrapCard_vue_vue_type_template_id_4ee67343_scoped_true___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../../../node_modules/vue-loader/lib/loaders/templateLoader.js??vue-loader-options!../../../node_modules/vue-loader/lib??vue-loader-options!./BootstrapCard.vue?vue&type=template&id=4ee67343&scoped=true& */ "./node_modules/vue-loader/lib/loaders/templateLoader.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/components/BootstrapCard.vue?vue&type=template&id=4ee67343&scoped=true&");
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "render", function() { return _node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_node_modules_vue_loader_lib_index_js_vue_loader_options_BootstrapCard_vue_vue_type_template_id_4ee67343_scoped_true___WEBPACK_IMPORTED_MODULE_0__["render"]; });
 
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "staticRenderFns", function() { return _node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_node_modules_vue_loader_lib_index_js_vue_loader_options_BootstrapCard_vue_vue_type_template_id_4ee67343___WEBPACK_IMPORTED_MODULE_0__["staticRenderFns"]; });
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "staticRenderFns", function() { return _node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_node_modules_vue_loader_lib_index_js_vue_loader_options_BootstrapCard_vue_vue_type_template_id_4ee67343_scoped_true___WEBPACK_IMPORTED_MODULE_0__["staticRenderFns"]; });
 
 
 
@@ -38766,7 +38904,14 @@ function asyncGeneratorStep(gen, resolve, reject, _next, _throw, key, arg) { try
 
 function _asyncToGenerator(fn) { return function () { var self = this, args = arguments; return new Promise(function (resolve, reject) { var gen = fn.apply(self, args); function _next(value) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "next", value); } function _throw(err) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "throw", err); } _next(undefined); }); }; }
 
- // initial state
+
+var find = {
+  byPosition: function byPosition(collection, position) {
+    return collection.find(function (routine) {
+      return routine.position === position;
+    });
+  }
+}; // initial state
 
 var state = {
   id: null,
@@ -38781,9 +38926,7 @@ var state = {
 var getters = {
   getRoutineByPosition: function getRoutineByPosition(state) {
     return function (position) {
-      return state.workoutProgramRoutines.find(function (routine) {
-        return routine.position === position;
-      });
+      return find.byPosition(state.workoutProgramRoutines, position);
     };
   },
   getExercisesInRoutine: function getExercisesInRoutine(state) {
@@ -38799,9 +38942,9 @@ var actions = {
         commit = _ref.commit;
     commit('reset', {
       id: null,
-      name: 'New workout program',
+      name: null,
       workoutProgramRoutines: [{
-        name: 'Day one',
+        name: null,
         position: 0
       }]
     });
@@ -38816,9 +38959,12 @@ var actions = {
         commit = _ref3.commit;
     var position = _ref4.position,
         name = _ref4.name;
-    commit('updateRoutineName', {
-      position: position,
-      name: name
+    var routine = find.byPosition(state.workoutProgramRoutines, position);
+    commit('updateRoutine', {
+      routine: routine,
+      newState: {
+        name: name
+      }
     });
   },
   addWorkoutToProgram: function addWorkoutToProgram(_ref5, workout, position) {
@@ -38868,13 +39014,12 @@ var mutations = {
   updateName: function updateName(state, name) {
     state.name = name;
   },
-  updateRoutineName: function updateRoutineName(state, _ref7) {
-    var position = _ref7.position,
-        name = _ref7.name;
-    var routine = state.workoutProgramRoutines.find(function (routine) {
-      return routine.position === position;
+  updateRoutine: function updateRoutine(state, _ref7) {
+    var routine = _ref7.routine,
+        newState = _ref7.newState;
+    Object.keys(newState).forEach(function (key) {
+      routine[key] = newState[key];
     });
-    routine.name = name;
   },
   addWorkout: function addWorkout(state, workout, position) {
     if (!workout) {

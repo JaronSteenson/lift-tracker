@@ -65,7 +65,6 @@
 
     .title-input:not(:focus) {
         border: none;
-        border-bottom: solid 1px;
         background: none;
     }
 </style>

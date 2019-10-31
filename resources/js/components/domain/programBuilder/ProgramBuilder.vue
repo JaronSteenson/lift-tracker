@@ -5,7 +5,13 @@
             <title-input class="program-title col-xs-12 col-md-8 col-lg-4" :placeholder="'Enter program name'" :initial-value="name" @input="updateName"></title-input>
         </div>
 
-        <routine-card v-for="(routine, index) in workoutProgramRoutines" :key="index" :position="index"></routine-card>
+        <div class="container">
+            <template v-for="(routine, index) in workoutProgramRoutines">
+                <div class="col-sm-4">
+                    <routine-card :key="index" :position="index"></routine-card>
+                </div>
+            </template>
+        </div>
     </div>
 </template>
 
