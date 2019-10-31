@@ -6804,7 +6804,7 @@ exports = module.exports = __webpack_require__(/*! ../../../node_modules/css-loa
 
 
 // module
-exports.push([module.i, "\n.card[data-v-4ee67343] {\n    margin-bottom: 30px;\n}\n.card-header[data-v-4ee67343] {\n    padding-top: 0;\n    padding-bottom: 0;\n}\n.title-text[data-v-4ee67343] {\n    font-size: 16px;\n}\n", ""]);
+exports.push([module.i, "\n.card[data-v-4ee67343] {\n    margin-bottom: 30px;\n}\n.card-header[data-v-4ee67343] {\n    padding: 0;\n}\n.title-text[data-v-4ee67343] {\n    font-size: 16px;\n}\n", ""]);
 
 // exports
 
@@ -6842,7 +6842,7 @@ exports = module.exports = __webpack_require__(/*! ../../../../../node_modules/c
 
 
 // module
-exports.push([module.i, "\n.workout-name[data-v-1212ffa8] {\n    min-width: 90%;\n    max-width: 90%;\n    width: 90%;\n}\n", ""]);
+exports.push([module.i, "\n.workout-name[data-v-1212ffa8] {\n    /* 40px for some space for the drop down menu button. */\n    min-width: calc(90% - 40px);\n    max-width: calc(90% - 40px);\n    width: calc(90% - 40px);\n    margin-right: 40px;\n}\n.dropdown[data-v-1212ffa8] {\n    position: absolute;\n    right: 0;\n    top: 0;\n}\n", ""]);
 
 // exports
 
@@ -6861,7 +6861,7 @@ exports = module.exports = __webpack_require__(/*! ../../../../node_modules/css-
 
 
 // module
-exports.push([module.i, "\ntextarea[data-v-871e242e] {\n    height: 36px;\n    resize: none;\n    font-size: 20px;\n    min-width: 280px;\n    margin: 10px;\n    overflow-y: hidden;\n    text-align: center;\n}\ntextarea[data-v-871e242e]:not(:focus) {\n    border: none;\n    background: none;\n}\n", ""]);
+exports.push([module.i, "\ntextarea[data-v-871e242e] {\n    height: 36px;\n    resize: none;\n    font-size: 20px;\n    min-width: 280px;\n    margin: 10px;\n    overflow: hidden;\n    text-align: center;\n}\ntextarea[data-v-871e242e]:not(:focus) {\n    border: none;\n    background: none;\n}\n", ""]);
 
 // exports
 
@@ -22210,7 +22210,7 @@ var render = function() {
               return [
                 _c(
                   "div",
-                  { staticClass: "col-sm-6 col-md-4 col-lg-2" },
+                  { staticClass: "col-sm-12 col-md-6 col-lg-4 col-xl-3" },
                   [
                     _c("routine-card", {
                       key: index,
@@ -22224,7 +22224,7 @@ var render = function() {
             _vm._v(" "),
             _c(
               "div",
-              { staticClass: "col-sm-6 col-md-2" },
+              { staticClass: "col-sm-12 col-md-6 col-lg-4 col-xl-3" },
               [
                 _c(
                   "bootstrap-card",

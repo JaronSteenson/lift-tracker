@@ -59,7 +59,7 @@
         font-size: 20px;
         min-width: 280px;
         margin: 10px;
-        overflow-y: hidden;
+        overflow: hidden;
         text-align: center;
     }
 

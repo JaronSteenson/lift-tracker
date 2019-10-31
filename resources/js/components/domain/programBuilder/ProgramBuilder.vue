@@ -8,12 +8,12 @@
         <div class="container-fluid">
             <div class="row">
                 <template v-for="(routine, index) in workoutProgramRoutines">
-                    <div class="col-sm-6 col-md-4 col-lg-2">
+                    <div class="col-sm-12 col-md-6 col-lg-4 col-xl-3">
                         <routine-card :key="index" :position="index"></routine-card>
                     </div>
                 </template>
 
-                <div class="col-sm-6 col-md-2">
+                <div class="col-sm-12 col-md-6 col-lg-4 col-xl-3">
                     <bootstrap-card class="add-another" @click.native="addWorkoutToProgram">
                         <i class="fa fa-plus"></i> Add another workout
                     </bootstrap-card>

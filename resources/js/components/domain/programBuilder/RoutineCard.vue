@@ -49,8 +49,16 @@
 
 <style scoped>
     .workout-name {
-        min-width: 90%;
-        max-width: 90%;
-        width: 90%;
+        /* 40px for some space for the drop down menu button. */
+        min-width: calc(90% - 40px);
+        max-width: calc(90% - 40px);
+        width: calc(90% - 40px);
+        margin-right: 40px;
+    }
+
+    .dropdown {
+        position: absolute;
+        right: 0;
+        top: 0;
     }
 </style>

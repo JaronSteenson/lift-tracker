@@ -28,8 +28,7 @@
         margin-bottom: 30px;
     }
     .card-header {
-        padding-top: 0;
-        padding-bottom: 0;
+        padding: 0;
     }
     .title-text {
         font-size: 16px;
