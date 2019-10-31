@@ -44,14 +44,21 @@ const actions = {
             ],
         });
     },
+
     updateName({state, commit}, name) {
         commit('updateName', name);
     },
-    updateRoutineName({ state, commit }, { position, name }) {
+
+    updateWorkoutName({ state, commit }, { position, name }) {
         const routine = find.byPosition(state.workoutProgramRoutines, position);
 
-        commit('updateRoutine', { routine, newState: { name }  });
+        commit('updateWorkout', { routine, newState: { name }  });
     },
+
+    deleteWorkout({ state, commit }, { position }) {
+        commit('deleteWorkout', position);
+    },
+
     addWorkoutToProgram({ state, commit }, workout) {
         if (!workout) {
             workout = { name: null };
@@ -63,6 +70,7 @@ const actions = {
 
         commit('addWorkout', workout);
     },
+
     async fetchById({state, commit}, id) {
         const response = await WorkoutProgramService.get(id);
 
@@ -81,10 +89,19 @@ const mutations = {
     updateName(state, name) {
         state.name = name;
     },
-    updateRoutine(state, { routine, newState }) {
+    updateWorkout(state, { routine, newState }) {
         Object.keys(newState).forEach(key => {
             routine[key] = newState[key]
         })
+    },
+    deleteWorkout(state, position) {
+        state.workoutProgramRoutines.splice(position, 1);
+
+        state.workoutProgramRoutines.forEach((routine) => {
+            if (routine.position > position) {
+                --routine.position;
+            }
+        });
     },
     addWorkout(state, workout) {
         if (state.workoutProgramRoutines.length === 0) {

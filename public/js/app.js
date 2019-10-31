@@ -2143,9 +2143,14 @@ __webpack_require__.r(__webpack_exports__);
       return this.$store.getters['programBuilder/getRoutineByPosition'](this.position);
     },
     updateRoutineName: function updateRoutineName(e) {
-      this.$store.dispatch('programBuilder/updateRoutineName', {
+      this.$store.dispatch('programBuilder/updateWorkoutName', {
         position: this.position,
         name: e.target.value
+      });
+    },
+    deleteWorkout: function deleteWorkout() {
+      this.$store.dispatch('programBuilder/deleteWorkout', {
+        position: this.position
       });
     }
   }
@@ -22314,7 +22319,8 @@ var render = function() {
                           "a",
                           {
                             staticClass: "dropdown-item",
-                            attrs: { href: "#" }
+                            attrs: { href: "#" },
+                            on: { click: _vm.deleteWorkout }
                           },
                           [_vm._v("Delete")]
                         )
@@ -39109,22 +39115,28 @@ var actions = {
         commit = _ref2.commit;
     commit('updateName', name);
   },
-  updateRoutineName: function updateRoutineName(_ref3, _ref4) {
+  updateWorkoutName: function updateWorkoutName(_ref3, _ref4) {
     var state = _ref3.state,
         commit = _ref3.commit;
     var position = _ref4.position,
         name = _ref4.name;
     var routine = find.byPosition(state.workoutProgramRoutines, position);
-    commit('updateRoutine', {
+    commit('updateWorkout', {
       routine: routine,
       newState: {
         name: name
       }
     });
   },
-  addWorkoutToProgram: function addWorkoutToProgram(_ref5, workout) {
+  deleteWorkout: function deleteWorkout(_ref5, _ref6) {
     var state = _ref5.state,
         commit = _ref5.commit;
+    var position = _ref6.position;
+    commit('deleteWorkout', position);
+  },
+  addWorkoutToProgram: function addWorkoutToProgram(_ref7, workout) {
+    var state = _ref7.state,
+        commit = _ref7.commit;
 
     if (!workout) {
       workout = {
@@ -39141,13 +39153,13 @@ var actions = {
   fetchById: function () {
     var _fetchById = _asyncToGenerator(
     /*#__PURE__*/
-    _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.mark(function _callee(_ref6, id) {
+    _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.mark(function _callee(_ref8, id) {
       var state, commit, response;
       return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.wrap(function _callee$(_context) {
         while (1) {
           switch (_context.prev = _context.next) {
             case 0:
-              state = _ref6.state, commit = _ref6.commit;
+              state = _ref8.state, commit = _ref8.commit;
               _context.next = 3;
               return _api_WorkoutProgramService__WEBPACK_IMPORTED_MODULE_1__["default"].get(id);
 
@@ -39180,11 +39192,19 @@ var mutations = {
   updateName: function updateName(state, name) {
     state.name = name;
   },
-  updateRoutine: function updateRoutine(state, _ref7) {
-    var routine = _ref7.routine,
-        newState = _ref7.newState;
+  updateWorkout: function updateWorkout(state, _ref9) {
+    var routine = _ref9.routine,
+        newState = _ref9.newState;
     Object.keys(newState).forEach(function (key) {
       routine[key] = newState[key];
+    });
+  },
+  deleteWorkout: function deleteWorkout(state, position) {
+    state.workoutProgramRoutines.splice(position, 1);
+    state.workoutProgramRoutines.forEach(function (routine) {
+      if (routine.position > position) {
+        --routine.position;
+      }
     });
   },
   addWorkout: function addWorkout(state, workout) {

@@ -8,7 +8,7 @@
                     <button class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                     </button>
                     <div class="dropdown-menu dropdown-menu-right">
-                        <a class="dropdown-item" href="#">Delete</a>
+                        <a @click="deleteWorkout" class="dropdown-item" href="#">Delete</a>
                     </div>
                 </div>
             </div>
@@ -41,7 +41,10 @@
                 return this.$store.getters['programBuilder/getRoutineByPosition'](this.position);
             },
             updateRoutineName(e) {
-                this.$store.dispatch('programBuilder/updateRoutineName', { position: this.position, name:  e.target.value });
+                this.$store.dispatch('programBuilder/updateWorkoutName', { position: this.position, name:  e.target.value });
+            },
+            deleteWorkout() {
+                this.$store.dispatch('programBuilder/deleteWorkout', { position: this.position });
             }
         }
     }
