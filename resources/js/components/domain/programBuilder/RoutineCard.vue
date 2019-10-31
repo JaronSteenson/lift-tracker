@@ -20,7 +20,6 @@
 </template>
 
 <script>
-    import { mapState } from 'vuex';
     import TitleInput from "../../formFields/TitleInput";
     import BootstrapCard from "../../BootstrapCard";
 
@@ -28,23 +27,23 @@
         name: "RoutineCard",
         components: { TitleInput, BootstrapCard },
         props: {
-            position: {
+            workoutCid: {
                 type: Number,
                 required: true,
             }
         },
         methods: {
             getName() {
-              return this.getRoutineByPosition().name;
+              return this.getWorkout().name;
             },
-            getRoutineByPosition() {
-                return this.$store.getters['programBuilder/getRoutineByPosition'](this.position);
+            getWorkout() {
+                return this.$store.getters['programBuilder/getWorkout'](this.workoutCid);
             },
             updateRoutineName(e) {
-                this.$store.dispatch('programBuilder/updateWorkoutName', { position: this.position, name:  e.target.value });
+                this.$store.dispatch('programBuilder/updateWorkoutName', { cid: this.workoutCid, name:  e.target.value });
             },
             deleteWorkout() {
-                this.$store.dispatch('programBuilder/deleteWorkout', { position: this.position });
+                this.$store.dispatch('programBuilder/deleteWorkout', { cid: this.workoutCid });
             }
         }
     }

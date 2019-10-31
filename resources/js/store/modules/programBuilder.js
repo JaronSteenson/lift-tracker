@@ -1,10 +1,5 @@
 import WorkoutProgramService from '../../api/WorkoutProgramService'
-
-const find = {
-    byPosition: (collection, position) => {
-        return collection.find(routine => routine.position === position);
-    },
-};
+import ClientSideId from '../../ClientSideId'
 
 // initial state
 const state = {
@@ -14,21 +9,20 @@ const state = {
 };
 
 
-//
 // "workoutProgramRoutines":[
 //     {"id":"0168c727-8fdf-40c9-ac62-d20c65be8b1b","name":"day one","normalDay":"Monday","workoutProgramId":"a9b640bc-04ae-476b-bfb6-e25746791b1d","routineExercises":
 //             [{"id":"56e5e6c1-84db-46ea-92fd-14b8023ef03d","name":"BB bench press","numberOfSets":3,"workoutProgramRoutineId":"0168c727-8fdf-40c9-ac62-d20c65be8b1b"}
 //             ]}
 
 const getters = {
-    getRoutineByPosition: (state) => (position) => {
-        return find.byPosition(state.workoutProgramRoutines, position);
+    getWorkout: (state) => (cid) => {
+        return ClientSideId.findIn(state.workoutProgramRoutines, cid);
     },
-    getExercisesInRoutine: (state) => (position) => {
-        const routine = state.getRoutineByPosition(position);
-
-        return routine.routineExercises || [];
-    }
+    // getExercisesInRoutine: (state) => (position) => {
+    //     const routine = state.getRoutineByPosition(position);
+    //
+    //     return routine.routineExercises || [];
+    // }
 };
 
 const actions = {
@@ -38,6 +32,7 @@ const actions = {
             name: null,
             workoutProgramRoutines: [
                 {
+                    cid: ClientSideId.assign(),
                     name: null,
                     position: 0,
                 }
@@ -49,14 +44,16 @@ const actions = {
         commit('updateName', name);
     },
 
-    updateWorkoutName({ state, commit }, { position, name }) {
-        const routine = find.byPosition(state.workoutProgramRoutines, position);
+    updateWorkoutName({ state, commit }, { cid, name }) {
+        const workout = ClientSideId.findIn(state.workoutProgramRoutines, cid);
 
-        commit('updateWorkout', { routine, newState: { name }  });
+        commit('updateWorkout', { workout, newState: { name }  });
     },
 
-    deleteWorkout({ state, commit }, { position }) {
-        commit('deleteWorkout', position);
+    deleteWorkout({ state, commit }, { cid }) {
+        const workoutToDelete = ClientSideId.findIn(state.workoutProgramRoutines, cid);
+
+        commit('deleteWorkout', workoutToDelete.position);
     },
 
     addWorkoutToProgram({ state, commit }, workout) {
@@ -67,6 +64,8 @@ const actions = {
         if (!workout.position) {
             workout.position = state.workoutProgramRoutines.length;
         }
+
+        ClientSideId.assignTo(workout);
 
         commit('addWorkout', workout);
     },
@@ -89,9 +88,9 @@ const mutations = {
     updateName(state, name) {
         state.name = name;
     },
-    updateWorkout(state, { routine, newState }) {
+    updateWorkout(state, { workout, newState }) {
         Object.keys(newState).forEach(key => {
-            routine[key] = newState[key]
+            workout[key] = newState[key]
         })
     },
     deleteWorkout(state, position) {

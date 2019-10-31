@@ -2096,9 +2096,8 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony import */ var vuex__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! vuex */ "./node_modules/vuex/dist/vuex.esm.js");
-/* harmony import */ var _formFields_TitleInput__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../../formFields/TitleInput */ "./resources/js/components/formFields/TitleInput.vue");
-/* harmony import */ var _BootstrapCard__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../../BootstrapCard */ "./resources/js/components/BootstrapCard.vue");
+/* harmony import */ var _formFields_TitleInput__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../../formFields/TitleInput */ "./resources/js/components/formFields/TitleInput.vue");
+/* harmony import */ var _BootstrapCard__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../../BootstrapCard */ "./resources/js/components/BootstrapCard.vue");
 //
 //
 //
@@ -2120,37 +2119,36 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
-
 
 
 /* harmony default export */ __webpack_exports__["default"] = ({
   name: "RoutineCard",
   components: {
-    TitleInput: _formFields_TitleInput__WEBPACK_IMPORTED_MODULE_1__["default"],
-    BootstrapCard: _BootstrapCard__WEBPACK_IMPORTED_MODULE_2__["default"]
+    TitleInput: _formFields_TitleInput__WEBPACK_IMPORTED_MODULE_0__["default"],
+    BootstrapCard: _BootstrapCard__WEBPACK_IMPORTED_MODULE_1__["default"]
   },
   props: {
-    position: {
+    workoutCid: {
       type: Number,
       required: true
     }
   },
   methods: {
     getName: function getName() {
-      return this.getRoutineByPosition().name;
+      return this.getWorkout().name;
     },
-    getRoutineByPosition: function getRoutineByPosition() {
-      return this.$store.getters['programBuilder/getRoutineByPosition'](this.position);
+    getWorkout: function getWorkout() {
+      return this.$store.getters['programBuilder/getWorkout'](this.workoutCid);
     },
     updateRoutineName: function updateRoutineName(e) {
       this.$store.dispatch('programBuilder/updateWorkoutName', {
-        position: this.position,
+        cid: this.workoutCid,
         name: e.target.value
       });
     },
     deleteWorkout: function deleteWorkout() {
       this.$store.dispatch('programBuilder/deleteWorkout', {
-        position: this.position
+        cid: this.workoutCid
       });
     }
   }
@@ -22211,15 +22209,15 @@ var render = function() {
           "div",
           { staticClass: "row" },
           [
-            _vm._l(_vm.workoutProgramRoutines, function(routine, index) {
+            _vm._l(_vm.workoutProgramRoutines, function(routine) {
               return [
                 _c(
                   "div",
                   { staticClass: "col-sm-12 col-md-6 col-lg-4 col-xl-3" },
                   [
                     _c("routine-card", {
-                      key: index,
-                      attrs: { position: index }
+                      key: routine.cid,
+                      attrs: { workoutCid: routine.cid }
                     })
                   ],
                   1
@@ -38258,6 +38256,37 @@ module.exports = g;
 
 /***/ }),
 
+/***/ "./resources/js/ClientSideId/index.js":
+/*!********************************************!*\
+  !*** ./resources/js/ClientSideId/index.js ***!
+  \********************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+var cidCounter = 0;
+/* harmony default export */ __webpack_exports__["default"] = ({
+  assign: function assign() {
+    return cidCounter++;
+  },
+  assignTo: function assignTo(object) {
+    if (object.cid) {
+      return object;
+    }
+
+    object.cid = this.assign();
+    return object;
+  },
+  findIn: function findIn(array, cid) {
+    return array.find(function (object) {
+      return object.cid === cid;
+    });
+  }
+});
+
+/***/ }),
+
 /***/ "./resources/js/api/ApiService.js":
 /*!****************************************!*\
   !*** ./resources/js/api/ApiService.js ***!
@@ -39059,6 +39088,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @babel/runtime/regenerator */ "./node_modules/@babel/runtime/regenerator/index.js");
 /* harmony import */ var _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0__);
 /* harmony import */ var _api_WorkoutProgramService__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../../api/WorkoutProgramService */ "./resources/js/api/WorkoutProgramService.js");
+/* harmony import */ var _ClientSideId__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../../ClientSideId */ "./resources/js/ClientSideId/index.js");
 
 
 function asyncGeneratorStep(gen, resolve, reject, _next, _throw, key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { Promise.resolve(value).then(_next, _throw); } }
@@ -39066,36 +39096,28 @@ function asyncGeneratorStep(gen, resolve, reject, _next, _throw, key, arg) { try
 function _asyncToGenerator(fn) { return function () { var self = this, args = arguments; return new Promise(function (resolve, reject) { var gen = fn.apply(self, args); function _next(value) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "next", value); } function _throw(err) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "throw", err); } _next(undefined); }); }; }
 
 
-var find = {
-  byPosition: function byPosition(collection, position) {
-    return collection.find(function (routine) {
-      return routine.position === position;
-    });
-  }
-}; // initial state
+ // initial state
 
 var state = {
   id: null,
   name: '',
   workoutProgramRoutines: []
-}; //
-// "workoutProgramRoutines":[
+}; // "workoutProgramRoutines":[
 //     {"id":"0168c727-8fdf-40c9-ac62-d20c65be8b1b","name":"day one","normalDay":"Monday","workoutProgramId":"a9b640bc-04ae-476b-bfb6-e25746791b1d","routineExercises":
 //             [{"id":"56e5e6c1-84db-46ea-92fd-14b8023ef03d","name":"BB bench press","numberOfSets":3,"workoutProgramRoutineId":"0168c727-8fdf-40c9-ac62-d20c65be8b1b"}
 //             ]}
 
 var getters = {
-  getRoutineByPosition: function getRoutineByPosition(state) {
-    return function (position) {
-      return find.byPosition(state.workoutProgramRoutines, position);
+  getWorkout: function getWorkout(state) {
+    return function (cid) {
+      return _ClientSideId__WEBPACK_IMPORTED_MODULE_2__["default"].findIn(state.workoutProgramRoutines, cid);
     };
-  },
-  getExercisesInRoutine: function getExercisesInRoutine(state) {
-    return function (position) {
-      var routine = state.getRoutineByPosition(position);
-      return routine.routineExercises || [];
-    };
-  }
+  } // getExercisesInRoutine: (state) => (position) => {
+  //     const routine = state.getRoutineByPosition(position);
+  //
+  //     return routine.routineExercises || [];
+  // }
+
 };
 var actions = {
   startNew: function startNew(_ref) {
@@ -39105,6 +39127,7 @@ var actions = {
       id: null,
       name: null,
       workoutProgramRoutines: [{
+        cid: _ClientSideId__WEBPACK_IMPORTED_MODULE_2__["default"].assign(),
         name: null,
         position: 0
       }]
@@ -39118,11 +39141,11 @@ var actions = {
   updateWorkoutName: function updateWorkoutName(_ref3, _ref4) {
     var state = _ref3.state,
         commit = _ref3.commit;
-    var position = _ref4.position,
+    var cid = _ref4.cid,
         name = _ref4.name;
-    var routine = find.byPosition(state.workoutProgramRoutines, position);
+    var workout = _ClientSideId__WEBPACK_IMPORTED_MODULE_2__["default"].findIn(state.workoutProgramRoutines, cid);
     commit('updateWorkout', {
-      routine: routine,
+      workout: workout,
       newState: {
         name: name
       }
@@ -39131,8 +39154,9 @@ var actions = {
   deleteWorkout: function deleteWorkout(_ref5, _ref6) {
     var state = _ref5.state,
         commit = _ref5.commit;
-    var position = _ref6.position;
-    commit('deleteWorkout', position);
+    var cid = _ref6.cid;
+    var workoutToDelete = _ClientSideId__WEBPACK_IMPORTED_MODULE_2__["default"].findIn(state.workoutProgramRoutines, cid);
+    commit('deleteWorkout', workoutToDelete.position);
   },
   addWorkoutToProgram: function addWorkoutToProgram(_ref7, workout) {
     var state = _ref7.state,
@@ -39148,6 +39172,7 @@ var actions = {
       workout.position = state.workoutProgramRoutines.length;
     }
 
+    _ClientSideId__WEBPACK_IMPORTED_MODULE_2__["default"].assignTo(workout);
     commit('addWorkout', workout);
   },
   fetchById: function () {
@@ -39193,10 +39218,10 @@ var mutations = {
     state.name = name;
   },
   updateWorkout: function updateWorkout(state, _ref9) {
-    var routine = _ref9.routine,
+    var workout = _ref9.workout,
         newState = _ref9.newState;
     Object.keys(newState).forEach(function (key) {
-      routine[key] = newState[key];
+      workout[key] = newState[key];
     });
   },
   deleteWorkout: function deleteWorkout(state, position) {
