@@ -1,5 +1,5 @@
 <template>
-    <textarea class="title-input" v-model="value" @input="emitInput" v-bind:placeholder="placeholder"></textarea>
+    <textarea v-model="value" @input="emitInput" v-bind:placeholder="placeholder"></textarea>
 </template>
 
 <script>
@@ -53,7 +53,7 @@
 </script>
 
 <style scoped>
-    .title-input {
+    textarea {
         height: 36px;
         resize: none;
         font-size: 20px;
@@ -63,7 +63,7 @@
         text-align: center;
     }
 
-    .title-input:not(:focus) {
+    textarea:not(:focus) {
         border: none;
         background: none;
     }

@@ -1,7 +1,17 @@
 <template>
     <BootstrapCard>
         <template v-slot:header>
-            <title-input class="title-input" :placeholder="'Enter workout name'" :initial-value="getName()" @input="updateRoutineName"></title-input>
+            <div class="d-flex justify-content-center">
+                <title-input class="workout-name" :placeholder="'Enter workout name'" :initial-value="getName()" @input="updateRoutineName"></title-input>
+
+                <div class="dropdown">
+                    <button class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    </button>
+                    <div class="dropdown-menu dropdown-menu-right">
+                        <a class="dropdown-item" href="#">Delete</a>
+                    </div>
+                </div>
+            </div>
         </template>
 
         Things go here
@@ -38,7 +48,9 @@
 </script>
 
 <style scoped>
-    .title-input {
-        width: 100%;
+    .workout-name {
+        min-width: 90%;
+        max-width: 90%;
+        width: 90%;
     }
 </style>

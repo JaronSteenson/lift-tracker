@@ -52,8 +52,16 @@ const actions = {
 
         commit('updateRoutine', { routine, newState: { name }  });
     },
-    addWorkoutToProgram({ state, commit }, workout, position) {
-        commit('addWorkout', workout, position);
+    addWorkoutToProgram({ state, commit }, workout) {
+        if (!workout) {
+            workout = { name: null };
+        }
+
+        if (!workout.position) {
+            workout.position = state.workoutProgramRoutines.length;
+        }
+
+        commit('addWorkout', workout);
     },
     async fetchById({state, commit}, id) {
         const response = await WorkoutProgramService.get(id);
@@ -78,26 +86,20 @@ const mutations = {
             routine[key] = newState[key]
         })
     },
-    addWorkout(state, workout, position) {
-        if (!workout) {
-            workout = { name: 'New workout' };
-        }
-
-        workout.position = position;
-
+    addWorkout(state, workout) {
         if (state.workoutProgramRoutines.length === 0) {
             state.workoutProgramRoutines.push(workout);
             return;
         }
 
         // Bump the positions off all routines that come after the one we are adding.
-        state.workoutProgramRoutines.forEach(routine => {
-            if (routine.position >= position) {
-                routine.position++;
+        state.workoutProgramRoutines.forEach(existingWorkout => {
+            if (existingWorkout.position >= workout.position) {
+                existingWorkout.position++;
             }
         });
 
-        state.workoutProgramRoutines.splice(position, 0, workout);
+        state.workoutProgramRoutines.splice(workout.position, 0, workout);
     }
 };
 

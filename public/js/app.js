@@ -1745,7 +1745,12 @@ __webpack_require__.r(__webpack_exports__);
 //
 /* harmony default export */ __webpack_exports__["default"] = ({
   name: 'BootstrapCard',
-  props: ['title']
+  props: ['title'],
+  computed: {
+    hasHeader: function hasHeader() {
+      return Boolean(this.$slots.header || this.title);
+    }
+  }
 });
 
 /***/ }),
@@ -1975,6 +1980,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var vuex__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! vuex */ "./node_modules/vuex/dist/vuex.esm.js");
 /* harmony import */ var _formFields_TitleInput__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../../formFields/TitleInput */ "./resources/js/components/formFields/TitleInput.vue");
 /* harmony import */ var _RoutineCard__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./RoutineCard */ "./resources/js/components/domain/programBuilder/RoutineCard.vue");
+/* harmony import */ var _BootstrapCard__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./../../BootstrapCard */ "./resources/js/components/BootstrapCard.vue");
 
 
 function asyncGeneratorStep(gen, resolve, reject, _next, _throw, key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { Promise.resolve(value).then(_next, _throw); } }
@@ -2004,6 +2010,15 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+
 
 
 
@@ -2013,7 +2028,8 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
   components: {
     RoutineCard: _RoutineCard__WEBPACK_IMPORTED_MODULE_4__["default"],
     TitleInput: _formFields_TitleInput__WEBPACK_IMPORTED_MODULE_3__["default"],
-    LoadingSpinner: _LoadingSpinner__WEBPACK_IMPORTED_MODULE_1__["default"]
+    LoadingSpinner: _LoadingSpinner__WEBPACK_IMPORTED_MODULE_1__["default"],
+    BootstrapCard: _BootstrapCard__WEBPACK_IMPORTED_MODULE_5__["default"]
   },
   props: {
     workoutProgramId: {
@@ -2035,8 +2051,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
   computed: _objectSpread({}, Object(vuex__WEBPACK_IMPORTED_MODULE_2__["mapState"])('programBuilder', ['id', 'name', 'workoutProgramRoutines'])),
   methods: {
     addWorkoutToProgram: function addWorkoutToProgram() {
-      // this.$store.dispatch('programBuilder/addWorkoutToProgram', null, { root: true } );
-      this.$store.dispatch('programBuilder/addWorkoutToProgram');
+      this.$store.dispatch('programBuilder/addWorkoutToProgram'); // this.$store.dispatch('programBuilder/addWorkoutToProgram');
     },
     updateName: function updateName(e) {
       this.$store.dispatch('programBuilder/updateName', e.target.value);
@@ -2084,6 +2099,16 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var vuex__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! vuex */ "./node_modules/vuex/dist/vuex.esm.js");
 /* harmony import */ var _formFields_TitleInput__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../../formFields/TitleInput */ "./resources/js/components/formFields/TitleInput.vue");
 /* harmony import */ var _BootstrapCard__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../../BootstrapCard */ "./resources/js/components/BootstrapCard.vue");
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 //
 //
 //
@@ -6779,7 +6804,26 @@ exports = module.exports = __webpack_require__(/*! ../../../node_modules/css-loa
 
 
 // module
-exports.push([module.i, "\n.title-text[data-v-4ee67343] {\n    font-size: 16px;\n}\n", ""]);
+exports.push([module.i, "\n.card[data-v-4ee67343] {\n    margin-bottom: 30px;\n}\n.card-header[data-v-4ee67343] {\n    padding-top: 0;\n    padding-bottom: 0;\n}\n.title-text[data-v-4ee67343] {\n    font-size: 16px;\n}\n", ""]);
+
+// exports
+
+
+/***/ }),
+
+/***/ "./node_modules/css-loader/index.js?!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/postcss-loader/src/index.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/components/domain/programBuilder/ProgramBuilder.vue?vue&type=style&index=0&id=e5602422&scoped=true&lang=css&":
+/*!******************************************************************************************************************************************************************************************************************************************************************************************************************************!*\
+  !*** ./node_modules/css-loader??ref--6-1!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/postcss-loader/src??ref--6-2!./node_modules/vue-loader/lib??vue-loader-options!./resources/js/components/domain/programBuilder/ProgramBuilder.vue?vue&type=style&index=0&id=e5602422&scoped=true&lang=css& ***!
+  \******************************************************************************************************************************************************************************************************************************************************************************************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+exports = module.exports = __webpack_require__(/*! ../../../../../node_modules/css-loader/lib/css-base.js */ "./node_modules/css-loader/lib/css-base.js")(false);
+// imports
+
+
+// module
+exports.push([module.i, "\n.program-title[data-v-e5602422] {\n    height: 42px;\n    font-size: 24px;\n}\n.add-another[data-v-e5602422] {\n    opacity: 0.75;\n    cursor: pointer;\n    text-align: center;\n}\n", ""]);
 
 // exports
 
@@ -6798,7 +6842,7 @@ exports = module.exports = __webpack_require__(/*! ../../../../../node_modules/c
 
 
 // module
-exports.push([module.i, "\n.title-input[data-v-1212ffa8] {\n    width: 100%;\n}\n", ""]);
+exports.push([module.i, "\n.workout-name[data-v-1212ffa8] {\n    min-width: 90%;\n    max-width: 90%;\n    width: 90%;\n}\n", ""]);
 
 // exports
 
@@ -6817,7 +6861,7 @@ exports = module.exports = __webpack_require__(/*! ../../../../node_modules/css-
 
 
 // module
-exports.push([module.i, "\n.title-input[data-v-871e242e] {\n    height: 36px;\n    resize: none;\n    font-size: 20px;\n    min-width: 280px;\n    margin: 10px;\n    overflow-y: hidden;\n    text-align: center;\n}\n.title-input[data-v-871e242e]:not(:focus) {\n    border: none;\n    background: none;\n}\n", ""]);
+exports.push([module.i, "\ntextarea[data-v-871e242e] {\n    height: 36px;\n    resize: none;\n    font-size: 20px;\n    min-width: 280px;\n    margin: 10px;\n    overflow-y: hidden;\n    text-align: center;\n}\ntextarea[data-v-871e242e]:not(:focus) {\n    border: none;\n    background: none;\n}\n", ""]);
 
 // exports
 
@@ -21299,6 +21343,36 @@ if(false) {}
 
 /***/ }),
 
+/***/ "./node_modules/style-loader/index.js!./node_modules/css-loader/index.js?!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/postcss-loader/src/index.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/components/domain/programBuilder/ProgramBuilder.vue?vue&type=style&index=0&id=e5602422&scoped=true&lang=css&":
+/*!**********************************************************************************************************************************************************************************************************************************************************************************************************************************************************!*\
+  !*** ./node_modules/style-loader!./node_modules/css-loader??ref--6-1!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/postcss-loader/src??ref--6-2!./node_modules/vue-loader/lib??vue-loader-options!./resources/js/components/domain/programBuilder/ProgramBuilder.vue?vue&type=style&index=0&id=e5602422&scoped=true&lang=css& ***!
+  \**********************************************************************************************************************************************************************************************************************************************************************************************************************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+
+var content = __webpack_require__(/*! !../../../../../node_modules/css-loader??ref--6-1!../../../../../node_modules/vue-loader/lib/loaders/stylePostLoader.js!../../../../../node_modules/postcss-loader/src??ref--6-2!../../../../../node_modules/vue-loader/lib??vue-loader-options!./ProgramBuilder.vue?vue&type=style&index=0&id=e5602422&scoped=true&lang=css& */ "./node_modules/css-loader/index.js?!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/postcss-loader/src/index.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/components/domain/programBuilder/ProgramBuilder.vue?vue&type=style&index=0&id=e5602422&scoped=true&lang=css&");
+
+if(typeof content === 'string') content = [[module.i, content, '']];
+
+var transform;
+var insertInto;
+
+
+
+var options = {"hmr":true}
+
+options.transform = transform
+options.insertInto = undefined;
+
+var update = __webpack_require__(/*! ../../../../../node_modules/style-loader/lib/addStyles.js */ "./node_modules/style-loader/lib/addStyles.js")(content, options);
+
+if(content.locals) module.exports = content.locals;
+
+if(false) {}
+
+/***/ }),
+
 /***/ "./node_modules/style-loader/index.js!./node_modules/css-loader/index.js?!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/postcss-loader/src/index.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/components/domain/programBuilder/RoutineCard.vue?vue&type=style&index=0&id=1212ffa8&scoped=true&lang=css&":
 /*!*******************************************************************************************************************************************************************************************************************************************************************************************************************************************************!*\
   !*** ./node_modules/style-loader!./node_modules/css-loader??ref--6-1!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/postcss-loader/src??ref--6-2!./node_modules/vue-loader/lib??vue-loader-options!./resources/js/components/domain/programBuilder/RoutineCard.vue?vue&type=style&index=0&id=1212ffa8&scoped=true&lang=css& ***!
@@ -21959,18 +22033,20 @@ var render = function() {
   var _h = _vm.$createElement
   var _c = _vm._self._c || _h
   return _c("div", { staticClass: "card" }, [
-    _c(
-      "div",
-      { staticClass: "card-header d-flex justify-content-center" },
-      [
-        _vm.title
-          ? _c("span", { staticClass: "title-text" }, [
-              _vm._v(_vm._s(_vm.title))
-            ])
-          : _vm._t("header")
-      ],
-      2
-    ),
+    _vm.hasHeader
+      ? _c(
+          "div",
+          { staticClass: "card-header" },
+          [
+            _vm.title
+              ? _c("span", { staticClass: "title-text" }, [
+                  _vm._v(_vm._s(_vm.title))
+                ])
+              : _vm._t("header")
+          ],
+          2
+        )
+      : _vm._e(),
     _vm._v(" "),
     _c("div", { staticClass: "card-body" }, [_vm._t("default")], 2)
   ])
@@ -22125,25 +22201,53 @@ var render = function() {
             1
           ),
       _vm._v(" "),
-      _c(
-        "div",
-        { staticClass: "container" },
-        [
-          _vm._l(_vm.workoutProgramRoutines, function(routine, index) {
-            return [
-              _c(
-                "div",
-                { staticClass: "col-sm-4" },
-                [
-                  _c("routine-card", { key: index, attrs: { position: index } })
-                ],
-                1
-              )
-            ]
-          })
-        ],
-        2
-      )
+      _c("div", { staticClass: "container-fluid" }, [
+        _c(
+          "div",
+          { staticClass: "row" },
+          [
+            _vm._l(_vm.workoutProgramRoutines, function(routine, index) {
+              return [
+                _c(
+                  "div",
+                  { staticClass: "col-sm-6 col-md-4 col-lg-2" },
+                  [
+                    _c("routine-card", {
+                      key: index,
+                      attrs: { position: index }
+                    })
+                  ],
+                  1
+                )
+              ]
+            }),
+            _vm._v(" "),
+            _c(
+              "div",
+              { staticClass: "col-sm-6 col-md-2" },
+              [
+                _c(
+                  "bootstrap-card",
+                  {
+                    staticClass: "add-another",
+                    nativeOn: {
+                      click: function($event) {
+                        return _vm.addWorkoutToProgram($event)
+                      }
+                    }
+                  },
+                  [
+                    _c("i", { staticClass: "fa fa-plus" }),
+                    _vm._v(" Add another workout\n                ")
+                  ]
+                )
+              ],
+              1
+            )
+          ],
+          2
+        )
+      ])
     ],
     1
   )
@@ -22178,14 +22282,48 @@ var render = function() {
           key: "header",
           fn: function() {
             return [
-              _c("title-input", {
-                staticClass: "title-input",
-                attrs: {
-                  placeholder: "Enter workout name",
-                  "initial-value": _vm.getName()
-                },
-                on: { input: _vm.updateRoutineName }
-              })
+              _c(
+                "div",
+                { staticClass: "d-flex justify-content-center" },
+                [
+                  _c("title-input", {
+                    staticClass: "workout-name",
+                    attrs: {
+                      placeholder: "Enter workout name",
+                      "initial-value": _vm.getName()
+                    },
+                    on: { input: _vm.updateRoutineName }
+                  }),
+                  _vm._v(" "),
+                  _c("div", { staticClass: "dropdown" }, [
+                    _c("button", {
+                      staticClass: "btn btn-secondary dropdown-toggle",
+                      attrs: {
+                        type: "button",
+                        "data-toggle": "dropdown",
+                        "aria-haspopup": "true",
+                        "aria-expanded": "false"
+                      }
+                    }),
+                    _vm._v(" "),
+                    _c(
+                      "div",
+                      { staticClass: "dropdown-menu dropdown-menu-right" },
+                      [
+                        _c(
+                          "a",
+                          {
+                            staticClass: "dropdown-item",
+                            attrs: { href: "#" }
+                          },
+                          [_vm._v("Delete")]
+                        )
+                      ]
+                    )
+                  ])
+                ],
+                1
+              )
             ]
           },
           proxy: true
@@ -22226,7 +22364,6 @@ var render = function() {
         expression: "value"
       }
     ],
-    staticClass: "title-input",
     attrs: { placeholder: _vm.placeholder },
     domProps: { value: _vm.value },
     on: {
@@ -38489,7 +38626,9 @@ __webpack_require__.r(__webpack_exports__);
 __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _ProgramBuilder_vue_vue_type_template_id_e5602422_scoped_true___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./ProgramBuilder.vue?vue&type=template&id=e5602422&scoped=true& */ "./resources/js/components/domain/programBuilder/ProgramBuilder.vue?vue&type=template&id=e5602422&scoped=true&");
 /* harmony import */ var _ProgramBuilder_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./ProgramBuilder.vue?vue&type=script&lang=js& */ "./resources/js/components/domain/programBuilder/ProgramBuilder.vue?vue&type=script&lang=js&");
-/* empty/unused harmony star reexport *//* harmony import */ var _node_modules_vue_loader_lib_runtime_componentNormalizer_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../../../../../node_modules/vue-loader/lib/runtime/componentNormalizer.js */ "./node_modules/vue-loader/lib/runtime/componentNormalizer.js");
+/* empty/unused harmony star reexport *//* harmony import */ var _ProgramBuilder_vue_vue_type_style_index_0_id_e5602422_scoped_true_lang_css___WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./ProgramBuilder.vue?vue&type=style&index=0&id=e5602422&scoped=true&lang=css& */ "./resources/js/components/domain/programBuilder/ProgramBuilder.vue?vue&type=style&index=0&id=e5602422&scoped=true&lang=css&");
+/* harmony import */ var _node_modules_vue_loader_lib_runtime_componentNormalizer_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../../../../../node_modules/vue-loader/lib/runtime/componentNormalizer.js */ "./node_modules/vue-loader/lib/runtime/componentNormalizer.js");
+
 
 
 
@@ -38497,7 +38636,7 @@ __webpack_require__.r(__webpack_exports__);
 
 /* normalize component */
 
-var component = Object(_node_modules_vue_loader_lib_runtime_componentNormalizer_js__WEBPACK_IMPORTED_MODULE_2__["default"])(
+var component = Object(_node_modules_vue_loader_lib_runtime_componentNormalizer_js__WEBPACK_IMPORTED_MODULE_3__["default"])(
   _ProgramBuilder_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_1__["default"],
   _ProgramBuilder_vue_vue_type_template_id_e5602422_scoped_true___WEBPACK_IMPORTED_MODULE_0__["render"],
   _ProgramBuilder_vue_vue_type_template_id_e5602422_scoped_true___WEBPACK_IMPORTED_MODULE_0__["staticRenderFns"],
@@ -38526,6 +38665,22 @@ component.options.__file = "resources/js/components/domain/programBuilder/Progra
 __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _node_modules_babel_loader_lib_index_js_ref_4_0_node_modules_vue_loader_lib_index_js_vue_loader_options_ProgramBuilder_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../../../../../node_modules/babel-loader/lib??ref--4-0!../../../../../node_modules/vue-loader/lib??vue-loader-options!./ProgramBuilder.vue?vue&type=script&lang=js& */ "./node_modules/babel-loader/lib/index.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/components/domain/programBuilder/ProgramBuilder.vue?vue&type=script&lang=js&");
 /* empty/unused harmony star reexport */ /* harmony default export */ __webpack_exports__["default"] = (_node_modules_babel_loader_lib_index_js_ref_4_0_node_modules_vue_loader_lib_index_js_vue_loader_options_ProgramBuilder_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_0__["default"]); 
+
+/***/ }),
+
+/***/ "./resources/js/components/domain/programBuilder/ProgramBuilder.vue?vue&type=style&index=0&id=e5602422&scoped=true&lang=css&":
+/*!***********************************************************************************************************************************!*\
+  !*** ./resources/js/components/domain/programBuilder/ProgramBuilder.vue?vue&type=style&index=0&id=e5602422&scoped=true&lang=css& ***!
+  \***********************************************************************************************************************************/
+/*! no static exports found */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _node_modules_style_loader_index_js_node_modules_css_loader_index_js_ref_6_1_node_modules_vue_loader_lib_loaders_stylePostLoader_js_node_modules_postcss_loader_src_index_js_ref_6_2_node_modules_vue_loader_lib_index_js_vue_loader_options_ProgramBuilder_vue_vue_type_style_index_0_id_e5602422_scoped_true_lang_css___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../../../../../node_modules/style-loader!../../../../../node_modules/css-loader??ref--6-1!../../../../../node_modules/vue-loader/lib/loaders/stylePostLoader.js!../../../../../node_modules/postcss-loader/src??ref--6-2!../../../../../node_modules/vue-loader/lib??vue-loader-options!./ProgramBuilder.vue?vue&type=style&index=0&id=e5602422&scoped=true&lang=css& */ "./node_modules/style-loader/index.js!./node_modules/css-loader/index.js?!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/postcss-loader/src/index.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/components/domain/programBuilder/ProgramBuilder.vue?vue&type=style&index=0&id=e5602422&scoped=true&lang=css&");
+/* harmony import */ var _node_modules_style_loader_index_js_node_modules_css_loader_index_js_ref_6_1_node_modules_vue_loader_lib_loaders_stylePostLoader_js_node_modules_postcss_loader_src_index_js_ref_6_2_node_modules_vue_loader_lib_index_js_vue_loader_options_ProgramBuilder_vue_vue_type_style_index_0_id_e5602422_scoped_true_lang_css___WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_node_modules_style_loader_index_js_node_modules_css_loader_index_js_ref_6_1_node_modules_vue_loader_lib_loaders_stylePostLoader_js_node_modules_postcss_loader_src_index_js_ref_6_2_node_modules_vue_loader_lib_index_js_vue_loader_options_ProgramBuilder_vue_vue_type_style_index_0_id_e5602422_scoped_true_lang_css___WEBPACK_IMPORTED_MODULE_0__);
+/* harmony reexport (unknown) */ for(var __WEBPACK_IMPORT_KEY__ in _node_modules_style_loader_index_js_node_modules_css_loader_index_js_ref_6_1_node_modules_vue_loader_lib_loaders_stylePostLoader_js_node_modules_postcss_loader_src_index_js_ref_6_2_node_modules_vue_loader_lib_index_js_vue_loader_options_ProgramBuilder_vue_vue_type_style_index_0_id_e5602422_scoped_true_lang_css___WEBPACK_IMPORTED_MODULE_0__) if(__WEBPACK_IMPORT_KEY__ !== 'default') (function(key) { __webpack_require__.d(__webpack_exports__, key, function() { return _node_modules_style_loader_index_js_node_modules_css_loader_index_js_ref_6_1_node_modules_vue_loader_lib_loaders_stylePostLoader_js_node_modules_postcss_loader_src_index_js_ref_6_2_node_modules_vue_loader_lib_index_js_vue_loader_options_ProgramBuilder_vue_vue_type_style_index_0_id_e5602422_scoped_true_lang_css___WEBPACK_IMPORTED_MODULE_0__[key]; }) }(__WEBPACK_IMPORT_KEY__));
+ /* harmony default export */ __webpack_exports__["default"] = (_node_modules_style_loader_index_js_node_modules_css_loader_index_js_ref_6_1_node_modules_vue_loader_lib_loaders_stylePostLoader_js_node_modules_postcss_loader_src_index_js_ref_6_2_node_modules_vue_loader_lib_index_js_vue_loader_options_ProgramBuilder_vue_vue_type_style_index_0_id_e5602422_scoped_true_lang_css___WEBPACK_IMPORTED_MODULE_0___default.a); 
 
 /***/ }),
 
@@ -38967,10 +39122,21 @@ var actions = {
       }
     });
   },
-  addWorkoutToProgram: function addWorkoutToProgram(_ref5, workout, position) {
+  addWorkoutToProgram: function addWorkoutToProgram(_ref5, workout) {
     var state = _ref5.state,
         commit = _ref5.commit;
-    commit('addWorkout', workout, position);
+
+    if (!workout) {
+      workout = {
+        name: null
+      };
+    }
+
+    if (!workout.position) {
+      workout.position = state.workoutProgramRoutines.length;
+    }
+
+    commit('addWorkout', workout);
   },
   fetchById: function () {
     var _fetchById = _asyncToGenerator(
@@ -39021,27 +39187,19 @@ var mutations = {
       routine[key] = newState[key];
     });
   },
-  addWorkout: function addWorkout(state, workout, position) {
-    if (!workout) {
-      workout = {
-        name: 'New workout'
-      };
-    }
-
-    workout.position = position;
-
+  addWorkout: function addWorkout(state, workout) {
     if (state.workoutProgramRoutines.length === 0) {
       state.workoutProgramRoutines.push(workout);
       return;
     } // Bump the positions off all routines that come after the one we are adding.
 
 
-    state.workoutProgramRoutines.forEach(function (routine) {
-      if (routine.position >= position) {
-        routine.position++;
+    state.workoutProgramRoutines.forEach(function (existingWorkout) {
+      if (existingWorkout.position >= workout.position) {
+        existingWorkout.position++;
       }
     });
-    state.workoutProgramRoutines.splice(position, 0, workout);
+    state.workoutProgramRoutines.splice(workout.position, 0, workout);
   }
 };
 /* harmony default export */ __webpack_exports__["default"] = ({

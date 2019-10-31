@@ -5,12 +5,20 @@
             <title-input class="program-title col-xs-12 col-md-8 col-lg-4" :placeholder="'Enter program name'" :initial-value="name" @input="updateName"></title-input>
         </div>
 
-        <div class="container">
-            <template v-for="(routine, index) in workoutProgramRoutines">
-                <div class="col-sm-4">
-                    <routine-card :key="index" :position="index"></routine-card>
+        <div class="container-fluid">
+            <div class="row">
+                <template v-for="(routine, index) in workoutProgramRoutines">
+                    <div class="col-sm-6 col-md-4 col-lg-2">
+                        <routine-card :key="index" :position="index"></routine-card>
+                    </div>
+                </template>
+
+                <div class="col-sm-6 col-md-2">
+                    <bootstrap-card class="add-another" @click.native="addWorkoutToProgram">
+                        <i class="fa fa-plus"></i> Add another workout
+                    </bootstrap-card>
                 </div>
-            </template>
+            </div>
         </div>
     </div>
 </template>
@@ -20,10 +28,11 @@
     import { mapState } from 'vuex';
     import TitleInput from "../../formFields/TitleInput";
     import RoutineCard from "./RoutineCard";
+    import BootstrapCard from "./../../BootstrapCard";
 
     export default {
         name: 'ProgramBuilder',
-        components: { RoutineCard, TitleInput, LoadingSpinner },
+        components: { RoutineCard, TitleInput, LoadingSpinner, BootstrapCard },
         props: {
             workoutProgramId: {
                 type: String,
@@ -47,8 +56,8 @@
         },
         methods: {
             addWorkoutToProgram() {
-                // this.$store.dispatch('programBuilder/addWorkoutToProgram', null, { root: true } );
                 this.$store.dispatch('programBuilder/addWorkoutToProgram');
+                // this.$store.dispatch('programBuilder/addWorkoutToProgram');
             },
 
             updateName(e) {
@@ -65,4 +74,13 @@
 </script>
 
 <style scoped>
+    .program-title {
+        height: 42px;
+        font-size: 24px;
+    }
+    .add-another {
+        opacity: 0.75;
+        cursor: pointer;
+        text-align: center;
+    }
 </style>
