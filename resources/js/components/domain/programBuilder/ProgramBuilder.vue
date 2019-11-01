@@ -15,7 +15,7 @@
 
                 <div class="col-sm-12 col-md-6 col-lg-4 col-xl-3">
                     <bootstrap-card class="add-another" @click.native="addWorkoutToProgram">
-                        <i class="fa fa-plus"></i> Add another workout
+                        <add-button>Add workout</add-button>
                     </bootstrap-card>
                 </div>
             </div>
@@ -25,14 +25,15 @@
 
 <script>
     import LoadingSpinner from "../../LoadingSpinner";
-    import { mapState } from 'vuex';
+    import {mapState} from 'vuex';
     import TitleInput from "../../formFields/TitleInput";
     import RoutineCard from "./RoutineCard";
     import BootstrapCard from "./../../BootstrapCard";
+    import AddButton from "./../../formFields/AddButton";
 
     export default {
         name: 'ProgramBuilder',
-        components: { RoutineCard, TitleInput, LoadingSpinner, BootstrapCard },
+        components: {AddButton, RoutineCard, TitleInput, LoadingSpinner, BootstrapCard },
         props: {
             workoutProgramId: {
                 type: String,
@@ -79,8 +80,6 @@
         font-size: 24px;
     }
     .add-another {
-        opacity: 0.75;
-        cursor: pointer;
         text-align: center;
     }
 </style>

@@ -17,6 +17,10 @@ export default {
         return object;
     },
 
+    assignToAll(array) {
+        array.forEach(object => this.assignTo(object))
+    },
+
     findIn(array, cid) {
         return array.find(object => object.cid === cid);
     },

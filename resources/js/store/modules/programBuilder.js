@@ -18,11 +18,6 @@ const getters = {
     getWorkout: (state) => (cid) => {
         return ClientSideId.findIn(state.workoutProgramRoutines, cid);
     },
-    // getExercisesInRoutine: (state) => (position) => {
-    //     const routine = state.getRoutineByPosition(position);
-    //
-    //     return routine.routineExercises || [];
-    // }
 };
 
 const actions = {
@@ -35,6 +30,7 @@ const actions = {
                     cid: ClientSideId.assign(),
                     name: null,
                     position: 0,
+                    routineExercises: [],
                 }
             ],
         });
@@ -63,6 +59,10 @@ const actions = {
 
         if (!workout.position) {
             workout.position = state.workoutProgramRoutines.length;
+        }
+
+        if (!workout.routineExercises) {
+            workout.routineExercises = [];
         }
 
         ClientSideId.assignTo(workout);

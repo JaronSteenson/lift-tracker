@@ -14,7 +14,13 @@
             </div>
         </template>
 
-        Things go here
+        <template v-if="hasExercises()">
+            <routine-card v-for="(exercise) in getExercises()" :key="exercise.cid" :workoutCid="exercise.cid"></routine-card>
+            <hr>
+            <add-button @click="addExercise">Add exercise</add-button>
+        </template>
+        <add-button @click="addExercise" v-else>Add exercise</add-button>
+
 
     </BootstrapCard>
 </template>
@@ -22,10 +28,11 @@
 <script>
     import TitleInput from "../../formFields/TitleInput";
     import BootstrapCard from "../../BootstrapCard";
+    import AddButton from "./../../formFields/AddButton";
 
     export default {
         name: "RoutineCard",
-        components: { TitleInput, BootstrapCard },
+        components: { TitleInput, BootstrapCard, AddButton },
         props: {
             workoutCid: {
                 type: Number,
@@ -35,6 +42,15 @@
         methods: {
             getName() {
               return this.getWorkout().name;
+            },
+            hasExercises() {
+                return this.getWorkout().routineExercises.length > 0;
+            },
+            getExercises() {
+                return this.getWorkout().routineExercises;
+            },
+            addExercise() {
+                
             },
             getWorkout() {
                 return this.$store.getters['programBuilder/getWorkout'](this.workoutCid);
