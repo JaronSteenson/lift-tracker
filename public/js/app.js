@@ -2054,7 +2054,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
   computed: _objectSpread({}, Object(vuex__WEBPACK_IMPORTED_MODULE_2__["mapState"])('programBuilder', ['id', 'name', 'workoutProgramRoutines'])),
   methods: {
     addWorkoutToProgram: function addWorkoutToProgram() {
-      this.$store.dispatch('programBuilder/addWorkoutToProgram'); // this.$store.dispatch('programBuilder/addWorkoutToProgram');
+      this.$store.dispatch('programBuilder/addWorkoutToProgram');
     },
     updateName: function updateName(e) {
       this.$store.dispatch('programBuilder/updateName', e.target.value);
@@ -2129,6 +2129,9 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
 
 
 
@@ -2155,7 +2158,11 @@ __webpack_require__.r(__webpack_exports__);
     getExercises: function getExercises() {
       return this.getWorkout().routineExercises;
     },
-    addExercise: function addExercise() {},
+    addExercise: function addExercise() {
+      this.$store.dispatch('programBuilder/addExerciseToWorkout', {
+        workoutCid: this.workoutCid
+      });
+    },
     getWorkout: function getWorkout() {
       return this.$store.getters['programBuilder/getWorkout'](this.workoutCid);
     },
@@ -6884,7 +6891,7 @@ exports = module.exports = __webpack_require__(/*! ../../../../../node_modules/c
 
 
 // module
-exports.push([module.i, "\n.workout-name[data-v-1212ffa8] {\n    /* 40px for some space for the drop down menu button. */\n    min-width: calc(90% - 40px);\n    max-width: calc(90% - 40px);\n    width: calc(90% - 40px);\n    margin-right: 40px;\n}\n.dropdown[data-v-1212ffa8] {\n    position: absolute;\n    right: 0;\n    top: 0;\n}\n", ""]);
+exports.push([module.i, "\n.workout-name[data-v-1212ffa8] {\n    /* 40px for some space for the drop down menu button. */\n    min-width: calc(90% - 40px);\n    max-width: calc(90% - 40px);\n    width: calc(90% - 40px);\n    margin-right: 40px;\n}\n.dropdown[data-v-1212ffa8] {\n    position: absolute;\n    right: 0;\n    top: 0;\n}\n.exercise-name[data-v-1212ffa8], .exercise-sets[data-v-1212ffa8], .sets-cross[data-v-1212ffa8]  {\n    font-size: 16px;\n    height: 20px;\n    text-align: left;\n}\n.exercise-name[data-v-1212ffa8] {\n    min-width: 40%;\n    max-width: 40%;\n    width: 40%;\n}\n.sets-cross[data-v-1212ffa8] {\n    min-width: 10%;\n    max-width: 10%;\n    width: 10%;\n}\n.exercise-sets[data-v-1212ffa8] {\n    min-width: 3ch;\n    max-width: 3ch;\n    width: 3ch;\n}\n.exercise-sets[data-v-1212ffa8] {\n    margin-right: 0;\n}\n.sets-cross[data-v-1212ffa8] {\n    margin-left: 0;\n}\n.input-label[data-v-1212ffa8] {\n    margin: 10px;\n}\n", ""]);
 
 // exports
 
@@ -22422,24 +22429,63 @@ var render = function() {
     },
     [
       _vm._v(" "),
-      _vm.hasExercises()
-        ? [
-            _vm._l(_vm.getExercises(), function(exercise) {
-              return _c("routine-card", {
+      _vm._l(_vm.getExercises(), function(exercise) {
+        return [
+          _c(
+            "bootstrap-card",
+            [
+              _c("title-input", {
                 key: exercise.cid,
-                attrs: { workoutCid: exercise.cid }
+                staticClass: "exercise-name",
+                attrs: {
+                  placeholder: "Enter exercise name",
+                  "initial-value": exercise.name
+                },
+                on: {
+                  input: function($event) {
+                    return _vm.updateExerciseName(exercise.cid)
+                  }
+                }
+              }),
+              _vm._v(" "),
+              _c("br"),
+              _vm._v(" "),
+              _c("title-input", {
+                key: exercise.cid,
+                staticClass: "exercise-sets",
+                attrs: {
+                  placeholder: "0",
+                  "initial-value": exercise.numberOfSets
+                },
+                on: {
+                  input: function($event) {
+                    return _vm.updateExerciseName(exercise.cid)
+                  }
+                }
+              }),
+              _vm._v(" "),
+              _c("title-input", {
+                key: exercise.cid,
+                staticClass: "sets-cross",
+                attrs: { disabled: "", "initial-value": " sets" }
               })
-            }),
-            _vm._v(" "),
-            _c("hr"),
-            _vm._v(" "),
-            _c("add-button", { on: { click: _vm.addExercise } }, [
-              _vm._v("Add exercise")
-            ])
-          ]
-        : _c("add-button", { on: { click: _vm.addExercise } }, [
-            _vm._v("Add exercise")
-          ])
+            ],
+            1
+          )
+        ]
+      }),
+      _vm._v(" "),
+      _c(
+        "add-button",
+        {
+          nativeOn: {
+            click: function($event) {
+              return _vm.addExercise($event)
+            }
+          }
+        },
+        [_vm._v("Add exercise")]
+      )
     ],
     2
   )
@@ -39404,16 +39450,24 @@ var actions = {
     _ClientSideId__WEBPACK_IMPORTED_MODULE_2__["default"].assignTo(workout);
     commit('addWorkout', workout);
   },
+  addExerciseToWorkout: function addExerciseToWorkout(_ref8, _ref9) {
+    var state = _ref8.state,
+        commit = _ref8.commit;
+    var workoutCid = _ref9.workoutCid;
+    commit('addExerciseToWorkout', {
+      workoutCid: workoutCid
+    });
+  },
   fetchById: function () {
     var _fetchById = _asyncToGenerator(
     /*#__PURE__*/
-    _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.mark(function _callee(_ref8, id) {
+    _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.mark(function _callee(_ref10, id) {
       var state, commit, response;
       return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.wrap(function _callee$(_context) {
         while (1) {
           switch (_context.prev = _context.next) {
             case 0:
-              state = _ref8.state, commit = _ref8.commit;
+              state = _ref10.state, commit = _ref10.commit;
               _context.next = 3;
               return _api_WorkoutProgramService__WEBPACK_IMPORTED_MODULE_1__["default"].get(id);
 
@@ -39446,11 +39500,20 @@ var mutations = {
   updateName: function updateName(state, name) {
     state.name = name;
   },
-  updateWorkout: function updateWorkout(state, _ref9) {
-    var workout = _ref9.workout,
-        newState = _ref9.newState;
+  updateWorkout: function updateWorkout(state, _ref11) {
+    var workout = _ref11.workout,
+        newState = _ref11.newState;
     Object.keys(newState).forEach(function (key) {
       workout[key] = newState[key];
+    });
+  },
+  addExerciseToWorkout: function addExerciseToWorkout(state, _ref12) {
+    var workoutCid = _ref12.workoutCid;
+    var workout = _ClientSideId__WEBPACK_IMPORTED_MODULE_2__["default"].findIn(state.workoutProgramRoutines, workoutCid);
+    workout.routineExercises.push({
+      cid: _ClientSideId__WEBPACK_IMPORTED_MODULE_2__["default"].assign(),
+      name: null,
+      numberOfSets: null
     });
   },
   deleteWorkout: function deleteWorkout(state, position) {

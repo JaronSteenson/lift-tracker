@@ -58,7 +58,6 @@
         methods: {
             addWorkoutToProgram() {
                 this.$store.dispatch('programBuilder/addWorkoutToProgram');
-                // this.$store.dispatch('programBuilder/addWorkoutToProgram');
             },
 
             updateName(e) {

@@ -70,6 +70,10 @@ const actions = {
         commit('addWorkout', workout);
     },
 
+    addExerciseToWorkout({ state, commit }, { workoutCid }) {
+        commit('addExerciseToWorkout', { workoutCid })
+    },
+
     async fetchById({state, commit}, id) {
         const response = await WorkoutProgramService.get(id);
 
@@ -85,14 +89,27 @@ const mutations = {
             state[key] = newState[key]
         })
     },
+
     updateName(state, name) {
         state.name = name;
     },
+
     updateWorkout(state, { workout, newState }) {
         Object.keys(newState).forEach(key => {
             workout[key] = newState[key]
         })
     },
+
+    addExerciseToWorkout(state, { workoutCid }) {
+        const workout = ClientSideId.findIn(state.workoutProgramRoutines, workoutCid);
+
+        workout.routineExercises.push({
+            cid: ClientSideId.assign(),
+            name: null,
+            numberOfSets: null,
+        })
+    },
+
     deleteWorkout(state, position) {
         state.workoutProgramRoutines.splice(position, 1);
 
@@ -102,6 +119,7 @@ const mutations = {
             }
         });
     },
+
     addWorkout(state, workout) {
         if (state.workoutProgramRoutines.length === 0) {
             state.workoutProgramRoutines.push(workout);
