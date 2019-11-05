@@ -8,15 +8,25 @@ const state = {
     workoutProgramRoutines: [],
 };
 
-
-// "workoutProgramRoutines":[
-//     {"id":"0168c727-8fdf-40c9-ac62-d20c65be8b1b","name":"day one","normalDay":"Monday","workoutProgramId":"a9b640bc-04ae-476b-bfb6-e25746791b1d","routineExercises":
-//             [{"id":"56e5e6c1-84db-46ea-92fd-14b8023ef03d","name":"BB bench press","numberOfSets":3,"workoutProgramRoutineId":"0168c727-8fdf-40c9-ac62-d20c65be8b1b"}
-//             ]}
-
 const getters = {
+
     getWorkout: (state) => (cid) => {
         return ClientSideId.findIn(state.workoutProgramRoutines, cid);
+    },
+
+    getExercise: (state) => (cid) => {
+        let exercise = null;
+
+        state.workoutProgramRoutines.some(function (workout) {
+            let found =  ClientSideId.findIn(workout.routineExercises, cid);
+
+            if (found) {
+                exercise = found;
+                return true; // Early exit.
+            }
+        });
+
+        return exercise;
     },
 };
 
@@ -74,6 +84,16 @@ const actions = {
         commit('addExerciseToWorkout', { workoutCid })
     },
 
+    removeExercise({ state, commit }, { exerciseCid }) {
+        commit('removeExercise', { exerciseCid })
+    },
+
+    updateExercise({ state, commit, getters }, { exerciseCid, ...newState }) {
+        const exercise = getters.getExercise(exerciseCid);
+
+        commit('updateExercise', { exercise, newState });
+    },
+
     async fetchById({state, commit}, id) {
         const response = await WorkoutProgramService.get(id);
 
@@ -100,6 +120,12 @@ const mutations = {
         })
     },
 
+    updateExercise(state, { exercise, newState }) {
+        Object.keys(newState).forEach(key => {
+            exercise[key] = newState[key]
+        })
+    },
+
     addExerciseToWorkout(state, { workoutCid }) {
         const workout = ClientSideId.findIn(state.workoutProgramRoutines, workoutCid);
 
@@ -108,6 +134,13 @@ const mutations = {
             name: null,
             numberOfSets: null,
         })
+    },
+
+    removeExercise(state, { exerciseCid }) {
+        // Use some to early exit if the exercise was found and removed.
+        state.workoutProgramRoutines.some(function (workout) {
+            return ClientSideId.removeFrom(workout.routineExercises, exerciseCid);
+        });
     },
 
     deleteWorkout(state, position) {

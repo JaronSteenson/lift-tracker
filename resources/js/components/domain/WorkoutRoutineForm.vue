@@ -11,7 +11,7 @@
                 <div class="col-md-6">
                     <div v-bind:class="{ 'is-invalid': false }"></div>
                     <input v-bind:id="nameInputId" type="text" class="form-control"
-                           name="name" required v-model="workoutRoutine.name">
+                           name="name" required v-model.lazy="workoutRoutine.name">
 
                     <span v-if="false" class="invalid-feedback" role="alert">
                                         <strong></strong>
@@ -27,13 +27,13 @@
                 <label v-bind:for="typicalDayInputId"
                        class="col-md-4 col-form-label text-md-right">Typical day</label>
                 <div class="col-md-6">
-                    <WeekDaySelect v-model="workoutRoutine.normalDay" :initial-selection="workoutRoutine.normalDay" :select-id="typicalDayInputId"/>
+                    <WeekDaySelect v-model.lazy="workoutRoutine.normalDay" :initial-selection="workoutRoutine.normalDay" :select-id="typicalDayInputId"/>
                 </div>
             </div>
 
         </div>
 
-        <TypicalExercisesSection v-model="workoutRoutine.exercises"/>
+        <TypicalExercisesSection v-model.lazy="workoutRoutine.exercises"/>
 
         <hr class="form-section-divider">
 

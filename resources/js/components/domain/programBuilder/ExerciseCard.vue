@@ -1,0 +1,101 @@
+<template>
+    <BootstrapCard class="exercise-card">
+        <button class="btn btn-outline-danger remove-cross" @click="removeExercise" type="button">
+            <i class="fa fa-times"></i>
+        </button>
+
+        <TitleInput class="exercise-name" :placeholder="'Enter exercise name'" :initial-value="getExercise().name"
+                     @input="updateExerciseName"></TitleInput>
+        <br/>
+        <TitleInput class="exercise-sets" :placeholder="'0'" :initial-value="getExercise().numberOfSets"
+                     @input="updateExerciseSets"></TitleInput>
+        <TitleInput disabled class="sets-cross" :initial-value="' sets'"></TitleInput>
+    </BootstrapCard>
+</template>
+<script>
+    import BootstrapCard from "../../BootstrapCard"
+    import TitleInput from "../../formFields/TitleInput"
+
+    export default {
+        name: 'ExerciseCard',
+        components: { BootstrapCard, TitleInput },
+        props: {
+            exerciseCid: {
+                type: Number,
+                required: true,
+            }
+        },
+        methods: {
+            getExercise() {
+                return this.$store.getters['programBuilder/getExercise'](this.exerciseCid);
+            },
+            removeExercise() {
+                return this.$store.dispatch('programBuilder/removeExercise', { exerciseCid: this.exerciseCid });
+            },
+            updateExerciseName(e) {
+                return this.$store.dispatch('programBuilder/updateExercise', { exerciseCid: this.exerciseCid, name: e.target.value });
+            },
+            updateExerciseSets(e) {
+                let numberOfSets = Number.parseInt(e.target.value);
+
+                if (Number.isNaN(numberOfSets)) {
+                    numberOfSets = null;
+                }
+
+                return this.$store.dispatch('programBuilder/updateExercise', { exerciseCid: this.exerciseCid, numberOfSets });
+            },
+        }
+    }
+</script>
+<style scoped>
+    .exercise-card {
+        margin-bottom: 8px;
+    }
+
+    .exercise-name, .exercise-sets, .sets-cross {
+        font-size: 16px;
+        height: 20px;
+        text-align: left;
+    }
+
+    .exercise-name {
+        min-width: 80%;
+        max-width: 80%;
+        width: 80%;
+    }
+
+    .sets-cross {
+        min-width: 10%;
+        max-width: 10%;
+        width: 10%;
+    }
+
+    .exercise-sets {
+        min-width: 3ch;
+        max-width: 3ch;
+        width: 3ch;
+    }
+
+    .exercise-sets {
+        margin-right: 0;
+    }
+
+    .sets-cross {
+        margin-left: 0;
+    }
+
+    .remove-cross {
+        position: absolute;
+        right: 0;
+        top: 0;
+
+        color: rgb(255, 127, 127);
+        border-color: transparent;
+        background-color: transparent;
+    }
+
+    .remove-cross:hover {
+        color: red;
+    }
+
+</style>

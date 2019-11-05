@@ -30,6 +30,9 @@
     .card-header {
         padding: 0;
     }
+    .card-body {
+        padding: 10px;
+    }
     .title-text {
         font-size: 16px;
     }

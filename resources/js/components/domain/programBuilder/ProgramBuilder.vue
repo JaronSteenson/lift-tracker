@@ -1,22 +1,22 @@
 <template>
     <div>
-        <loading-spinner v-if="loading"></loading-spinner>
+        <LoadingSpinner v-if="loading"></LoadingSpinner>
         <div v-else class="d-flex justify-content-center">
-            <title-input class="program-title col-xs-12 col-md-8 col-lg-4" :placeholder="'Enter program name'" :initial-value="name" @input="updateName"></title-input>
+            <TitleInput class="program-title col-xs-12 col-md-8 col-lg-4" :placeholder="'Enter program name'" :initial-value="name" @input="updateName"></TitleInput>
         </div>
 
         <div class="container-fluid">
             <div class="row">
                 <template v-for="(routine) in workoutProgramRoutines">
                     <div class="col-sm-12 col-md-6 col-lg-4 col-xl-3">
-                        <routine-card :key="routine.cid" :workoutCid="routine.cid"></routine-card>
+                        <RoutineCard :key="routine.cid" :workoutCid="routine.cid"></RoutineCard>
                     </div>
                 </template>
 
                 <div class="col-sm-12 col-md-6 col-lg-4 col-xl-3">
-                    <bootstrap-card class="add-another" @click.native="addWorkoutToProgram">
-                        <add-button>Add workout</add-button>
-                    </bootstrap-card>
+                    <BootstrapCard class="add-another" @click.native="addWorkoutToProgram">
+                        <AddButton>Add workout</AddButton>
+                    </BootstrapCard>
                 </div>
             </div>
         </div>

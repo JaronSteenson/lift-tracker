@@ -1,13 +1,12 @@
 <template>
-    <textarea v-model="value" @input="emitInput" v-bind:placeholder="placeholder"></textarea>
+    <textarea @change="emitInput" v-bind:placeholder="placeholder"></textarea>
 </template>
 
 <script>
     export default {
-        name: "TitleInput",
+        name: 'TitleInput',
         props: {
             initialValue: {
-                type: String,
                 required: false,
             },
             placeholder: {

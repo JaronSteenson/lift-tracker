@@ -7,7 +7,7 @@
 
             <div class="col-md-6">
                 <div v-bind:class="{ 'is-invalid': false }"></div>
-                <input id="edit-workout-program-name" type="text" v-model="name"
+                <input id="edit-workout-program-name" type="text" v-model.lazy="name"
                        class="form-control" name="name" required>
 
                 <span v-if="false" class="invalid-feedback" role="alert">
@@ -23,7 +23,7 @@
             <div class="col-md-6">
                 <div v-bind:class="{ 'is-invalid': false}"></div>
                 <input id="workouts-per-cycle" type="number" min="1" step="1" class="form-control"
-                       name="name" required v-model="workoutsPerCycle">
+                       name="name" required v-model.lazy="workoutsPerCycle">
 
                 <span v-if="false" class="invalid-feedback" role="alert">
                                     <strong></strong>

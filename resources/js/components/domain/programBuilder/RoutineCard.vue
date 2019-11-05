@@ -15,14 +15,9 @@
         </template>
 
         <template v-for="(exercise) in getExercises()">
-            <bootstrap-card>
-                <title-input :key="exercise.cid" class="exercise-name" :placeholder="'Enter exercise name'" :initial-value="exercise.name" @input="updateExerciseName(exercise.cid)"></title-input>
-                <br />
-                <title-input :key="exercise.cid" class="exercise-sets" :placeholder="'0'" :initial-value="exercise.numberOfSets" @input="updateExerciseName(exercise.cid)"></title-input>
-                <title-input disabled :key="exercise.cid" class="sets-cross" :initial-value="' sets'"></title-input>
-            </bootstrap-card>
+            <ExerciseCard :key="exercise.cid" :exercise-cid="exercise.cid"/>
         </template>
-        <add-button @click.native="addExercise">Add exercise</add-button>
+        <AddButton @click.native="addExercise">Add exercise</AddButton>
 
 
     </BootstrapCard>
@@ -32,10 +27,11 @@
     import TitleInput from "../../formFields/TitleInput";
     import BootstrapCard from "../../BootstrapCard";
     import AddButton from "./../../formFields/AddButton";
+    import ExerciseCard from "./ExerciseCard";
 
     export default {
         name: "RoutineCard",
-        components: { TitleInput, BootstrapCard, AddButton },
+        components: {ExerciseCard, TitleInput, BootstrapCard, AddButton },
         props: {
             workoutCid: {
                 type: Number,
@@ -89,40 +85,4 @@
         top: 0;
     }
 
-    .exercise-name, .exercise-sets, .sets-cross  {
-        font-size: 16px;
-        height: 20px;
-        text-align: left;
-    }
-
-    .exercise-name {
-        min-width: 40%;
-        max-width: 40%;
-        width: 40%;
-    }
-
-    .sets-cross {
-        min-width: 10%;
-        max-width: 10%;
-        width: 10%;
-    }
-
-    .exercise-sets {
-        min-width: 3ch;
-        max-width: 3ch;
-        width: 3ch;
-    }
-
-
-    .exercise-sets {
-        margin-right: 0;
-    }
-
-    .sets-cross {
-        margin-left: 0;
-    }
-
-    .input-label {
-        margin: 10px;
-    }
 </style>
