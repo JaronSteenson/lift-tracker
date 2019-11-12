@@ -2,7 +2,7 @@
     <BootstrapCard>
         <template v-slot:header>
             <div class="d-flex justify-content-center">
-                <title-input class="workout-name" :placeholder="'Enter workout name'" :initial-value="workout.name" @input="updateRoutineName"></title-input>
+                <TitleInput class="workout-name" :placeholder="'Enter workout name'" v-model="name"></TitleInput>
 
                 <div class="dropdown">
                     <button class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
@@ -43,7 +43,15 @@
                 get() {
                     return this.$store.getters['programBuilder/getWorkout'](this.workoutCid);
                 }
-            }
+            },
+            name: {
+                get() {
+                    return this.workout.name || '';
+                },
+                set(name) {
+                    this.$store.dispatch('programBuilder/updateWorkoutName', { cid: this.workoutCid, name });
+                }
+            },
         },
         methods: {
             hasExercises() {
@@ -56,10 +64,6 @@
 
             addExercise() {
                 this.$store.dispatch('programBuilder/addExerciseToWorkout', { workoutCid: this.workoutCid });
-            },
-
-            updateRoutineName(e) {
-                this.$store.dispatch('programBuilder/updateWorkoutName', { cid: this.workoutCid, name:  e.target.value });
             },
 
             deleteWorkout() {

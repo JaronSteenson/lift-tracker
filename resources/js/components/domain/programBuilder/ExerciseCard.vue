@@ -4,12 +4,10 @@
             <i class="fa fa-times"></i>
         </button>
 
-        <TitleInput class="exercise-name" :placeholder="'Enter exercise name'" :initial-value="getExercise().name"
-                     @input="updateExerciseName"></TitleInput>
+        <TitleInput class="exercise-name" :placeholder="'Enter exercise name'" v-model="name"></TitleInput>
         <br/>
-        <TitleInput class="exercise-sets" :placeholder="'0'" :initial-value="getExercise().numberOfSets"
-                     @input="updateExerciseSets"></TitleInput>
-        <TitleInput disabled class="sets-cross" :initial-value="' sets'"></TitleInput>
+        <TitleInput class="exercise-sets" :placeholder="'0'" v-model="numberOfSets"></TitleInput>
+        <TitleInput disabled class="sets-cross" :value="' sets'"></TitleInput>
     </BootstrapCard>
 </template>
 <script>
@@ -25,6 +23,30 @@
                 required: true,
             }
         },
+        computed: {
+            exercise: {
+                get() {
+                    return this.$store.getters['programBuilder/getExercise'](this.exerciseCid);
+                }
+            },
+            name: {
+                get() {
+                    return this.exercise.name || '';
+                },
+                set(name) {
+                    this.$store.dispatch('programBuilder/updateExercise', { exerciseCid: this.exerciseCid, name });
+                }
+            },
+            numberOfSets: {
+                get() {
+                    return this.numberOr(this.exercise.numberOfSets, '');
+                },
+                set(numberOfSets) {
+                    numberOfSets = this.numberOr(numberOfSets, null);
+                    this.$store.dispatch('programBuilder/updateExercise', { exerciseCid: this.exerciseCid, numberOfSets });
+                }
+            },
+        },
         methods: {
             getExercise() {
                 return this.$store.getters['programBuilder/getExercise'](this.exerciseCid);
@@ -32,17 +54,10 @@
             removeExercise() {
                 return this.$store.dispatch('programBuilder/removeExercise', { exerciseCid: this.exerciseCid });
             },
-            updateExerciseName(e) {
-                return this.$store.dispatch('programBuilder/updateExercise', { exerciseCid: this.exerciseCid, name: e.target.value });
-            },
-            updateExerciseSets(e) {
-                let numberOfSets = Number.parseInt(e.target.value);
+            numberOr(value, fallBackValue) {
+                const potentialNumber = Number.parseInt(value);
 
-                if (Number.isNaN(numberOfSets)) {
-                    numberOfSets = null;
-                }
-
-                return this.$store.dispatch('programBuilder/updateExercise', { exerciseCid: this.exerciseCid, numberOfSets });
+                return Number.isNaN(potentialNumber) ? fallBackValue : potentialNumber;
             },
         }
     }

@@ -1973,8 +1973,6 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
-//
-//
 
 
 /* harmony default export */ __webpack_exports__["default"] = ({
@@ -1989,6 +1987,36 @@ __webpack_require__.r(__webpack_exports__);
       required: true
     }
   },
+  computed: {
+    exercise: {
+      get: function get() {
+        return this.$store.getters['programBuilder/getExercise'](this.exerciseCid);
+      }
+    },
+    name: {
+      get: function get() {
+        return this.exercise.name || '';
+      },
+      set: function set(name) {
+        this.$store.dispatch('programBuilder/updateExercise', {
+          exerciseCid: this.exerciseCid,
+          name: name
+        });
+      }
+    },
+    numberOfSets: {
+      get: function get() {
+        return this.numberOr(this.exercise.numberOfSets, '');
+      },
+      set: function set(numberOfSets) {
+        numberOfSets = this.numberOr(numberOfSets, null);
+        this.$store.dispatch('programBuilder/updateExercise', {
+          exerciseCid: this.exerciseCid,
+          numberOfSets: numberOfSets
+        });
+      }
+    }
+  },
   methods: {
     getExercise: function getExercise() {
       return this.$store.getters['programBuilder/getExercise'](this.exerciseCid);
@@ -1998,23 +2026,9 @@ __webpack_require__.r(__webpack_exports__);
         exerciseCid: this.exerciseCid
       });
     },
-    updateExerciseName: function updateExerciseName(e) {
-      return this.$store.dispatch('programBuilder/updateExercise', {
-        exerciseCid: this.exerciseCid,
-        name: e.target.value
-      });
-    },
-    updateExerciseSets: function updateExerciseSets(e) {
-      var numberOfSets = Number.parseInt(e.target.value);
-
-      if (Number.isNaN(numberOfSets)) {
-        numberOfSets = null;
-      }
-
-      return this.$store.dispatch('programBuilder/updateExercise', {
-        exerciseCid: this.exerciseCid,
-        numberOfSets: numberOfSets
-      });
+    numberOr: function numberOr(value, fallBackValue) {
+      var potentialNumber = Number.parseInt(value);
+      return Number.isNaN(potentialNumber) ? fallBackValue : potentialNumber;
     }
   }
 });
@@ -2105,7 +2119,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
       loading: false
     };
   },
-  computed: _objectSpread({}, Object(vuex__WEBPACK_IMPORTED_MODULE_2__["mapState"])('programBuilder', ['id', 'name']), {
+  computed: _objectSpread({}, Object(vuex__WEBPACK_IMPORTED_MODULE_2__["mapState"])('programBuilder', ['id']), {
     orderedWorkouts: {
       get: function get() {
         return this.$store.getters['programBuilder/getOrderedWorkouts'];
@@ -2113,14 +2127,19 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
       set: function set(orderedWorkouts) {
         this.$store.dispatch('programBuilder/updateWorkoutPositionFromOrder', orderedWorkouts);
       }
+    },
+    name: {
+      get: function get() {
+        return this.$store.state.programBuilder.name || '';
+      },
+      set: function set(name) {
+        this.$store.dispatch('programBuilder/updateName', name);
+      }
     }
   }),
   methods: {
     addWorkoutToProgram: function addWorkoutToProgram() {
       this.$store.dispatch('programBuilder/addWorkoutToProgram');
-    },
-    updateName: function updateName(e) {
-      this.$store.dispatch('programBuilder/updateName', e.target.value);
     },
     save: function save() {
       return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.async(function save$(_context) {
@@ -2204,6 +2223,17 @@ __webpack_require__.r(__webpack_exports__);
       get: function get() {
         return this.$store.getters['programBuilder/getWorkout'](this.workoutCid);
       }
+    },
+    name: {
+      get: function get() {
+        return this.workout.name || '';
+      },
+      set: function set(name) {
+        this.$store.dispatch('programBuilder/updateWorkoutName', {
+          cid: this.workoutCid,
+          name: name
+        });
+      }
     }
   },
   methods: {
@@ -2216,12 +2246,6 @@ __webpack_require__.r(__webpack_exports__);
     addExercise: function addExercise() {
       this.$store.dispatch('programBuilder/addExerciseToWorkout', {
         workoutCid: this.workoutCid
-      });
-    },
-    updateRoutineName: function updateRoutineName(e) {
-      this.$store.dispatch('programBuilder/updateWorkoutName', {
-        cid: this.workoutCid,
-        name: e.target.value
       });
     },
     deleteWorkout: function deleteWorkout() {
@@ -2267,38 +2291,29 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
 /* harmony default export */ __webpack_exports__["default"] = ({
   name: 'TitleInput',
   props: {
-    initialValue: {
-      required: false
+    value: {
+      required: false,
+      "default": ''
     },
     placeholder: {
       type: String,
       required: false
     }
   },
-  data: function data() {
-    return {
-      value: ''
-    };
-  },
   methods: {
     resizeTextarea: function resizeTextarea(event) {
       // I have no idea why, but backspacing doesn't resize properly, so if it gets fully empty reset to single line.
-      if (this.value.length === 0) {
+      if (!this.value || this.value.length === 0) {
         event.target.style.height = '36px';
       }
 
       event.target.style.height = event.target.scrollHeight + 'px';
-    },
-    emitInput: function emitInput(e) {
-      this.$emit('input', e);
-    }
-  },
-  created: function created() {
-    if (this.initialValue) {
-      this.value = this.initialValue;
     }
   },
   mounted: function mounted() {
@@ -26101,27 +26116,33 @@ var render = function() {
       _vm._v(" "),
       _c("TitleInput", {
         staticClass: "exercise-name",
-        attrs: {
-          placeholder: "Enter exercise name",
-          "initial-value": _vm.getExercise().name
-        },
-        on: { input: _vm.updateExerciseName }
+        attrs: { placeholder: "Enter exercise name" },
+        model: {
+          value: _vm.name,
+          callback: function($$v) {
+            _vm.name = $$v
+          },
+          expression: "name"
+        }
       }),
       _vm._v(" "),
       _c("br"),
       _vm._v(" "),
       _c("TitleInput", {
         staticClass: "exercise-sets",
-        attrs: {
-          placeholder: "0",
-          "initial-value": _vm.getExercise().numberOfSets
-        },
-        on: { input: _vm.updateExerciseSets }
+        attrs: { placeholder: "0" },
+        model: {
+          value: _vm.numberOfSets,
+          callback: function($$v) {
+            _vm.numberOfSets = $$v
+          },
+          expression: "numberOfSets"
+        }
       }),
       _vm._v(" "),
       _c("TitleInput", {
         staticClass: "sets-cross",
-        attrs: { disabled: "", "initial-value": " sets" }
+        attrs: { disabled: "", value: " sets" }
       })
     ],
     1
@@ -26160,11 +26181,14 @@ var render = function() {
             [
               _c("TitleInput", {
                 staticClass: "program-title col-xs-12 col-md-8 col-lg-4",
-                attrs: {
-                  placeholder: "Enter program name",
-                  "initial-value": _vm.name
-                },
-                on: { input: _vm.updateName }
+                attrs: { placeholder: "Enter program name" },
+                model: {
+                  value: _vm.name,
+                  callback: function($$v) {
+                    _vm.name = $$v
+                  },
+                  expression: "name"
+                }
               })
             ],
             1
@@ -26269,13 +26293,16 @@ var render = function() {
                 "div",
                 { staticClass: "d-flex justify-content-center" },
                 [
-                  _c("title-input", {
+                  _c("TitleInput", {
                     staticClass: "workout-name",
-                    attrs: {
-                      placeholder: "Enter workout name",
-                      "initial-value": _vm.workout.name
-                    },
-                    on: { input: _vm.updateRoutineName }
+                    attrs: { placeholder: "Enter workout name" },
+                    model: {
+                      value: _vm.name,
+                      callback: function($$v) {
+                        _vm.name = $$v
+                      },
+                      expression: "name"
+                    }
                   }),
                   _vm._v(" "),
                   _c("div", { staticClass: "dropdown" }, [
@@ -26390,10 +26417,23 @@ var render = function() {
   var _vm = this
   var _h = _vm.$createElement
   var _c = _vm._self._c || _h
-  return _c("textarea", {
-    attrs: { placeholder: _vm.placeholder },
-    on: { change: _vm.emitInput }
-  })
+  return _c(
+    "textarea",
+    _vm._b(
+      {
+        attrs: { placeholder: _vm.placeholder },
+        domProps: { value: _vm.value },
+        on: {
+          change: function($event) {
+            return _vm.$emit("input", $event.target.value)
+          }
+        }
+      },
+      "textarea",
+      _vm.$attrs,
+      false
+    )
+  )
 }
 var staticRenderFns = []
 render._withStripped = true
@@ -46975,7 +47015,6 @@ var mutations = {
   updateWorkoutPositionFromOrder: function updateWorkoutPositionFromOrder(state, orderedWorkouts) {
     orderedWorkouts.forEach(function (workout, updatedPosition) {
       workout.position = updatedPosition;
-      workout.name = 'was moved';
     });
     state.workoutProgramRoutines = orderedWorkouts;
   },

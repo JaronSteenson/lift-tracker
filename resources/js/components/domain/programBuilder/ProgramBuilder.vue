@@ -2,7 +2,7 @@
     <div>
         <LoadingSpinner v-if="loading"></LoadingSpinner>
         <div v-else class="d-flex justify-content-center">
-            <TitleInput class="program-title col-xs-12 col-md-8 col-lg-4" :placeholder="'Enter program name'" :initial-value="name" @input="updateName"></TitleInput>
+            <TitleInput class="program-title col-xs-12 col-md-8 col-lg-4" :placeholder="'Enter program name'" v-model="name"></TitleInput>
         </div>
 
         <div class="container-fluid">
@@ -52,7 +52,7 @@
             }
         },
         computed: {
-            ...mapState('programBuilder', ['id', 'name']),
+            ...mapState('programBuilder', ['id']),
             orderedWorkouts: {
                 get () {
                     return this.$store.getters['programBuilder/getOrderedWorkouts'];
@@ -60,15 +60,19 @@
                 set (orderedWorkouts) {
                     this.$store.dispatch('programBuilder/updateWorkoutPositionFromOrder', orderedWorkouts);
                 },
+            },
+            name: {
+                get () {
+                    return this.$store.state.programBuilder.name || '';
+                },
+                set (name) {
+                    this.$store.dispatch('programBuilder/updateName', name);
+                },
             }
         },
         methods: {
             addWorkoutToProgram() {
                 this.$store.dispatch('programBuilder/addWorkoutToProgram');
-            },
-
-            updateName(e) {
-                this.$store.dispatch('programBuilder/updateName', e.target.value);
             },
 
             async save() {

@@ -131,7 +131,7 @@ const mutations = {
     },
 
     updateWorkoutPositionFromOrder(state, orderedWorkouts) {
-        orderedWorkouts.forEach((workout, updatedPosition) => { workout.position = updatedPosition; workout.name = 'was moved'; });
+        orderedWorkouts.forEach((workout, updatedPosition) => { workout.position = updatedPosition; });
 
         state.workoutProgramRoutines = orderedWorkouts;
     },

@@ -1,41 +1,32 @@
 <template>
-    <textarea @change="emitInput" v-bind:placeholder="placeholder"></textarea>
+    <textarea v-bind="$attrs"
+              :value="value"
+              @change="$emit('input', $event.target.value)"
+              :placeholder="placeholder"></textarea>
 </template>
 
 <script>
     export default {
         name: 'TitleInput',
         props: {
-            initialValue: {
+            value: {
                 required: false,
+                default: '',
             },
             placeholder: {
                 type: String,
                 required: false,
             },
         },
-        data() {
-            return {
-                value: ''
-            }
-        },
         methods: {
             resizeTextarea (event) {
                 // I have no idea why, but backspacing doesn't resize properly, so if it gets fully empty reset to single line.
-                if (this.value.length === 0) {
+                if (!this.value || this.value.length === 0) {
                     event.target.style.height = '36px';
                 }
 
                 event.target.style.height = (event.target.scrollHeight) + 'px'
             },
-            emitInput(e) {
-                this.$emit('input', e);
-            },
-        },
-        created() {
-            if (this.initialValue) {
-                this.value = this.initialValue;
-            }
         },
         mounted () {
             this.$nextTick(() => {
