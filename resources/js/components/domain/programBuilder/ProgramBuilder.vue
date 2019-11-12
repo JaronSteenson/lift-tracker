@@ -30,10 +30,11 @@
     import RoutineCard from "./RoutineCard";
     import BootstrapCard from "./../../BootstrapCard";
     import AddButton from "./../../formFields/AddButton";
+    import Draggable from 'vuedraggable';
 
     export default {
         name: 'ProgramBuilder',
-        components: {AddButton, RoutineCard, TitleInput, LoadingSpinner, BootstrapCard },
+        components: { AddButton, RoutineCard, TitleInput, LoadingSpinner, BootstrapCard, Draggable },
         props: {
             workoutProgramId: {
                 type: String,
