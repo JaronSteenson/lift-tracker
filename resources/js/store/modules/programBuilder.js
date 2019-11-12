@@ -14,6 +14,12 @@ const getters = {
         return ClientSideId.findIn(state.workoutProgramRoutines, cid);
     },
 
+    getOrderedWorkouts(state) {
+        return [...state.workoutProgramRoutines].sort((a, b) => {
+            return a.position - b.position;
+        })
+    },
+
     getExercise: (state) => (cid) => {
         let exercise = null;
 
@@ -54,6 +60,10 @@ const actions = {
         const workout = ClientSideId.findIn(state.workoutProgramRoutines, cid);
 
         commit('updateWorkout', { workout, newState: { name }  });
+    },
+
+    updateWorkoutPositionFromOrder({ state, commit }, orderedWorkouts) {
+        commit('updateWorkoutPositionFromOrder', orderedWorkouts);
     },
 
     deleteWorkout({ state, commit }, { cid }) {
@@ -118,6 +128,16 @@ const mutations = {
         Object.keys(newState).forEach(key => {
             workout[key] = newState[key]
         })
+    },
+
+    updateWorkoutPositionFromOrder(state, orderedWorkouts) {
+        const stateWorkoutsByCid = ClientSideId.mapByCid(state.workoutProgramRoutines);
+
+        console.table(orderedWorkouts.map(e => { return { position: e.position, cid: e.cid } }));
+
+        orderedWorkouts.forEach((orderedWorkout, updatedPosition) => { stateWorkoutsByCid[orderedWorkout.cid].position = updatedPosition });
+
+        console.table(orderedWorkouts.map(e => { return { position: e.position, cid: e.cid } }));
     },
 
     updateExercise(state, { exercise, newState }) {

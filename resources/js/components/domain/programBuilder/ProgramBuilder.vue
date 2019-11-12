@@ -6,20 +6,18 @@
         </div>
 
         <div class="container-fluid">
-            <div class="row">
-                <template v-for="(routine) in workoutProgramRoutines">
-                    <div class="col-sm-12 col-md-6 col-lg-4 col-xl-3">
-                        <RoutineCard :key="routine.cid" :workoutCid="routine.cid"></RoutineCard>
+                <Draggable class="row" v-model="orderedWorkouts" group="workouts">
+                    <div v-for="(workout) in orderedWorkouts" class="col-sm-12 col-md-6 col-lg-4 col-xl-3">
+                        <RoutineCard :key="workout.cid" :workoutCid="workout.cid"></RoutineCard>
                     </div>
-                </template>
 
-                <div class="col-sm-12 col-md-6 col-lg-4 col-xl-3">
-                    <BootstrapCard class="add-another" @click.native="addWorkoutToProgram">
-                        <AddButton>Add workout</AddButton>
-                    </BootstrapCard>
-                </div>
+                    <div slot="footer" class="col-sm-12 col-md-6 col-lg-4 col-xl-3">
+                        <BootstrapCard class="add-another" @click.native="addWorkoutToProgram">
+                            <AddButton>Add workout</AddButton>
+                        </BootstrapCard>
+                    </div>
+                </Draggable>
             </div>
-        </div>
     </div>
 </template>
 
@@ -54,7 +52,15 @@
             }
         },
         computed: {
-            ...mapState('programBuilder', ['id', 'name', 'workoutProgramRoutines']),
+            ...mapState('programBuilder', ['id', 'name']),
+            orderedWorkouts: {
+                get () {
+                    return this.$store.getters['programBuilder/getOrderedWorkouts'];
+                },
+                set (workouts) {
+                    this.$store.dispatch('programBuilder/updateWorkoutPositionFromOrder', workouts);
+                },
+            }
         },
         methods: {
             addWorkoutToProgram() {

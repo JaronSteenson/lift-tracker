@@ -25,6 +25,14 @@ export default {
         return array.find(object => object.cid === cid);
     },
 
+    mapByCid(array) {
+        const map = {};
+
+        array.forEach(object => map[object.cid] = object);
+
+        return map;
+    },
+
     /**
      * @param array
      * @param cid

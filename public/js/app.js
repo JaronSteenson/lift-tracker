@@ -2071,8 +2071,6 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 //
 //
 //
-//
-//
 
 
 
@@ -2107,7 +2105,16 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
       loading: false
     };
   },
-  computed: _objectSpread({}, Object(vuex__WEBPACK_IMPORTED_MODULE_2__["mapState"])('programBuilder', ['id', 'name', 'workoutProgramRoutines'])),
+  computed: _objectSpread({}, Object(vuex__WEBPACK_IMPORTED_MODULE_2__["mapState"])('programBuilder', ['id', 'name']), {
+    orderedWorkouts: {
+      get: function get() {
+        return this.$store.getters['programBuilder/getOrderedWorkouts'];
+      },
+      set: function set(workouts) {
+        this.$store.dispatch('programBuilder/updateWorkoutPositionFromOrder', workouts);
+      }
+    }
+  }),
   methods: {
     addWorkoutToProgram: function addWorkoutToProgram() {
       this.$store.dispatch('programBuilder/addWorkoutToProgram');
@@ -26162,51 +26169,68 @@ var render = function() {
             1
           ),
       _vm._v(" "),
-      _c("div", { staticClass: "container-fluid" }, [
-        _c(
-          "div",
-          { staticClass: "row" },
-          [
-            _vm._l(_vm.workoutProgramRoutines, function(routine) {
-              return [
-                _c(
+      _c(
+        "div",
+        { staticClass: "container-fluid" },
+        [
+          _c(
+            "Draggable",
+            {
+              staticClass: "row",
+              attrs: { group: "workouts" },
+              model: {
+                value: _vm.orderedWorkouts,
+                callback: function($$v) {
+                  _vm.orderedWorkouts = $$v
+                },
+                expression: "orderedWorkouts"
+              }
+            },
+            [
+              _vm._l(_vm.orderedWorkouts, function(workout) {
+                return _c(
                   "div",
                   { staticClass: "col-sm-12 col-md-6 col-lg-4 col-xl-3" },
                   [
                     _c("RoutineCard", {
-                      key: routine.cid,
-                      attrs: { workoutCid: routine.cid }
+                      key: workout.cid,
+                      attrs: { workoutCid: workout.cid }
                     })
                   ],
                   1
                 )
-              ]
-            }),
-            _vm._v(" "),
-            _c(
-              "div",
-              { staticClass: "col-sm-12 col-md-6 col-lg-4 col-xl-3" },
-              [
-                _c(
-                  "BootstrapCard",
-                  {
-                    staticClass: "add-another",
-                    nativeOn: {
-                      click: function($event) {
-                        return _vm.addWorkoutToProgram($event)
+              }),
+              _vm._v(" "),
+              _c(
+                "div",
+                {
+                  staticClass: "col-sm-12 col-md-6 col-lg-4 col-xl-3",
+                  attrs: { slot: "footer" },
+                  slot: "footer"
+                },
+                [
+                  _c(
+                    "BootstrapCard",
+                    {
+                      staticClass: "add-another",
+                      nativeOn: {
+                        click: function($event) {
+                          return _vm.addWorkoutToProgram($event)
+                        }
                       }
-                    }
-                  },
-                  [_c("AddButton", [_vm._v("Add workout")])],
-                  1
-                )
-              ],
-              1
-            )
-          ],
-          2
-        )
-      ])
+                    },
+                    [_c("AddButton", [_vm._v("Add workout")])],
+                    1
+                  )
+                ],
+                1
+              )
+            ],
+            2
+          )
+        ],
+        1
+      )
     ],
     1
   )
@@ -45760,6 +45784,13 @@ var cidCounter = 0;
       return object.cid === cid;
     });
   },
+  mapByCid: function mapByCid(array) {
+    var map = {};
+    array.forEach(function (object) {
+      return map[object.cid] = object;
+    });
+    return map;
+  },
 
   /**
    * @param array
@@ -46764,6 +46795,14 @@ function _objectWithoutProperties(source, excluded) { if (source == null) return
 
 function _objectWithoutPropertiesLoose(source, excluded) { if (source == null) return {}; var target = {}; var sourceKeys = Object.keys(source); var key, i; for (i = 0; i < sourceKeys.length; i++) { key = sourceKeys[i]; if (excluded.indexOf(key) >= 0) continue; target[key] = source[key]; } return target; }
 
+function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _nonIterableSpread(); }
+
+function _nonIterableSpread() { throw new TypeError("Invalid attempt to spread non-iterable instance"); }
+
+function _iterableToArray(iter) { if (Symbol.iterator in Object(iter) || Object.prototype.toString.call(iter) === "[object Arguments]") return Array.from(iter); }
+
+function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = new Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } }
+
 
  // initial state
 
@@ -46777,6 +46816,11 @@ var getters = {
     return function (cid) {
       return _ClientSideId__WEBPACK_IMPORTED_MODULE_2__["default"].findIn(state.workoutProgramRoutines, cid);
     };
+  },
+  getOrderedWorkouts: function getOrderedWorkouts(state) {
+    return _toConsumableArray(state.workoutProgramRoutines).sort(function (a, b) {
+      return a.position - b.position;
+    });
   },
   getExercise: function getExercise(state) {
     return function (cid) {
@@ -46826,16 +46870,21 @@ var actions = {
       }
     });
   },
-  deleteWorkout: function deleteWorkout(_ref5, _ref6) {
+  updateWorkoutPositionFromOrder: function updateWorkoutPositionFromOrder(_ref5, orderedWorkouts) {
     var state = _ref5.state,
         commit = _ref5.commit;
-    var cid = _ref6.cid;
+    commit('updateWorkoutPositionFromOrder', orderedWorkouts);
+  },
+  deleteWorkout: function deleteWorkout(_ref6, _ref7) {
+    var state = _ref6.state,
+        commit = _ref6.commit;
+    var cid = _ref7.cid;
     var workoutToDelete = _ClientSideId__WEBPACK_IMPORTED_MODULE_2__["default"].findIn(state.workoutProgramRoutines, cid);
     commit('deleteWorkout', workoutToDelete.position);
   },
-  addWorkoutToProgram: function addWorkoutToProgram(_ref7, workout) {
-    var state = _ref7.state,
-        commit = _ref7.commit;
+  addWorkoutToProgram: function addWorkoutToProgram(_ref8, workout) {
+    var state = _ref8.state,
+        commit = _ref8.commit;
 
     if (!workout) {
       workout = {
@@ -46854,29 +46903,29 @@ var actions = {
     _ClientSideId__WEBPACK_IMPORTED_MODULE_2__["default"].assignTo(workout);
     commit('addWorkout', workout);
   },
-  addExerciseToWorkout: function addExerciseToWorkout(_ref8, _ref9) {
-    var state = _ref8.state,
-        commit = _ref8.commit;
-    var workoutCid = _ref9.workoutCid;
+  addExerciseToWorkout: function addExerciseToWorkout(_ref9, _ref10) {
+    var state = _ref9.state,
+        commit = _ref9.commit;
+    var workoutCid = _ref10.workoutCid;
     commit('addExerciseToWorkout', {
       workoutCid: workoutCid
     });
   },
-  removeExercise: function removeExercise(_ref10, _ref11) {
-    var state = _ref10.state,
-        commit = _ref10.commit;
-    var exerciseCid = _ref11.exerciseCid;
+  removeExercise: function removeExercise(_ref11, _ref12) {
+    var state = _ref11.state,
+        commit = _ref11.commit;
+    var exerciseCid = _ref12.exerciseCid;
     commit('removeExercise', {
       exerciseCid: exerciseCid
     });
   },
-  updateExercise: function updateExercise(_ref13, _ref12) {
-    var state = _ref13.state,
-        commit = _ref13.commit,
-        getters = _ref13.getters;
+  updateExercise: function updateExercise(_ref14, _ref13) {
+    var state = _ref14.state,
+        commit = _ref14.commit,
+        getters = _ref14.getters;
 
-    var exerciseCid = _ref12.exerciseCid,
-        newState = _objectWithoutProperties(_ref12, ["exerciseCid"]);
+    var exerciseCid = _ref13.exerciseCid,
+        newState = _objectWithoutProperties(_ref13, ["exerciseCid"]);
 
     var exercise = getters.getExercise(exerciseCid);
     commit('updateExercise', {
@@ -46884,13 +46933,13 @@ var actions = {
       newState: newState
     });
   },
-  fetchById: function fetchById(_ref14, id) {
+  fetchById: function fetchById(_ref15, id) {
     var state, commit, response;
     return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.async(function fetchById$(_context) {
       while (1) {
         switch (_context.prev = _context.next) {
           case 0:
-            state = _ref14.state, commit = _ref14.commit;
+            state = _ref15.state, commit = _ref15.commit;
             _context.next = 3;
             return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.awrap(_api_WorkoutProgramService__WEBPACK_IMPORTED_MODULE_1__["default"].get(id));
 
@@ -46916,22 +46965,40 @@ var mutations = {
   updateName: function updateName(state, name) {
     state.name = name;
   },
-  updateWorkout: function updateWorkout(state, _ref15) {
-    var workout = _ref15.workout,
-        newState = _ref15.newState;
+  updateWorkout: function updateWorkout(state, _ref16) {
+    var workout = _ref16.workout,
+        newState = _ref16.newState;
     Object.keys(newState).forEach(function (key) {
       workout[key] = newState[key];
     });
   },
-  updateExercise: function updateExercise(state, _ref16) {
-    var exercise = _ref16.exercise,
-        newState = _ref16.newState;
+  updateWorkoutPositionFromOrder: function updateWorkoutPositionFromOrder(state, orderedWorkouts) {
+    var stateWorkoutsByCid = _ClientSideId__WEBPACK_IMPORTED_MODULE_2__["default"].mapByCid(state.workoutProgramRoutines);
+    console.table(orderedWorkouts.map(function (e) {
+      return {
+        position: e.position,
+        cid: e.cid
+      };
+    }));
+    orderedWorkouts.forEach(function (orderedWorkout, updatedPosition) {
+      stateWorkoutsByCid[orderedWorkout.cid].position = updatedPosition;
+    });
+    console.table(orderedWorkouts.map(function (e) {
+      return {
+        position: e.position,
+        cid: e.cid
+      };
+    }));
+  },
+  updateExercise: function updateExercise(state, _ref17) {
+    var exercise = _ref17.exercise,
+        newState = _ref17.newState;
     Object.keys(newState).forEach(function (key) {
       exercise[key] = newState[key];
     });
   },
-  addExerciseToWorkout: function addExerciseToWorkout(state, _ref17) {
-    var workoutCid = _ref17.workoutCid;
+  addExerciseToWorkout: function addExerciseToWorkout(state, _ref18) {
+    var workoutCid = _ref18.workoutCid;
     var workout = _ClientSideId__WEBPACK_IMPORTED_MODULE_2__["default"].findIn(state.workoutProgramRoutines, workoutCid);
     workout.routineExercises.push({
       cid: _ClientSideId__WEBPACK_IMPORTED_MODULE_2__["default"].assign(),
@@ -46939,8 +47006,8 @@ var mutations = {
       numberOfSets: null
     });
   },
-  removeExercise: function removeExercise(state, _ref18) {
-    var exerciseCid = _ref18.exerciseCid;
+  removeExercise: function removeExercise(state, _ref19) {
+    var exerciseCid = _ref19.exerciseCid;
     // Use some to early exit if the exercise was found and removed.
     state.workoutProgramRoutines.some(function (workout) {
       return _ClientSideId__WEBPACK_IMPORTED_MODULE_2__["default"].removeFrom(workout.routineExercises, exerciseCid);
