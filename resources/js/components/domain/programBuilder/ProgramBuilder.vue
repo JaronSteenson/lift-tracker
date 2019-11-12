@@ -6,7 +6,7 @@
         </div>
 
         <div class="container-fluid">
-                <Draggable class="row" v-model="orderedWorkouts" group="workouts">
+                <Draggable class="row" v-model="orderedWorkouts">
                     <div v-for="(workout) in orderedWorkouts" class="col-sm-12 col-md-6 col-lg-4 col-xl-3">
                         <RoutineCard :key="workout.cid" :workoutCid="workout.cid"></RoutineCard>
                     </div>
@@ -57,8 +57,8 @@
                 get () {
                     return this.$store.getters['programBuilder/getOrderedWorkouts'];
                 },
-                set (workouts) {
-                    this.$store.dispatch('programBuilder/updateWorkoutPositionFromOrder', workouts);
+                set (orderedWorkouts) {
+                    this.$store.dispatch('programBuilder/updateWorkoutPositionFromOrder', orderedWorkouts);
                 },
             }
         },

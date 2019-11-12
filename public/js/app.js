@@ -2110,8 +2110,8 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
       get: function get() {
         return this.$store.getters['programBuilder/getOrderedWorkouts'];
       },
-      set: function set(workouts) {
-        this.$store.dispatch('programBuilder/updateWorkoutPositionFromOrder', workouts);
+      set: function set(orderedWorkouts) {
+        this.$store.dispatch('programBuilder/updateWorkoutPositionFromOrder', orderedWorkouts);
       }
     }
   }),
@@ -2199,23 +2199,24 @@ __webpack_require__.r(__webpack_exports__);
       required: true
     }
   },
+  computed: {
+    workout: {
+      get: function get() {
+        return this.$store.getters['programBuilder/getWorkout'](this.workoutCid);
+      }
+    }
+  },
   methods: {
-    getName: function getName() {
-      return this.getWorkout().name;
-    },
     hasExercises: function hasExercises() {
-      return this.getWorkout().routineExercises.length > 0;
+      return this.workout.routineExercises.length > 0;
     },
     getExercises: function getExercises() {
-      return this.getWorkout().routineExercises;
+      return this.workout.routineExercises;
     },
     addExercise: function addExercise() {
       this.$store.dispatch('programBuilder/addExerciseToWorkout', {
         workoutCid: this.workoutCid
       });
-    },
-    getWorkout: function getWorkout() {
-      return this.$store.getters['programBuilder/getWorkout'](this.workoutCid);
     },
     updateRoutineName: function updateRoutineName(e) {
       this.$store.dispatch('programBuilder/updateWorkoutName', {
@@ -26177,7 +26178,6 @@ var render = function() {
             "Draggable",
             {
               staticClass: "row",
-              attrs: { group: "workouts" },
               model: {
                 value: _vm.orderedWorkouts,
                 callback: function($$v) {
@@ -26273,7 +26273,7 @@ var render = function() {
                     staticClass: "workout-name",
                     attrs: {
                       placeholder: "Enter workout name",
-                      "initial-value": _vm.getName()
+                      "initial-value": _vm.workout.name
                     },
                     on: { input: _vm.updateRoutineName }
                   }),
@@ -46973,22 +46973,11 @@ var mutations = {
     });
   },
   updateWorkoutPositionFromOrder: function updateWorkoutPositionFromOrder(state, orderedWorkouts) {
-    var stateWorkoutsByCid = _ClientSideId__WEBPACK_IMPORTED_MODULE_2__["default"].mapByCid(state.workoutProgramRoutines);
-    console.table(orderedWorkouts.map(function (e) {
-      return {
-        position: e.position,
-        cid: e.cid
-      };
-    }));
-    orderedWorkouts.forEach(function (orderedWorkout, updatedPosition) {
-      stateWorkoutsByCid[orderedWorkout.cid].position = updatedPosition;
+    orderedWorkouts.forEach(function (workout, updatedPosition) {
+      workout.position = updatedPosition;
+      workout.name = 'was moved';
     });
-    console.table(orderedWorkouts.map(function (e) {
-      return {
-        position: e.position,
-        cid: e.cid
-      };
-    }));
+    state.workoutProgramRoutines = orderedWorkouts;
   },
   updateExercise: function updateExercise(state, _ref17) {
     var exercise = _ref17.exercise,

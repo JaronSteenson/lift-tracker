@@ -2,7 +2,7 @@
     <BootstrapCard>
         <template v-slot:header>
             <div class="d-flex justify-content-center">
-                <title-input class="workout-name" :placeholder="'Enter workout name'" :initial-value="getName()" @input="updateRoutineName"></title-input>
+                <title-input class="workout-name" :placeholder="'Enter workout name'" :initial-value="workout.name" @input="updateRoutineName"></title-input>
 
                 <div class="dropdown">
                     <button class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
@@ -31,32 +31,31 @@
 
     export default {
         name: "RoutineCard",
-        components: {ExerciseCard, TitleInput, BootstrapCard, AddButton },
+        components: { ExerciseCard, TitleInput, BootstrapCard, AddButton },
         props: {
             workoutCid: {
                 type: Number,
                 required: true,
             }
         },
+        computed: {
+            workout: {
+                get() {
+                    return this.$store.getters['programBuilder/getWorkout'](this.workoutCid);
+                }
+            }
+        },
         methods: {
-            getName() {
-              return this.getWorkout().name;
-            },
-
             hasExercises() {
-                return this.getWorkout().routineExercises.length > 0;
+                return this.workout.routineExercises.length > 0;
             },
 
             getExercises() {
-                return this.getWorkout().routineExercises;
+                return this.workout.routineExercises;
             },
 
             addExercise() {
                 this.$store.dispatch('programBuilder/addExerciseToWorkout', { workoutCid: this.workoutCid });
-            },
-
-            getWorkout() {
-                return this.$store.getters['programBuilder/getWorkout'](this.workoutCid);
             },
 
             updateRoutineName(e) {

@@ -131,13 +131,9 @@ const mutations = {
     },
 
     updateWorkoutPositionFromOrder(state, orderedWorkouts) {
-        const stateWorkoutsByCid = ClientSideId.mapByCid(state.workoutProgramRoutines);
+        orderedWorkouts.forEach((workout, updatedPosition) => { workout.position = updatedPosition; workout.name = 'was moved'; });
 
-        console.table(orderedWorkouts.map(e => { return { position: e.position, cid: e.cid } }));
-
-        orderedWorkouts.forEach((orderedWorkout, updatedPosition) => { stateWorkoutsByCid[orderedWorkout.cid].position = updatedPosition });
-
-        console.table(orderedWorkouts.map(e => { return { position: e.position, cid: e.cid } }));
+        state.workoutProgramRoutines = orderedWorkouts;
     },
 
     updateExercise(state, { exercise, newState }) {
