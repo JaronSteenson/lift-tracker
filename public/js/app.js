@@ -26237,13 +26237,18 @@ var render = function() {
                     "BootstrapCard",
                     {
                       staticClass: "add-another",
+                      attrs: { draggable: "false" },
                       nativeOn: {
                         click: function($event) {
                           return _vm.addWorkoutToProgram($event)
                         }
                       }
                     },
-                    [_c("AddButton", [_vm._v("Add workout")])],
+                    [
+                      _c("AddButton", { attrs: { draggable: "false" } }, [
+                        _vm._v("Add workout")
+                      ])
+                    ],
                     1
                   )
                 ],

@@ -12,8 +12,8 @@
                     </div>
 
                     <div slot="footer" class="col-sm-12 col-md-6 col-lg-4 col-xl-3">
-                        <BootstrapCard class="add-another" @click.native="addWorkoutToProgram">
-                            <AddButton>Add workout</AddButton>
+                        <BootstrapCard draggable="false" class="add-another" @click.native="addWorkoutToProgram">
+                            <AddButton draggable="false">Add workout</AddButton>
                         </BootstrapCard>
                     </div>
                 </Draggable>
