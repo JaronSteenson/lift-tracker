@@ -1,7 +1,4 @@
-@import '../mixins';
-
-.draggable-section {
-  @include full-border(dotted);
-  @include border-rounding;
+.drag-handle {
+    cursor: pointer;
 }
 

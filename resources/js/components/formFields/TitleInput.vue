@@ -54,6 +54,7 @@
     }
 
     textarea:not(:focus) {
+        cursor: pointer;
         border: none;
         background: none;
     }

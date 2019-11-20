@@ -1,5 +1,9 @@
 import WorkoutProgramService from '../../api/WorkoutProgramService'
 import ClientSideId from '../../ClientSideId'
+import { debounce } from 'lodash';
+
+const LOCAL_STORAGE_KEY = 'program-builder-state';
+const SAVE_DEBOUNCE_WAIT = 2000;
 
 // initial state
 const state = {
@@ -19,6 +23,15 @@ const getters = {
             return a.position - b.position;
         })
     },
+
+    getOrderedExercises: (state, getters) => (workoutCid) => {
+        const workout = getters.getWorkout(workoutCid);
+
+        return [...workout.routineExercises].sort((a, b) => {
+            return a.position - b.position;
+        })
+    },
+
 
     getExercise: (state) => (cid) => {
         let exercise = null;
@@ -52,27 +65,41 @@ const actions = {
         });
     },
 
-    updateName({state, commit}, name) {
+    updateName({ state, commit, dispatch }, name) {
         commit('updateName', name);
+
+        dispatch('save')
     },
 
-    updateWorkoutName({ state, commit }, { cid, name }) {
+    updateWorkoutName({ state, commit, dispatch }, { cid, name }) {
         const workout = ClientSideId.findIn(state.workoutProgramRoutines, cid);
 
         commit('updateWorkout', { workout, newState: { name }  });
+
+        dispatch('save');
     },
 
-    updateWorkoutPositionFromOrder({ state, commit }, orderedWorkouts) {
+    updateWorkoutPositionFromOrder({ state, commit, dispatch }, orderedWorkouts) {
         commit('updateWorkoutPositionFromOrder', orderedWorkouts);
+
+        dispatch('save');
     },
 
-    deleteWorkout({ state, commit }, { cid }) {
+    updateExercisePositionFromOrder({ state, commit, dispatch }, { workoutCid, orderedExercises }) {
+        commit('updateExercisePositionFromOrder', { workoutCid, orderedExercises });
+
+        dispatch('save');
+    },
+
+    deleteWorkout({ state, commit, dispatch }, { cid }) {
         const workoutToDelete = ClientSideId.findIn(state.workoutProgramRoutines, cid);
 
         commit('deleteWorkout', workoutToDelete.position);
+
+        dispatch('save');
     },
 
-    addWorkoutToProgram({ state, commit }, workout) {
+    addWorkoutToProgram({ state, commit, dispatch }, workout) {
         if (!workout) {
             workout = { name: null };
         }
@@ -88,21 +115,47 @@ const actions = {
         ClientSideId.assignTo(workout);
 
         commit('addWorkout', workout);
+
+        dispatch('save');
     },
 
-    addExerciseToWorkout({ state, commit }, { workoutCid }) {
+    addExerciseToWorkout({ state, commit, dispatch }, { workoutCid }) {
         commit('addExerciseToWorkout', { workoutCid })
+
+        dispatch('save');
     },
 
-    removeExercise({ state, commit }, { exerciseCid }) {
+    removeExercise({ state, commit, dispatch }, { exerciseCid }) {
         commit('removeExercise', { exerciseCid })
+
+        dispatch('save')
     },
 
-    updateExercise({ state, commit, getters }, { exerciseCid, ...newState }) {
+    updateExercise({ state, commit, getters, dispatch }, { exerciseCid, ...newState }) {
         const exercise = getters.getExercise(exerciseCid);
 
         commit('updateExercise', { exercise, newState });
+
+        dispatch('save')
     },
+
+    tryRestoreFromLocalStorage({ commit, dispatch }) {
+        const stateFromLocalStorage = JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY));
+
+        if (stateFromLocalStorage) {
+            commit('reset', stateFromLocalStorage);
+        } else {
+            dispatch('startNew');
+        }
+    },
+
+    save: debounce(({ state, commit, dispatch }) => {
+        console.log('saving program builder state');
+
+        localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(state));
+
+        // TODO actual ajax if online etc.
+    }, SAVE_DEBOUNCE_WAIT),
 
     async fetchById({state, commit}, id) {
         const response = await WorkoutProgramService.get(id);
@@ -134,6 +187,15 @@ const mutations = {
         orderedWorkouts.forEach((workout, updatedPosition) => { workout.position = updatedPosition; });
 
         state.workoutProgramRoutines = orderedWorkouts;
+    },
+
+    updateExercisePositionFromOrder(state, { workoutCid, orderedExercises }) {
+        debugger;
+
+        orderedExercises.forEach((workout, updatedPosition) => { workout.position = updatedPosition; });
+
+        const workout = ClientSideId.findIn(state.workoutProgramRoutines, workoutCid);
+        workout.routineExercises = orderedExercises;
     },
 
     updateExercise(state, { exercise, newState }) {

@@ -1,10 +1,10 @@
 
-let cidCounter = 0;
+const uuidV4 = require('uuid/v4');
 
 export default {
 
     assign() {
-        return cidCounter++;
+        return uuidV4();
     },
 
     assignTo(object) {

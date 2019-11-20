@@ -1,13 +1,10 @@
 <template>
-    <BootstrapCard class="exercise-card">
+    <BootstrapCard class="exercise-card js-exercise-drag-handle drag-handle">
         <button class="btn btn-outline-danger remove-cross" @click="removeExercise" type="button">
             <i class="fa fa-times"></i>
         </button>
 
         <TitleInput class="exercise-name" :placeholder="'Enter exercise name'" v-model="name"></TitleInput>
-        <br/>
-        <TitleInput class="exercise-sets" :placeholder="'0'" v-model="numberOfSets"></TitleInput>
-        <TitleInput disabled class="sets-cross" :value="' sets'"></TitleInput>
     </BootstrapCard>
 </template>
 <script>
@@ -19,7 +16,7 @@
         components: { BootstrapCard, TitleInput },
         props: {
             exerciseCid: {
-                type: Number,
+                type: String,
                 required: true,
             }
         },
@@ -77,26 +74,6 @@
         min-width: 80%;
         max-width: 80%;
         width: 80%;
-    }
-
-    .sets-cross {
-        min-width: 10%;
-        max-width: 10%;
-        width: 10%;
-    }
-
-    .exercise-sets {
-        min-width: 3ch;
-        max-width: 3ch;
-        width: 3ch;
-    }
-
-    .exercise-sets {
-        margin-right: 0;
-    }
-
-    .sets-cross {
-        margin-left: 0;
     }
 
     .remove-cross {

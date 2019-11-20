@@ -1,7 +1,7 @@
 <template>
     <BootstrapCard>
         <template v-slot:header>
-            <div class="d-flex justify-content-center">
+            <div class="js-workout-drag-handle drag-handle d-flex justify-content-center">
                 <TitleInput class="workout-name" :placeholder="'Enter workout name'" v-model="name"></TitleInput>
 
                 <div class="dropdown">
@@ -14,10 +14,22 @@
             </div>
         </template>
 
-        <template v-for="(exercise) in getExercises()">
-            <ExerciseCard :key="exercise.cid" :exercise-cid="exercise.cid"/>
-        </template>
-        <AddButton @click.native="addExercise">Add exercise</AddButton>
+        <div class="row">
+            <div class="col">
+                <Draggable v-model="orderedExercises" handle=".js-exercise-drag-handle">
+                    <template v-for="(exercise) in orderedExercises">
+                        <ExerciseCard :key="exercise.cid" :exercise-cid="exercise.cid"/>
+                    </template>
+                </Draggable>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col">
+                <AddButton @click.native="addExercise">Add exercise</AddButton>
+            </div>
+        </div>
+
 
 
     </BootstrapCard>
@@ -28,13 +40,14 @@
     import BootstrapCard from "../../BootstrapCard";
     import AddButton from "./../../formFields/AddButton";
     import ExerciseCard from "./ExerciseCard";
+    import Draggable from 'vuedraggable';
 
     export default {
-        name: "RoutineCard",
-        components: { ExerciseCard, TitleInput, BootstrapCard, AddButton },
+        name: 'RoutineCard',
+        components: { ExerciseCard, TitleInput, BootstrapCard, AddButton, Draggable },
         props: {
             workoutCid: {
-                type: Number,
+                type: String,
                 required: true,
             }
         },
@@ -52,16 +65,16 @@
                     this.$store.dispatch('programBuilder/updateWorkoutName', { cid: this.workoutCid, name });
                 }
             },
+            orderedExercises: {
+                get: function get() {
+                    return this.$store.getters['programBuilder/getOrderedExercises'](this.workoutCid);
+                },
+                set: function set(orderedExercises) {
+                    this.$store.dispatch('programBuilder/updateExercisePositionFromOrder', { workoutCid: this.workoutCid, orderedExercises});
+                }
+            }
         },
         methods: {
-            hasExercises() {
-                return this.workout.routineExercises.length > 0;
-            },
-
-            getExercises() {
-                return this.workout.routineExercises;
-            },
-
             addExercise() {
                 this.$store.dispatch('programBuilder/addExerciseToWorkout', { workoutCid: this.workoutCid });
             },

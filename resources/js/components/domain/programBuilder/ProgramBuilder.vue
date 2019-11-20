@@ -6,18 +6,18 @@
         </div>
 
         <div class="container-fluid">
-                <Draggable class="row" v-model="orderedWorkouts">
-                    <div v-for="(workout) in orderedWorkouts" class="col-sm-12 col-md-6 col-lg-4 col-xl-3">
-                        <RoutineCard :key="workout.cid" :workoutCid="workout.cid"></RoutineCard>
-                    </div>
+            <Draggable class="row" v-model="orderedWorkouts" handle=".js-workout-drag-handle">
+                <div v-for="(workout) in orderedWorkouts" class="col-sm-12 col-md-6 col-lg-4 col-xl-3">
+                    <RoutineCard :key="workout.cid" :workoutCid="workout.cid"></RoutineCard>
+                </div>
 
-                    <div slot="footer" class="col-sm-12 col-md-6 col-lg-4 col-xl-3">
-                        <BootstrapCard draggable="false" class="add-another" @click.native="addWorkoutToProgram">
-                            <AddButton draggable="false">Add workout</AddButton>
-                        </BootstrapCard>
-                    </div>
-                </Draggable>
-            </div>
+                <div slot="footer" class="col-sm-12 col-md-6 col-lg-4 col-xl-3">
+                    <BootstrapCard draggable="false" class="add-another" @click.native="addWorkoutToProgram">
+                        <AddButton draggable="false">Add workout</AddButton>
+                    </BootstrapCard>
+                </div>
+            </Draggable>
+        </div>
     </div>
 </template>
 
@@ -41,7 +41,7 @@
         },
         created() {
             if (!this.workoutProgramId) {
-                this.$store.dispatch('programBuilder/startNew');
+                this.$store.dispatch('programBuilder/tryRestoreFromLocalStorage');
             } else {
                 // TODO go fetch existing.
             }
