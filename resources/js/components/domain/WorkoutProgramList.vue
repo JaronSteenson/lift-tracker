@@ -47,7 +47,6 @@
             async fetchWorkoutPrograms() {
                 this.loading = true;
                 this.workoutPrograms = await WorkoutProgramService.getAll();
-                debugger;
                 this.loading = false;
             }
         }

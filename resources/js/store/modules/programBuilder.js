@@ -190,9 +190,7 @@ const mutations = {
     },
 
     updateExercisePositionFromOrder(state, { workoutCid, orderedExercises }) {
-        debugger;
-
-        orderedExercises.forEach((workout, updatedPosition) => { workout.position = updatedPosition; });
+        orderedExercises.forEach((exercise, updatedPosition) => { exercise.position = updatedPosition; });
 
         const workout = ClientSideId.findIn(state.workoutProgramRoutines, workoutCid);
         workout.routineExercises = orderedExercises;

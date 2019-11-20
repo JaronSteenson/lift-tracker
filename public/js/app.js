@@ -1935,10 +1935,9 @@ __webpack_require__.r(__webpack_exports__);
 
             case 3:
               this.workoutPrograms = _context.sent;
-              debugger;
               this.loading = false;
 
-            case 6:
+            case 5:
             case "end":
               return _context.stop();
           }
@@ -43595,7 +43594,10 @@ var render = function() {
             _c(
               "Draggable",
               {
-                attrs: { handle: ".js-exercise-drag-handle" },
+                attrs: {
+                  handle: ".js-exercise-drag-handle",
+                  group: { name: "exercises", pull: true, put: true }
+                },
                 model: {
                   value: _vm.orderedExercises,
                   callback: function($$v) {
@@ -64430,9 +64432,8 @@ var mutations = {
   updateExercisePositionFromOrder: function updateExercisePositionFromOrder(state, _ref21) {
     var workoutCid = _ref21.workoutCid,
         orderedExercises = _ref21.orderedExercises;
-    debugger;
-    orderedExercises.forEach(function (workout, updatedPosition) {
-      workout.position = updatedPosition;
+    orderedExercises.forEach(function (exercise, updatedPosition) {
+      exercise.position = updatedPosition;
     });
     var workout = _ClientSideId__WEBPACK_IMPORTED_MODULE_2__["default"].findIn(state.workoutProgramRoutines, workoutCid);
     workout.routineExercises = orderedExercises;
