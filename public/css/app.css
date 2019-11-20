@@ -11233,3 +11233,21 @@ input:not([type=checkbox]):focus {
   cursor: pointer;
 }
 
+.sortable-ghost {
+  visibility: hidden;
+}
+
+.sortable-chosen {
+  cursor: pointer !important;
+}
+
+.sortable-drag.card,
+.sortable-drag .card {
+  cursor: pointer !important;
+}
+
+.sortable-drag {
+  -webkit-transform: rotate(4deg);
+          transform: rotate(4deg);
+}
+

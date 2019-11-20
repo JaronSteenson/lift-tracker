@@ -43436,7 +43436,7 @@ var render = function() {
             "Draggable",
             {
               staticClass: "row",
-              attrs: { handle: ".js-workout-drag-handle" },
+              attrs: { handle: ".js-workout-drag-handle", forceFallback: true },
               model: {
                 value: _vm.orderedWorkouts,
                 callback: function($$v) {
@@ -43449,7 +43449,10 @@ var render = function() {
               _vm._l(_vm.orderedWorkouts, function(workout) {
                 return _c(
                   "div",
-                  { staticClass: "col-sm-12 col-md-6 col-lg-4 col-xl-3" },
+                  {
+                    staticClass:
+                      "col-sm-12 col-md-6 col-lg-4 col-xl-3 draggable"
+                  },
                   [
                     _c("RoutineCard", {
                       key: workout.cid,
@@ -43596,7 +43599,8 @@ var render = function() {
               {
                 attrs: {
                   handle: ".js-exercise-drag-handle",
-                  group: { name: "exercises", pull: true, put: true }
+                  group: { name: "exercises", pull: true, put: true },
+                  forceFallback: true
                 },
                 model: {
                   value: _vm.orderedExercises,

@@ -2,3 +2,25 @@
     cursor: pointer;
 }
 
+
+
+// Class name for the drop placeholder.
+.sortable-ghost {
+    visibility: hidden;
+}
+
+// Class name for the chosen item.
+.sortable-chosen {
+    //background-color: red;
+    cursor: pointer !important;
+}
+
+// Class name for the dragging item, because this uses the native html5 drag and drop api,
+// any style changes are mostly overwritten by the browsers ghost effect.
+.sortable-drag.card, .sortable-drag .card {
+     cursor: pointer !important;
+}
+
+.sortable-drag {
+    transform: rotate(4deg);
+}

@@ -6,8 +6,8 @@
         </div>
 
         <div class="container-fluid">
-            <Draggable class="row" v-model="orderedWorkouts" handle=".js-workout-drag-handle">
-                <div v-for="(workout) in orderedWorkouts" class="col-sm-12 col-md-6 col-lg-4 col-xl-3">
+            <Draggable class="row" v-model="orderedWorkouts" handle=".js-workout-drag-handle" :forceFallback="true">
+                <div v-for="(workout) in orderedWorkouts" class="col-sm-12 col-md-6 col-lg-4 col-xl-3 draggable">
                     <RoutineCard :key="workout.cid" :workoutCid="workout.cid"></RoutineCard>
                 </div>
 

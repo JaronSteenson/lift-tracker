@@ -16,7 +16,7 @@
 
         <div class="row">
             <div class="col">
-                <Draggable v-model="orderedExercises" handle=".js-exercise-drag-handle" :group="{ name: 'exercises', pull: true, put: true }">
+                <Draggable v-model="orderedExercises" handle=".js-exercise-drag-handle" :group="{ name: 'exercises', pull: true, put: true }" :forceFallback="true">
                     <template v-for="(exercise) in orderedExercises">
                         <ExerciseCard :key="exercise.cid" :exercise-cid="exercise.cid"/>
                     </template>
