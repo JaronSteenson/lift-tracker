@@ -1,5 +1,5 @@
 <template>
-    <BootstrapCard>
+    <BootstrapCard class="workout-card">
         <template v-slot:header>
             <div class="js-workout-drag-handle drag-handle d-flex justify-content-center">
                 <TitleInput class="workout-name" :placeholder="'Enter workout name'" v-model="name"></TitleInput>
@@ -16,7 +16,8 @@
 
         <div class="row">
             <div class="col">
-                <Draggable v-model="orderedExercises" handle=".js-exercise-drag-handle" :group="{ name: 'exercises', pull: true, put: true }" :forceFallback="true">
+                <Draggable v-model="orderedExercises" handle=".js-exercise-drag-handle" :group="{ name: 'exercises', pull: true, put: true }"
+                           :forceFallback="true" dragClass="dragging-exercise-card">
                     <template v-for="(exercise) in orderedExercises">
                         <ExerciseCard :key="exercise.cid" :exercise-cid="exercise.cid"/>
                     </template>

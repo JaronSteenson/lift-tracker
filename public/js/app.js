@@ -2210,6 +2210,7 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
 
 
 
@@ -43436,7 +43437,11 @@ var render = function() {
             "Draggable",
             {
               staticClass: "row",
-              attrs: { handle: ".js-workout-drag-handle", forceFallback: true },
+              attrs: {
+                handle: ".js-workout-drag-handle",
+                forceFallback: true,
+                dragClass: "dragging-workout-card"
+              },
               model: {
                 value: _vm.orderedWorkouts,
                 callback: function($$v) {
@@ -43527,6 +43532,7 @@ var render = function() {
   return _c(
     "BootstrapCard",
     {
+      staticClass: "workout-card",
       scopedSlots: _vm._u([
         {
           key: "header",
@@ -43600,7 +43606,8 @@ var render = function() {
                 attrs: {
                   handle: ".js-exercise-drag-handle",
                   group: { name: "exercises", pull: true, put: true },
-                  forceFallback: true
+                  forceFallback: true,
+                  dragClass: "dragging-exercise-card"
                 },
                 model: {
                   value: _vm.orderedExercises,

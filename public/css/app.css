@@ -11241,13 +11241,11 @@ input:not([type=checkbox]):focus {
   cursor: pointer !important;
 }
 
-.sortable-drag.card,
-.sortable-drag .card {
+.dragging-exercise-card.exercise-card,
+.dragging-workout-card .workout-card {
   cursor: pointer !important;
-}
-
-.sortable-drag {
   -webkit-transform: rotate(4deg);
           transform: rotate(4deg);
+  box-shadow: 0 5px 10px var(--secondary);
 }
 

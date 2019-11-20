@@ -15,12 +15,9 @@
     cursor: pointer !important;
 }
 
-// Class name for the dragging item, because this uses the native html5 drag and drop api,
-// any style changes are mostly overwritten by the browsers ghost effect.
-.sortable-drag.card, .sortable-drag .card {
-     cursor: pointer !important;
-}
-
-.sortable-drag {
+// Class name for the dragging item.
+.dragging-exercise-card.exercise-card, .dragging-workout-card .workout-card {
+    cursor: pointer !important;
     transform: rotate(4deg);
+    box-shadow: 0 5px 10px var(--secondary);
 }
