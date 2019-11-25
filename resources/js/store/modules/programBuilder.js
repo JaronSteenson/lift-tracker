@@ -2,8 +2,13 @@ import WorkoutProgramService from '../../api/WorkoutProgramService'
 import ClientSideId from '../../ClientSideId'
 import { debounce } from 'lodash';
 
-const LOCAL_STORAGE_KEY = 'program-builder-state';
+const LOCAL_STORAGE_NAMESPACE = 'program-builder-state';
+const BUILDER_IN_PROGRESS = 'builder-in-progress';
 const SAVE_DEBOUNCE_WAIT = 2000;
+
+function localStorageKey(key) {
+    return `${LOCAL_STORAGE_NAMESPACE}_${key}`
+}
 
 // initial state
 const state = {
@@ -56,7 +61,6 @@ const actions = {
             name: null,
             workoutProgramRoutines: [
                 {
-                    cid: ClientSideId.assign(),
                     name: null,
                     position: 0,
                     routineExercises: [],
@@ -140,7 +144,7 @@ const actions = {
     },
 
     tryRestoreFromLocalStorage({ commit, dispatch }) {
-        const stateFromLocalStorage = JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY));
+        const stateFromLocalStorage = JSON.parse(localStorage.getItem(localStorageKey(BUILDER_IN_PROGRESS)));
 
         if (stateFromLocalStorage) {
             commit('reset', stateFromLocalStorage);
@@ -149,12 +153,18 @@ const actions = {
         }
     },
 
-    save: debounce(({ state, commit, dispatch }) => {
-        console.log('saving program builder state');
+    save: debounce(async ({ state, commit }) => {
+        localStorage.setItem(localStorageKey(BUILDER_IN_PROGRESS), JSON.stringify(state));
 
-        localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(state));
+        try {
+            const response = await WorkoutProgramService.save(state);
 
-        // TODO actual ajax if online etc.
+            commit('reset', response.data);
+            localStorage.removeItem(localStorageKey(BUILDER_IN_PROGRESS));
+        } catch (error) {
+            console.error(error); // TODO add to toast queue/user facing error message.
+        }
+
     }, SAVE_DEBOUNCE_WAIT),
 
     async fetchById({state, commit}, id) {
@@ -170,7 +180,12 @@ const mutations = {
     reset(state, newState) {
         Object.keys(newState).forEach(key => {
             state[key] = newState[key]
-        })
+        });
+
+        state.workoutProgramRoutines.forEach((workout) => {
+            ClientSideId.assignTo(workout);
+            ClientSideId.assignToAll(workout.routineExercises);
+        });
     },
 
     updateName(state, name) {

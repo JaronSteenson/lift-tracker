@@ -37,6 +37,7 @@ class WorkoutProgramRoutine extends AbstractModel implements UserOwnershipInterf
     protected $fillable = [
         'name',
         'normalDay',
+        'position',
     ];
 
     /**

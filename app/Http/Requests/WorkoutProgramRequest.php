@@ -9,18 +9,21 @@ use LiftTracker\Domain\Workouts\Programs\WorkoutProgram;
 use LiftTracker\Domain\Workouts\Programs\WorkoutProgramRoutine;
 use LiftTracker\Domain\Workouts\Programs\WorkoutProgramRoutineCollection;
 use LiftTracker\Rules\DayOfTheWeek;
+use LiftTracker\Rules\UniquePositions;
 
 class WorkoutProgramRequest extends ApiRequest
 {
     protected function getValidationRules(): array
     {
         return [
-            'name' => 'required|max:40',
+            'name' => 'nullable|required|max:40',
 
-            'workoutProgramRoutines.*.name' => 'required|max:40',
+            'workoutProgramRoutines.*.name' => 'nullable|max:40',
             'workoutProgramRoutines.*.normalDay' => [new DayOfTheWeek()],
+            'workoutProgramRoutines' => [new UniquePositions()],
 
-            'workoutProgramRoutines.*.exercises.*.numberOfSets' => 'numeric|min:1|max:100',
+            'workoutProgramRoutines.*.routineExercises.*.numberOfSets' => 'nullable|numeric|min:1|max:100',
+            'workoutProgramRoutines.*.routineExercises' => [new UniquePositions()]
         ];
     }
 

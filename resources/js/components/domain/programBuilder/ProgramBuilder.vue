@@ -40,15 +40,23 @@
             }
         },
         created() {
-            if (!this.workoutProgramId) {
-                this.$store.dispatch('programBuilder/tryRestoreFromLocalStorage');
+            if (this.workoutProgramId) {
+                this.$store.dispatch('programBuilder/fetchById', this.workoutProgramId)
             } else {
-                // TODO go fetch existing.
+                this.$store.dispatch('programBuilder/tryRestoreFromLocalStorage');
             }
         },
-        data () {
+        data() {
             return {
                 loading: false,
+            }
+        },
+        watch: {
+            // Change the route to id once a new program has been saved
+            id(newId, oldId) {
+                // if (newId !== null && oldId === null) {
+                //     this.$router.replace(`/workout-programs/${newId}`);
+                // }
             }
         },
         computed: {
@@ -73,12 +81,6 @@
         methods: {
             addWorkoutToProgram() {
                 this.$store.dispatch('programBuilder/addWorkoutToProgram');
-            },
-
-            async save() {
-                this.loading = true;
-                // await WorkoutProgramService.save(this.workoutProgram); TODO move to store
-                this.loading = false;
             },
         }
     }

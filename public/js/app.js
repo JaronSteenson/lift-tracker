@@ -2040,18 +2040,14 @@ __webpack_require__.r(__webpack_exports__);
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony import */ var _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @babel/runtime/regenerator */ "./node_modules/@babel/runtime/regenerator/index.js");
-/* harmony import */ var _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0__);
-/* harmony import */ var _LoadingSpinner__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../../LoadingSpinner */ "./resources/js/components/LoadingSpinner.vue");
-/* harmony import */ var vuex__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! vuex */ "./node_modules/vuex/dist/vuex.esm.js");
-/* harmony import */ var _formFields_TitleInput__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../../formFields/TitleInput */ "./resources/js/components/formFields/TitleInput.vue");
-/* harmony import */ var _RoutineCard__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./RoutineCard */ "./resources/js/components/domain/programBuilder/RoutineCard.vue");
-/* harmony import */ var _BootstrapCard__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./../../BootstrapCard */ "./resources/js/components/BootstrapCard.vue");
-/* harmony import */ var _formFields_AddButton__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./../../formFields/AddButton */ "./resources/js/components/formFields/AddButton.vue");
-/* harmony import */ var vuedraggable__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! vuedraggable */ "./node_modules/vuedraggable/dist/vuedraggable.common.js");
-/* harmony import */ var vuedraggable__WEBPACK_IMPORTED_MODULE_7___default = /*#__PURE__*/__webpack_require__.n(vuedraggable__WEBPACK_IMPORTED_MODULE_7__);
-
-
+/* harmony import */ var _LoadingSpinner__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../../LoadingSpinner */ "./resources/js/components/LoadingSpinner.vue");
+/* harmony import */ var vuex__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! vuex */ "./node_modules/vuex/dist/vuex.esm.js");
+/* harmony import */ var _formFields_TitleInput__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../../formFields/TitleInput */ "./resources/js/components/formFields/TitleInput.vue");
+/* harmony import */ var _RoutineCard__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./RoutineCard */ "./resources/js/components/domain/programBuilder/RoutineCard.vue");
+/* harmony import */ var _BootstrapCard__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./../../BootstrapCard */ "./resources/js/components/BootstrapCard.vue");
+/* harmony import */ var _formFields_AddButton__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./../../formFields/AddButton */ "./resources/js/components/formFields/AddButton.vue");
+/* harmony import */ var vuedraggable__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! vuedraggable */ "./node_modules/vuedraggable/dist/vuedraggable.common.js");
+/* harmony import */ var vuedraggable__WEBPACK_IMPORTED_MODULE_6___default = /*#__PURE__*/__webpack_require__.n(vuedraggable__WEBPACK_IMPORTED_MODULE_6__);
 function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); keys.push.apply(keys, symbols); } return keys; }
 
 function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; if (i % 2) { ownKeys(source, true).forEach(function (key) { _defineProperty(target, key, source[key]); }); } else if (Object.getOwnPropertyDescriptors) { Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)); } else { ownKeys(source).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } } return target; }
@@ -2091,12 +2087,12 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 /* harmony default export */ __webpack_exports__["default"] = ({
   name: 'ProgramBuilder',
   components: {
-    AddButton: _formFields_AddButton__WEBPACK_IMPORTED_MODULE_6__["default"],
-    RoutineCard: _RoutineCard__WEBPACK_IMPORTED_MODULE_4__["default"],
-    TitleInput: _formFields_TitleInput__WEBPACK_IMPORTED_MODULE_3__["default"],
-    LoadingSpinner: _LoadingSpinner__WEBPACK_IMPORTED_MODULE_1__["default"],
-    BootstrapCard: _BootstrapCard__WEBPACK_IMPORTED_MODULE_5__["default"],
-    Draggable: vuedraggable__WEBPACK_IMPORTED_MODULE_7___default.a
+    AddButton: _formFields_AddButton__WEBPACK_IMPORTED_MODULE_5__["default"],
+    RoutineCard: _RoutineCard__WEBPACK_IMPORTED_MODULE_3__["default"],
+    TitleInput: _formFields_TitleInput__WEBPACK_IMPORTED_MODULE_2__["default"],
+    LoadingSpinner: _LoadingSpinner__WEBPACK_IMPORTED_MODULE_0__["default"],
+    BootstrapCard: _BootstrapCard__WEBPACK_IMPORTED_MODULE_4__["default"],
+    Draggable: vuedraggable__WEBPACK_IMPORTED_MODULE_6___default.a
   },
   props: {
     workoutProgramId: {
@@ -2105,9 +2101,10 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
     }
   },
   created: function created() {
-    if (!this.workoutProgramId) {
+    if (this.workoutProgramId) {
+      this.$store.dispatch('programBuilder/fetchById', this.workoutProgramId);
+    } else {
       this.$store.dispatch('programBuilder/tryRestoreFromLocalStorage');
-    } else {// TODO go fetch existing.
     }
   },
   data: function data() {
@@ -2115,7 +2112,14 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
       loading: false
     };
   },
-  computed: _objectSpread({}, Object(vuex__WEBPACK_IMPORTED_MODULE_2__["mapState"])('programBuilder', ['id']), {
+  watch: {
+    // Change the route to id once a new program has been saved
+    id: function id(newId, oldId) {// if (newId !== null && oldId === null) {
+      //     this.$router.replace(`/workout-programs/${newId}`);
+      // }
+    }
+  },
+  computed: _objectSpread({}, Object(vuex__WEBPACK_IMPORTED_MODULE_1__["mapState"])('programBuilder', ['id']), {
     orderedWorkouts: {
       get: function get() {
         return this.$store.getters['programBuilder/getOrderedWorkouts'];
@@ -2136,22 +2140,6 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
   methods: {
     addWorkoutToProgram: function addWorkoutToProgram() {
       this.$store.dispatch('programBuilder/addWorkoutToProgram');
-    },
-    save: function save() {
-      return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.async(function save$(_context) {
-        while (1) {
-          switch (_context.prev = _context.next) {
-            case 0:
-              this.loading = true; // await WorkoutProgramService.save(this.workoutProgram); TODO move to store
-
-              this.loading = false;
-
-            case 2:
-            case "end":
-              return _context.stop();
-          }
-        }
-      }, null, this);
     }
   }
 });
@@ -2384,82 +2372,21 @@ __webpack_require__.r(__webpack_exports__);
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony import */ var _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @babel/runtime/regenerator */ "./node_modules/@babel/runtime/regenerator/index.js");
-/* harmony import */ var _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0__);
-/* harmony import */ var _BootstrapCard__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../BootstrapCard */ "./resources/js/components/BootstrapCard.vue");
-/* harmony import */ var _domain_programBuilder_ProgramBuilder__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../domain/programBuilder/ProgramBuilder */ "./resources/js/components/domain/programBuilder/ProgramBuilder.vue");
-/* harmony import */ var _LoadingSpinner__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../LoadingSpinner */ "./resources/js/components/LoadingSpinner.vue");
-/* harmony import */ var vuex__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! vuex */ "./node_modules/vuex/dist/vuex.esm.js");
-
-
-function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); keys.push.apply(keys, symbols); } return keys; }
-
-function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; if (i % 2) { ownKeys(source, true).forEach(function (key) { _defineProperty(target, key, source[key]); }); } else if (Object.getOwnPropertyDescriptors) { Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)); } else { ownKeys(source).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } } return target; }
-
-function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
-
+/* harmony import */ var _domain_programBuilder_ProgramBuilder__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../domain/programBuilder/ProgramBuilder */ "./resources/js/components/domain/programBuilder/ProgramBuilder.vue");
 //
 //
 //
 //
-
-
-
 
 /* harmony default export */ __webpack_exports__["default"] = ({
   name: 'CreateWorkoutProgramPage',
   components: {
-    ProgramBuilder: _domain_programBuilder_ProgramBuilder__WEBPACK_IMPORTED_MODULE_2__["default"],
-    BootstrapCard: _BootstrapCard__WEBPACK_IMPORTED_MODULE_1__["default"],
-    LoadingSpinner: _LoadingSpinner__WEBPACK_IMPORTED_MODULE_3__["default"]
+    ProgramBuilder: _domain_programBuilder_ProgramBuilder__WEBPACK_IMPORTED_MODULE_0__["default"]
   },
-  created: function created() {
-    this.fetchWorkoutProgram();
-  },
-  watch: {
-    '$route': 'fetchWorkoutProgram' // Call again if the route changes.
-
-  },
-  data: function data() {
-    return {
-      loading: true
-    };
-  },
-  computed: _objectSpread({
-    title: function title() {
-      return this.isNew() ? 'Create new workout program' : "Edit ".concat(this.name);
-    }
-  }, Object(vuex__WEBPACK_IMPORTED_MODULE_4__["mapState"])('programBuilder', ['id', 'name', 'workoutProgramRoutines'])),
-  methods: {
-    fetchWorkoutProgram: function fetchWorkoutProgram() {
-      var id;
-      return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.async(function fetchWorkoutProgram$(_context) {
-        while (1) {
-          switch (_context.prev = _context.next) {
-            case 0:
-              id = this.$route.params.id;
-
-              if (!id) {
-                _context.next = 6;
-                break;
-              }
-
-              this.loading = true;
-              _context.next = 5;
-              return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.awrap(this.$store.dispatch('programBuilder/fetchById', id));
-
-            case 5:
-              this.loading = false;
-
-            case 6:
-            case "end":
-              return _context.stop();
-          }
-        }
-      }, null, this);
-    },
-    isNew: function isNew() {
-      return !this.$route.params.id;
+  props: {
+    workoutProgramId: {
+      type: String,
+      required: false
     }
   }
 });
@@ -43771,7 +43698,9 @@ var render = function() {
   var _vm = this
   var _h = _vm.$createElement
   var _c = _vm._self._c || _h
-  return _c("ProgramBuilder")
+  return _c("ProgramBuilder", {
+    attrs: { workoutProgramId: _vm.workoutProgramId }
+  })
 }
 var staticRenderFns = []
 render._withStripped = true
@@ -63340,7 +63269,7 @@ var routes = [{
   path: '/workout-programs/create',
   component: _components_pages_WorkoutProgramPage__WEBPACK_IMPORTED_MODULE_5__["default"]
 }, {
-  path: '/workout-programs/:id',
+  path: '/workout-programs/:workoutProgramId',
   component: _components_pages_WorkoutProgramPage__WEBPACK_IMPORTED_MODULE_5__["default"]
 }];
 var router = new vue_router__WEBPACK_IMPORTED_MODULE_1__["default"]({
@@ -64211,8 +64140,14 @@ function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
 
 
 
-var LOCAL_STORAGE_KEY = 'program-builder-state';
-var SAVE_DEBOUNCE_WAIT = 2000; // initial state
+var LOCAL_STORAGE_NAMESPACE = 'program-builder-state';
+var BUILDER_IN_PROGRESS = 'builder-in-progress';
+var SAVE_DEBOUNCE_WAIT = 2000;
+
+function localStorageKey(key) {
+  return "".concat(LOCAL_STORAGE_NAMESPACE, "_").concat(key);
+} // initial state
+
 
 var state = {
   id: null,
@@ -64261,7 +64196,6 @@ var actions = {
       id: null,
       name: null,
       workoutProgramRoutines: [{
-        cid: _ClientSideId__WEBPACK_IMPORTED_MODULE_2__["default"].assign(),
         name: null,
         position: 0,
         routineExercises: []
@@ -64380,7 +64314,7 @@ var actions = {
   tryRestoreFromLocalStorage: function tryRestoreFromLocalStorage(_ref17) {
     var commit = _ref17.commit,
         dispatch = _ref17.dispatch;
-    var stateFromLocalStorage = JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY));
+    var stateFromLocalStorage = JSON.parse(localStorage.getItem(localStorageKey(BUILDER_IN_PROGRESS)));
 
     if (stateFromLocalStorage) {
       commit('reset', stateFromLocalStorage);
@@ -64388,31 +64322,55 @@ var actions = {
       dispatch('startNew');
     }
   },
-  save: Object(lodash__WEBPACK_IMPORTED_MODULE_3__["debounce"])(function (_ref18) {
-    var state = _ref18.state,
-        commit = _ref18.commit,
-        dispatch = _ref18.dispatch;
-    console.log('saving program builder state');
-    localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(state)); // TODO actual ajax if online etc.
-  }, SAVE_DEBOUNCE_WAIT),
-  fetchById: function fetchById(_ref19, id) {
+  save: Object(lodash__WEBPACK_IMPORTED_MODULE_3__["debounce"])(function _callee(_ref18) {
     var state, commit, response;
-    return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.async(function fetchById$(_context) {
+    return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.async(function _callee$(_context) {
       while (1) {
         switch (_context.prev = _context.next) {
           case 0:
+            state = _ref18.state, commit = _ref18.commit;
+            localStorage.setItem(localStorageKey(BUILDER_IN_PROGRESS), JSON.stringify(state));
+            _context.prev = 2;
+            _context.next = 5;
+            return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.awrap(_api_WorkoutProgramService__WEBPACK_IMPORTED_MODULE_1__["default"].save(state));
+
+          case 5:
+            response = _context.sent;
+            commit('reset', response.data);
+            localStorage.removeItem(localStorageKey(BUILDER_IN_PROGRESS));
+            _context.next = 13;
+            break;
+
+          case 10:
+            _context.prev = 10;
+            _context.t0 = _context["catch"](2);
+            console.error(_context.t0); // TODO add to toast queue/user facing error message.
+
+          case 13:
+          case "end":
+            return _context.stop();
+        }
+      }
+    }, null, null, [[2, 10]]);
+  }, SAVE_DEBOUNCE_WAIT),
+  fetchById: function fetchById(_ref19, id) {
+    var state, commit, response;
+    return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.async(function fetchById$(_context2) {
+      while (1) {
+        switch (_context2.prev = _context2.next) {
+          case 0:
             state = _ref19.state, commit = _ref19.commit;
-            _context.next = 3;
+            _context2.next = 3;
             return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.awrap(_api_WorkoutProgramService__WEBPACK_IMPORTED_MODULE_1__["default"].get(id));
 
           case 3:
-            response = _context.sent;
+            response = _context2.sent;
             commit('reset', response.data);
-            return _context.abrupt("return", response.data);
+            return _context2.abrupt("return", response.data);
 
           case 6:
           case "end":
-            return _context.stop();
+            return _context2.stop();
         }
       }
     });
@@ -64422,6 +64380,10 @@ var mutations = {
   reset: function reset(state, newState) {
     Object.keys(newState).forEach(function (key) {
       state[key] = newState[key];
+    });
+    state.workoutProgramRoutines.forEach(function (workout) {
+      _ClientSideId__WEBPACK_IMPORTED_MODULE_2__["default"].assignTo(workout);
+      _ClientSideId__WEBPACK_IMPORTED_MODULE_2__["default"].assignToAll(workout.routineExercises);
     });
   },
   updateName: function updateName(state, name) {

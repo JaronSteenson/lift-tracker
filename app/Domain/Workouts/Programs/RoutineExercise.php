@@ -41,6 +41,7 @@ class RoutineExercise extends AbstractModel
     protected $fillable = [
         'name',
         'numberOfSets',
+        'position',
     ];
 
     protected $casts = [
