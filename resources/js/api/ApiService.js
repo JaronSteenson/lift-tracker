@@ -7,8 +7,7 @@ let csrfToken = document.head.querySelector('meta[name="csrf-token"]');
 
 axios.defaults.headers.common['X-CSRF-TOKEN'] = csrfToken.content;
 
-let url = window.apiBaseUrl;
-
+const url = window.apiBaseUrl;
 const baseUrl = url.replace(/\/+$/, '');
 
 if (typeof baseUrl !== 'string') {
@@ -42,6 +41,7 @@ const ApiService = {
     },
 
     makeEndpointUrl(resourceType, resourceId = null) {
+        debugger;
         let url = `${baseUrl}/${resourceType}`;
 
         if (resourceId !== null) {
