@@ -1,3 +1,11 @@
+## Starting laradoc
+
+<code>
+cd ~/code/lift-tracker/laradock && docker-compose up -d nginx mysql;
+</code>
+
+<hr>
+
 <p align="center"><img src="https://laravel.com/assets/img/components/logo-laravel.svg"></p>
 
 <p align="center">
