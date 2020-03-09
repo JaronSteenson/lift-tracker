@@ -14,13 +14,14 @@ class WorkoutProgramRoutineTest extends TestCase
     /**
      * @throws Exception
      */
-    public function testMultipleRoutesWithSameIdCannotBeSaved(): void
+    public function testMultipleRoutinesWithSameIdCannotBeSaved(): void
     {
         $this->expectException(Exception::class);
 
         $routineOne = new WorkoutProgramRoutine([
             'name' => 'Day one',
             'normalDay' => 'Monday',
+            'position' => 0,
         ]);
 
         $routineOne->workoutProgramId = '123e4567-e89b-12d3-a456-426655440000';
@@ -29,6 +30,7 @@ class WorkoutProgramRoutineTest extends TestCase
         $routineTwo = new WorkoutProgramRoutine([
             'name' => 'Day Two',
             'normalDay' => 'Monday',
+            'position' => 0,
         ]);
 
         $routineTwo->id = $routineOne->id;
@@ -42,9 +44,10 @@ class WorkoutProgramRoutineTest extends TestCase
         $routine = new WorkoutProgramRoutine([
             'name' => 'Day one',
             'normalDay' => 'Monday',
+            'position' => 0,
         ]);
 
-        $exercises = new RoutineExerciseCollection([new RoutineExercise(['name' => 'push ups'])]);
+        $exercises = new RoutineExerciseCollection([new RoutineExercise(['name' => 'push ups', 'position' => 0])]);
 
         $routine->setRoutineExercises($exercises)->saveWithExercises();
 

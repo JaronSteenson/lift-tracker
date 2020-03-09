@@ -58,6 +58,7 @@ class RoutineExercise extends AbstractModel
         'name',
         'numberOfSets',
         'workoutProgramRoutineId',
+        'position',
     ];
 
     public function routine(): BelongsTo

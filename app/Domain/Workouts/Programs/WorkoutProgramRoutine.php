@@ -51,6 +51,7 @@ class WorkoutProgramRoutine extends AbstractModel implements UserOwnershipInterf
         'normalDay',
         'routineExercises',
         'workoutProgramId',
+        'position',
     ];
 
     protected $with = [

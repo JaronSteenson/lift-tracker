@@ -84,8 +84,9 @@ class WorkoutProgramFeatureTest extends TestCase
                 [
                     'name' => 'Day one',
                     'normalDay' => 'Saturday',
+                    'position' => 0,
                 ]
-            ]
+            ],
         ];
 
         /** @var User $user */
@@ -116,10 +117,12 @@ class WorkoutProgramFeatureTest extends TestCase
                 [
                     'name' => 'Day one',
                     'normalDay' => 'Monday',
+                    'position' => 0,
                     'routineExercises' => [
                         [
                             'name' => 'Push ups',
                             'numberOfSets' => 100,
+                            'position' => 0,
                         ]
                     ]
                 ]
@@ -160,10 +163,12 @@ class WorkoutProgramFeatureTest extends TestCase
                 [
                     'name' => 'Day one',
                     'normalDay' => 'Monday',
+                    'position' => 0,
                     'routineExercises' => [
                         [
                             'name' => 'Push ups',
                             'numberOfSets' => 100,
+                            'position' => 0,
                         ]
                     ]
                 ]
@@ -195,6 +200,7 @@ class WorkoutProgramFeatureTest extends TestCase
             ->setRoutineExercises(new RoutineExerciseCollection([new RoutineExercise([
                 'name' => 'Sit ups',
                 'numberOfSets' => 50,
+                'position' => 2,
             ])]));
 
         $exerciseSwapRequest = $this->actingAs($user)
@@ -222,6 +228,7 @@ class WorkoutProgramFeatureTest extends TestCase
                 [
                     'name' => 'Day one',
                     'normalDay' => 'Monday',
+                    'position' => 0,
                 ]
             ]
         ];
@@ -245,6 +252,7 @@ class WorkoutProgramFeatureTest extends TestCase
             [
                 'name' => 'Day A',
                 'normalDay' => 'Tuesday',
+                'position' => 1,
             ]
         ];
 
@@ -280,6 +288,7 @@ class WorkoutProgramFeatureTest extends TestCase
 
         $usersProgram = new WorkoutProgram([
             'name' => 'Program 1',
+            'position' => 0,
         ]);
 
         $usersProgram->user()->associate($user);
