@@ -37,7 +37,7 @@ return [
 
         'mysql' => [
             'driver' => 'mysql',
-            'host' => env('DB_HOST', '127.0.0.1'),
+            'host' => env('DB_HOST', 'mysql'),
             'port' => env('DB_PORT', '3306'),
             'database' => env('DB_DATABASE', 'lift_tracker'),
             'username' => env('DB_USERNAME', 'lift_tracker'),
@@ -52,10 +52,10 @@ return [
 
         'mysql_test' => [
             'driver' => 'mysql',
-            'host' => env('TEST_DB_HOST', '127.0.0.1'),
+            'host' => env('TEST_DB_HOST', 'mysql'),
             'port' => env('TEST_DB_PORT', '3306'),
             'database' => env('TEST_DB_DATABASE', 'lift_tracker_test'),
-            'username' => env('TEST_DB_USERNAME', 'lift_tracker'),
+            'username' => env('TEST_DB_USERNAME', 'lift_tracker_test'),
             'password' => env('TEST_DB_PASSWORD', ''),
             'unix_socket' => env('TEST_DB_SOCKET', ''),
             'charset' => 'utf8mb4',

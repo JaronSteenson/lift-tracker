@@ -1,8 +1,18 @@
 ## Starting laradoc
 
-<code>
-cd ~/code/lift-tracker/laradock && docker-compose up -d nginx mysql;
-</code>
+<code>cd ~/code/lift-tracker/laradock && docker-compose up -d nginx mysql;</code>
+
+## Migrating the test database
+
+<code>docker-compose exec workspace bash; # get into the workspace container</code>
+
+<code>artisan migrate --database=mysql_test; # migrate the test db</code>
+
+## Debugging a unit test
+
+<code>docker-compose exec workspace bash; # get into the workspace container</code>
+
+<code>php -dxdebug.remote_enable=1 -dxdebug.remote_mode=req -dxdebug.remote_port=9000 -dxdebug.remote_host=172.17.0.1 ./vendor/phpunit/phpunit/phpunit --configuration ./phpunit.xml --filter "/(::testDeleteRemovesExercises)( .*)?$/"</code>
 
 <hr>
 
