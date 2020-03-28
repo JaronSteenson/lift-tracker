@@ -67,7 +67,7 @@ class WorkoutProgram extends AbstractModel implements UserOwnershipInterface
         'id' => 'string', //is a uuid
     ];
 
-    public static function createFromRequest(WorkoutProgramRequest $request)
+    public static function createFromRequest(WorkoutProgramRequest $request): self
     {
         // Populate the top level fields.
         $workoutProgram = $request->getExistingModel() ?? new static($request->getWorkoutProgramFields());
@@ -84,7 +84,7 @@ class WorkoutProgram extends AbstractModel implements UserOwnershipInterface
         return $workoutProgram;
     }
 
-    public function saveWithChildren()
+    public function saveWithChildren(): self
     {
         return DB::transaction(function() {
             $this->save();
@@ -94,7 +94,7 @@ class WorkoutProgram extends AbstractModel implements UserOwnershipInterface
         });
     }
 
-    private function saveRoutinesWithExercises()
+    private function saveRoutinesWithExercises(): self
     {
         return DB::transaction(function() {
             $this->deleteRemovedChildren('workoutProgramRoutines');

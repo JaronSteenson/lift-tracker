@@ -7,8 +7,8 @@
                     <loading-spinner></loading-spinner>
                 </div>
 
-                <div v-else v-for="program in workoutPrograms" v-bind:key="program.id">
-                    <routerLink v-bind:to="'/workout-programs/' + program.id" class="a">{{ program.name }}</routerLink>
+                <div v-else v-for="program in workoutPrograms" :key="program.id">
+                    <routerLink :to="`/workout-programs/${program.id}`">{{ program.name }}</routerLink>
                 </div>
 
                 <hr>
@@ -23,15 +23,17 @@
 </template>
 
 <script>
-    import BootstrapCard from "../BootstrapCard";
-    import WorkoutProgramService from "../../api/WorkoutProgramService";
-    import LoadingSpinner from "../LoadingSpinner";
+    import BootstrapCard from '../BootstrapCard';
+    import WorkoutProgramService from '../../api/WorkoutProgramService';
+    import LoadingSpinner from '../LoadingSpinner';
 
     export default {
-        name: 'CreateWorkoutProgramList',
-        components: {LoadingSpinner, BootstrapCard},
+        components: {
+            LoadingSpinner,
+            BootstrapCard
+        },
         created() {
-            this.fetchWorkoutPrograms()
+            this.fetchWorkoutPrograms();
         },
         watch: {
             // call again the method if the route changes
@@ -46,7 +48,9 @@
         methods: {
             async fetchWorkoutPrograms() {
                 this.loading = true;
-                this.workoutPrograms = await WorkoutProgramService.getAll();
+                const response = await WorkoutProgramService.getAll();
+
+                this.workoutPrograms = response.data;
                 this.loading = false;
             }
         }

@@ -1910,7 +1910,6 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
 
 /* harmony default export */ __webpack_exports__["default"] = ({
-  name: 'CreateWorkoutProgramList',
   components: {
     LoadingSpinner: _LoadingSpinner__WEBPACK_IMPORTED_MODULE_3__["default"],
     BootstrapCard: _BootstrapCard__WEBPACK_IMPORTED_MODULE_1__["default"]
@@ -1935,6 +1934,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       return _asyncToGenerator(
       /*#__PURE__*/
       _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.mark(function _callee() {
+        var response;
         return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.wrap(function _callee$(_context) {
           while (1) {
             switch (_context.prev = _context.next) {
@@ -1944,10 +1944,11 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                 return _api_WorkoutProgramService__WEBPACK_IMPORTED_MODULE_2__["default"].getAll();
 
               case 3:
-                _this.workoutPrograms = _context.sent;
+                response = _context.sent;
+                _this.workoutPrograms = response.data;
                 _this.loading = false;
 
-              case 5:
+              case 6:
               case "end":
                 return _context.stop();
             }
@@ -43337,10 +43338,7 @@ var render = function() {
                     [
                       _c(
                         "routerLink",
-                        {
-                          staticClass: "a",
-                          attrs: { to: "/workout-programs/" + program.id }
-                        },
+                        { attrs: { to: "/workout-programs/" + program.id } },
                         [_vm._v(_vm._s(program.name))]
                       )
                     ],
@@ -63349,7 +63347,6 @@ var ApiService = {
   },
   makeEndpointUrl: function makeEndpointUrl(resourceType) {
     var resourceId = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
-    debugger;
     var url = "".concat(baseUrl, "/").concat(resourceType);
 
     if (resourceId !== null) {
@@ -64663,8 +64660,8 @@ var mutations = {
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
-__webpack_require__(/*! /var/www/resources/js/app.js */"./resources/js/app.js");
-module.exports = __webpack_require__(/*! /var/www/resources/sass/app.scss */"./resources/sass/app.scss");
+__webpack_require__(/*! /home/jaron/code/lift-tracker/resources/js/app.js */"./resources/js/app.js");
+module.exports = __webpack_require__(/*! /home/jaron/code/lift-tracker/resources/sass/app.scss */"./resources/sass/app.scss");
 
 
 /***/ })

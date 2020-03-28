@@ -41,7 +41,6 @@ const ApiService = {
     },
 
     makeEndpointUrl(resourceType, resourceId = null) {
-        debugger;
         let url = `${baseUrl}/${resourceType}`;
 
         if (resourceId !== null) {
