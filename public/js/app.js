@@ -2097,7 +2097,6 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 
 
 /* harmony default export */ __webpack_exports__["default"] = ({
-  name: 'ProgramBuilder',
   components: {
     AddButton: _formFields_AddButton__WEBPACK_IMPORTED_MODULE_5__["default"],
     RoutineCard: _RoutineCard__WEBPACK_IMPORTED_MODULE_3__["default"],
@@ -2126,9 +2125,19 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
   },
   watch: {
     // Change the route to id once a new program has been saved
-    id: function id(newId, oldId) {// if (newId !== null && oldId === null) {
-      //     this.$router.replace(`/workout-programs/${newId}`);
-      // }
+    id: function id(newId, oldId) {
+      if (!newId) {
+        return;
+      }
+
+      if (this.$route.params.workoutProgramId !== newId) {
+        this.$router.replace({
+          name: 'programBuilder',
+          params: {
+            workoutProgramId: newId
+          }
+        });
+      }
     }
   },
   computed: _objectSpread({}, Object(vuex__WEBPACK_IMPORTED_MODULE_1__["mapState"])('programBuilder', ['id']), {
@@ -2391,7 +2400,6 @@ __webpack_require__.r(__webpack_exports__);
 //
 
 /* harmony default export */ __webpack_exports__["default"] = ({
-  name: 'CreateWorkoutProgramPage',
   components: {
     ProgramBuilder: _domain_programBuilder_ProgramBuilder__WEBPACK_IMPORTED_MODULE_0__["default"]
   },
@@ -43338,7 +43346,14 @@ var render = function() {
                     [
                       _c(
                         "routerLink",
-                        { attrs: { to: "/workout-programs/" + program.id } },
+                        {
+                          attrs: {
+                            to: {
+                              name: "programBuilder",
+                              params: { workoutProgramId: program.id }
+                            }
+                          }
+                        },
                         [_vm._v(_vm._s(program.name))]
                       )
                     ],
@@ -43350,7 +43365,7 @@ var render = function() {
             _vm._v(" "),
             _c(
               "routerLink",
-              { attrs: { tag: "a", to: "/workout-programs/create" } },
+              { attrs: { tag: "a", to: { name: "newProgramBuilder" } } },
               [_vm._v("\n                Add new/another\n            ")]
             )
           ],
@@ -63422,11 +63437,15 @@ var routes = [{
   path: '/workout-programs',
   component: _components_domain_WorkoutProgramList_vue__WEBPACK_IMPORTED_MODULE_4__["default"]
 }, {
-  path: '/workout-programs/create',
-  component: _components_pages_WorkoutProgramPage__WEBPACK_IMPORTED_MODULE_5__["default"]
+  name: 'newProgramBuilder',
+  path: '/program-builder',
+  component: _components_pages_WorkoutProgramPage__WEBPACK_IMPORTED_MODULE_5__["default"],
+  props: true
 }, {
-  path: '/workout-programs/:workoutProgramId',
-  component: _components_pages_WorkoutProgramPage__WEBPACK_IMPORTED_MODULE_5__["default"]
+  name: 'programBuilder',
+  path: '/program-builder/:workoutProgramId',
+  component: _components_pages_WorkoutProgramPage__WEBPACK_IMPORTED_MODULE_5__["default"],
+  props: true
 }];
 var router = new vue_router__WEBPACK_IMPORTED_MODULE_1__["default"]({
   routes: routes,
@@ -64534,15 +64553,16 @@ var actions = {
         while (1) {
           switch (_context2.prev = _context2.next) {
             case 0:
-              _context2.next = 2;
+              debugger;
+              _context2.next = 3;
               return _api_WorkoutProgramService__WEBPACK_IMPORTED_MODULE_1__["default"].get(id);
 
-            case 2:
+            case 3:
               response = _context2.sent;
               commit('reset', response.data);
               return _context2.abrupt("return", response.data);
 
-            case 5:
+            case 6:
             case "end":
               return _context2.stop();
           }

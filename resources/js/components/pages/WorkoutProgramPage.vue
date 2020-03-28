@@ -6,8 +6,9 @@
     import ProgramBuilder from '../domain/programBuilder/ProgramBuilder';
 
     export default {
-        name: 'CreateWorkoutProgramPage',
-        components: { ProgramBuilder },
+        components: {
+            ProgramBuilder
+        },
         props: {
             workoutProgramId: {
                 type: String,

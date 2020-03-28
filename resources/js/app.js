@@ -17,8 +17,18 @@ const routes = [
     { path: '/', component: HomePage },
 
     { path: '/workout-programs', component: WorkoutProgramList },
-    { path: '/workout-programs/create', component: WorkoutProgramPage },
-    { path: '/workout-programs/:workoutProgramId', component: WorkoutProgramPage },
+    {
+        name: 'newProgramBuilder',
+        path: '/program-builder',
+        component: WorkoutProgramPage,
+        props: true
+    },
+    {
+        name: 'programBuilder',
+        path: '/program-builder/:workoutProgramId',
+        component: WorkoutProgramPage,
+        props: true
+    },
 
 ];
 

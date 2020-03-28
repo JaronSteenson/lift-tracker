@@ -168,6 +168,8 @@ const actions = {
     }, SAVE_DEBOUNCE_WAIT),
 
     async fetchById({state, commit}, id) {
+        debugger;
+
         const response = await WorkoutProgramService.get(id);
 
         commit('reset', response.data);

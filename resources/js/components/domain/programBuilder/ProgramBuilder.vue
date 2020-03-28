@@ -23,7 +23,7 @@
 
 <script>
     import LoadingSpinner from "../../LoadingSpinner";
-    import {mapState} from 'vuex';
+    import { mapState } from 'vuex';
     import TitleInput from "../../formFields/TitleInput";
     import RoutineCard from "./RoutineCard";
     import BootstrapCard from "./../../BootstrapCard";
@@ -31,8 +31,14 @@
     import Draggable from 'vuedraggable';
 
     export default {
-        name: 'ProgramBuilder',
-        components: { AddButton, RoutineCard, TitleInput, LoadingSpinner, BootstrapCard, Draggable },
+        components: {
+            AddButton,
+            RoutineCard,
+            TitleInput,
+            LoadingSpinner,
+            BootstrapCard,
+            Draggable
+        },
         props: {
             workoutProgramId: {
                 type: String,
@@ -54,9 +60,13 @@
         watch: {
             // Change the route to id once a new program has been saved
             id(newId, oldId) {
-                // if (newId !== null && oldId === null) {
-                //     this.$router.replace(`/workout-programs/${newId}`);
-                // }
+                if (!newId) {
+                    return;
+                }
+
+                if (this.$route.params.workoutProgramId !== newId) {
+                    this.$router.replace({ name: 'programBuilder', params: { workoutProgramId: newId }});
+                }
             }
         },
         computed: {

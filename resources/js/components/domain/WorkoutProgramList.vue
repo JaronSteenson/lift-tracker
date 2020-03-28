@@ -8,12 +8,12 @@
                 </div>
 
                 <div v-else v-for="program in workoutPrograms" :key="program.id">
-                    <routerLink :to="`/workout-programs/${program.id}`">{{ program.name }}</routerLink>
+                    <routerLink :to="{ name: 'programBuilder', params: { workoutProgramId: program.id } }">{{ program.name }}</routerLink>
                 </div>
 
                 <hr>
 
-                <routerLink tag="a" to="/workout-programs/create">
+                <routerLink tag="a" :to="{ name: 'newProgramBuilder' }">
                     Add new/another
                 </routerLink>
             </BootstrapCard>
