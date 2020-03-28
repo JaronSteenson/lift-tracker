@@ -16,7 +16,7 @@ class WorkoutProgramRequest extends ApiRequest
     protected function getValidationRules(): array
     {
         return [
-            'name' => 'nullable|required|max:40',
+            'name' => 'nullable|max:40',
 
             'workoutProgramRoutines.*.name' => 'nullable|max:40',
             'workoutProgramRoutines.*.normalDay' => [new DayOfTheWeek()],

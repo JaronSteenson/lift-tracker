@@ -64599,7 +64599,8 @@ var mutations = {
     workout.routineExercises.push({
       cid: _ClientSideId__WEBPACK_IMPORTED_MODULE_2__["default"].assign(),
       name: null,
-      numberOfSets: null
+      numberOfSets: null,
+      position: workout.routineExercises.length
     });
   },
   removeExercise: function removeExercise(state, _ref25) {

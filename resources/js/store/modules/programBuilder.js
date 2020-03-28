@@ -124,7 +124,7 @@ const actions = {
     },
 
     addExerciseToWorkout({ state, commit, dispatch }, { workoutCid }) {
-        commit('addExerciseToWorkout', { workoutCid })
+        commit('addExerciseToWorkout', { workoutCid });
 
         dispatch('save');
     },
@@ -224,6 +224,7 @@ const mutations = {
             cid: ClientSideId.assign(),
             name: null,
             numberOfSets: null,
+            position: workout.routineExercises.length
         })
     },
 
