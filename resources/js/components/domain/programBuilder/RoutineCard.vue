@@ -1,6 +1,6 @@
 <template>
-    <BootstrapCard class="workout-card">
-        <template v-slot:header>
+    <VCard class="workout-card">
+        <VCardTitle>
             <div class="js-workout-drag-handle drag-handle d-flex justify-content-center">
                 <TitleInput class="workout-name" :placeholder="'Enter workout name'" v-model="name"></TitleInput>
 
@@ -12,7 +12,7 @@
                     </div>
                 </div>
             </div>
-        </template>
+        </VCardTitle>
 
         <div class="row">
             <div class="col">
@@ -30,22 +30,18 @@
                 <AddButton @click.native="addExercise">Add exercise</AddButton>
             </div>
         </div>
-
-
-
-    </BootstrapCard>
+    </VCard>
 </template>
 
 <script>
     import TitleInput from "../../formFields/TitleInput";
-    import BootstrapCard from "../../BootstrapCard";
     import AddButton from "./../../formFields/AddButton";
     import ExerciseCard from "./ExerciseCard";
     import Draggable from 'vuedraggable';
 
     export default {
         name: 'RoutineCard',
-        components: { ExerciseCard, TitleInput, BootstrapCard, AddButton, Draggable },
+        components: { ExerciseCard, TitleInput, AddButton, Draggable },
         props: {
             workoutCid: {
                 type: String,

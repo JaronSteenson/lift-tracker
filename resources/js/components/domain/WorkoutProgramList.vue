@@ -2,7 +2,7 @@
     <div class="row justify-content-center">
         `
         <div class="col-md-8">
-            <BootstrapCard title="Your workout programs">
+            <VCard title="Your workout programs">
                 <div v-if="loading" class="row justify-content-center">
                     <loading-spinner></loading-spinner>
                 </div>
@@ -16,21 +16,19 @@
                 <routerLink tag="a" :to="{ name: 'newProgramBuilder' }">
                     Add new/another
                 </routerLink>
-            </BootstrapCard>
+            </VCard>
         </div>
         `
     </div>
 </template>
 
 <script>
-    import BootstrapCard from '../BootstrapCard';
     import WorkoutProgramService from '../../api/WorkoutProgramService';
     import LoadingSpinner from '../LoadingSpinner';
 
     export default {
         components: {
             LoadingSpinner,
-            BootstrapCard
         },
         created() {
             this.fetchWorkoutPrograms();

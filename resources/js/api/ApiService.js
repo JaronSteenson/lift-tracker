@@ -7,11 +7,12 @@ let csrfToken = document.head.querySelector('meta[name="csrf-token"]');
 
 axios.defaults.headers.common['X-CSRF-TOKEN'] = csrfToken.content;
 
-const url = window.apiBaseUrl;
-const baseUrl = url.replace(/\/+$/, '');
+let baseUrl = window.apiBaseUrl;
 
-if (typeof baseUrl !== 'string') {
-    throw new Error('Base url not configure ' + JSON.stringify(url) + ' was supplied')
+if (typeof baseUrl === 'string') {
+    baseUrl = baseUrl.replace(/\/+$/, '');
+} else {
+    console.warn('No api base url configured.')
 }
 
 const ApiService = {

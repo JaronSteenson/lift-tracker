@@ -3,7 +3,7 @@ import VueRouter from 'vue-router';
 import HomePage from './components/pages/HomePage';
 import Vuex from 'vuex'
 import Vuetify from 'vuetify'
-// import 'vuetify/dist/vuetify.min.css'
+import 'vuetify/dist/vuetify.min.css'
 
 import WorkoutProgramList from './components/domain/WorkoutProgramList.vue';
 import WorkoutProgramPage from './components/pages/WorkoutProgramPage';

@@ -13,16 +13,5 @@ $dropdown-link-active-bg: $active-color;
 // Utility classes
 @import "utls";
 
-// Element defaults
-@import 'element_defaults';
-
 // Font awesome overrides
 @import "fa-overrides";
-
-// Components
-@import 'components/main_nav_bar'; //top nav bar
-@import 'components/card'; //bootstrap card overrides
-@import 'components/btn'; //bootstrap btn overrides
-@import 'components/toast'; //bootstrap toast overrides
-@import 'components/form-section-divider'; //form divider line
-@import 'components/draggable-component'; //draggable vue components

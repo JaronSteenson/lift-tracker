@@ -12,7 +12,7 @@
 
 <script>
     export default {
-        name: 'BootstrapCard',
+        name: 'VCard',
         props: ['title'],
 
         computed: {

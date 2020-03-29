@@ -1,19 +1,18 @@
 <template>
-    <BootstrapCard class="exercise-card js-exercise-drag-handle drag-handle">
+    <VCard class="exercise-card js-exercise-drag-handle drag-handle">
         <button class="btn btn-outline-danger remove-cross" @click="removeExercise" type="button">
             <i class="fa fa-times"></i>
         </button>
 
         <TitleInput class="exercise-name" :placeholder="'Enter exercise name'" v-model="name"></TitleInput>
-    </BootstrapCard>
+    </VCard>
 </template>
 <script>
-    import BootstrapCard from "../../BootstrapCard"
     import TitleInput from "../../formFields/TitleInput"
 
     export default {
         name: 'ExerciseCard',
-        components: { BootstrapCard, TitleInput },
+        components: { TitleInput },
         props: {
             exerciseCid: {
                 type: String,

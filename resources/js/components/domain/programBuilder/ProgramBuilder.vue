@@ -2,7 +2,16 @@
     <div>
         <LoadingSpinner v-if="loading"></LoadingSpinner>
         <div v-else class="d-flex justify-content-center">
-            <TitleInput class="program-title col-xs-12 col-md-8 col-lg-4" :placeholder="'Enter program name'" v-model="name"></TitleInput>
+            <VTextarea
+                class="program-title"
+                rows="2"
+                :autofocus="!workoutProgramId"
+                solo
+                auto-grow
+                placeholder="Enter program name"
+                v-model="name"
+            >
+            </VTextarea>
         </div>
 
         <div class="container-fluid">
@@ -12,9 +21,9 @@
                 </div>
 
                 <div slot="footer" class="col-sm-12 col-md-6 col-lg-4 col-xl-3">
-                    <BootstrapCard draggable="false" class="add-another" @click.native="addWorkoutToProgram">
+                    <VCard draggable="false" class="add-another" @click.native="addWorkoutToProgram">
                         <AddButton draggable="false">Add workout</AddButton>
-                    </BootstrapCard>
+                    </VCard>
                 </div>
             </Draggable>
         </div>
@@ -24,9 +33,7 @@
 <script>
     import LoadingSpinner from "../../LoadingSpinner";
     import { mapState } from 'vuex';
-    import TitleInput from "../../formFields/TitleInput";
     import RoutineCard from "./RoutineCard";
-    import BootstrapCard from "./../../BootstrapCard";
     import AddButton from "./../../formFields/AddButton";
     import Draggable from 'vuedraggable';
 
@@ -34,9 +41,7 @@
         components: {
             AddButton,
             RoutineCard,
-            TitleInput,
             LoadingSpinner,
-            BootstrapCard,
             Draggable
         },
         props: {
@@ -98,8 +103,7 @@
 
 <style scoped>
     .program-title {
-        height: 42px;
-        font-size: 24px;
+        font-size: 2rem;
     }
     .add-another {
         text-align: center;

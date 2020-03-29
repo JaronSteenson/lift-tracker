@@ -19,10 +19,8 @@
     <!-- Preload data and js config -->
     <script>
         {{--    Alow this to be unset, for things like the built in login system.    --}}
-        window.apiBaseUrl = <?= isset($apiBaseUrl) ? json_encode($apiBaseUrl) : null; ?>
-
-        window.preloadData = window.preloadData || {};
-        window.preloadData = <?= json_encode($preloadData ?? []) ?>
+            window.apiBaseUrl = <?= json_encode($apiBaseUrl ?? null) ?>;
+            window.isFullVuePage = window.apiBaseUrl !== null;
     </script>
     <script src="{{ asset('js/app.js') }}" defer></script>
 
@@ -52,12 +50,19 @@
     <meta name="theme-color" content="{{ config('app.brand_color_dark') }}">
 </head>
 <body>
-    <div id="app">
-        @include('layouts.partials.main_nav_bar')
+    <v-app id="app">
+        <v-navigation-drawer app>
+        </v-navigation-drawer>
 
-        <main class="main-content py-4 container-fluid">
-            @yield('content')
-        </main>
-    </div>
+        <v-app-bar app>
+        </v-app-bar>
+
+        <v-content>
+            <v-container fluid>
+                {{--        content is simply the router-view for full vue pages      --}}
+                @yield('content')
+            </v-container>
+        </v-content>
+    </v-app>
 </body>
 </html>
