@@ -6,16 +6,9 @@
 //@import '~font-awesome/scss/font-awesome.scss';
 
 
-// Bootstrap variable overloading
-@import '~bootstrap/scss/functions';
-@import '~bootstrap/scss/variables';
-
 @import 'variables';
 $dropdown-link-active-color: $primary-color-dark;
 $dropdown-link-active-bg: $active-color;
-
-// Bootstrap
-@import '~bootstrap/scss/bootstrap';
 
 // Utility classes
 @import "utls";
