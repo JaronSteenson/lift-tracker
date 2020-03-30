@@ -29,13 +29,6 @@ class VueAppController extends Controller
      */
     public function index(Request $request): View
     {
-        return view('vue-app', ['preloadData' => $this->getPreloadData($request)]);
-    }
-
-    private function getPreloadData(Request $request): array
-    {
-        return [
-            'availableExercises' => Exercise::all(),
-        ];
+        return view('vue-app', ['loggedInUser' => $request->user()]);
     }
 }

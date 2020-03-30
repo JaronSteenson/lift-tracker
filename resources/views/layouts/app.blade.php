@@ -20,7 +20,7 @@
     <script>
         {{--    Alow this to be unset, for things like the built in login system.    --}}
             window.apiBaseUrl = <?= json_encode($apiBaseUrl ?? null) ?>;
-            window.isFullVuePage = window.apiBaseUrl !== null;
+            window.loggedInUser = <?= json_encode($loggedInUser ?? null) ?>;
     </script>
     <script src="{{ asset('js/app.js') }}" defer></script>
 
@@ -54,7 +54,29 @@
         <v-navigation-drawer app>
         </v-navigation-drawer>
 
-        <v-app-bar app>
+        <v-app-bar app title>
+            <v-toolbar-title>{{ config('app.name') }}</v-toolbar-title>
+
+            <v-spacer></v-spacer>
+
+            <v-menu
+                transition="slide-y-transition"
+                bottom
+                offset-y
+            >
+                <template v-slot:activator="{ on }">
+                    <v-btn icon v-on="on">
+                        <v-avatar color="purple">
+                            <span class="white--text headline">JS</span>
+                        </v-avatar>
+                    </v-btn>
+                </template>
+                <v-list>
+                    <v-list-item>
+                        <v-list-item-title>Logout</v-list-item-title>
+                    </v-list-item>
+                </v-list>
+            </v-menu>
         </v-app-bar>
 
         <v-content>

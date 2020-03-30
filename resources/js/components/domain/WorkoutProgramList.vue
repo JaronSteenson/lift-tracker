@@ -13,7 +13,7 @@
 
                 <hr>
 
-                <routerLink tag="a" :to="{ name: 'newProgramBuilder' }">
+                <routerLink v-if="isLoggedIn" tag="a" :to="{ name: 'newProgramBuilder' }">
                     Add new/another
                 </routerLink>
             </VCard>
@@ -31,7 +31,9 @@
             LoadingSpinner,
         },
         created() {
-            this.fetchWorkoutPrograms();
+            if (this.isLoggedIn) {
+                this.fetchWorkoutPrograms();
+            }
         },
         watch: {
             // call again the method if the route changes
@@ -51,6 +53,11 @@
                 this.workoutPrograms = response.data;
                 this.loading = false;
             }
-        }
+        },
+        computed: {
+            isLoggedIn() {
+                return window.loggedInUser;
+            }
+        },
     }
 </script>
