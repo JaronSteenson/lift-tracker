@@ -10,7 +10,6 @@ function localStorageKey(key) {
     return `${LOCAL_STORAGE_NAMESPACE}_${key}`
 }
 
-// initial state
 const state = {
     id: null,
     name: '',

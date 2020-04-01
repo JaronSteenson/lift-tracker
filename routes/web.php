@@ -1,4 +1,4 @@
-<?php /** @noinspection ALL */
+<?php
 
 /*
 |--------------------------------------------------------------------------
@@ -11,11 +11,16 @@
 |
 */
 
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Route;
+
 Auth::routes();
 
 /** @see \LiftTracker\Http\Controllers\Api\WorkoutProgramController */
 Route::apiResource('api/workout-programs', 'Api\WorkoutProgramController')->middleware('auth');
 
+/** @see \LiftTracker\Http\Controllers\Api\AppController */
+Route::get('api/app', 'Api\AppController@index');
 
 /** @see \LiftTracker\Http\Controllers\VueAppController */
 Route::get('/{any}', 'VueAppController@index')->where('any','.*');

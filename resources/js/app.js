@@ -1,10 +1,13 @@
 import Vue from 'vue';
 import VueRouter from 'vue-router';
-import HomePage from './components/pages/HomePage';
 import Vuex from 'vuex'
+
 import Vuetify from 'vuetify'
 import 'vuetify/dist/vuetify.min.css'
 import 'material-design-icons-iconfont/dist/material-design-icons.css'
+
+import App from './components/App.vue';
+import HomePage from './components/pages/HomePage';
 import LoginPage from './components/pages/LoginPage.vue';
 import WorkoutProgramList from './components/domain/WorkoutProgramList.vue';
 import WorkoutProgramPage from './components/pages/WorkoutProgramPage';
@@ -16,7 +19,8 @@ Vue.use(Vuetify);
 
 const routes = [
     {
-        path: '/', component: HomePage
+        path: '/',
+        component: HomePage
     },
     {
         name: 'login',
@@ -47,7 +51,7 @@ const router = new VueRouter({
 });
 
 const forceLogin = (to, from, next) => {
-    debugger
+    // debugger //userIsAuthenticated
     // if (store.state.user.loggedIn) {
         next();
     // } else {
@@ -59,8 +63,9 @@ router.beforeEach(forceLogin);
 
 const vuetify = new Vuetify();
 
-const app = new Vue({
+new Vue({
     store,
     router,
     vuetify,
+    render: h => h(App),
 }).$mount('#app');

@@ -2,12 +2,7 @@ import axios from 'axios';
 
 axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
 
-// Register the CSRF Token as a common header with Axios requests.
-let csrfToken = document.head.querySelector('meta[name="csrf-token"]');
-
-axios.defaults.headers.common['X-CSRF-TOKEN'] = csrfToken.content;
-
-let baseUrl = window.apiBaseUrl;
+let baseUrl = process.env.BASE_API_URL ?? 'http://lift-tracker.io/api/';
 
 if (typeof baseUrl === 'string') {
     baseUrl = baseUrl.replace(/\/+$/, '');
@@ -50,6 +45,11 @@ const ApiService = {
 
         return url;
     },
+
+    setCsrfToken(csrfToken) {
+        // Register the CSRF Token as a common header with Axios requests.
+        axios.defaults.headers.common['X-CSRF-TOKEN'] = csrfToken;
+    }
 
 };
 

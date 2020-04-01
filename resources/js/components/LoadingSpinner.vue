@@ -9,7 +9,6 @@
 
 <script>
     export default {
-        name: 'LoadingSpinner',
         data() {
             return {
                 red: 20,

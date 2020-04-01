@@ -24,11 +24,10 @@ class VueAppController extends Controller
     /**
      * Show the application dashboard.
      *
-     * @param Request $request
      * @return View
      */
-    public function index(Request $request): View
+    public function index(): View
     {
-        return view('vue-app', ['loggedInUser' => $request->user()]);
+        return view('vue-app');
     }
 }
