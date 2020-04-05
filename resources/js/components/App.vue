@@ -1,7 +1,9 @@
 <template>
     <v-app>
         <v-app-bar app title>
-            <v-toolbar-title>{{ appName }}</v-toolbar-title>
+            <router-link :to="{ name: 'home'}" class="a">
+                <v-toolbar-title>{{ appName }}</v-toolbar-title>
+            </router-link>
 
             <v-spacer></v-spacer>
 
