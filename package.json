@@ -22,6 +22,7 @@
         "vuetify-loader": "latest"
     },
     "dependencies": {
+        "@mdi/font": "^5.0.45",
         "axios": "^0.18.1",
         "deepmerge": "^4.2.2",
         "fibers": "^4.0.2",

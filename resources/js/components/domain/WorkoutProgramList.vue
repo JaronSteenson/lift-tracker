@@ -14,6 +14,7 @@
                 <v-col
                     :key="program.id"
                     cols="12"
+                    lg="3"
                     md="4"
                     sm="6"
                     v-for="program in workoutPrograms"
@@ -31,26 +32,27 @@
                         </v-list-item>
 
                         <v-card-actions>
-                            <v-card-actions class="justify-center">
-                                <v-btn class="ma-2" :to="{ name: 'programBuilder', params: { workoutProgramId: program.id } }">
-                                    Edit
-                                    <v-icon dark right>mdi-checkbox-marked-circle</v-icon>
-                                </v-btn>
-                            </v-card-actions>
+                            <v-btn :to="{ name: 'programBuilder', params: { workoutProgramId: program.id } }"
+                                   class="ma-2">
+                                Edit
+                                <v-icon right>mdi-pencil</v-icon>
+                            </v-btn>
                         </v-card-actions>
                     </v-card>
                 </v-col>
-
                 <v-col
                     cols="12"
+                    lg="3"
                     md="4"
                     sm="6"
-                    class="text-center"
                 >
-                    <v-btn class="ma-2" :to="{ name: 'newProgramBuilder' }">
-                        Build a new program
-                        <v-icon dark right>mdi-checkbox-marked-circle</v-icon>
-                    </v-btn>
+
+                    <div class="text-center">
+                        <v-btn :to="{ name: 'newProgramBuilder' }">
+                            Build new program
+                            <v-icon right>mdi-plus</v-icon>
+                        </v-btn>
+                    </div>
                 </v-col>
             </v-row>
         </v-container>
