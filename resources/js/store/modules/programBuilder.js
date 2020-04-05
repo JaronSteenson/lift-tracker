@@ -257,6 +257,7 @@ const mutations = {
             }
         });
 
+        workout.wasJustAdded = true;
         state.workoutProgramRoutines.splice(workout.position, 0, workout);
     }
 };
