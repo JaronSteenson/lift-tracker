@@ -20,14 +20,17 @@ const getters = {
         if (name) {
             return name.charAt(0)
         }
-    }
+    },
+
 };
 
 const actions = {
     async fetchAppBootstrapData({state, commit}, id) {
         const response = await AppService.getBootstrapData(id);
 
-        commit('reset', response.data);
+        const newState = { ...response.data, hasLoaded: true };
+
+        commit('reset', newState);
 
         return response.data;
     }

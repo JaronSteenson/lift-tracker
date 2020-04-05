@@ -1,8 +1,5 @@
 <template>
     <v-app>
-        <v-navigation-drawer app>
-        </v-navigation-drawer>
-
         <v-app-bar app title>
             <v-toolbar-title>{{ appName }}</v-toolbar-title>
 
@@ -29,7 +26,7 @@
         </v-app-bar>
 
         <v-content>
-            <v-container fluid>
+            <v-container>
                 <LoadingSpinner v-if="!hasLoaded"></LoadingSpinner>
                 <router-view v-else/>
             </v-container>

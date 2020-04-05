@@ -28,10 +28,6 @@ const routes = [
         component: LoginPage,
     },
     {
-        path: '/workout-programs',
-        component: WorkoutProgramList
-    },
-    {
         name: 'newProgramBuilder',
         path: '/program-builder',
         component: WorkoutProgramPage,

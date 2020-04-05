@@ -9,6 +9,6 @@
 
     export default {
         name: 'HomePage',
-        components: {WorkoutProgramList},
+        components: { WorkoutProgramList },
     }
 </script>
