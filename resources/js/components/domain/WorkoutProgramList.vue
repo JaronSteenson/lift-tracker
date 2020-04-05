@@ -7,7 +7,7 @@
             class="grey lighten-4"
             fluid
         >
-            <v-subheader>Your workout programs</v-subheader>
+            <h2 class="title text-center">Your workout programs</h2>
 
             <v-row>
                 <v-spacer></v-spacer>
