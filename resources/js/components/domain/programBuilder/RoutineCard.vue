@@ -1,47 +1,54 @@
 <template>
-    <VCard class="workout-card">
+    <VCard class="js-workout-drag-handle drag-handle" width="100%">
         <VCardTitle>
-            <div class="js-workout-drag-handle drag-handle d-flex justify-content-center">
-                <TitleInput class="workout-name" :placeholder="'Enter workout name'" v-model="name"></TitleInput>
+            <VTextField placeholder="Enter workout name" v-model="name"/>
 
-                <div class="dropdown">
-                    <button class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                    </button>
-                    <div class="dropdown-menu dropdown-menu-right">
-                        <a @click="deleteWorkout" class="dropdown-item" href="#">Delete</a>
-                    </div>
-                </div>
-            </div>
+            <v-menu bottom left>
+                <template v-slot:activator="{ on }">
+                    <VBtn
+                        icon
+                        v-on="on"
+                    >
+                        <v-icon>mdi-dots-vertical</v-icon>
+                    </VBtn>
+                </template>
+
+                <v-list>
+                    <v-list-item @click="deleteWorkout">
+                        <v-list-item-title>Delete this workout</v-list-item-title>
+                    </v-list-item>
+                </v-list>
+            </v-menu>
         </VCardTitle>
 
         <div class="row">
             <div class="col">
-                <Draggable v-model="orderedExercises" handle=".js-exercise-drag-handle" :group="{ name: 'exercises', pull: true, put: true }"
-                           :forceFallback="true" dragClass="dragging-exercise-card">
+                <Draggable :forceFallback="true" :group="{ name: 'exercises', pull: true, put: true }"
+                           dragClass="dragging-exercise-card"
+                           handle=".js-exercise-drag-handle" v-model="orderedExercises">
                     <template v-for="(exercise) in orderedExercises">
-                        <ExerciseCard :key="exercise.cid" :exercise-cid="exercise.cid"/>
+                        <ExerciseCard :exercise-cid="exercise.cid" :key="exercise.cid"/>
                     </template>
                 </Draggable>
             </div>
         </div>
 
-        <div class="row">
-            <div class="col">
-                <AddButton @click.native="addExercise">Add exercise</AddButton>
-            </div>
-        </div>
+        <VBtn @click="addExercise" width="100%">
+            <v-icon left>mdi-plus</v-icon>
+            Add exercise
+        </VBtn>
     </VCard>
 </template>
 
 <script>
-    import TitleInput from "../../formFields/TitleInput";
-    import AddButton from "./../../formFields/AddButton";
     import ExerciseCard from "./ExerciseCard";
     import Draggable from 'vuedraggable';
 
     export default {
-        name: 'RoutineCard',
-        components: { ExerciseCard, TitleInput, AddButton, Draggable },
+        components: {
+            ExerciseCard,
+            Draggable,
+        },
         props: {
             workoutCid: {
                 type: String,
@@ -59,7 +66,7 @@
                     return this.workout.name || '';
                 },
                 set(name) {
-                    this.$store.dispatch('programBuilder/updateWorkoutName', { cid: this.workoutCid, name });
+                    this.$store.dispatch('programBuilder/updateWorkoutName', {cid: this.workoutCid, name});
                 }
             },
             orderedExercises: {
@@ -67,17 +74,20 @@
                     return this.$store.getters['programBuilder/getOrderedExercises'](this.workoutCid);
                 },
                 set: function set(orderedExercises) {
-                    this.$store.dispatch('programBuilder/updateExercisePositionFromOrder', { workoutCid: this.workoutCid, orderedExercises});
+                    this.$store.dispatch('programBuilder/updateExercisePositionFromOrder', {
+                        workoutCid: this.workoutCid,
+                        orderedExercises
+                    });
                 }
             }
         },
         methods: {
             addExercise() {
-                this.$store.dispatch('programBuilder/addExerciseToWorkout', { workoutCid: this.workoutCid });
+                this.$store.dispatch('programBuilder/addExerciseToWorkout', {workoutCid: this.workoutCid});
             },
 
             deleteWorkout() {
-                this.$store.dispatch('programBuilder/deleteWorkout', { cid: this.workoutCid });
+                this.$store.dispatch('programBuilder/deleteWorkout', {cid: this.workoutCid});
             }
         }
     }

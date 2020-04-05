@@ -1,18 +1,29 @@
 <template>
-    <VCard class="exercise-card js-exercise-drag-handle drag-handle">
-        <button class="btn btn-outline-danger remove-cross" @click="removeExercise" type="button">
-            <i class="fa fa-times"></i>
-        </button>
+    <VCard outlined class="exercise-card js-exercise-drag-handle drag-handle">
+        <VCardTitle>
+            <VTextField placeholder="Enter exercise name" v-model="name"/>
 
-        <TitleInput class="exercise-name" :placeholder="'Enter exercise name'" v-model="name"></TitleInput>
+            <v-menu bottom left>
+                <template v-slot:activator="{ on }">
+                    <VBtn
+                        icon
+                        v-on="on"
+                    >
+                        <v-icon>mdi-dots-vertical</v-icon>
+                    </VBtn>
+                </template>
+
+                <v-list>
+                    <v-list-item @click="removeExercise">
+                        <v-list-item-title>Delete this exercise</v-list-item-title>
+                    </v-list-item>
+                </v-list>
+            </v-menu>
+        </VCardTitle>
     </VCard>
 </template>
 <script>
-    import TitleInput from "../../formFields/TitleInput"
-
     export default {
-        name: 'ExerciseCard',
-        components: { TitleInput },
         props: {
             exerciseCid: {
                 type: String,
@@ -58,35 +69,9 @@
         }
     }
 </script>
-<style scoped>
+
+<style lang="scss" scoped>
     .exercise-card {
-        margin-bottom: 8px;
+        margin: 2%;
     }
-
-    .exercise-name, .exercise-sets, .sets-cross {
-        font-size: 16px;
-        height: 20px;
-        text-align: left;
-    }
-
-    .exercise-name {
-        min-width: 80%;
-        max-width: 80%;
-        width: 80%;
-    }
-
-    .remove-cross {
-        position: absolute;
-        right: 0;
-        top: 0;
-
-        color: rgb(255, 127, 127);
-        border-color: transparent;
-        background-color: transparent;
-    }
-
-    .remove-cross:hover {
-        color: red;
-    }
-
 </style>

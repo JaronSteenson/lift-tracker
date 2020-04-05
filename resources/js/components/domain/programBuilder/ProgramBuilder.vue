@@ -1,45 +1,46 @@
 <template>
-    <div>
-        <LoadingSpinner v-if="loading"></LoadingSpinner>
-        <div v-else class="d-flex justify-content-center">
-            <VTextarea
-                class="program-title"
-                rows="2"
-                :autofocus="!workoutProgramId"
-                solo
-                auto-grow
-                placeholder="Enter program name"
-                v-model="name"
-            >
-            </VTextarea>
-        </div>
 
-        <div class="container-fluid">
-            <Draggable class="row" v-model="orderedWorkouts" handle=".js-workout-drag-handle" :forceFallback="true" dragClass="dragging-workout-card">
-                <div v-for="(workout) in orderedWorkouts" class="col-sm-12 col-md-6 col-lg-4 col-xl-3 draggable">
-                    <RoutineCard :key="workout.cid" :workoutCid="workout.cid"></RoutineCard>
-                </div>
 
-                <div slot="footer" class="col-sm-12 col-md-6 col-lg-4 col-xl-3">
-                    <VCard draggable="false" class="add-another" @click.native="addWorkoutToProgram">
-                        <AddButton draggable="false">Add workout</AddButton>
-                    </VCard>
-                </div>
+    <v-container
+        class="grey lighten-4"
+        fluid
+    >
+
+        <v-row>
+            <v-col cols="12" lg="3" md="4" sm="6">
+                <VTextField
+                    :autofocus="!workoutProgramId"
+                    placeholder="Enter program name"
+                    v-model="name"
+                />
+            </v-col>
+        </v-row>
+
+        <v-row>
+            <Draggable :forceFallback="true" class="row" dragClass="dragging-workout-card"
+                       handle=".js-workout-drag-handle"
+                       v-model="orderedWorkouts">
+                <v-col class="draggable" cols="12" lg="3" md="4" sm="6" v-for="(workout) in orderedWorkouts" :key="workout.cid">
+                    <RoutineCard :workoutCid="workout.cid"></RoutineCard>
+                </v-col>
+                <v-col cols="12" lg="3" md="4" slot="footer" sm="6">
+                        <v-btn draggable="false" width="100%" @click="addWorkoutToProgram">
+                            <v-icon left>mdi-plus</v-icon> Add workout
+                        </v-btn>
+                </v-col>
             </Draggable>
-        </div>
-    </div>
+        </v-row>
+    </v-container>
 </template>
 
 <script>
     import LoadingSpinner from "../../LoadingSpinner";
-    import { mapState } from 'vuex';
+    import { mapState, mapActions } from 'vuex';
     import RoutineCard from "./RoutineCard";
-    import AddButton from "./../../formFields/AddButton";
     import Draggable from 'vuedraggable';
 
     export default {
         components: {
-            AddButton,
             RoutineCard,
             LoadingSpinner,
             Draggable
@@ -64,48 +65,37 @@
         },
         watch: {
             // Change the route to id once a new program has been saved
-            id(newId, oldId) {
+            id(newId) {
                 if (!newId) {
                     return;
                 }
 
                 if (this.$route.params.workoutProgramId !== newId) {
-                    this.$router.replace({ name: 'programBuilder', params: { workoutProgramId: newId }});
+                    this.$router.replace({ name: 'programBuilder', params: {workoutProgramId: newId }});
                 }
             }
         },
         computed: {
             ...mapState('programBuilder', ['id']),
             orderedWorkouts: {
-                get () {
+                get() {
                     return this.$store.getters['programBuilder/getOrderedWorkouts'];
                 },
-                set (orderedWorkouts) {
+                set(orderedWorkouts) {
                     this.$store.dispatch('programBuilder/updateWorkoutPositionFromOrder', orderedWorkouts);
                 },
             },
             name: {
-                get () {
+                get() {
                     return this.$store.state.programBuilder.name || '';
                 },
-                set (name) {
+                set(name) {
                     this.$store.dispatch('programBuilder/updateName', name);
                 },
             }
         },
         methods: {
-            addWorkoutToProgram() {
-                this.$store.dispatch('programBuilder/addWorkoutToProgram');
-            },
+            ...mapActions('programBuilder', ['addWorkoutToProgram'])
         }
     }
 </script>
-
-<style scoped>
-    .program-title {
-        font-size: 2rem;
-    }
-    .add-another {
-        text-align: center;
-    }
-</style>
