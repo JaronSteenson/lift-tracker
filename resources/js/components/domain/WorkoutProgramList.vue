@@ -31,30 +31,26 @@
                         </v-list-item>
 
                         <v-card-actions>
-                            <v-btn text :to="{ name: 'programBuilder', params: { workoutProgramId: program.id } }">
-                                Edit
-                            </v-btn>
+                            <v-card-actions class="justify-center">
+                                <v-btn class="ma-2" :to="{ name: 'programBuilder', params: { workoutProgramId: program.id } }">
+                                    Edit
+                                    <v-icon dark right>mdi-checkbox-marked-circle</v-icon>
+                                </v-btn>
+                            </v-card-actions>
                         </v-card-actions>
                     </v-card>
                 </v-col>
 
-                <v-spacer></v-spacer>
                 <v-col
                     cols="12"
                     md="4"
                     sm="6"
+                    class="text-center"
                 >
-                    <v-card
-                        class="mx-auto"
-                        max-width="344"
-                        outlined
-                    >
-                        <v-card-actions class="justify-center">
-                            <v-btn text :to="{ name: 'newProgramBuilder' }">
-                                +
-                            </v-btn>
-                        </v-card-actions>
-                    </v-card>
+                    <v-btn class="ma-2" :to="{ name: 'newProgramBuilder' }">
+                        Build a new program
+                        <v-icon dark right>mdi-checkbox-marked-circle</v-icon>
+                    </v-btn>
                 </v-col>
             </v-row>
         </v-container>
