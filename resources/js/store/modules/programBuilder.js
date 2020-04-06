@@ -10,13 +10,22 @@ function localStorageKey(key) {
     return `${LOCAL_STORAGE_NAMESPACE}_${key}`
 }
 
+function sortByPosition(a, b) {
+    return a < b ? 1 : 0;
+}
+
 const state = {
     id: null,
     name: '',
     workoutProgramRoutines: [],
+    justAdded: null,
 };
 
 const getters = {
+
+    wasJustAdded: (state) => (cid) => {
+        return state.justAdded === cid;
+    },
 
     getWorkout: (state) => (cid) => {
         return ClientSideId.findIn(state.workoutProgramRoutines, cid);
@@ -36,7 +45,6 @@ const getters = {
         })
     },
 
-
     getExercise: (state) => (cid) => {
         let exercise = null;
 
@@ -51,10 +59,23 @@ const getters = {
 
         return exercise;
     },
+
+    isNewWorkoutInExistingProgram: (state, getters) => (cid) => {
+        const workout = getters.getWorkout(cid);
+
+        return state.id && !workout.id;
+    },
+
+    isNewExercise: (state, getters) => (cid) => {
+        const exercise = getters.getExercise(cid);
+
+        return !exercise.id
+    },
+
 };
 
 const actions = {
-    startNew({state, commit}) {
+    startNew({ commit }) {
         commit('reset', {
             id: null,
             name: null,
@@ -94,14 +115,6 @@ const actions = {
         dispatch('save');
     },
 
-    deleteWorkout({ state, commit, dispatch }, { cid }) {
-        const workoutToDelete = ClientSideId.findIn(state.workoutProgramRoutines, cid);
-
-        commit('deleteWorkout', workoutToDelete.position);
-
-        dispatch('save');
-    },
-
     addWorkoutToProgram({ state, commit, dispatch }, workout) {
         if (!workout) {
             workout = { name: null };
@@ -118,18 +131,36 @@ const actions = {
         ClientSideId.assignTo(workout);
 
         commit('addWorkout', workout);
+        commit('setJustAdded', workout.cid);
 
         dispatch('save');
     },
 
     addExerciseToWorkout({ state, commit, dispatch }, { workoutCid }) {
-        commit('addExerciseToWorkout', { workoutCid });
+        const cid = ClientSideId.assign();
+
+        commit('addExerciseToWorkout', { cid, workoutCid });
+        commit('setJustAdded', cid);
 
         dispatch('save');
     },
 
-    removeExercise({ state, commit, dispatch }, { exerciseCid }) {
-        commit('removeExercise', { exerciseCid })
+    clearJustAdded({ commit }) {
+        commit('setJustAdded', null);
+    },
+
+    deleteWorkout({ state, commit, dispatch }, { workoutCid }) {
+        commit('deleteWorkout', { workoutCid });
+
+        commit('fixPositions');
+
+        dispatch('save');
+    },
+
+    deleteExercise({ state, commit, dispatch }, { exerciseCid }) {
+        commit('deleteExercise', { exerciseCid });
+
+        commit('fixPositions');
 
         dispatch('save')
     },
@@ -187,6 +218,10 @@ const mutations = {
         });
     },
 
+    setJustAdded(state, cid) {
+        state.justAdded = cid;
+    },
+
     updateName(state, name) {
         state.name = name;
     },
@@ -216,31 +251,37 @@ const mutations = {
         })
     },
 
-    addExerciseToWorkout(state, { workoutCid }) {
+    addExerciseToWorkout(state, { cid, workoutCid }) {
         const workout = ClientSideId.findIn(state.workoutProgramRoutines, workoutCid);
 
         workout.routineExercises.push({
-            cid: ClientSideId.assign(),
+            cid,
             name: null,
             numberOfSets: null,
             position: workout.routineExercises.length
-        })
+        });
     },
 
-    removeExercise(state, { exerciseCid }) {
+    deleteExercise(state, { exerciseCid }) {
         // Use some to early exit if the exercise was found and removed.
         state.workoutProgramRoutines.some(function (workout) {
             return ClientSideId.removeFrom(workout.routineExercises, exerciseCid);
         });
     },
 
-    deleteWorkout(state, position) {
-        state.workoutProgramRoutines.splice(position, 1);
+    deleteWorkout(state, { workoutCid }) {
+        ClientSideId.removeFrom(state.workoutProgramRoutines, workoutCid);
+    },
 
-        state.workoutProgramRoutines.forEach((routine) => {
-            if (routine.position > position) {
-                --routine.position;
-            }
+    fixPositions(state) {
+        state.workoutProgramRoutines.sort(sortByPosition);
+        state.workoutProgramRoutines.forEach((workout, index) => {
+            workout.position = index;
+
+            workout.routineExercises.sort(sortByPosition);
+            workout.routineExercises.forEach((exercise, index) => {
+                exercise.position = index;
+            });
         });
     },
 
@@ -257,9 +298,8 @@ const mutations = {
             }
         });
 
-        workout.wasJustAdded = true;
         state.workoutProgramRoutines.splice(workout.position, 0, workout);
-    }
+    },
 };
 
 export default {

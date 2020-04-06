@@ -9,7 +9,7 @@
         <v-row>
             <v-col cols="12" lg="3" md="4" sm="6">
                 <VTextField
-                    :autofocus="!workoutProgramId"
+                    :autofocus="autofocus"
                     placeholder="Enter program name"
                     v-model="name"
                 />
@@ -21,7 +21,7 @@
                        handle=".js-workout-drag-handle"
                        v-model="orderedWorkouts">
                 <v-col class="draggable" cols="12" lg="3" md="4" sm="6" v-for="(workout) in orderedWorkouts" :key="workout.cid">
-                    <RoutineCard :workoutCid="workout.cid"></RoutineCard>
+                    <WorkoutCard :workoutCid="workout.cid"></WorkoutCard>
                 </v-col>
                 <v-col cols="12" lg="3" md="4" slot="footer" sm="6">
                         <v-btn draggable="false" width="100%" @click="addWorkoutToProgram">
@@ -36,12 +36,12 @@
 <script>
     import LoadingSpinner from "../../LoadingSpinner";
     import { mapState, mapActions } from 'vuex';
-    import RoutineCard from "./RoutineCard";
+    import WorkoutCard from "./WorkoutCard";
     import Draggable from 'vuedraggable';
 
     export default {
         components: {
-            RoutineCard,
+            WorkoutCard,
             LoadingSpinner,
             Draggable
         },
@@ -71,11 +71,14 @@
                 }
 
                 if (this.$route.params.workoutProgramId !== newId) {
-                    this.$router.replace({ name: 'programBuilder', params: {workoutProgramId: newId }});
+                    this.$router.replace({ name: 'programBuilder', params: { workoutProgramId: newId }});
                 }
             }
         },
         computed: {
+            autofocus() {
+                return !this.workoutProgramId;
+            },
             ...mapState('programBuilder', ['id']),
             orderedWorkouts: {
                 get() {
@@ -87,7 +90,7 @@
             },
             name: {
                 get() {
-                    return this.$store.state.programBuilder.name || '';
+                    return this.$store.state.name;
                 },
                 set(name) {
                     this.$store.dispatch('programBuilder/updateName', name);

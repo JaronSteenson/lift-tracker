@@ -1,7 +1,7 @@
 <template>
     <VCard class="js-workout-drag-handle drag-handle" width="100%">
         <VCardTitle>
-            <VTextField placeholder="Enter workout name" v-model="name" :autofocus="!workout.id"/>
+            <VTextField placeholder="Enter workout name" v-model="name" :autofocus="autofocus"/>
 
             <v-menu bottom left>
                 <template v-slot:activator="{ on }">
@@ -27,7 +27,7 @@
                            dragClass="dragging-exercise-card"
                            handle=".js-exercise-drag-handle" v-model="orderedExercises">
                     <template v-for="(exercise) in orderedExercises">
-                        <ExerciseCard :exercise-cid="exercise.cid" :key="exercise.cid"/>
+                        <ExerciseCard :exercise-cid="exercise.cid" :key="exercise.cid" ref="exercise-cards"/>
                     </template>
                 </Draggable>
             </div>
@@ -56,6 +56,15 @@
             }
         },
         computed: {
+            autofocus() {
+                if (this.$store.getters['programBuilder/wasJustAdded'](this.workoutCid)) {
+                    this.$nextTick(() => {
+                        this.$store.dispatch('programBuilder/clearJustAdded');
+                    });
+                    return true;
+                }
+                return false;
+            },
             workout: {
                 get() {
                     return this.$store.getters['programBuilder/getWorkout'](this.workoutCid);
@@ -66,14 +75,14 @@
                     return this.workout.name || '';
                 },
                 set(name) {
-                    this.$store.dispatch('programBuilder/updateWorkoutName', {cid: this.workoutCid, name});
+                    this.$store.dispatch('programBuilder/updateWorkoutName', { cid: this.workoutCid, name });
                 }
             },
             orderedExercises: {
-                get: function get() {
+                get() {
                     return this.$store.getters['programBuilder/getOrderedExercises'](this.workoutCid);
                 },
-                set: function set(orderedExercises) {
+                set(orderedExercises) {
                     this.$store.dispatch('programBuilder/updateExercisePositionFromOrder', {
                         workoutCid: this.workoutCid,
                         orderedExercises
@@ -83,29 +92,12 @@
         },
         methods: {
             addExercise() {
-                this.$store.dispatch('programBuilder/addExerciseToWorkout', {workoutCid: this.workoutCid});
+                this.$store.dispatch('programBuilder/addExerciseToWorkout', { workoutCid: this.workoutCid });
             },
 
             deleteWorkout() {
-                this.$store.dispatch('programBuilder/deleteWorkout', {cid: this.workoutCid});
+                this.$store.dispatch('programBuilder/deleteWorkout', { workoutCid: this.workoutCid });
             }
         }
     }
 </script>
-
-<style scoped>
-    .workout-name {
-        /* 40px for some space for the drop down menu button. */
-        min-width: calc(90% - 40px);
-        max-width: calc(90% - 40px);
-        width: calc(90% - 40px);
-        margin-right: 40px;
-    }
-
-    .dropdown {
-        position: absolute;
-        right: 0;
-        top: 0;
-    }
-
-</style>

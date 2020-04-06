@@ -1,7 +1,7 @@
 <template>
     <VCard outlined class="exercise-card js-exercise-drag-handle drag-handle">
         <VCardTitle>
-            <VTextField placeholder="Enter exercise name" v-model="name" :autofocus="!exercise.id"/>
+            <VTextField placeholder="Enter exercise name" v-model="name" :autofocus="autofocus"/>
 
             <v-menu bottom left>
                 <template v-slot:activator="{ on }">
@@ -14,7 +14,7 @@
                 </template>
 
                 <v-list>
-                    <v-list-item @click="removeExercise">
+                    <v-list-item @click="deleteExercise">
                         <v-list-item-title>Delete this exercise</v-list-item-title>
                     </v-list-item>
                 </v-list>
@@ -31,6 +31,15 @@
             }
         },
         computed: {
+            autofocus() {
+                if (this.$store.getters['programBuilder/wasJustAdded'](this.exerciseCid)) {
+                    this.$nextTick(() => {
+                        this.$store.dispatch('programBuilder/clearJustAdded');
+                    });
+                    return true;
+                }
+                return false;
+            },
             exercise: {
                 get() {
                     return this.$store.getters['programBuilder/getExercise'](this.exerciseCid);
@@ -58,8 +67,8 @@
             getExercise() {
                 return this.$store.getters['programBuilder/getExercise'](this.exerciseCid);
             },
-            removeExercise() {
-                return this.$store.dispatch('programBuilder/removeExercise', { exerciseCid: this.exerciseCid });
+            deleteExercise() {
+                return this.$store.dispatch('programBuilder/deleteExercise', { exerciseCid: this.exerciseCid });
             },
             numberOr(value, fallBackValue) {
                 const potentialNumber = Number.parseInt(value);
