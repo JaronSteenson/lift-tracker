@@ -45,11 +45,10 @@ class WorkoutProgramRoutine extends AbstractModel implements UserOwnershipInterf
      * @var array
      */
     protected $visible = [
-        'id',
+        'uuid',
         'name',
         'normalDay',
         'routineExercises',
-        'workoutProgramId',
         'position',
     ];
 
@@ -93,7 +92,7 @@ class WorkoutProgramRoutine extends AbstractModel implements UserOwnershipInterf
         return $this->hasMany(RoutineExercise::class);
     }
 
-    public function setRoutineExercises(RoutineExerciseCollection $exercises)
+    public function setRoutineExercises(Collection $exercises)
     {
         return $this->setRelation('routineExercises', $exercises);
     }

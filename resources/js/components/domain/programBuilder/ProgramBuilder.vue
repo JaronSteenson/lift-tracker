@@ -24,7 +24,7 @@
                     <WorkoutCard :workoutUuid="workout.uuid"></WorkoutCard>
                 </v-col>
                 <v-col cols="12" lg="3" md="4" slot="footer" sm="6">
-                        <v-btn draggable="false" width="100%" @click="addWorkoutToProgram">
+                        <v-btn draggable="false" width="100%" @click="addWorkoutToProgram(null)">
                             <v-icon left>mdi-plus</v-icon> Add workout
                         </v-btn>
                 </v-col>
@@ -65,13 +65,13 @@
         },
         watch: {
             // Change the route to id once a new program has been saved
-            id(newId) {
-                if (!newId) {
+            uuid(newUuid) {
+                if (!newUuid) {
                     return;
                 }
 
-                if (this.$route.params.workoutProgramUuid !== newId) {
-                    this.$router.replace({ name: 'programBuilder', params: { workoutProgramUuid: newId }});
+                if (this.$route.params.workoutProgramUuid !== newUuid) {
+                    this.$router.replace({ name: 'programBuilder', params: { workoutProgramUuid: newUuid }});
                 }
             }
         },
@@ -79,7 +79,7 @@
             autofocus() {
                 return !this.workoutProgramUuid;
             },
-            ...mapState('programBuilder', ['id']),
+            ...mapState('programBuilder', ['uuid']),
             orderedWorkouts: {
                 get() {
                     return this.$store.getters['programBuilder/getOrderedWorkouts'];
@@ -90,7 +90,7 @@
             },
             name: {
                 get() {
-                    return this.$store.state.name;
+                    return this.$store.state.programBuilder.name;
                 },
                 set(name) {
                     this.$store.dispatch('programBuilder/updateName', name);

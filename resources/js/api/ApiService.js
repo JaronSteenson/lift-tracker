@@ -17,7 +17,7 @@ const ApiService = {
     },
 
     save(resourceType, payload) {
-        if (payload.id) {
+        if (payload.createdAt) {
             return this.put(resourceType, payload.uuid, payload);
         }
 

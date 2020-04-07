@@ -18,7 +18,7 @@
                     <v-list-item three-line>
                         <v-list-item-content>
                             <v-list-item-title class="headline mb-1">{{ program.name }}</v-list-item-title>
-                            <v-list-item-subtitle>{{ program.description }}</v-list-item-subtitle>
+                            <v-list-item-subtitle>Created: {{ program.createdAt }}</v-list-item-subtitle>
                         </v-list-item-content>
                     </v-list-item>
 

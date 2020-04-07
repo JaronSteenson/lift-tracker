@@ -15,7 +15,7 @@ function sortByPosition(a, b) {
 }
 
 const state = {
-    id: null,
+    uuid: null,
     name: '',
     workoutProgramRoutines: [],
     justAdded: null,

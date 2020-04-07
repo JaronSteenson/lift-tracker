@@ -66,7 +66,8 @@ class WorkoutProgram extends AbstractModel implements UserOwnershipInterface
     public static function createFromRequest(WorkoutProgramRequest $request): self
     {
         // Populate the top level fields.
-        $workoutProgram = $request->getExistingModel() ?? new static($request->getWorkoutProgramFields());
+        $workoutProgram = $request->getExistingModel() ?? new static();
+        $workoutProgram->fill($request->getWorkoutProgramFields());
 
         // Associate the user with the top level entity.
         if (!$workoutProgram->exists) {
@@ -109,7 +110,7 @@ class WorkoutProgram extends AbstractModel implements UserOwnershipInterface
         return $this->hasMany(WorkoutProgramRoutine::class);
     }
 
-    protected function associateProgramRoutines(WorkoutProgramRoutineCollection $programRoutines): self
+    protected function associateProgramRoutines(Collection $programRoutines): self
     {
         $this->setRelation('workoutProgramRoutines', $programRoutines);
 

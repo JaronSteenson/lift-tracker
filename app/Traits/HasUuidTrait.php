@@ -47,7 +47,7 @@ trait HasUuidTrait
             }
 
             // Client side supplied uuid must be validated
-            if (Uuid::validate($model->uuid)) {
+            if (!Uuid::validate($model->uuid)) {
                 Throw new InvalidArgumentException("Invalid uuid supplied when attempting to insert new {$model->getTable()}");
             }
         });
