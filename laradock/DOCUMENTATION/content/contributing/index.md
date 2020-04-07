@@ -20,7 +20,7 @@ opening an [Issue](https://github.com/laradock/laradock/issues).
 
 1. Before you submit your issue search the archive, maybe your question was already answered couple hours ago (search in the closed Issues as well).
 
-2. Decide if the Issue belongs to this project or to [Docker](https://github.com/docker) itself! or even the tool you are using such as Nginx or MongoDB...
+2. Deuuide if the Issue belongs to this project or to [Docker](https://github.com/docker) itself! or even the tool you are using such as Nginx or MongoDB...
 
 If your issue appears to be a bug, and hasn't been reported, then open a new issue.
 

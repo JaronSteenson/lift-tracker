@@ -20,8 +20,8 @@
             <Draggable :forceFallback="true" class="row" dragClass="dragging-workout-card"
                        handle=".js-workout-drag-handle"
                        v-model="orderedWorkouts">
-                <v-col class="draggable" cols="12" lg="3" md="4" sm="6" v-for="(workout) in orderedWorkouts" :key="workout.cid">
-                    <WorkoutCard :workoutCid="workout.cid"></WorkoutCard>
+                <v-col class="draggable" cols="12" lg="3" md="4" sm="6" v-for="(workout) in orderedWorkouts" :key="workout.uuid">
+                    <WorkoutCard :workoutUuid="workout.uuid"></WorkoutCard>
                 </v-col>
                 <v-col cols="12" lg="3" md="4" slot="footer" sm="6">
                         <v-btn draggable="false" width="100%" @click="addWorkoutToProgram">
@@ -46,14 +46,14 @@
             Draggable
         },
         props: {
-            workoutProgramId: {
+            workoutProgramUuid: {
                 type: String,
                 required: false,
             }
         },
         created() {
-            if (this.workoutProgramId) {
-                this.$store.dispatch('programBuilder/fetchById', this.workoutProgramId)
+            if (this.workoutProgramUuid) {
+                this.$store.dispatch('programBuilder/fetch', this.workoutProgramUuid)
             } else {
                 this.$store.dispatch('programBuilder/tryRestoreFromLocalStorage');
             }
@@ -70,14 +70,14 @@
                     return;
                 }
 
-                if (this.$route.params.workoutProgramId !== newId) {
-                    this.$router.replace({ name: 'programBuilder', params: { workoutProgramId: newId }});
+                if (this.$route.params.workoutProgramUuid !== newId) {
+                    this.$router.replace({ name: 'programBuilder', params: { workoutProgramUuid: newId }});
                 }
             }
         },
         computed: {
             autofocus() {
-                return !this.workoutProgramId;
+                return !this.workoutProgramUuid;
             },
             ...mapState('programBuilder', ['id']),
             orderedWorkouts: {

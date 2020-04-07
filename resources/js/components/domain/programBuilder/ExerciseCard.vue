@@ -25,14 +25,14 @@
 <script>
     export default {
         props: {
-            exerciseCid: {
+            exerciseUuid: {
                 type: String,
                 required: true,
             }
         },
         computed: {
             autofocus() {
-                if (this.$store.getters['programBuilder/wasJustAdded'](this.exerciseCid)) {
+                if (this.$store.getters['programBuilder/wasJustAdded'](this.exerciseUuid)) {
                     this.$nextTick(() => {
                         this.$store.dispatch('programBuilder/clearJustAdded');
                     });
@@ -42,7 +42,7 @@
             },
             exercise: {
                 get() {
-                    return this.$store.getters['programBuilder/getExercise'](this.exerciseCid);
+                    return this.$store.getters['programBuilder/getExercise'](this.exerciseUuid);
                 }
             },
             name: {
@@ -50,7 +50,7 @@
                     return this.exercise.name || '';
                 },
                 set(name) {
-                    this.$store.dispatch('programBuilder/updateExercise', { exerciseCid: this.exerciseCid, name });
+                    this.$store.dispatch('programBuilder/updateExercise', { exerciseUuid: this.exerciseUuid, name });
                 }
             },
             numberOfSets: {
@@ -59,16 +59,16 @@
                 },
                 set(numberOfSets) {
                     numberOfSets = this.numberOr(numberOfSets, null);
-                    this.$store.dispatch('programBuilder/updateExercise', { exerciseCid: this.exerciseCid, numberOfSets });
+                    this.$store.dispatch('programBuilder/updateExercise', { exerciseUuid: this.exerciseUuid, numberOfSets });
                 }
             },
         },
         methods: {
             getExercise() {
-                return this.$store.getters['programBuilder/getExercise'](this.exerciseCid);
+                return this.$store.getters['programBuilder/getExercise'](this.exerciseUuid);
             },
             deleteExercise() {
-                return this.$store.dispatch('programBuilder/deleteExercise', { exerciseCid: this.exerciseCid });
+                return this.$store.dispatch('programBuilder/deleteExercise', { exerciseUuid: this.exerciseUuid });
             },
             numberOr(value, fallBackValue) {
                 const potentialNumber = Number.parseInt(value);

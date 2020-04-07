@@ -2,13 +2,10 @@
 
 namespace LiftTracker\Domain;
 
-
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
-use LiftTracker\Traits\CanUseCustomCollection;
 
 
 /**
@@ -17,7 +14,6 @@ use LiftTracker\Traits\CanUseCustomCollection;
  */
 abstract class AbstractModel extends Model
 {
-    use CanUseCustomCollection;
 
     public const CREATED_AT = 'createdAt';
     public const UPDATED_AT = 'updatedAt';

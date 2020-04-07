@@ -25,7 +25,7 @@ const routes = [
     },
     {
         name: 'programBuilder',
-        path: '/program-builder/:workoutProgramId',
+        path: '/program-builder/:workoutProgramUuid',
         component: ProgramBuilderPage,
         props: true
     },

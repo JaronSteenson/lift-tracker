@@ -2,11 +2,7 @@
 
 namespace LiftTracker\Http\Controllers;
 
-use Illuminate\Http\Request;
 use Illuminate\View\View;
-use LiftTracker\Domain\Workouts\Exercises\Exercise;
-use LiftTracker\Domain\Workouts\Programs\WorkoutProgramCollection;
-use LiftTracker\User;
 
 class VueAppController extends Controller
 {

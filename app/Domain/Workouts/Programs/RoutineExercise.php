@@ -5,13 +5,9 @@ namespace LiftTracker\Domain\Workouts\Programs;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 use LiftTracker\Domain\AbstractModel;
-use LiftTracker\Domain\Users\UserOwnershipInterface;
 use LiftTracker\Domain\Workouts\Exercises\Exercise;
-use LiftTracker\Traits\CanUseCustomCollection;
 use LiftTracker\Traits\HasUuidTrait;
-use LiftTracker\User;
 
 /**
  * This class/table doesn't link to exercise instead when adding an exercise to a routine
@@ -54,7 +50,7 @@ class RoutineExercise extends AbstractModel
      * @var array
      */
     protected $visible = [
-        'id',
+        'uuid',
         'name',
         'numberOfSets',
         'workoutProgramRoutineId',

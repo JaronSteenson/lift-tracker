@@ -1,5 +1,5 @@
 import AppService from "../../api/AppService";
-import ClientSideId from "../../ClientSideId";
+import ClientSideId from "../../UuidHelper";
 
 const state = {
     hasLoaded: false,

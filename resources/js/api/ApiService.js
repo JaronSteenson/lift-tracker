@@ -12,13 +12,13 @@ if (typeof baseUrl === 'string') {
 
 const ApiService = {
 
-    get(resourceType, resourceId = null) {
-        return axios.get(this.makeEndpointUrl(resourceType, resourceId));
+    get(resourceType, resourceUuid = null) {
+        return axios.get(this.makeEndpointUrl(resourceType, resourceUuid));
     },
 
     save(resourceType, payload) {
         if (payload.id) {
-            return this.put(resourceType, payload.id, payload);
+            return this.put(resourceType, payload.uuid, payload);
         }
 
         return this.post(resourceType, payload);
@@ -28,19 +28,19 @@ const ApiService = {
         return axios.post(this.makeEndpointUrl(resourceType), payload);
     },
 
-    put(resourceType, resourceId, payload) {
-        return axios.put(this.makeEndpointUrl(resourceType, resourceId), payload);
+    put(resourceType, resourceUuid, payload) {
+        return axios.put(this.makeEndpointUrl(resourceType, resourceUuid), payload);
     },
 
-    delete(resourceType, resourceId) {
-        return axios.delete(this.makeEndpointUrl(resourceType, resourceId));
+    delete(resourceType, resourceUuid) {
+        return axios.delete(this.makeEndpointUrl(resourceType, resourceUuid));
     },
 
-    makeEndpointUrl(resourceType, resourceId = null) {
+    makeEndpointUrl(resourceType, resourceUuid = null) {
         let url = `${baseUrl}/${resourceType}`;
 
-        if (resourceId !== null) {
-            url += `/${resourceId}`
+        if (resourceUuid !== null) {
+            url += `/${resourceUuid}`
         }
 
         return url;

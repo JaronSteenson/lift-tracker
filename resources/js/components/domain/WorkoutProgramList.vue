@@ -5,8 +5,7 @@
     >
         <h2 class="title text-center">Your workout programs</h2>
 
-        <v-row>
-            <v-spacer></v-spacer>
+        <v-row :justify="hasNoWorkoutProgram ? 'center' : 'start'">
             <v-col
                 :key="program.id"
                 cols="12"
@@ -24,7 +23,7 @@
                     </v-list-item>
 
                     <v-card-actions>
-                        <v-btn :to="{ name: 'programBuilder', params: { workoutProgramId: program.id } }"
+                        <v-btn :to="{ name: 'programBuilder', params: { workoutProgramUuid: program.uuid } }"
                                class="ma-2">
                             <v-icon left>mdi-pencil</v-icon> Edit
                         </v-btn>
@@ -68,6 +67,11 @@
                 loading: true,
             }
         },
+        computed: {
+            hasNoWorkoutProgram() {
+                return this.workoutPrograms.length === 0;
+            }
+        },
         methods: {
             async fetchWorkoutPrograms() {
                 this.loading = true;
@@ -76,11 +80,6 @@
                 this.workoutPrograms = response.data;
                 this.loading = false;
             }
-        },
-        computed: {
-            ...mapGetters('app', {
-                userFirstNamePossession: 'getUserFirstNamePossession'
-            }),
         },
     }
 </script>

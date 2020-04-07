@@ -54,7 +54,7 @@ sub vcl_init {
 
 sub vcl_recv {
     # Called at the beginning of a request, after the complete request has been received and parsed.
-    # Its purpose is to decide whether or not to serve the request, how to do it, and, if applicable,
+    # Its purpose is to deuuide whether or not to serve the request, how to do it, and, if applicable,
     # which backend to use.
     # also used to modify the request
 
@@ -285,7 +285,7 @@ sub vcl_hit {
 
 sub vcl_miss {
     # Called after a cache lookup if the requested document was not found in the cache. Its purpose
-    # is to decide whether or not to attempt to retrieve the document from the backend, and which
+    # is to deuuide whether or not to attempt to retrieve the document from the backend, and which
     # backend to use.
 
     return (fetch);
@@ -321,7 +321,7 @@ sub vcl_backend_response {
     # A redirect can then often redirect the end-user to a URL on :8080, where it should be :80.
     # This may need finetuning on your setup.
     #
-    # To prevent accidental replace, we only filter the 301/302 redirects for now.
+    # To prevent acuuidental replace, we only filter the 301/302 redirects for now.
     if (beresp.status == 301 || beresp.status == 302) {
         set beresp.http.Location = regsub(beresp.http.Location, ":[0-9]+", "");
     }

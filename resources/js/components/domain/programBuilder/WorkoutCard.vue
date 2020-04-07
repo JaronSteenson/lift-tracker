@@ -27,7 +27,7 @@
                            dragClass="dragging-exercise-card"
                            handle=".js-exercise-drag-handle" v-model="orderedExercises">
                     <template v-for="(exercise) in orderedExercises">
-                        <ExerciseCard :exercise-cid="exercise.cid" :key="exercise.cid" ref="exercise-cards"/>
+                        <ExerciseCard :exercise-uuid="exercise.uuid" :key="exercise.uuid" ref="exercise-cards"/>
                     </template>
                 </Draggable>
             </div>
@@ -50,14 +50,14 @@
             Draggable,
         },
         props: {
-            workoutCid: {
+            workoutUuid: {
                 type: String,
                 required: true,
             }
         },
         computed: {
             autofocus() {
-                if (this.$store.getters['programBuilder/wasJustAdded'](this.workoutCid)) {
+                if (this.$store.getters['programBuilder/wasJustAdded'](this.workoutUuid)) {
                     this.$nextTick(() => {
                         this.$store.dispatch('programBuilder/clearJustAdded');
                     });
@@ -67,7 +67,7 @@
             },
             workout: {
                 get() {
-                    return this.$store.getters['programBuilder/getWorkout'](this.workoutCid);
+                    return this.$store.getters['programBuilder/getWorkout'](this.workoutUuid);
                 }
             },
             name: {
@@ -75,16 +75,16 @@
                     return this.workout.name || '';
                 },
                 set(name) {
-                    this.$store.dispatch('programBuilder/updateWorkoutName', { cid: this.workoutCid, name });
+                    this.$store.dispatch('programBuilder/updateWorkoutName', { uuid: this.workoutUuid, name });
                 }
             },
             orderedExercises: {
                 get() {
-                    return this.$store.getters['programBuilder/getOrderedExercises'](this.workoutCid);
+                    return this.$store.getters['programBuilder/getOrderedExercises'](this.workoutUuid);
                 },
                 set(orderedExercises) {
                     this.$store.dispatch('programBuilder/updateExercisePositionFromOrder', {
-                        workoutCid: this.workoutCid,
+                        workoutUuid: this.workoutUuid,
                         orderedExercises
                     });
                 }
@@ -92,11 +92,11 @@
         },
         methods: {
             addExercise() {
-                this.$store.dispatch('programBuilder/addExerciseToWorkout', { workoutCid: this.workoutCid });
+                this.$store.dispatch('programBuilder/addExerciseToWorkout', { workoutUuid: this.workoutUuid });
             },
 
             deleteWorkout() {
-                this.$store.dispatch('programBuilder/deleteWorkout', { workoutCid: this.workoutCid });
+                this.$store.dispatch('programBuilder/deleteWorkout', { workoutUuid: this.workoutUuid });
             }
         }
     }

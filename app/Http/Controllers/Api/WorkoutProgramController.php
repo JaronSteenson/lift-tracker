@@ -6,18 +6,9 @@
 namespace LiftTracker\Http\Controllers\Api;
 
 use Exception;
-use Illuminate\Contracts\View\Factory;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Http\RedirectResponse;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
-use Illuminate\View\View;
-use LiftTracker\Domain\Workouts\Exercises\Exercise;
-use LiftTracker\Domain\Workouts\Programs\RoutineExercise;
 use LiftTracker\Domain\Workouts\Programs\WorkoutProgram;
-use LiftTracker\Domain\Workouts\Programs\WorkoutProgramCollection;
-use LiftTracker\Domain\Workouts\Programs\WorkoutProgramRoutine;
 use LiftTracker\Http\Controllers\Controller;
 use LiftTracker\Http\Requests\WorkoutProgramRequest;
 use LiftTracker\User;
@@ -29,9 +20,9 @@ class WorkoutProgramController extends Controller
      * Display a listing of the resource.
      *
      * @param WorkoutProgramRequest $request
-     * @return Collection|WorkoutProgramCollection
+     * @return Collection|WorkoutPRogram[]
      */
-    public function index(WorkoutProgramRequest $request): WorkoutProgramCollection
+    public function index(WorkoutProgramRequest $request): Collection
     {
         /** @var User $loggedInUser */
         $loggedInUser = $request->user();

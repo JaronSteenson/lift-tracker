@@ -4,16 +4,16 @@ const RESOURCE_NAME = 'workout-programs';
 
 const WorkoutProgramService = {
 
-    get(workoutRoutineId) {
-        return ApiService.get(RESOURCE_NAME, workoutRoutineId)
+    get(uuid) {
+        return ApiService.get(RESOURCE_NAME, uuid)
     },
 
     getAll() {
         return ApiService.get(RESOURCE_NAME)
     },
 
-    save(workoutRoutine) {
-        return ApiService.save(RESOURCE_NAME, workoutRoutine);
+    save(workoutProgram) {
+        return ApiService.save(RESOURCE_NAME, workoutProgram);
     },
 
 };

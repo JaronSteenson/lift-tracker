@@ -7,6 +7,7 @@ use Illuminate\Database\Query\Builder;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Arr;
 use LiftTracker\Domain\Users\UserOwnershipInterface;
+use LiftTracker\Traits\HasUuidTrait;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 abstract class ApiRequest extends FormRequest
@@ -82,6 +83,10 @@ abstract class ApiRequest extends FormRequest
 
             /** @var Builder $model */
             $model = new $modelClass;
+
+            if (method_exists($model, 'findByUuid')) {
+                return $model->findByUuid($modelId);
+            }
 
             return $model->find($modelId);
         }

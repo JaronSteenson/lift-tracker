@@ -4,7 +4,6 @@ namespace LiftTracker\Domain\Workouts\Programs;
 
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
@@ -12,9 +11,7 @@ use LiftTracker\Domain\AbstractModel;
 use LiftTracker\Domain\Users\CanBeOwnedByUserTrait;
 use LiftTracker\Domain\Users\UserOwnershipInterface;
 use LiftTracker\Http\Requests\WorkoutProgramRequest;
-use LiftTracker\Traits\CanUseCustomCollection;
 use LiftTracker\Traits\HasUuidTrait;
-use LiftTracker\User;
 
 /**
  * @mixin Builder
@@ -23,14 +20,13 @@ use LiftTracker\User;
  * @property Carbon createdAt
  * @property Carbon updatedAt
  * @property int userId
- * @property WorkoutProgramRoutineCollection workoutProgramRoutines
+ * @property Collection|WorkoutProgramRoutine[] workoutProgramRoutines
  *
  * For now these are only admin generated. Will want user generated in the future though.
  */
 class WorkoutProgram extends AbstractModel implements UserOwnershipInterface
 {
     use HasUuidTrait;
-    use CanUseCustomCollection;
     use CanBeOwnedByUserTrait;
 
     /**
@@ -48,8 +44,8 @@ class WorkoutProgram extends AbstractModel implements UserOwnershipInterface
      * @var array
      */
     protected $visible = [
+        'uuid',
         'name',
-        'id',
         'createdAt',
         'workoutProgramRoutines',
     ];

@@ -6,10 +6,10 @@ use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use LiftTracker\Domain\AbstractModel;
 use LiftTracker\Domain\Users\UserOwnershipInterface;
-use LiftTracker\Traits\CanUseCustomCollection;
 use LiftTracker\Traits\HasUuidTrait;
 use LiftTracker\User;
 
@@ -21,13 +21,12 @@ use LiftTracker\User;
  * @property string normalDay
  * @property Carbon createdAt
  * @property Carbon updatedAt
- * @property RoutineExerciseCollection $routineExercises
+ * @property Collection|RoutineExercise[] $routineExercises
  *
  */
 class WorkoutProgramRoutine extends AbstractModel implements UserOwnershipInterface
 {
     use HasUuidTrait;
-    use CanUseCustomCollection;
 
     /**
      * The attributes that are mass assignable.

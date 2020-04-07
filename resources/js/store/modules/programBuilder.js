@@ -1,5 +1,5 @@
 import WorkoutProgramService from '../../api/WorkoutProgramService'
-import ClientSideId from '../../ClientSideId'
+import UuidHelper from '../../UuidHelper'
 import { debounce } from 'lodash';
 
 const LOCAL_STORAGE_NAMESPACE = 'program-builder-state';
@@ -23,12 +23,12 @@ const state = {
 
 const getters = {
 
-    wasJustAdded: (state) => (cid) => {
-        return state.justAdded === cid;
+    wasJustAdded: (state) => (uuid) => {
+        return state.justAdded === uuid;
     },
 
-    getWorkout: (state) => (cid) => {
-        return ClientSideId.findIn(state.workoutProgramRoutines, cid);
+    getWorkout: (state) => (uuid) => {
+        return UuidHelper.findIn(state.workoutProgramRoutines, uuid);
     },
 
     getOrderedWorkouts(state) {
@@ -37,19 +37,19 @@ const getters = {
         })
     },
 
-    getOrderedExercises: (state, getters) => (workoutCid) => {
-        const workout = getters.getWorkout(workoutCid);
+    getOrderedExercises: (state, getters) => (workoutUuid) => {
+        const workout = getters.getWorkout(workoutUuid);
 
         return [...workout.routineExercises].sort((a, b) => {
             return a.position - b.position;
         })
     },
 
-    getExercise: (state) => (cid) => {
+    getExercise: (state) => (uuid) => {
         let exercise = null;
 
         state.workoutProgramRoutines.some(function (workout) {
-            let found =  ClientSideId.findIn(workout.routineExercises, cid);
+            let found =  UuidHelper.findIn(workout.routineExercises, uuid);
 
             if (found) {
                 exercise = found;
@@ -60,14 +60,14 @@ const getters = {
         return exercise;
     },
 
-    isNewWorkoutInExistingProgram: (state, getters) => (cid) => {
-        const workout = getters.getWorkout(cid);
+    isNewWorkoutInExistingProgram: (state, getters) => (uuid) => {
+        const workout = getters.getWorkout(uuid);
 
         return state.id && !workout.id;
     },
 
-    isNewExercise: (state, getters) => (cid) => {
-        const exercise = getters.getExercise(cid);
+    isNewExercise: (state, getters) => (uuid) => {
+        const exercise = getters.getExercise(uuid);
 
         return !exercise.id
     },
@@ -77,6 +77,7 @@ const getters = {
 const actions = {
     startNew({ commit }) {
         commit('reset', {
+            uuid: UuidHelper.assign(),
             id: null,
             name: null,
             workoutProgramRoutines: [
@@ -95,8 +96,8 @@ const actions = {
         dispatch('save')
     },
 
-    updateWorkoutName({ state, commit, dispatch }, { cid, name }) {
-        const workout = ClientSideId.findIn(state.workoutProgramRoutines, cid);
+    updateWorkoutName({ state, commit, dispatch }, { uuid, name }) {
+        const workout = UuidHelper.findIn(state.workoutProgramRoutines, uuid);
 
         commit('updateWorkout', { workout, newState: { name }  });
 
@@ -109,8 +110,8 @@ const actions = {
         dispatch('save');
     },
 
-    updateExercisePositionFromOrder({ state, commit, dispatch }, { workoutCid, orderedExercises }) {
-        commit('updateExercisePositionFromOrder', { workoutCid, orderedExercises });
+    updateExercisePositionFromOrder({ state, commit, dispatch }, { workoutUuid, orderedExercises }) {
+        commit('updateExercisePositionFromOrder', { workoutUuid, orderedExercises });
 
         dispatch('save');
     },
@@ -128,19 +129,19 @@ const actions = {
             workout.routineExercises = [];
         }
 
-        ClientSideId.assignTo(workout);
+        UuidHelper.assignTo(workout);
 
         commit('addWorkout', workout);
-        commit('setJustAdded', workout.cid);
+        commit('setJustAdded', workout.uuid);
 
         dispatch('save');
     },
 
-    addExerciseToWorkout({ state, commit, dispatch }, { workoutCid }) {
-        const cid = ClientSideId.assign();
+    addExerciseToWorkout({ state, commit, dispatch }, { workoutUuid }) {
+        const uuid = UuidHelper.assign();
 
-        commit('addExerciseToWorkout', { cid, workoutCid });
-        commit('setJustAdded', cid);
+        commit('addExerciseToWorkout', { uuid, workoutUuid });
+        commit('setJustAdded', uuid);
 
         dispatch('save');
     },
@@ -149,24 +150,24 @@ const actions = {
         commit('setJustAdded', null);
     },
 
-    deleteWorkout({ state, commit, dispatch }, { workoutCid }) {
-        commit('deleteWorkout', { workoutCid });
+    deleteWorkout({ state, commit, dispatch }, { workoutUuid }) {
+        commit('deleteWorkout', { workoutUuid });
 
         commit('fixPositions');
 
         dispatch('save');
     },
 
-    deleteExercise({ state, commit, dispatch }, { exerciseCid }) {
-        commit('deleteExercise', { exerciseCid });
+    deleteExercise({ state, commit, dispatch }, { exerciseUuid }) {
+        commit('deleteExercise', { exerciseUuid });
 
         commit('fixPositions');
 
         dispatch('save')
     },
 
-    updateExercise({ state, commit, getters, dispatch }, { exerciseCid, ...newState }) {
-        const exercise = getters.getExercise(exerciseCid);
+    updateExercise({ state, commit, getters, dispatch }, { exerciseUuid, ...newState }) {
+        const exercise = getters.getExercise(exerciseUuid);
 
         commit('updateExercise', { exercise, newState });
 
@@ -197,8 +198,8 @@ const actions = {
 
     }, SAVE_DEBOUNCE_WAIT),
 
-    async fetchById({state, commit}, id) {
-        const response = await WorkoutProgramService.get(id);
+    async fetch({ commit }, uuid) {
+        const response = await WorkoutProgramService.get(uuid);
 
         commit('reset', response.data);
 
@@ -213,13 +214,13 @@ const mutations = {
         });
 
         state.workoutProgramRoutines.forEach((workout) => {
-            ClientSideId.assignTo(workout);
-            ClientSideId.assignToAll(workout.routineExercises);
+            UuidHelper.assignTo(workout);
+            UuidHelper.assignToAll(workout.routineExercises);
         });
     },
 
-    setJustAdded(state, cid) {
-        state.justAdded = cid;
+    setJustAdded(state, uuid) {
+        state.justAdded = uuid;
     },
 
     updateName(state, name) {
@@ -238,10 +239,10 @@ const mutations = {
         state.workoutProgramRoutines = orderedWorkouts;
     },
 
-    updateExercisePositionFromOrder(state, { workoutCid, orderedExercises }) {
+    updateExercisePositionFromOrder(state, { workoutUuid, orderedExercises }) {
         orderedExercises.forEach((exercise, updatedPosition) => { exercise.position = updatedPosition; });
 
-        const workout = ClientSideId.findIn(state.workoutProgramRoutines, workoutCid);
+        const workout = UuidHelper.findIn(state.workoutProgramRoutines, workoutUuid);
         workout.routineExercises = orderedExercises;
     },
 
@@ -251,26 +252,26 @@ const mutations = {
         })
     },
 
-    addExerciseToWorkout(state, { cid, workoutCid }) {
-        const workout = ClientSideId.findIn(state.workoutProgramRoutines, workoutCid);
+    addExerciseToWorkout(state, { uuid, workoutUuid }) {
+        const workout = UuidHelper.findIn(state.workoutProgramRoutines, workoutUuid);
 
         workout.routineExercises.push({
-            cid,
+            uuid,
             name: null,
             numberOfSets: null,
             position: workout.routineExercises.length
         });
     },
 
-    deleteExercise(state, { exerciseCid }) {
+    deleteExercise(state, { exerciseUuid }) {
         // Use some to early exit if the exercise was found and removed.
         state.workoutProgramRoutines.some(function (workout) {
-            return ClientSideId.removeFrom(workout.routineExercises, exerciseCid);
+            return UuidHelper.removeFrom(workout.routineExercises, exerciseUuid);
         });
     },
 
-    deleteWorkout(state, { workoutCid }) {
-        ClientSideId.removeFrom(state.workoutProgramRoutines, workoutCid);
+    deleteWorkout(state, { workoutUuid }) {
+        UuidHelper.removeFrom(state.workoutProgramRoutines, workoutUuid);
     },
 
     fixPositions(state) {

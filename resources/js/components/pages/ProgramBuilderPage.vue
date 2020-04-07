@@ -1,5 +1,5 @@
 <template>
-    <ProgramBuilder :workoutProgramId="workoutProgramId"></ProgramBuilder>
+    <ProgramBuilder :workoutProgramUuid="workoutProgramUuid"></ProgramBuilder>
 </template>
 
 <script>
@@ -10,7 +10,7 @@
             ProgramBuilder
         },
         props: {
-            workoutProgramId: {
+            workoutProgramUuid: {
                 type: String,
                 required: false,
             }

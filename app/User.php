@@ -3,11 +3,11 @@
 namespace LiftTracker;
 
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use LiftTracker\Domain\Workouts\Programs\WorkoutProgram;
-use LiftTracker\Domain\Workouts\Programs\WorkoutProgramCollection;
 
 /**
  * Class User
@@ -46,9 +46,8 @@ class User extends Authenticatable
         return $this->hasMany(WorkoutProgram::class, 'userId');
     }
 
-    public function findWorkoutPrograms(): WorkoutProgramCollection
+    public function findWorkoutPrograms(): Collection
     {
-        /** @noinspection PhpIncompatibleReturnTypeInspection */
         return $this->workoutPrograms()->orderBy('name')->get();
     }
 }
