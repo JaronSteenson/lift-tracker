@@ -56,16 +56,8 @@ class WorkoutProgramRoutine extends AbstractModel implements UserOwnershipInterf
         'routineExercises',
     ];
 
-    /**
-     * The attributes that should be cast to native types.
-     *
-     * @var array
-     */
-    protected $casts = [
-        'id' => 'string', //is a uuid
-    ];
-
-    public static function boot() {
+    public static function boot(): void
+    {
         parent::boot();
 
         static::deleting(static function(WorkoutProgramRoutine $routine) {

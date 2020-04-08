@@ -40,10 +40,6 @@ class RoutineExercise extends AbstractModel
         'position',
     ];
 
-    protected $casts = [
-        'numberOfSets' => 'integer',
-    ];
-
     /**
      * The attributes that should be visible in arrays.
      *
@@ -53,8 +49,11 @@ class RoutineExercise extends AbstractModel
         'uuid',
         'name',
         'numberOfSets',
-        'workoutProgramRoutineId',
         'position',
+    ];
+
+    protected $casts = [
+        'numberOfSets' => 'integer',
     ];
 
     public function routine(): BelongsTo

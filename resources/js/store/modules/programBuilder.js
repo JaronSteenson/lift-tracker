@@ -1,6 +1,6 @@
 import WorkoutProgramService from '../../api/WorkoutProgramService'
 import UuidHelper from '../../UuidHelper'
-import { debounce } from 'lodash';
+import { debounce, pick } from 'lodash';
 
 const LOCAL_STORAGE_NAMESPACE = 'program-builder-state';
 const BUILDER_IN_PROGRESS = 'builder-in-progress';
@@ -71,6 +71,43 @@ const getters = {
 
         return !exercise.id
     },
+
+    getSavePayload(state) {
+        const workoutProgramFields = [
+            'uuid',
+            'name',
+            'workoutProgramRoutines',
+        ];
+
+        const workoutFields = [
+            'uuid',
+            'name',
+            'normalDay',
+            'position',
+            'routineExercises',
+        ];
+
+        const exerciseFields = [
+            'uuid',
+            'name',
+            'position',
+            'numberOfSets',
+        ];
+
+        const cleaned = pick(state, workoutProgramFields);
+
+        cleaned.workoutProgramRoutines = state.workoutProgramRoutines.map(workout => {
+            const cleanedWorkout = pick(workout, workoutFields);
+
+            cleanedWorkout.routineExercises = cleanedWorkout.routineExercises.map(
+                exercise => pick(exercise, exerciseFields)
+            );
+
+            return cleanedWorkout;
+        });
+
+        return cleaned;
+    }
 
 };
 
@@ -184,11 +221,15 @@ const actions = {
         }
     },
 
-    save: debounce(async ({ state, commit }) => {
+    save: debounce(async ({ state, commit, getters }) => {
         localStorage.setItem(localStorageKey(BUILDER_IN_PROGRESS), JSON.stringify(state));
 
         try {
-            const response = await WorkoutProgramService.save(state);
+            const savePayload = getters.getSavePayload();
+
+            debugger;
+
+            const response = await WorkoutProgramService.save(savePayload);
 
             commit('reset', response.data);
             localStorage.removeItem(localStorageKey(BUILDER_IN_PROGRESS));
@@ -265,7 +306,7 @@ const mutations = {
 
     deleteExercise(state, { exerciseUuid }) {
         // Use some to early exit if the exercise was found and removed.
-        state.workoutProgramRoutines.some(function (workout) {
+        state.workoutProgramRoutines.some(workout => {
             return UuidHelper.removeFrom(workout.routineExercises, exerciseUuid);
         });
     },
