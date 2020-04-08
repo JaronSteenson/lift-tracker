@@ -32,7 +32,7 @@
         },
         computed: {
             autofocus() {
-                if (this.$store.getters['programBuilder/wasjustAddedModel'](this.exerciseUuid)) {
+                if (this.$store.getters['programBuilder/justAddedUuid'](this.exerciseUuid)) {
                     this.$nextTick(() => {
                         this.$store.dispatch('programBuilder/clearjustAddedModel');
                     });

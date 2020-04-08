@@ -23,7 +23,13 @@ const state = {
 
 const getters = {
 
-    wasjustAddedModel: (state) => (uuid) => {
+    /***
+     * Returns true if the uuid was last added, and was added recently.
+     *
+     * @param state
+     * @returns {function(*): boolean}
+     */
+    justAddedUuid: (state) => (uuid) => {
         return state.justAddedModel === uuid;
     },
 
