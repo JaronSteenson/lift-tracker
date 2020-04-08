@@ -59,7 +59,7 @@
             autofocus() {
                 if (this.$store.getters['programBuilder/justAddedUuid'](this.workoutUuid)) {
                     this.$nextTick(() => {
-                        this.$store.dispatch('programBuilder/clearjustAddedModel');
+                        this.$store.dispatch('programBuilder/forgetJustAddedUuid');
                     });
                     return true;
                 }

@@ -27,6 +27,7 @@ const getters = {
      * Returns true if the uuid was last added, and was added recently.
      *
      * @param state
+     * 
      * @returns {function(*): boolean}
      */
     justAddedUuid: (state) => (uuid) => {
@@ -189,7 +190,7 @@ const actions = {
         dispatch('save');
     },
 
-    clearjustAddedModel({ commit }) {
+    forgetJustAddedUuid({ commit }) {
         commit('setjustAddedModel', null);
     },
 
