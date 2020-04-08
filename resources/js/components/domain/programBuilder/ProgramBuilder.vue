@@ -35,7 +35,7 @@
 
 <script>
     import LoadingSpinner from "../../LoadingSpinner";
-    import { mapState, mapActions } from 'vuex';
+    import { mapState, mapActions, mapGetters } from 'vuex';
     import WorkoutCard from "./WorkoutCard";
     import Draggable from 'vuedraggable';
 
@@ -64,7 +64,7 @@
             }
         },
         watch: {
-            // Change the route to id once a new program has been saved
+            // Change the route to id once a new program has been assigned a uuid.
             uuid(newUuid) {
                 if (!newUuid) {
                     return;
@@ -77,9 +77,10 @@
         },
         computed: {
             autofocus() {
-                return !this.workoutProgramUuid;
+                return !this.hasMadeSignificantChangesFromNew;
             },
             ...mapState('programBuilder', ['uuid']),
+            ...mapGetters('programBuilder', ['hasMadeSignificantChangesFromNew']),
             orderedWorkouts: {
                 get() {
                     return this.$store.getters['programBuilder/getOrderedWorkouts'];

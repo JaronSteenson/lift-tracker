@@ -3,11 +3,10 @@ import UuidHelper from '../../UuidHelper'
 import { debounce, pick } from 'lodash';
 
 const LOCAL_STORAGE_NAMESPACE = 'program-builder-state';
-const BUILDER_IN_PROGRESS = 'builder-in-progress';
 const SAVE_DEBOUNCE_WAIT = 2000;
 
-function localStorageKey(key) {
-    return `${LOCAL_STORAGE_NAMESPACE}_${key}`
+function localStorageKey(uuid) {
+    return `${LOCAL_STORAGE_NAMESPACE}_${uuid}`
 }
 
 function sortByPosition(a, b) {
@@ -18,20 +17,27 @@ const state = {
     uuid: null,
     name: '',
     workoutProgramRoutines: [],
-    justAddedModel: null,
+    justAddedModelUuid: null,
+    hasMadeSignificantChangesFromNew: false,
+    createdAt: null,
 };
 
 const getters = {
 
-    /***
-     * Returns true if the uuid was last added, and was added recently.
-     *
-     * @param state
-     * 
-     * @returns {function(*): boolean}
-     */
-    justAddedUuid: (state) => (uuid) => {
-        return state.justAddedModel === uuid;
+    hasMadeSignificantChangesFromNew(state) {
+        return state.uuid || // Has somehow forced a save or uuid assignment.
+            state.name.trim() !== '' || // Has added a name.
+            state.workoutProgramRoutines.length > 1 || // Has added a workout.
+            state.workoutProgramRoutines[0]?.name.trim() !== '' || // Has a name for the first routine.
+            state.workoutProgramRoutines[0]?.routineExercises.length > 0; // Has added an exercise to the first routine.
+    },
+
+    fromLocalStorage(state) {
+        return JSON.parse(localStorage.getItem(localStorageKey(state.uuid)));
+    },
+
+    isJustAddedModelUuid: (state) => (uuid) => {
+        return state.justAddedModelUuid === uuid
     },
 
     getWorkout: (state) => (uuid) => {
@@ -84,6 +90,7 @@ const getters = {
             'uuid',
             'name',
             'workoutProgramRoutines',
+            'createdAt', // Used for determining http method.
         ];
 
         const workoutFields = [
@@ -121,12 +128,13 @@ const getters = {
 const actions = {
     startNew({ commit }) {
         commit('reset', {
-            uuid: UuidHelper.assign(),
-            id: null,
-            name: null,
+            // We don't assign a uuid or save until the user does something (add a name, workout, or exercise).
+            uuid: null,
+            name: '',
             workoutProgramRoutines: [
                 {
-                    name: null,
+                    uuid: UuidHelper.assign(),
+                    name: '',
                     position: 0,
                     routineExercises: [],
                 }
@@ -176,7 +184,7 @@ const actions = {
         UuidHelper.assignTo(workout);
 
         commit('addWorkout', workout);
-        commit('setjustAddedModel', workout.uuid);
+        commit('setJustAddedUuid', workout.uuid);
 
         dispatch('save');
     },
@@ -185,13 +193,13 @@ const actions = {
         const uuid = UuidHelper.assign();
 
         commit('addExerciseToWorkout', { uuid, workoutUuid });
-        commit('setjustAddedModel', uuid);
+        commit('setJustAddedUuid', uuid);
 
         dispatch('save');
     },
 
     forgetJustAddedUuid({ commit }) {
-        commit('setjustAddedModel', null);
+        commit('setJustAddedUuid', null);
     },
 
     deleteWorkout({ state, commit, dispatch }, { workoutUuid }) {
@@ -218,8 +226,44 @@ const actions = {
         dispatch('save')
     },
 
-    tryRestoreFromLocalStorage({ commit, dispatch }) {
-        const stateFromLocalStorage = JSON.parse(localStorage.getItem(localStorageKey(BUILDER_IN_PROGRESS)));
+    save: debounce(async ({ state, commit, dispatch, getters }) => {
+        // Don't actually save anything until there is some decent changes.
+        if (!getters.hasMadeSignificantChangesFromNew) {
+            return;
+        }
+
+        //  We still don't have a top level uuid, but we have made some changes,
+        // assign a uuid and actually save the program.
+        if (!state.uuid && getters.hasMadeSignificantChangesFromNew) {
+            commit('assignTopLevelUuid');
+        }
+
+        dispatch('saveToLocalStorage');
+
+        try {
+            const response = await WorkoutProgramService.save(getters.savePayload);
+            commit('reset', response.data);
+        } catch (error) {
+            console.error(error); // TODO add to toast queue/user facing error message.
+        }
+
+    }, SAVE_DEBOUNCE_WAIT),
+
+    saveToLocalStorage({ state }) {
+        localStorage.setItem(localStorageKey(state.uuid), JSON.stringify(state));
+    },
+
+    async fetch({ commit, dispatch }, uuid) {
+        try {
+            const response = await WorkoutProgramService.get(uuid);
+            commit('reset', response.data);
+        } catch (e) {
+            dispatch('tryRestoreFromLocalStorage')
+        }
+    },
+
+    tryRestoreFromLocalStorage({ commit, getters, dispatch }) {
+        const stateFromLocalStorage = getters.fromLocalStorage;
 
         if (stateFromLocalStorage) {
             commit('reset', stateFromLocalStorage);
@@ -227,28 +271,6 @@ const actions = {
             dispatch('startNew');
         }
     },
-
-    save: debounce(async ({ state, commit, getters }) => {
-        localStorage.setItem(localStorageKey(BUILDER_IN_PROGRESS), JSON.stringify(state));
-
-        try {
-            const response = await WorkoutProgramService.save(getters.savePayload);
-
-            commit('reset', response.data);
-            localStorage.removeItem(localStorageKey(BUILDER_IN_PROGRESS));
-        } catch (error) {
-            console.error(error); // TODO add to toast queue/user facing error message.
-        }
-
-    }, SAVE_DEBOUNCE_WAIT),
-
-    async fetch({ commit }, uuid) {
-        const response = await WorkoutProgramService.get(uuid);
-
-        commit('reset', response.data);
-
-        return response.data;
-    }
 };
 
 const mutations = {
@@ -258,8 +280,12 @@ const mutations = {
         });
     },
 
-    setjustAddedModel(state, uuid) {
-        state.justAddedModel = uuid;
+    assignTopLevelUuid(state) {
+        state.uuid = UuidHelper.assign();
+    },
+
+    setJustAddedUuid(state, uuid) {
+        state.justAddedModelUuid = uuid;
     },
 
     updateName(state, name) {
@@ -340,6 +366,7 @@ const mutations = {
 
         state.workoutProgramRoutines.splice(workout.position, 0, workout);
     },
+
 };
 
 export default {

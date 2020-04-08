@@ -57,7 +57,7 @@
         },
         computed: {
             autofocus() {
-                if (this.$store.getters['programBuilder/justAddedUuid'](this.workoutUuid)) {
+                if (this.$store.getters['programBuilder/isJustAddedModelUuid'](this.workoutUuid)) {
                     this.$nextTick(() => {
                         this.$store.dispatch('programBuilder/forgetJustAddedUuid');
                     });
