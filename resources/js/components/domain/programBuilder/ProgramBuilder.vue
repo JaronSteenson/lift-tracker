@@ -10,6 +10,7 @@
             <v-col cols="12" lg="3" md="4" sm="6">
                 <VTextField
                     :autofocus="autofocus"
+                    label="Program name"
                     placeholder="Enter program name"
                     v-model="name"
                 />

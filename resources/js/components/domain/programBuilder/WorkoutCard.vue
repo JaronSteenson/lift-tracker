@@ -1,7 +1,11 @@
 <template>
     <VCard class="js-workout-drag-handle drag-handle" width="100%">
         <VCardTitle>
-            <VTextField placeholder="Enter workout name" v-model="name" :autofocus="autofocus"/>
+            <VTextField
+                v-model="name" :autofocus="autofocus"
+                label="Workout name"
+                placeholder="Enter workout name"
+            />
 
             <v-menu bottom left>
                 <template v-slot:activator="{ on }">
