@@ -18,13 +18,13 @@ const state = {
     uuid: null,
     name: '',
     workoutProgramRoutines: [],
-    justAdded: null,
+    justAddedModel: null,
 };
 
 const getters = {
 
-    wasJustAdded: (state) => (uuid) => {
-        return state.justAdded === uuid;
+    wasjustAddedModel: (state) => (uuid) => {
+        return state.justAddedModel === uuid;
     },
 
     getWorkout: (state) => (uuid) => {
@@ -169,7 +169,7 @@ const actions = {
         UuidHelper.assignTo(workout);
 
         commit('addWorkout', workout);
-        commit('setJustAdded', workout.uuid);
+        commit('setjustAddedModel', workout.uuid);
 
         dispatch('save');
     },
@@ -178,13 +178,13 @@ const actions = {
         const uuid = UuidHelper.assign();
 
         commit('addExerciseToWorkout', { uuid, workoutUuid });
-        commit('setJustAdded', uuid);
+        commit('setjustAddedModel', uuid);
 
         dispatch('save');
     },
 
-    clearJustAdded({ commit }) {
-        commit('setJustAdded', null);
+    clearjustAddedModel({ commit }) {
+        commit('setjustAddedModel', null);
     },
 
     deleteWorkout({ state, commit, dispatch }, { workoutUuid }) {
@@ -251,8 +251,8 @@ const mutations = {
         });
     },
 
-    setJustAdded(state, uuid) {
-        state.justAdded = uuid;
+    setjustAddedModel(state, uuid) {
+        state.justAddedModel = uuid;
     },
 
     updateName(state, name) {
