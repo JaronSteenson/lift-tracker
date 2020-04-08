@@ -131,7 +131,6 @@ class WorkoutProgramRequest extends ApiRequest
      */
     public function getExistingExercisesForRoutine($routine): Collection
     {
-        /** @var WorkoutProgramRoutine $existingRoutine */
         $existingRoutine = $this->getExistingRoutines()->find($routine);
 
         if ($existingRoutine) {

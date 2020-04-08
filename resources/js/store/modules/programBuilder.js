@@ -72,7 +72,7 @@ const getters = {
         return !exercise.id
     },
 
-    getSavePayload(state) {
+    savePayload(state) {
         const workoutProgramFields = [
             'uuid',
             'name',
@@ -225,11 +225,7 @@ const actions = {
         localStorage.setItem(localStorageKey(BUILDER_IN_PROGRESS), JSON.stringify(state));
 
         try {
-            const savePayload = getters.getSavePayload();
-
-            debugger;
-
-            const response = await WorkoutProgramService.save(savePayload);
+            const response = await WorkoutProgramService.save(getters.savePayload);
 
             commit('reset', response.data);
             localStorage.removeItem(localStorageKey(BUILDER_IN_PROGRESS));
@@ -252,11 +248,6 @@ const mutations = {
     reset(state, newState) {
         Object.keys(newState).forEach(key => {
             state[key] = newState[key]
-        });
-
-        state.workoutProgramRoutines.forEach((workout) => {
-            UuidHelper.assignTo(workout);
-            UuidHelper.assignToAll(workout.routineExercises);
         });
     },
 

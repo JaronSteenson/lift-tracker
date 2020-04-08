@@ -17,15 +17,15 @@ const ApiService = {
     },
 
     save(resourceType, payload) {
-        if (payload.createdAt) {
+        if (payload.uuid) {
             return this.put(resourceType, payload.uuid, payload);
         }
 
         return this.post(resourceType, payload);
     },
 
-    post(resourceType, payload) {
-        return axios.post(this.makeEndpointUrl(resourceType), payload);
+    post(resourceType, resourceUuid, payload) {
+        return axios.post(this.makeEndpointUrl(resourceType, resourceUuid), payload);
     },
 
     put(resourceType, resourceUuid, payload) {
