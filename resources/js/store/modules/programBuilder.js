@@ -22,6 +22,28 @@ const state = {
     createdAt: null,
 };
 
+const workoutProgramFields = [
+    'uuid',
+    'name',
+    'workoutProgramRoutines',
+    'createdAt', // Used for determining http method.
+];
+
+const workoutFields = [
+    'uuid',
+    'name',
+    'normalDay',
+    'position',
+    'routineExercises',
+];
+
+const exerciseFields = [
+    'uuid',
+    'name',
+    'position',
+    'numberOfSets',
+];
+
 const getters = {
 
     hasMadeSignificantChangesFromNew(state) {
@@ -86,28 +108,6 @@ const getters = {
     },
 
     savePayload(state) {
-        const workoutProgramFields = [
-            'uuid',
-            'name',
-            'workoutProgramRoutines',
-            'createdAt', // Used for determining http method.
-        ];
-
-        const workoutFields = [
-            'uuid',
-            'name',
-            'normalDay',
-            'position',
-            'routineExercises',
-        ];
-
-        const exerciseFields = [
-            'uuid',
-            'name',
-            'position',
-            'numberOfSets',
-        ];
-
         const cleaned = pick(state, workoutProgramFields);
 
         cleaned.workoutProgramRoutines = state.workoutProgramRoutines.map(workout => {
@@ -242,7 +242,7 @@ const actions = {
 
         try {
             const response = await WorkoutProgramService.save(getters.savePayload);
-            commit('reset', response.data);
+            commit('patchInSaveResponse', response.data);
         } catch (error) {
             console.error(error); // TODO add to toast queue/user facing error message.
         }
@@ -271,6 +271,7 @@ const actions = {
             dispatch('startNew');
         }
     },
+
 };
 
 const mutations = {
@@ -365,6 +366,12 @@ const mutations = {
         });
 
         state.workoutProgramRoutines.splice(workout.position, 0, workout);
+    },
+
+    patchInSaveResponse(state, saveResponse) {
+        // Nothing should be different from the server except the create date. And uuid if it was assigned there.
+        state.uuid = saveResponse.uuid;
+        state.createdAt = saveResponse.createdAt;
     },
 
 };
