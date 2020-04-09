@@ -68,17 +68,6 @@ class WorkoutProgramController extends Controller
         return $this->saveFromRequest($request);
     }
 
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param BuilderMoveExerciseRequest $request
-     * @return WorkoutProgram
-     */
-    public function moveExercise(BuilderMoveExerciseRequest $request)
-    {
-        return $this->saveFromRequest($request);
-    }
-
     private function saveFromRequest(WorkoutProgramRequest $request): WorkoutProgram
     {
         $workoutProgram = WorkoutProgram::createFromRequest($request);
