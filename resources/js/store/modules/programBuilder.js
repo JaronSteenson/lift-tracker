@@ -162,8 +162,41 @@ const actions = {
         dispatch('save');
     },
 
-    updateExercisePositionFromOrder({ state, commit, dispatch }, { workoutUuid, orderedExercises }) {
-        commit('updateExercisePositionFromOrder', { workoutUuid, orderedExercises });
+    updateExercisePositionFromOrder({ state, commit, dispatch }, { workoutUuid, newOrderedExercises }) {
+        const existingOrderedExercises = UuidHelper.findIn(state.workoutProgramRoutines, workoutUuid).routineExercises;
+
+        let fromAnotherWorkout = null;
+
+        // If the new ordered exercises are larger then
+        // we have received an exercise from another workout.
+        if (newOrderedExercises.length > existingOrderedExercises.length) {
+            newOrderedExercises.some((newOrderedExercise, index) => {
+                if (newOrderedExercise.uuid !== existingOrderedExercises[index]?.uuid) {
+                    fromAnotherWorkout = newOrderedExercise;
+                    return true; // Early exit.
+                }
+            });
+        }
+
+        // Figure out which workout this came from.
+        if (fromAnotherWorkout) {
+            debugger;
+            const exercisesOriginalWorkout = state.workoutProgramRoutines.find(workout => {
+                return UuidHelper.findIn(workout.routineExercises, fromAnotherWorkout.uuid);
+            });
+
+            const withOutMovedExercise = UuidHelper.removeFromCopy(
+                exercisesOriginalWorkout.routineExercises,
+                fromAnotherWorkout.uuid
+            );
+
+            commit('updateExercisePositionFromOrder', {
+                workoutUuid: exercisesOriginalWorkout.uuid,
+                newOrderedExercises: withOutMovedExercise,
+            });
+        }
+
+        commit('updateExercisePositionFromOrder', { workoutUuid, newOrderedExercises });
 
         dispatch('save');
     },
@@ -305,11 +338,11 @@ const mutations = {
         state.workoutProgramRoutines = orderedWorkouts;
     },
 
-    updateExercisePositionFromOrder(state, { workoutUuid, orderedExercises }) {
-        orderedExercises.forEach((exercise, updatedPosition) => { exercise.position = updatedPosition; });
+    updateExercisePositionFromOrder(state, { workoutUuid, newOrderedExercises }) {
+        newOrderedExercises.forEach((exercise, updatedPosition) => { exercise.position = updatedPosition; });
 
         const workout = UuidHelper.findIn(state.workoutProgramRoutines, workoutUuid);
-        workout.routineExercises = orderedExercises;
+        workout.routineExercises = newOrderedExercises;
     },
 
     updateExercise(state, { exercise, newState }) {

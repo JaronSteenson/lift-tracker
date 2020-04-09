@@ -63,4 +63,18 @@ export default {
         return true;
     },
 
+    /**
+     * Makes a new version of the array with the item removed.
+     * @param array
+     * @param uuid
+     * @returns {*[]}
+     */
+    removeFromCopy(array, uuid) {
+        const copy = [...array];
+
+        this.removeFrom(copy, uuid);
+
+        return copy;
+    }
+
 };

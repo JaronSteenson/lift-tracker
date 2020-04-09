@@ -86,10 +86,10 @@
                 get() {
                     return this.$store.getters['programBuilder/getOrderedExercises'](this.workoutUuid);
                 },
-                set(orderedExercises) {
+                set(newOrderedExercises) {
                     this.$store.dispatch('programBuilder/updateExercisePositionFromOrder', {
                         workoutUuid: this.workoutUuid,
-                        orderedExercises
+                        newOrderedExercises
                     });
                 }
             }

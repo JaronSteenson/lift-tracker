@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use LiftTracker\Domain\Workouts\Programs\WorkoutProgram;
 use LiftTracker\Http\Controllers\Controller;
+use LiftTracker\Http\Requests\BuilderMoveExerciseRequest;
 use LiftTracker\Http\Requests\WorkoutProgramRequest;
 use LiftTracker\User;
 
@@ -63,6 +64,17 @@ class WorkoutProgramController extends Controller
      * @return WorkoutProgram
      */
     public function update(WorkoutProgramRequest $request)
+    {
+        return $this->saveFromRequest($request);
+    }
+
+    /**
+     * Update the specified resource in storage.
+     *
+     * @param BuilderMoveExerciseRequest $request
+     * @return WorkoutProgram
+     */
+    public function moveExercise(BuilderMoveExerciseRequest $request)
     {
         return $this->saveFromRequest($request);
     }
