@@ -3,11 +3,11 @@
         <VCardTitle>
             <VTextField
                 v-if="isEditingTitle"
-                v-model="nameEditing" :autofocus="autofocus"
+                v-model="nameEditing" :autofocus="isEditingTitle"
                 label="Workout name"
                 @blur="stopEditingTitle"
             />
-            <span v-else @click="editTitle" style="flex-grow: 1;">{{ nameDisplay }}</span>
+            <EditableTitle v-else @click="editTitle">{{ nameDisplay }}</EditableTitle>
 
             <v-menu bottom left>
                 <template v-slot:activator="{ on }">
@@ -49,9 +49,11 @@
 <script>
     import ExerciseCard from "./ExerciseCard";
     import Draggable from 'vuedraggable';
+    import EditableTitle from "../../formFields/EditableTitle";
 
     export default {
         components: {
+            EditableTitle,
             ExerciseCard,
             Draggable,
         },
@@ -66,20 +68,15 @@
                 required: true,
             }
         },
+        mounted() {
+            if (this.$store.getters['programBuilder/isJustAddedModelUuid'](this.workoutUuid)) {
+                this.isEditingTitle = true;
+                this.$nextTick(() => {
+                    this.$store.dispatch('programBuilder/forgetJustAddedUuid');
+                });
+            }
+        },
         computed: {
-            autofocus() {
-                if (this.forceTitleFocus) {
-                    return true;
-                }
-
-                if (this.$store.getters['programBuilder/isJustAddedModelUuid'](this.workoutUuid)) {
-                    this.$nextTick(() => {
-                        this.$store.dispatch('programBuilder/forgetJustAddedUuid');
-                    });
-                    return true;
-                }
-                return false;
-            },
             workout: {
                 get() {
                     return this.$store.getters['programBuilder/getWorkout'](this.workoutUuid);
