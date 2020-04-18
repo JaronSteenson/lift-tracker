@@ -66,6 +66,10 @@ const getters = {
         return UuidHelper.findIn(state.workoutProgramRoutines, uuid);
     },
 
+    getWorkoutNameForDisplay: (state, getters) => (uuid) => {
+        return getters.getWorkout(uuid).name || 'Unnamed workout';
+    },
+
     getOrderedWorkouts(state) {
         return [...state.workoutProgramRoutines].sort((a, b) => {
             return a.position - b.position;

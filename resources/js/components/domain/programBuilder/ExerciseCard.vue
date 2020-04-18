@@ -24,6 +24,18 @@
                     </v-list-item>
                 </v-list>
             </v-menu>
+
+            <VTextField
+                label="Number of sets"
+                v-model.number="numberOfSets"
+                type="number"
+            />
+
+            <VTextField
+                label="Weight"
+                v-model.number="numberOfSets"
+                type="number"
+            />
         </VCardTitle>
     </VCard>
 </template>

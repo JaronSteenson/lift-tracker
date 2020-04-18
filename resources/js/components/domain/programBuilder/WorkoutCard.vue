@@ -2,10 +2,12 @@
     <VCard class="js-workout-drag-handle drag-handle" width="100%">
         <VCardTitle>
             <VTextField
-                v-model="name" :autofocus="autofocus"
+                v-if="isEditingTitle"
+                v-model="nameEditing" :autofocus="autofocus"
                 label="Workout name"
-                placeholder="Enter workout name"
+                @blur="stopEditingTitle"
             />
+            <span v-else @click="editTitle" style="flex-grow: 1;">{{ nameDisplay }}</span>
 
             <v-menu bottom left>
                 <template v-slot:activator="{ on }">
@@ -53,6 +55,11 @@
             ExerciseCard,
             Draggable,
         },
+        data() {
+            return {
+                isEditingTitle: false,
+            }
+        },
         props: {
             workoutUuid: {
                 type: String,
@@ -61,6 +68,10 @@
         },
         computed: {
             autofocus() {
+                if (this.forceTitleFocus) {
+                    return true;
+                }
+
                 if (this.$store.getters['programBuilder/isJustAddedModelUuid'](this.workoutUuid)) {
                     this.$nextTick(() => {
                         this.$store.dispatch('programBuilder/forgetJustAddedUuid');
@@ -74,13 +85,16 @@
                     return this.$store.getters['programBuilder/getWorkout'](this.workoutUuid);
                 }
             },
-            name: {
+            nameEditing: {
                 get() {
                     return this.workout.name || '';
                 },
                 set(name) {
                     this.$store.dispatch('programBuilder/updateWorkoutName', { uuid: this.workoutUuid, name });
                 }
+            },
+            nameDisplay() {
+                return this.$store.getters['programBuilder/getWorkoutNameForDisplay'](this.workoutUuid);
             },
             orderedExercises: {
                 get() {
@@ -95,13 +109,23 @@
             }
         },
         methods: {
+            editTitle() {
+                this.isEditingTitle = true;
+                this.forceTitleFocus = true;
+            },
+
+            stopEditingTitle() {
+                this.isEditingTitle = false;
+                this.forceTitleFocus = false;
+            },
+
             addExercise() {
                 this.$store.dispatch('programBuilder/addExerciseToWorkout', { workoutUuid: this.workoutUuid });
             },
 
             deleteWorkout() {
                 this.$store.dispatch('programBuilder/deleteWorkout', { workoutUuid: this.workoutUuid });
-            }
+            },
         }
     }
 </script>
