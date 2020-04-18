@@ -1,5 +1,10 @@
 <template>
-    <VCard class="exercise-card js-exercise-drag-handle drag-handle" outlined>
+    <VCard
+        class="exercise-card js-exercise-drag-handle drag-handle"
+        outlined role="button"
+        :ripple="false"
+        @click="showEditModal = true"
+    >
         <VCardTitle v-if="isAddingNew">
             <VTextField
                 :autofocus="isAddingNew"
@@ -28,7 +33,6 @@
                     </v-list>
                 </v-menu>
             </VCardTitle>
-
             <VCardText class="py-0">
                 <VContainer>
                     <VRow justify="space-between">
@@ -41,8 +45,11 @@
                 </VContainer>
             </VCardText>
 
-            <EditExerciseModal :exercise-uuid="exercise.uuid" v-if="showEditModal"
-                               v-model="showEditModal"></EditExerciseModal>
+            <EditExerciseModal
+                v-if="showEditModal"
+                :exercise-uuid="exercise.uuid"
+                v-model="showEditModal"
+            />
         </template>
     </VCard>
 </template>
