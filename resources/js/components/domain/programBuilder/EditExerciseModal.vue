@@ -5,13 +5,12 @@
                 <v-card-title>
                     <VTextField
                         v-if="isEditingTitle"
-                        :value="editedExercise.name"
-                        @input="$set(edits, 'name', $event)"
+                        v-model="localExercise.name"
                         :autofocus="true"
                         label="Exercise name"
                         @blur="isEditingTitle = false"
                     />
-                    <EditableTitle v-else @click="isEditingTitle = true">{{ editedExercise.name || nameDisplay }}</EditableTitle>
+                    <EditableTitle v-else @click="isEditingTitle = true">{{ localExercise.name || nameDisplay }}</EditableTitle>
                     <V-btn icon @click="close">
                         <v-icon>mdi-close</v-icon>
                     </V-btn>
@@ -21,8 +20,7 @@
                         <VRow>
                             <VCol cols="12" sm="6" md="6">
                                 <VTextField
-                                    :value="editedExercise.weight"
-                                    @input="$set(edits, 'weight', $event)"
+                                    v-model="localExercise.weight"
                                     label="Weight (kg)"
                                     type="number"
                                 />
@@ -30,8 +28,7 @@
                             <VCol cols="12" sm="6" md="6">
                                 <VSelect
                                     :items="numberOfSetsOptions"
-                                    :value="editedExercise.numberOfSets"
-                                    @input="$set(edits, 'numberOfSets', $event)"
+                                    v-model="localExercise.numberOfSets"
                                     label="Number of sets"
                                 ></VSelect>
                             </VCol>
@@ -39,8 +36,7 @@
                         <VRow>
                             <VCol cols="12">
                                 <VSlider
-                                    :value="editedExercise.restPeriod"
-                                    @input="$set(edits, 'restPeriod', $event)"
+                                    v-model="localExercise.restPeriod"
                                     prepend-icon="mdi-clock"
                                     label="Rest period (mins)"
                                     :min="0"
@@ -49,7 +45,7 @@
                                     ticks
                                 >
                                     <template v-slot:append>
-                                        <span>{{ editedExercise.restPeriod | minsSecDuration}}</span>
+                                        <span>{{ localExercise.restPeriod | minsSecDuration }}</span>
                                     </template>
                                 </VSlider>
                             </VCol>
@@ -81,9 +77,12 @@
             }
         },
         data() {
+            debugger
+            const localExercise = { ...this.$store.getters['programBuilder/getExercise'](this.exerciseUuid) }
+
             return {
                 isEditingTitle: false,
-                edits: {},
+                localExercise,
                 numberOfSetsOptions: [
                     { text: 'One', value: 1 },
                     { text: 'Two', value: 2 },
@@ -94,17 +93,15 @@
             }
         },
         computed: {
-            editedExercise() {
-                return { ...this.edits, ...this.exercise };
-            },
             isDirty() {
-                return Object.entries(this.edits).length > 0;
+                return true;
+                // return Object.entries(this.edits).length > 0;
             }
         },
         methods: {
             close() {
                 if (this.isDirty) {
-                    this.exercise = this.editedExercise;
+                    this.exercise = this.localExercise;
                 }
                 this.$emit('input', false)
             }

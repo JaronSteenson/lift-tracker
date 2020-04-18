@@ -28,7 +28,7 @@
                 </v-menu>
             </VCardTitle>
 
-            <EditExerciseModal v-model="showEditModal" :exercise-uuid="exercise.uuid"></EditExerciseModal>
+            <EditExerciseModal v-if="showEditModal" v-model="showEditModal" :exercise-uuid="exercise.uuid"></EditExerciseModal>
         </template>
     </VCard>
 </template>
