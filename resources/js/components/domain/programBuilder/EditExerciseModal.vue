@@ -72,10 +72,8 @@
             }
         },
         computed: {
-            editedExercise: {
-                get() {
-                    return { ...this.exercise };
-                },
+            editedExercise() {
+                return { ...this.exercise };
             },
         },
         methods: {
