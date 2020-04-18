@@ -3,16 +3,40 @@
         <VCardTitle>
             <VTextField
                 v-if="isEditingTitle"
-                v-model="nameEditing" :autofocus="isEditingTitle"
+                v-model="localState.name"
+                :autofocus="isEditingTitle"
                 label="Workout name"
-                @blur="stopEditingTitle"
-            />
+                @blur="finishEditingTitle"
+                @keydown.enter="finishEditingTitle"
+                @keydown.esc="abortEditingTitle"
+            >
+                <template v-slot:append-outer>
+                    <VBtn icon @click="abortEditingTitle" ref="abortEditingTitleButton">
+                        <VIcon>mdi-close</VIcon>
+                    </VBtn>
+                </template>
+            </VTextField>
+            <VTextField
+                v-else-if="isAddingNew"
+                v-model="localState.name"
+                :autofocus="isAddingNew"
+                label="Workout name"
+                @blur="finishAddingNew"
+                @keydown.enter="finishAddingNew"
+                @keydown.esc="abortAddingNew"
+            >
+                <template v-slot:append-outer>
+                    <VBtn icon @click="abortAddingNew" ref="abortAddNewButton">
+                        <VIcon>mdi-close</VIcon>
+                    </VBtn>
+                </template>
+            </VTextField>
             <EditableTitle v-else @click="editTitle">{{ nameDisplay }}</EditableTitle>
 
-            <v-menu bottom left>
+            <v-menu v-if="!isAddingNew" bottom left>
                 <template v-slot:activator="{ on }">
                     <VBtn icon v-on="on">
-                        <v-icon>mdi-dots-vertical</v-icon>
+                        <VIcon>mdi-dots-vertical</VIcon>
                     </VBtn>
                 </template>
 
@@ -37,7 +61,7 @@
         </div>
 
         <VBtn @click="addExercise" width="100%">
-            <v-icon left>mdi-plus</v-icon>
+            <VIcon left>mdi-plus</VIcon>
             Add exercise
         </VBtn>
     </VCard>
@@ -56,7 +80,9 @@
         },
         data() {
             return {
+                isAddingNew: false,
                 isEditingTitle: false,
+                localState: { ...this.$store.getters['programBuilder/getWorkout'](this.workoutUuid) },
             }
         },
         props: {
@@ -67,7 +93,7 @@
         },
         mounted() {
             if (this.$store.getters['programBuilder/isJustAddedModelUuid'](this.workoutUuid)) {
-                this.isEditingTitle = true;
+                this.isAddingNew = true;
                 this.$nextTick(() => {
                     this.$store.dispatch('programBuilder/forgetJustAddedUuid');
                 });
@@ -77,18 +103,13 @@
             workout: {
                 get() {
                     return this.$store.getters['programBuilder/getWorkout'](this.workoutUuid);
-                }
-            },
-            nameEditing: {
-                get() {
-                    return this.workout.name || '';
                 },
-                set(name) {
-                    this.$store.dispatch('programBuilder/updateWorkoutName', { uuid: this.workoutUuid, name });
+                set(newState) {
+                    this.$store.dispatch('programBuilder/updateWorkout', { uuid: this.workoutUuid, ...newState });
                 }
             },
             nameDisplay() {
-                return this.$store.getters['programBuilder/getWorkoutNameForDisplay'](this.workoutUuid);
+                return this.localState.name || 'Unnamed workout'
             },
             orderedExercises: {
                 get() {
@@ -106,15 +127,36 @@
             editTitle() {
                 this.isEditingTitle = true;
             },
+            finishEditingTitle(e) {
+                // Allow canceling addition of element by clicking the cancel cross.
+                if (e.relatedTarget === this.$refs.abortEditingTitleButton.$el) {
+                    this.abortEditingTitle();
+                    return;
+                }
 
-            stopEditingTitle() {
                 this.isEditingTitle = false;
+                this.workout = this.localState;
             },
+            abortEditingTitle() {
+                this.isEditingTitle = false;
+                this.localState.name = this.workout.name;
+            },
+            finishAddingNew(e) {
+                // Allow canceling addition of element by clicking the cancel cross.
+                if (e.relatedTarget === this.$refs.abortAddNewButton.$el) {
+                    this.abortAddingNew();
+                    return;
+                }
 
+                this.isAddingNew = false;
+                this.workout = this.localState;
+            },
+            abortAddingNew() {
+                this.deleteWorkout();
+            },
             addExercise() {
                 this.$store.dispatch('programBuilder/addExerciseToWorkout', { workoutUuid: this.workoutUuid });
             },
-
             deleteWorkout() {
                 this.$store.dispatch('programBuilder/deleteWorkout', { workoutUuid: this.workoutUuid });
             },

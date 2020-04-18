@@ -155,7 +155,7 @@ const actions = {
         dispatch('save')
     },
 
-    updateWorkoutName({ state, commit, dispatch }, { uuid, name }) {
+    updateWorkout({ state, commit, dispatch }, { uuid, name }) {
         const workout = UuidHelper.findIn(state.workoutProgramRoutines, uuid);
 
         commit('updateWorkout', { workout, newState: { name }  });
