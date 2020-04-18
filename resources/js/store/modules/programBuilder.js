@@ -70,6 +70,10 @@ const getters = {
         return getters.getWorkout(uuid).name || 'Unnamed workout';
     },
 
+    getExerciseNameForDisplay: (state, getters) => (uuid) => {
+        return getters.getExercise(uuid).name || 'Unnamed exercise';
+    },
+
     getOrderedWorkouts(state) {
         return [...state.workoutProgramRoutines].sort((a, b) => {
             return a.position - b.position;
@@ -256,6 +260,7 @@ const actions = {
     },
 
     updateExercise({ state, commit, getters, dispatch }, { exerciseUuid, ...newState }) {
+        debugger
         const exercise = getters.getExercise(exerciseUuid);
 
         commit('updateExercise', { exercise, newState });

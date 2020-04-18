@@ -1,74 +1,90 @@
 <template>
     <VCard outlined class="exercise-card js-exercise-drag-handle drag-handle">
-        <VCardTitle>
-            <VTextField
-                :autofocus="autofocus"
-                label="Exercise name"
-                placeholder="Enter exercise name"
-                v-model="name"
-            />
+        <VCardTitle v-if="isAddingNew">
+                <VTextField
+                    v-model="nameEditing" :autofocus="isAddingNew"
+                    label="Exercise name"
+                    @blur="isAddingNew = false"
+                />
 
-            <v-menu bottom left>
-                <template v-slot:activator="{ on }">
-                    <VBtn
-                        icon
-                        v-on="on"
-                    >
-                        <v-icon>mdi-dots-vertical</v-icon>
-                    </VBtn>
-                </template>
+<!--                <VTextField-->
+<!--                    label="Number of sets"-->
+<!--                    v-model.number="numberOfSets"-->
+<!--                    type="number"-->
+<!--                />-->
 
-                <v-list>
-                    <v-list-item @click="deleteExercise">
-                        <v-list-item-title>Delete this exercise</v-list-item-title>
-                    </v-list-item>
-                </v-list>
-            </v-menu>
-
-            <VTextField
-                label="Number of sets"
-                v-model.number="numberOfSets"
-                type="number"
-            />
-
-            <VTextField
-                label="Weight"
-                v-model.number="numberOfSets"
-                type="number"
-            />
+<!--                <VTextField-->
+<!--                    label="Weight"-->
+<!--                    v-model.number="numberOfSets"-->
+<!--                    type="number"-->
+<!--                />-->
         </VCardTitle>
+        <template v-else>
+            <VCardTitle>
+                <EditableTitle @click="isAddingNew = true">{{ nameDisplay }}</EditableTitle>
+                <v-menu bottom left>
+                    <template v-slot:activator="{ on }">
+                        <VBtn
+                            icon
+                            v-on="on"
+                        >
+                            <v-icon>mdi-dots-vertical</v-icon>
+                        </VBtn>
+                    </template>
+
+                    <v-list>
+                        <v-list-item @click="isAddingNew = true">
+                            <v-list-item-title>Edit</v-list-item-title>
+                        </v-list-item>
+                        <v-list-item @click="deleteExercise">
+                            <v-list-item-title>Delete</v-list-item-title>
+                        </v-list-item>
+                    </v-list>
+                </v-menu>
+            </VCardTitle>
+        </template>
     </VCard>
 </template>
 <script>
+    import EditableTitle from "../../formFields/EditableTitle";
     export default {
+        components: { EditableTitle },
         props: {
             exerciseUuid: {
                 type: String,
                 required: true,
             }
         },
+        data() {
+            return {
+                isAddingNew: false,
+            }
+        },
+        mounted() {
+            if (this.$store.getters['programBuilder/isJustAddedModelUuid'](this.exerciseUuid)) {
+                this.isAddingNew = true;
+
+                this.$nextTick(() => {
+                    this.$store.dispatch('programBuilder/forgetJustAddedUuid');
+                });
+            }
+        },
         computed: {
-            autofocus() {
-                if (this.$store.getters['programBuilder/isJustAddedModelUuid'](this.exerciseUuid)) {
-                    this.$nextTick(() => {
-                        this.$store.dispatch('programBuilder/forgetJustAddedUuid');
-                    });
-                    return true;
-                }
-                return false;
-            },
             exercise: {
                 get() {
                     return this.$store.getters['programBuilder/getExercise'](this.exerciseUuid);
                 }
             },
-            name: {
+            nameEditing: {
                 get() {
                     return this.exercise.name || '';
                 },
                 set(name) {
                     this.$store.dispatch('programBuilder/updateExercise', { exerciseUuid: this.exerciseUuid, name });
                 }
+            },
+            nameDisplay() {
+                return this.$store.getters['programBuilder/getExerciseNameForDisplay'](this.exerciseUuid);
             },
             numberOfSets: {
                 get() {
@@ -81,12 +97,15 @@
             },
         },
         methods: {
+
             getExercise() {
                 return this.$store.getters['programBuilder/getExercise'](this.exerciseUuid);
             },
+
             deleteExercise() {
                 return this.$store.dispatch('programBuilder/deleteExercise', { exerciseUuid: this.exerciseUuid });
             },
+
             numberOr(value, fallBackValue) {
                 const potentialNumber = Number.parseInt(value);
 
