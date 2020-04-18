@@ -9,9 +9,17 @@
             <VTextField
                 :autofocus="isAddingNew"
                 @blur="finishAddingNew"
+                @keydown.enter="finishAddingNew"
+                @keydown.esc="abortAddingNew"
                 label="Exercise name"
                 v-model="localState.name"
-            />
+            >
+                <template v-slot:append-outer>
+                    <VBtn icon @click="abortAddingNew" ref="abortAddNewButton">
+                        <VIcon>mdi-close</VIcon>
+                    </VBtn>
+                </template>
+            </VTextField>
         </VCardTitle>
         <template v-else>
             <VCardTitle>
@@ -102,10 +110,19 @@
             }
         },
         methods: {
-            finishAddingNew() {
+            finishAddingNew(e) {
+                // Allow canceling addition of element by clicking the cancel cross.
+                if (e.relatedTarget === this.$refs.abortAddNewButton.$el) {
+                    this.abortAddingNew();
+                    return;
+                }
+
                 this.isAddingNew = false;
                 this.exercise = this.localState;
-            }
+            },
+            abortAddingNew() {
+                this.deleteExercise()
+            },
         },
     }
 </script>

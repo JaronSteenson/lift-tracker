@@ -235,7 +235,8 @@ const actions = {
         commit('addExerciseToWorkout', { uuid, workoutUuid });
         commit('setJustAddedUuid', uuid);
 
-        dispatch('save');
+        // Don't save, we might abort the addition of this exercise, we instead force a save adding a name.
+        // dispatch('save');
     },
 
     forgetJustAddedUuid({ commit }) {
