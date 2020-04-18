@@ -33,7 +33,7 @@
             </VTextField>
             <EditableTitle v-else @click="editTitle">{{ nameDisplay }}</EditableTitle>
 
-            <v-menu v-if="!isAddingNew" bottom left>
+            <v-menu v-if="!isAddingNew && !isEditingTitle" bottom left>
                 <template v-slot:activator="{ on }">
                     <VBtn icon v-on="on">
                         <VIcon>mdi-dots-vertical</VIcon>

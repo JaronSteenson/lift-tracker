@@ -109,6 +109,14 @@
                 }
             }
         },
+        watch: {
+            exercise: {
+                deep: true,
+                handler(globalState) {
+                    this.localState = { ...globalState }
+                }
+            }
+        },
         methods: {
             finishAddingNew(e) {
                 // Allow canceling addition of element by clicking the cancel cross.
