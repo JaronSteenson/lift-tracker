@@ -1,6 +1,6 @@
 <template>
     <VCard
-        class="exercise-card js-exercise-drag-handle drag-handle"
+        class="exercise-card js-exercise-drag-handle"
         outlined role="button"
         :ripple="false"
         @click="showEditModal = true"
