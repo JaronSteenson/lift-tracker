@@ -42,6 +42,9 @@ const exerciseFields = [
     'name',
     'position',
     'numberOfSets',
+    'position',
+    'weight',
+    'restPeriod',
 ];
 
 const getters = {
@@ -68,10 +71,6 @@ const getters = {
 
     getWorkoutNameForDisplay: (state, getters) => (uuid) => {
         return getters.getWorkout(uuid).name || 'Unnamed workout';
-    },
-
-    getExerciseNameForDisplay: (state, getters) => (uuid) => {
-        return getters.getExercise(uuid).name || 'Unnamed exercise';
     },
 
     getOrderedWorkouts(state) {

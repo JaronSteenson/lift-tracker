@@ -1,4 +1,17 @@
 export default {
+    data() {
+        return {
+            isEditingTitle: false,
+            localState: { ...this.$store.getters['programBuilder/getExercise'](this.exerciseUuid) },
+            numberOfSetsOptions: [
+                { text: 'One', value: 1 },
+                { text: 'Two', value: 2 },
+                { text: 'Three', value: 3 },
+                { text: 'Four', value: 4 },
+                { text: 'Five', value: 5 },
+            ]
+        }
+    },
     computed: {
         exercise: {
             get() {
@@ -8,16 +21,14 @@ export default {
                 this.$store.dispatch('programBuilder/updateExercise', { exerciseUuid: this.exerciseUuid, ...newState });
             },
         },
-        nameEditing: {
-            get() {
-                return this.exercise.name || '';
-            },
-            set(name) {
-                this.$store.dispatch('programBuilder/updateExercise', {exerciseUuid: this.exerciseUuid, name});
-            }
+        isDirty() {
+            return Object.entries(this.localState).some((entry) => {
+                const entryKey = entry[0]
+                return this.localState[entryKey] !== this.exercise[entryKey]
+            })
         },
         nameDisplay() {
-            return this.$store.getters['programBuilder/getExerciseNameForDisplay'](this.exerciseUuid);
+            return this.localState.name || 'Unnamed exercise'
         },
     },
     methods: {

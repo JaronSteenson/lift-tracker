@@ -5,12 +5,12 @@
                 <v-card-title>
                     <VTextField
                         v-if="isEditingTitle"
-                        v-model="localExercise.name"
+                        v-model="localState.name"
                         :autofocus="true"
                         label="Exercise name"
                         @blur="isEditingTitle = false"
                     />
-                    <EditableTitle v-else @click="isEditingTitle = true">{{ localExercise.name || nameDisplay }}</EditableTitle>
+                    <EditableTitle v-else @click="isEditingTitle = true">{{ nameDisplay }}</EditableTitle>
                     <V-btn icon @click="close">
                         <v-icon>mdi-close</v-icon>
                     </V-btn>
@@ -20,7 +20,7 @@
                         <VRow>
                             <VCol cols="12" sm="6" md="6">
                                 <VTextField
-                                    v-model="localExercise.weight"
+                                    v-model="localState.weight"
                                     label="Weight (kg)"
                                     type="number"
                                 />
@@ -28,7 +28,7 @@
                             <VCol cols="12" sm="6" md="6">
                                 <VSelect
                                     :items="numberOfSetsOptions"
-                                    v-model="localExercise.numberOfSets"
+                                    v-model="localState.numberOfSets"
                                     label="Number of sets"
                                 ></VSelect>
                             </VCol>
@@ -36,7 +36,7 @@
                         <VRow>
                             <VCol cols="12">
                                 <VSlider
-                                    v-model="localExercise.restPeriod"
+                                    v-model="localState.restPeriod"
                                     prepend-icon="mdi-clock"
                                     label="Rest period (mins)"
                                     :min="0"
@@ -45,7 +45,7 @@
                                     ticks
                                 >
                                     <template v-slot:append>
-                                        <span>{{ localExercise.restPeriod | minsSecDuration }}</span>
+                                        <span>{{ localState.restPeriod | minsSecDuration }}</span>
                                     </template>
                                 </VSlider>
                             </VCol>
@@ -76,32 +76,10 @@
                 type: String,
             }
         },
-        data() {
-            debugger
-            const localExercise = { ...this.$store.getters['programBuilder/getExercise'](this.exerciseUuid) }
-
-            return {
-                isEditingTitle: false,
-                localExercise,
-                numberOfSetsOptions: [
-                    { text: 'One', value: 1 },
-                    { text: 'Two', value: 2 },
-                    { text: 'Three', value: 3 },
-                    { text: 'Four', value: 4 },
-                    { text: 'Five', value: 5 },
-                ]
-            }
-        },
-        computed: {
-            isDirty() {
-                return true;
-                // return Object.entries(this.edits).length > 0;
-            }
-        },
         methods: {
             close() {
                 if (this.isDirty) {
-                    this.exercise = this.localExercise;
+                    this.exercise = this.localState;
                 }
                 this.$emit('input', false)
             }

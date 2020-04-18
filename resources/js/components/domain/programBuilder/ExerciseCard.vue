@@ -1,11 +1,12 @@
 <template>
-    <VCard outlined class="exercise-card js-exercise-drag-handle drag-handle">
+    <VCard class="exercise-card js-exercise-drag-handle drag-handle" outlined>
         <VCardTitle v-if="isAddingNew">
-                <VTextField
-                    v-model="nameEditing" :autofocus="isAddingNew"
-                    label="Exercise name"
-                    @blur="isAddingNew = false"
-                />
+            <VTextField
+                :autofocus="isAddingNew"
+                @blur="finishAddingNew"
+                label="Exercise name"
+                v-model="localState.name"
+            />
         </VCardTitle>
         <template v-else>
             <VCardTitle>
@@ -13,7 +14,7 @@
                 <v-menu bottom left>
                     <template v-slot:activator="{ on }">
                         <VBtn icon v-on="on">
-                            <v-icon>mdi-dots-vertical</v-icon>
+                            <VIcon>mdi-dots-vertical</VIcon>
                         </VBtn>
                     </template>
 
@@ -28,7 +29,20 @@
                 </v-menu>
             </VCardTitle>
 
-            <EditExerciseModal v-if="showEditModal" v-model="showEditModal" :exercise-uuid="exercise.uuid"></EditExerciseModal>
+            <VCardText class="py-0">
+                <VContainer>
+                    <VRow justify="space-between">
+                        <VCol class="px-0 py-0">{{ setsAndRepsBlurb }}</VCol>
+                        <VCol v-if="exercise.restPeriod" class="px-4 py-0" style="text-align: right;">
+                            <VIcon size="small">mdi-clock</VIcon>
+                            {{ exercise.restPeriod | minsSecDuration  }} rest
+                        </VCol>
+                    </VRow>
+                </VContainer>
+            </VCardText>
+
+            <EditExerciseModal :exercise-uuid="exercise.uuid" v-if="showEditModal"
+                               v-model="showEditModal"></EditExerciseModal>
         </template>
     </VCard>
 </template>
@@ -36,9 +50,10 @@
     import EditableTitle from "../../formFields/EditableTitle";
     import EditExerciseModal from "./EditExerciseModal";
     import exerciseMixin from "./mixins/exerciseMixin";
+
     export default {
         mixins: [exerciseMixin],
-        components: { EditableTitle, EditExerciseModal },
+        components: {EditableTitle, EditExerciseModal},
         props: {
             exerciseUuid: {
                 type: String,
@@ -58,6 +73,31 @@
                 this.$nextTick(() => {
                     this.$store.dispatch('programBuilder/forgetJustAddedUuid');
                 });
+            }
+        },
+        computed: {
+            setsAndRepsBlurb() {
+                let blurb = '';
+
+                if (this.exercise.numberOfSets) {
+                    blurb += `${this.exercise.numberOfSets} sets`
+
+                    if (this.exercise.weight) {
+                        blurb += ` of ${this.exercise.weight}kg`
+                    }
+
+                    return blurb;
+                }
+
+                if (this.exercise.weight) {
+                    return `${this.exercise.weight}kg`
+                }
+            }
+        },
+        methods: {
+            finishAddingNew() {
+                this.isAddingNew = false;
+                this.exercise = this.localState;
             }
         },
     }
