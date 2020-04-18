@@ -11,17 +11,14 @@
 
             <v-menu bottom left>
                 <template v-slot:activator="{ on }">
-                    <VBtn
-                        icon
-                        v-on="on"
-                    >
+                    <VBtn icon v-on="on">
                         <v-icon>mdi-dots-vertical</v-icon>
                     </VBtn>
                 </template>
 
                 <v-list>
                     <v-list-item @click="deleteWorkout">
-                        <v-list-item-title>Delete this workout</v-list-item-title>
+                        <v-list-item-title>Delete</v-list-item-title>
                     </v-list-item>
                 </v-list>
             </v-menu>
@@ -108,12 +105,10 @@
         methods: {
             editTitle() {
                 this.isEditingTitle = true;
-                this.forceTitleFocus = true;
             },
 
             stopEditingTitle() {
                 this.isEditingTitle = false;
-                this.forceTitleFocus = false;
             },
 
             addExercise() {

@@ -260,7 +260,6 @@ const actions = {
     },
 
     updateExercise({ state, commit, getters, dispatch }, { exerciseUuid, ...newState }) {
-        debugger
         const exercise = getters.getExercise(exerciseUuid);
 
         commit('updateExercise', { exercise, newState });
@@ -366,7 +365,7 @@ const mutations = {
         workout.routineExercises.push({
             uuid,
             name: null,
-            numberOfSets: null,
+            numberOfSets: 3,
             position: workout.routineExercises.length
         });
     },
