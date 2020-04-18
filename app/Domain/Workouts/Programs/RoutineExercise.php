@@ -23,6 +23,8 @@ use LiftTracker\Traits\HasUuidTrait;
  * @property Carbon createdAt
  * @property Carbon updatedAt
  * @property int numberOfSets
+ * @property int weight in kg
+ * @property int restPeriod in seconds
  *
  */
 class RoutineExercise extends AbstractModel
@@ -38,6 +40,8 @@ class RoutineExercise extends AbstractModel
         'name',
         'numberOfSets',
         'position',
+        'weight',
+        'restPeriod',
     ];
 
     /**
@@ -50,10 +54,14 @@ class RoutineExercise extends AbstractModel
         'name',
         'numberOfSets',
         'position',
+        'weight',
+        'restPeriod',
     ];
 
     protected $casts = [
         'numberOfSets' => 'integer',
+        'weight' => 'integer',
+        'restPeriod' => 'integer',
     ];
 
     public function routine(): BelongsTo

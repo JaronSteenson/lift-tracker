@@ -24,5 +24,21 @@ export default {
         deleteExercise() {
             return this.$store.dispatch('programBuilder/deleteExercise', {exerciseUuid: this.exerciseUuid});
         },
-    }
+    },
+    filters: {
+        minsSecDuration(valueInSeconds) {
+            if (!valueInSeconds) {
+                return 'None';
+            }
+
+            const minutes = Math.floor(valueInSeconds / 60);
+            let seconds = valueInSeconds - minutes * 60;
+
+            if (seconds < 10) {
+                seconds = `0${seconds}`;
+            }
+
+            return `${minutes}:${seconds}`
+        }
+    },
 }

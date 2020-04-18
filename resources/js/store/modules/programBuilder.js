@@ -365,7 +365,9 @@ const mutations = {
         workout.routineExercises.push({
             uuid,
             name: null,
+            weight: null,
             numberOfSets: 3,
+            restPeriod: 2 * 60, // 2 minutes in seconds.
             position: workout.routineExercises.length
         });
     },

@@ -6,7 +6,7 @@
 
 <code>docker-compose exec workspace bash; # get into the workspace container</code>
 
-<code>artisan migrate --database=mysql_test; # migrate the test db</code>
+<code>artisan migrate && artisan migrate --database=mysql_test; # migrate the test db</code>
 
 ## Debugging a unit test
 
