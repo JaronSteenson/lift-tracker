@@ -14,7 +14,7 @@
             >
                 <template v-slot:activator="{ on }">
                     <v-btn icon v-on="on">
-                        <v-avatar color="purple">
+                        <v-avatar color="accent">
                             <span class="white--text headline">{{ avatarInitial }}</span>
                         </v-avatar>
                     </v-btn>
@@ -60,3 +60,4 @@
         },
     }
 </script>
+

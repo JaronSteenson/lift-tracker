@@ -6,8 +6,25 @@ import '@mdi/font/css/materialdesignicons.css';
 
 Vue.use(Vuetify);
 
+import colors from 'vuetify/lib/util/colors'
+
 export default new Vuetify({
     icons: {
         iconfont: 'mdi'
     },
+    theme: {
+        themes: {
+            light: {
+                primary: colors.deepPurple.lighten1,
+                accent: colors.deepPurple.darken4,
+                anchor: colors.grey.darken4,
+                secondary: undefined,
+                info: undefined,
+                warning: undefined,
+                error: undefined,
+                success: undefined,
+            },
+        },
+        customProperties: true,
+    }
 });

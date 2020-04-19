@@ -1,5 +1,5 @@
 <template>
-    <VCard class="js-workout-drag-handle" width="100%">
+    <VCard class="js-workout-drag-handle workout-builder-card" width="100%">
         <VCardTitle>
             <VTextField
                 v-if="isEditingTitle"
@@ -163,3 +163,9 @@
         }
     }
 </script>
+
+<style lang="scss" scoped>
+    /*.theme--light.v-sheet {*/
+    /*    border: solid 2px purple;*/
+    /*}*/
+</style>
