@@ -16,6 +16,10 @@ const ApiService = {
         return axios.get(this.makeEndpointUrl(resourceType, resourceUuid));
     },
 
+    simplePost(uri) {
+        return axios.post(`${baseUrl}/${uri}`);
+    },
+
     save(resourceType, payload) {
         if (payload.createdAt) {
             return this.put(resourceType, payload.uuid, payload);

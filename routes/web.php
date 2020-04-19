@@ -11,16 +11,29 @@
 |
 */
 
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
-Auth::routes();
+/**
+ * Auth logout.
+ * @see \LiftTracker\Http\Controllers\Auth\LoginController
+ */
+Route::post('api/logout', 'Auth\LoginController@logout');
 
-/** @see \LiftTracker\Http\Controllers\Api\WorkoutProgramController */
-Route::apiResource('api/workout-programs', 'Api\WorkoutProgramController')->middleware('auth');
-
-/** @see \LiftTracker\Http\Controllers\Api\AppController */
+/**
+ * App bootstrap endpoint.
+ * @see \LiftTracker\Http\Controllers\Api\AppController
+ */
 Route::get('api/app', 'Api\AppController@index');
 
-/** @see \LiftTracker\Http\Controllers\VueAppController */
+
+/**
+ * Program builder endpoints.
+ * @see \LiftTracker\Http\Controllers\Api\WorkoutProgramController
+ */
+Route::apiResource('api/workout-programs', 'Api\WorkoutProgramController')->middleware('auth');
+
+/**
+ *  Catch all route.
+ * @see \LiftTracker\Http\Controllers\VueAppController
+ */
 Route::get('/{any}', 'VueAppController@index')->where('any','.*');

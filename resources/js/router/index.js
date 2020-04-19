@@ -3,8 +3,22 @@ import HomePage from "../components/pages/HomePage";
 import LoginPage from "../components/pages/LoginPage";
 import ProgramBuilderPage from "../components/pages/ProgramBuilderPage";
 import VueRouter from "vue-router";
+import store from './../store';
 
 Vue.use(VueRouter);
+
+function forceLogin(to, from, next) {
+    if (store.getters['app/userIsAuthenticated']) {
+        next();
+        return;
+    }
+    if (to.name === 'login') {
+        next();
+        return;
+    }
+
+    next('login');
+}
 
 const routes = [
     {
@@ -31,7 +45,13 @@ const routes = [
     },
 ];
 
-export default new VueRouter({
+
+
+const router =  new VueRouter({
     routes,
     mode: 'history',
 });
+
+router.beforeEach(forceLogin);
+
+export default router;

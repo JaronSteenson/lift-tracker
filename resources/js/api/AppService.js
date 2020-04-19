@@ -1,6 +1,7 @@
 import ApiService from './ApiService';
 
 const RESOURCE_NAME = 'app';
+const LOGOUT_URI = 'logout';
 
 const WorkoutProgramService = {
 
@@ -11,6 +12,14 @@ const WorkoutProgramService = {
 
         return result;
     },
+
+    async logout() {
+        const result =  await ApiService.simplePost(LOGOUT_URI);
+
+        ApiService.setCsrfToken(null);
+
+        return result;
+    }
 
 };
 

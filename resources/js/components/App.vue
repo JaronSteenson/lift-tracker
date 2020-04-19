@@ -1,6 +1,6 @@
 <template>
     <v-app>
-        <v-app-bar app title>
+        <VAppBar app title>
             <router-link :to="{ name: 'home'}" class="a">
                 <v-toolbar-title>{{ appName }}</v-toolbar-title>
             </router-link>
@@ -20,12 +20,12 @@
                     </v-btn>
                 </template>
                 <v-list>
-                    <v-list-item>
+                    <v-list-item @click="logout">
                         <v-list-item-title>Logout</v-list-item-title>
                     </v-list-item>
                 </v-list>
             </v-menu>
-        </v-app-bar>
+        </VAppBar>
 
         <v-content>
             <v-container>
@@ -39,7 +39,7 @@
 
 <script>
     import LoadingSpinner from './LoadingSpinner.vue';
-    import { mapState, mapGetters } from 'vuex';
+    import { mapState, mapGetters, mapActions } from 'vuex';
 
     export default {
         components: {
@@ -57,6 +57,12 @@
             ...mapGetters('app', {
                 avatarInitial: 'getUserAvatarInitial'
             }),
+        },
+        methods: {
+            async logout() {
+                await this.$store.dispatch('app/logout');
+                this.$router.push({ name: 'login' });
+            }
         },
     }
 </script>
