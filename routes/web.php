@@ -13,6 +13,13 @@
 
 use Illuminate\Support\Facades\Route;
 
+
+/**
+ * Auth logout.
+ * @see \LiftTracker\Http\Controllers\Auth\LoginController
+ */
+Route::post('api/login', 'Auth\LoginController@login');
+
 /**
  * Auth logout.
  * @see \LiftTracker\Http\Controllers\Auth\LoginController

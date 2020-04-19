@@ -24,7 +24,7 @@ export default new Vuetify({
                 secondary: undefined,
                 info: undefined,
                 warning: undefined,
-                error: undefined,
+                error: colors.red.lighten2,
                 success: undefined,
             },
         },

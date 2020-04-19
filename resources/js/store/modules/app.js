@@ -6,6 +6,7 @@ const state = {
     appName: null,
     authenticatedUser: null,
     csrfToken: null,
+    afterLoginRoute: null,
 };
 
 const getters = {
@@ -22,6 +23,14 @@ const getters = {
         }
     },
 
+    afterLoginRoute(state) {
+        if (state?.afterLoginRoute?.name === 'logout') {
+            return { name: 'home' }
+        }
+
+        return state.afterLoginRoute ?? { name: 'home' };
+    },
+
 };
 
 const actions = {
@@ -33,6 +42,27 @@ const actions = {
         commit('reset', newState);
 
         return response.data;
+    },
+
+    setAfterLoginRoute({ commit }, to) {
+        commit('setAfterLoginRoute', to);
+    },
+
+    async login({ commit }, { email, password }) {
+        let response = null;
+
+        try {
+            response = await AppService.login({ email, password });
+        } catch (e) {
+            console.warn('Login failure');
+            return false;
+        }
+
+        const newState = { ...response.data, hasLoaded: true };
+
+        commit('reset', newState);
+
+        return response;
     },
 
     async logout({ commit }) {
@@ -51,6 +81,9 @@ const mutations = {
         Object.keys(newState).forEach(key => {
             state[key] = newState[key]
         });
+    },
+    setAfterLoginRoute(state, to) {
+        state.afterLoginRoute = to
     },
 };
 

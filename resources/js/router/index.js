@@ -8,16 +8,21 @@ import store from './../store';
 Vue.use(VueRouter);
 
 function forceLogin(to, from, next) {
-    if (store.getters['app/userIsAuthenticated']) {
-        next();
-        return;
-    }
-    if (to.name === 'login') {
-        next();
+    const isAuthed = store.getters['app/userIsAuthenticated'];
+    const toLogin = to.name === 'login';
+
+    if (isAuthed && toLogin) {
+        next('home');
         return;
     }
 
-    next('login');
+    if (!isAuthed && !toLogin) {
+        store.dispatch('app/setAfterLoginRoute', to);
+        next('login');
+        return;
+    }
+
+    next();
 }
 
 const routes = [

@@ -2,6 +2,8 @@
 
 namespace LiftTracker\Http\Controllers\Auth;
 
+use Illuminate\Http\Request;
+use LiftTracker\Domain\AppBootstrapData;
 use LiftTracker\Http\Controllers\Controller;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
 
@@ -35,5 +37,15 @@ class LoginController extends Controller
     public function __construct()
     {
         $this->middleware('guest')->except('logout');
+    }
+
+    /**
+     * Overridden for use with vue, instead of redirecting return bootstrap json data instead.
+     * @param Request $request
+     * @return AppBootstrapData
+     */
+    public function sendLoginResponse(Request $request): AppBootstrapData
+    {
+        return new AppBootstrapData();
     }
 }
