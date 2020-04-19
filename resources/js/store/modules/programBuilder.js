@@ -187,7 +187,7 @@ const actions = {
 
         // Figure out which workout this came from.
         if (fromAnotherWorkout) {
-            debugger;
+
             const exercisesOriginalWorkout = state.workoutProgramRoutines.find(workout => {
                 return UuidHelper.findIn(workout.routineExercises, fromAnotherWorkout.uuid);
             });

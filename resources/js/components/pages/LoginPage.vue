@@ -79,7 +79,7 @@
         },
         computed: {
             xs() {
-                return  this.$vuetify.breakpoint.name === 'xs';
+                return this.$vuetify.breakpoint.name === 'xs';
             }
         },
         methods: {

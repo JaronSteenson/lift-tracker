@@ -25,7 +25,8 @@ const WorkoutProgramService = {
     async logout() {
         const result = await ApiService.simplePost(LOGOUT_URI);
 
-        ApiService.setCsrfToken(null);
+        // The csrf token is regenerated on logout.
+        ApiService.setCsrfToken(result.data.csrfToken);
 
         return result;
     }

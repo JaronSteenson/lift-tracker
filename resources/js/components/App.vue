@@ -62,7 +62,13 @@
         },
         methods: {
             async logout() {
+                if (!this.userIsAuthenticated) {
+                    this.$router.push({ name: 'login' });
+                    return;
+                }
+
                 await this.$store.dispatch('app/logout');
+
                 this.$router.push({ name: 'login' });
             }
         },

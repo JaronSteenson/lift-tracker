@@ -12,13 +12,13 @@ function forceLogin(to, from, next) {
     const toLogin = to.name === 'login';
 
     if (isAuthed && toLogin) {
-        next('home');
+        next({ name: 'home' });
         return;
     }
 
     if (!isAuthed && !toLogin) {
         store.dispatch('app/setAfterLoginRoute', to);
-        next('login');
+        next({ name: 'login' });
         return;
     }
 

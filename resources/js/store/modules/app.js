@@ -25,7 +25,7 @@ const getters = {
 
     afterLoginRoute(state) {
         if (state?.afterLoginRoute?.name === 'logout') {
-            return { name: 'home' }
+            return { name: 'home' };
         }
 
         return state.afterLoginRoute ?? { name: 'home' };

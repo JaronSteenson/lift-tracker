@@ -41,6 +41,7 @@ class LoginController extends Controller
 
     /**
      * Overridden for use with vue, instead of redirecting return bootstrap json data instead.
+     *
      * @param Request $request
      * @return AppBootstrapData
      */
@@ -48,4 +49,21 @@ class LoginController extends Controller
     {
         return new AppBootstrapData();
     }
+
+    /**
+     * Overridden for use with vue, instead of redirecting return bootstrap json data instead.
+     *
+     * @param Request $request
+     * @return AppBootstrapData
+     */
+    public function logout(Request $request): AppBootstrapData
+    {
+        $this->guard()->logout();
+
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+
+        return new AppBootstrapData();
+    }
+
 }
