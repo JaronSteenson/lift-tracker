@@ -1,13 +1,14 @@
 <template>
     <v-app>
         <VAppBar app title>
-            <router-link :to="{ name: 'home'}" class="a">
+            <router-link :to="{ name: 'home'}" class="app-name">
                 <v-toolbar-title>{{ appName }}</v-toolbar-title>
             </router-link>
 
             <v-spacer></v-spacer>
 
             <v-menu
+                v-if="userIsAuthenticated"
                 transition="slide-y-transition"
                 bottom
                 offset-y
@@ -55,7 +56,8 @@
                 'authenticatedUser'
             ]),
             ...mapGetters('app', {
-                avatarInitial: 'getUserAvatarInitial'
+                avatarInitial: 'getUserAvatarInitial',
+                userIsAuthenticated: 'userIsAuthenticated',
             }),
         },
         methods: {
@@ -67,3 +69,10 @@
     }
 </script>
 
+<style lang="scss" scoped>
+    .app-name {
+        font-weight: bold;
+        text-decoration: none;
+        color: var(--v-primary-base);
+    }
+</style>

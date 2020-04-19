@@ -28,7 +28,7 @@ const actions = {
     async fetchAppBootstrapData({state, commit}, id) {
         const response = await AppService.getBootstrapData(id);
 
-        const newState = { ...state, hasLoaded: true };
+        const newState = { ...state, ...response.data, hasLoaded: true };
 
         commit('reset', newState);
 

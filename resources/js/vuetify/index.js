@@ -13,6 +13,9 @@ export default new Vuetify({
         iconfont: 'mdi'
     },
     theme: {
+        options: {
+            customProperties: true,
+        },
         themes: {
             light: {
                 primary: colors.deepPurple.lighten1,
@@ -25,6 +28,5 @@ export default new Vuetify({
                 success: undefined,
             },
         },
-        customProperties: true,
     }
 });
