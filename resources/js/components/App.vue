@@ -1,9 +1,26 @@
 <template>
     <v-app>
-        <VAppBar app title>
-            <router-link :to="{ name: 'home'}" class="app-name">
-                <v-toolbar-title>{{ appName }}</v-toolbar-title>
-            </router-link>
+        <v-navigation-drawer
+            v-if="userIsAuthenticated"
+            v-model="drawer"
+            app
+            :clipped="$vuetify.breakpoint.lgAndUp"
+        >
+            <v-list dense>
+                <v-list-item link :to="{ name: 'home'}">
+                    <v-list-item-action>
+                        <v-icon>mdi-home</v-icon>
+                    </v-list-item-action>
+                    <v-list-item-content>
+                        <v-list-item-title>Home</v-list-item-title>
+                    </v-list-item-content>
+                </v-list-item>
+            </v-list>
+        </v-navigation-drawer>
+
+        <VAppBar app title color="primary" dark :clipped-left="$vuetify.breakpoint.lgAndUp">
+            <v-app-bar-nav-icon v-if="userIsAuthenticated" @click.stop="drawer = !drawer" />
+            <v-toolbar-title>{{ appName }}</v-toolbar-title>
 
             <v-spacer></v-spacer>
 
@@ -16,7 +33,7 @@
                 <template v-slot:activator="{ on }">
                     <v-btn icon v-on="on">
                         <v-avatar color="primary">
-                            <span class="white--text headline">{{ avatarInitial }}</span>
+                            <span class="accent--text headline">{{ avatarInitial }}</span>
                         </v-avatar>
                     </v-btn>
                 </template>
@@ -29,7 +46,7 @@
         </VAppBar>
 
         <v-content>
-            <v-container>
+            <v-container fluid>
                 <LoadingSpinner v-if="!hasLoaded"></LoadingSpinner>
                 <router-view v-else/>
             </v-container>
@@ -40,11 +57,16 @@
 
 <script>
     import LoadingSpinner from './LoadingSpinner.vue';
-    import { mapState, mapGetters, mapActions } from 'vuex';
+    import { mapState, mapGetters } from 'vuex';
 
     export default {
         components: {
             LoadingSpinner
+        },
+        data() {
+            return {
+                drawer: null,
+            }
         },
         mounted() {
             this.$store.dispatch('app/fetchAppBootstrapData');
@@ -77,9 +99,8 @@
 
 <style lang="scss">
     .app-name {
-        font-weight: bold;
         text-decoration: none;
-        color: var(--v-primary-base) !important;
+        color: var(--v-accent-base) !important;
     }
 
     .v-card {

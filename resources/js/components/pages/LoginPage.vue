@@ -12,8 +12,8 @@
                 md="4"
                 sm="8"
             >
-                <VCard :class="xs ? 'elevation-0' : 'elevation-12'" :loading="!xs && loading">
-                    <VCardText :class="{ 'pa-0': xs }">
+                <VCard :class="this.$vuetify.breakpoint.xs ? 'elevation-0' : 'elevation-12'" :loading="!xs && loading">
+                    <VCardText :class="{ 'pa-0': this.$vuetify.breakpoint.xs }">
                         <VAlert v-if="failedLogin" type="error">
                             Your email and/or password do not match.
                         </VAlert>
@@ -75,11 +75,6 @@
                 ],
                 valid: false,
                 failedLogin: false,
-            }
-        },
-        computed: {
-            xs() {
-                return this.$vuetify.breakpoint.name === 'xs';
             }
         },
         methods: {

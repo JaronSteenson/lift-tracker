@@ -19,7 +19,7 @@ export default new Vuetify({
         themes: {
             light: {
                 primary: colors.deepPurple.lighten1,
-                accent: colors.deepPurple.darken4,
+                accent: colors.white,
                 anchor: colors.grey.darken4,
                 secondary: undefined,
                 info: undefined,

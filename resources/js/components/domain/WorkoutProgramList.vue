@@ -1,9 +1,6 @@
 <template>
-    <v-container
-        class="grey lighten-4"
-        fluid
-    >
-        <h2 class="title text-center">Your workout programs</h2>
+    <div>
+        <h2 class="title">Your workout programs</h2>
 
         <v-row :justify="hasNoWorkoutProgram ? 'center' : 'start'">
             <v-col
@@ -25,7 +22,8 @@
                     <v-card-actions>
                         <v-btn :to="{ name: 'programBuilder', params: { workoutProgramUuid: program.uuid } }"
                                class="ma-2">
-                            <v-icon left>mdi-pencil</v-icon> Edit
+                            <v-icon left>mdi-pencil</v-icon>
+                            Edit
                         </v-btn>
                     </v-card-actions>
                 </v-card>
@@ -42,7 +40,7 @@
                 </v-btn>
             </v-col>
         </v-row>
-    </v-container>
+    </div>
 </template>
 
 <script>

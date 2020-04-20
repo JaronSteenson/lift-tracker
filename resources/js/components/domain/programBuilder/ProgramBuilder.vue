@@ -1,44 +1,44 @@
 <template>
+    <div>
+        <VToolbar flat>
+            <VToolbarTitle>
+                {{ name }}
+            </VToolbarTitle>
 
+<!--            <VTextField-->
+<!--                :autofocus="autofocus"-->
+<!--                label="Program name"-->
+<!--                placeholder="Enter program name"-->
+<!--                v-model="name"-->
+<!--            />-->
 
-    <v-container
-        class="grey lighten-4"
-        fluid
-    >
+            <VSpacer></VSpacer>
 
-        <v-row>
-            <v-col cols="12" lg="3" md="4" sm="6">
-                <VTextField
-                    :autofocus="autofocus"
-                    label="Program name"
-                    placeholder="Enter program name"
-                    v-model="name"
-                />
-            </v-col>
-        </v-row>
-
-        <v-row>
+            <VBtn icon>
+                <v-icon>mdi-dots-vertical</v-icon>
+            </VBtn>
+        </VToolbar>
             <Draggable :forceFallback="true" class="row"
                        dragClass="workout-drag"
                        ghostClass="workout-drop-placeholder"
                        handle=".js-workout-drag-handle"
                        v-model="orderedWorkouts">
-                <v-col cols="12" lg="3" md="4" sm="6" v-for="(workout) in orderedWorkouts" :key="workout.uuid">
+                <v-col :key="workout.uuid" cols="12" lg="3" md="4" sm="6" v-for="(workout) in orderedWorkouts">
                     <WorkoutCard :workoutUuid="workout.uuid"></WorkoutCard>
                 </v-col>
                 <v-col cols="12" lg="3" md="4" slot="footer" sm="6">
-                        <v-btn draggable="false" width="100%" @click="addWorkoutToProgram(null)">
-                            <v-icon left>mdi-plus</v-icon> Add workout
-                        </v-btn>
+                    <VBtn @click="addWorkoutToProgram(null)" draggable="false" width="100%">
+                        <v-icon left>mdi-plus</v-icon>
+                        Add workout
+                    </VBtn>
                 </v-col>
             </Draggable>
-        </v-row>
-    </v-container>
+    </div>
 </template>
 
 <script>
     import LoadingSpinner from "../../LoadingSpinner";
-    import { mapState, mapActions, mapGetters } from 'vuex';
+    import {mapState, mapActions, mapGetters} from 'vuex';
     import WorkoutCard from "./WorkoutCard";
     import Draggable from 'vuedraggable';
 
@@ -74,7 +74,7 @@
                 }
 
                 if (this.$route.params.workoutProgramUuid !== newUuid) {
-                    this.$router.replace({ name: 'programBuilder', params: { workoutProgramUuid: newUuid }});
+                    this.$router.replace({name: 'programBuilder', params: {workoutProgramUuid: newUuid}});
                 }
             }
         },
@@ -106,3 +106,9 @@
         }
     }
 </script>
+
+<style lang="scss" scoped>
+    .builder-workouts-container {
+        padding: 10px;
+    }
+</style>
