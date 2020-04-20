@@ -25,6 +25,14 @@ function forceLogin(to, from, next) {
     next();
 }
 
+async function waitForAppBoostrap(to, from, next) {
+    if (!store.getters['app/isBootstraped']) {
+        await store.dispatch('app/fetchAppBootstrapData');
+    }
+
+    next();
+}
+
 const routes = [
     {
         name: 'home',
@@ -50,13 +58,12 @@ const routes = [
     },
 ];
 
-
-
 const router =  new VueRouter({
     routes,
     mode: 'history',
 });
 
+router.beforeEach(waitForAppBoostrap);
 router.beforeEach(forceLogin);
 
 export default router;

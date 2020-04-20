@@ -11,6 +11,10 @@ const state = {
 
 const getters = {
 
+    isBootstraped(state) {
+        return state.hasLoaded;
+    },
+
     userIsAuthenticated(state) {
         return state.authenticatedUser !== null;
     },
