@@ -50,8 +50,10 @@
 
         <div class="row">
             <div class="col">
-                <Draggable :forceFallback="true" :group="{ name: 'exercises', pull: true, put: true }"
-                           dragClass="dragging-exercise-card"
+                <Draggable :forceFallback="true"
+                           :group="{ name: 'exercises', pull: true, put: true }"
+                           dragClass="elevation-24"
+                           ghostClass="drop-placeholder-exercise"
                            handle=".js-exercise-drag-handle" v-model="orderedExercises">
                     <template v-for="(exercise) in orderedExercises">
                         <ExerciseCard :exercise-uuid="exercise.uuid" :key="exercise.uuid" ref="exercise-cards"/>
@@ -165,7 +167,17 @@
 </script>
 
 <style lang="scss" scoped>
-    /*.theme--light.v-sheet {*/
-    /*    border: solid 2px purple;*/
-    /*}*/
+    .drop-placeholder-exercise {
+        animation: blink .5s step-end infinite alternate;
+    }
+
+    .workout-drop-placeholder {
+        .workout-builder-card {
+            animation: blink .5s step-end infinite alternate;
+        }
+    }
+
+    @keyframes blink {
+        50% { border-color: var(--v-warning-base); }
+    }
 </style>

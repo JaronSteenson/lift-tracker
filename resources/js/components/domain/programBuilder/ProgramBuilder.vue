@@ -18,10 +18,12 @@
         </v-row>
 
         <v-row>
-            <Draggable :forceFallback="true" class="row" dragClass="dragging-workout-card"
+            <Draggable :forceFallback="true" class="row"
+                       dragClass="workout-drag"
+                       ghostClass="workout-drop-placeholder"
                        handle=".js-workout-drag-handle"
                        v-model="orderedWorkouts">
-                <v-col class="draggable" cols="12" lg="3" md="4" sm="6" v-for="(workout) in orderedWorkouts" :key="workout.uuid">
+                <v-col cols="12" lg="3" md="4" sm="6" v-for="(workout) in orderedWorkouts" :key="workout.uuid">
                     <WorkoutCard :workoutUuid="workout.uuid"></WorkoutCard>
                 </v-col>
                 <v-col cols="12" lg="3" md="4" slot="footer" sm="6">

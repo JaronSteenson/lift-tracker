@@ -75,10 +75,20 @@
     }
 </script>
 
-<style lang="scss" scoped>
+<style lang="scss">
     .app-name {
         font-weight: bold;
         text-decoration: none;
-        color: var(--v-primary-base);
+        color: var(--v-primary-base) !important;
+    }
+
+    .v-card {
+       border: solid 1px var(--v-primary-base) !important;
+    }
+
+    .v-dialog {
+        .v-card {
+            border-width: 2px !important;
+        }
     }
 </style>

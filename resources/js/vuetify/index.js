@@ -23,7 +23,7 @@ export default new Vuetify({
                 anchor: colors.grey.darken4,
                 secondary: undefined,
                 info: undefined,
-                warning: undefined,
+                warning: colors.orange,
                 error: colors.red.lighten2,
                 success: undefined,
             },
