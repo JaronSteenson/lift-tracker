@@ -1,38 +1,50 @@
 <template>
     <div>
-        <VToolbar flat>
-            <VToolbarTitle>
-                {{ name }}
-            </VToolbarTitle>
+        <VContainer class="px-0" fluid>
+            <VRow class="no-gutters">
+                <VCol cols="12" lg="3" md="4" sm="6">
+                    <VTextField
+                        v-model="name"
+                        class="mx-4"
+                        :autofocus="autofocus"
+                        flat
+                        hide-details
+                        label="Program name"
+                    >
+                        <template slot="append-outer">
+                            <VMenu bottom left>
+                                <template v-slot:activator="{ on }">
+                                    <VBtn icon v-on="on">
+                                        <VIcon>mdi-dots-vertical</VIcon>
+                                    </VBtn>
+                                </template>
 
-<!--            <VTextField-->
-<!--                :autofocus="autofocus"-->
-<!--                label="Program name"-->
-<!--                placeholder="Enter program name"-->
-<!--                v-model="name"-->
-<!--            />-->
-
-            <VSpacer></VSpacer>
-
-            <VBtn icon>
-                <v-icon>mdi-dots-vertical</v-icon>
-            </VBtn>
-        </VToolbar>
-            <Draggable :forceFallback="true" class="row"
-                       dragClass="workout-drag"
-                       ghostClass="workout-drop-placeholder"
-                       handle=".js-workout-drag-handle"
-                       v-model="orderedWorkouts">
-                <v-col :key="workout.uuid" cols="12" lg="3" md="4" sm="6" v-for="(workout) in orderedWorkouts">
-                    <WorkoutCard :workoutUuid="workout.uuid"></WorkoutCard>
-                </v-col>
-                <v-col cols="12" lg="3" md="4" slot="footer" sm="6">
-                    <VBtn @click="addWorkoutToProgram(null)" draggable="false" width="100%">
-                        <v-icon left>mdi-plus</v-icon>
-                        Add workout
-                    </VBtn>
-                </v-col>
-            </Draggable>
+                                <VList>
+                                    <VList-item @click="showDeleteConfimation = true">
+                                        <VListItemTitle>Delete</VListItemTitle>
+                                    </VList-item>
+                                </VList>
+                            </VMenu>
+                        </template>
+                    </VTextField>
+                </VCol>
+            </VRow>
+        </VContainer>
+        <Draggable :forceFallback="true" class="row"
+                   dragClass="workout-drag"
+                   ghostClass="workout-drop-placeholder"
+                   handle=".js-workout-drag-handle"
+                   v-model="orderedWorkouts">
+            <VCol :key="workout.uuid" cols="12" lg="3" md="4" sm="6" v-for="(workout) in orderedWorkouts">
+                <WorkoutCard :workoutUuid="workout.uuid"></WorkoutCard>
+            </VCol>
+            <VCol cols="12" lg="3" md="4" sm="6" slot="footer">
+                <VBtn @click="addWorkoutToProgram(null)" draggable="false" width="100%">
+                    <v-icon left>mdi-plus</v-icon>
+                    Add workout
+                </VBtn>
+            </VCol>
+        </Draggable>
     </div>
 </template>
 

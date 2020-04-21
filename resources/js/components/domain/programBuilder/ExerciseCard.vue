@@ -24,22 +24,22 @@
         <template v-else>
             <VCardTitle>
                 <EditableTitle @click="showEditModal = true">{{ nameDisplay }}</EditableTitle>
-                <v-menu bottom left>
+                <VMenu bottom left>
                     <template v-slot:activator="{ on }">
                         <VBtn icon v-on="on">
                             <VIcon>mdi-dots-vertical</VIcon>
                         </VBtn>
                     </template>
 
-                    <v-list>
-                        <v-list-item @click="showEditModal = true">
-                            <v-list-item-title>Edit</v-list-item-title>
-                        </v-list-item>
-                        <v-list-item @click="deleteExercise">
-                            <v-list-item-title>Delete</v-list-item-title>
-                        </v-list-item>
-                    </v-list>
-                </v-menu>
+                    <VList>
+                        <VList-item @click="showEditModal = true">
+                            <VListItemTitle>Edit</VListItemTitle>
+                        </VList-item>
+                        <VList-item @click="deleteExercise">
+                            <VListItemTitle>Delete</VListItemTitle>
+                        </VList-item>
+                    </VList>
+                </VMenu>
             </VCardTitle>
             <VCardText class="py-0">
                 <VContainer>
