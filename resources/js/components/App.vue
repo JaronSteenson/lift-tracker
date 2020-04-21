@@ -9,7 +9,7 @@
             <v-list dense>
                 <v-list-item link :to="{ name: 'home'}">
                     <v-list-item-action>
-                        <v-icon>mdi-home</v-icon>
+                        <VIcon>mdi-home</VIcon>
                     </v-list-item-action>
                     <v-list-item-content>
                         <v-list-item-title>Home</v-list-item-title>
@@ -19,30 +19,30 @@
         </v-navigation-drawer>
 
         <VAppBar app title color="primary" dark :clipped-left="$vuetify.breakpoint.lgAndUp">
-            <v-app-bar-nav-icon v-if="userIsAuthenticated" @click.stop="drawer = !drawer" />
+            <VAppBarNavIcon v-if="userIsAuthenticated" @click.stop="drawer = !drawer" />
             <v-toolbar-title>{{ appName }}</v-toolbar-title>
 
             <v-spacer></v-spacer>
 
-            <v-menu
+            <VMenu
                 v-if="userIsAuthenticated"
                 transition="slide-y-transition"
                 bottom
                 offset-y
             >
                 <template v-slot:activator="{ on }">
-                    <v-btn icon v-on="on">
-                        <v-avatar color="primary">
+                    <VBtn icon v-on="on">
+                        <v-avatar class="app-avatar">
                             <span class="accent--text headline">{{ avatarInitial }}</span>
                         </v-avatar>
-                    </v-btn>
+                    </VBtn>
                 </template>
                 <v-list>
                     <v-list-item @click="logout">
                         <v-list-item-title>Logout</v-list-item-title>
                     </v-list-item>
                 </v-list>
-            </v-menu>
+            </VMenu>
         </VAppBar>
 
         <v-content>
@@ -101,6 +101,10 @@
     .app-name {
         text-decoration: none;
         color: var(--v-accent-base) !important;
+    }
+
+    .app-avatar {
+        background-color: var(--v-primary-lighten2);
     }
 
     .v-card {

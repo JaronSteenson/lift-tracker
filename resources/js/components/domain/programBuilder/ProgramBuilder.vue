@@ -40,7 +40,7 @@
             </VCol>
             <VCol cols="12" lg="3" md="4" sm="6" slot="footer">
                 <VBtn @click="addWorkoutToProgram(null)" draggable="false" width="100%">
-                    <v-icon left>mdi-plus</v-icon>
+                    <VIcon left>mdi-plus</VIcon>
                     Add workout
                 </VBtn>
             </VCol>
