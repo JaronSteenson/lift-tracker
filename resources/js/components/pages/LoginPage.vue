@@ -12,7 +12,7 @@
                 md="4"
                 sm="8"
             >
-                <VCard :class="$vuetify.breakpoint.xs ? 'elevation-0' : 'elevation-12'" :loading="!$vuetify.breakpoint.xs && loading">
+                <VCard :class="$vuetify.breakpoint.xs ? 'elevation-0 login-card--flat' : 'elevation-12'" :loading="!$vuetify.breakpoint.xs && loading">
                     <VCardText :class="{ 'pa-0': this.$vuetify.breakpoint.xs }">
                         <VAlert v-if="failedLogin" type="error">
                             Your email and/or password do not match.
@@ -101,3 +101,9 @@
         }
     }
 </script>
+
+<style lang="scss" scoped>
+    .login-card--flat {
+        border: none !important
+    }
+</style>
