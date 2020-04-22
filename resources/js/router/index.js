@@ -2,6 +2,7 @@ import Vue from 'vue'
 import HomePage from "../components/pages/HomePage";
 import LoginPage from "../components/pages/LoginPage";
 import ProgramBuilderPage from "../components/pages/ProgramBuilderPage";
+import NotFoundPage from "../components/pages/NotFoundPage";
 import VueRouter from "vue-router";
 import store from './../store';
 
@@ -46,7 +47,7 @@ const routes = [
     },
     {
         name: 'newProgramBuilder',
-        path: '/program-builder',
+        path: '/program-builder/new',
         component: ProgramBuilderPage,
         props: true
     },
@@ -56,6 +57,11 @@ const routes = [
         component: ProgramBuilderPage,
         props: true
     },
+    {
+        path: '*',
+        name: '404',
+        component: NotFoundPage,
+    }
 ];
 
 const router =  new VueRouter({

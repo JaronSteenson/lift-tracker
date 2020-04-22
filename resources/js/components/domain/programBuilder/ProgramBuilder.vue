@@ -1,50 +1,53 @@
 <template>
     <div>
-        <VContainer class="px-0" fluid>
-            <VRow class="no-gutters">
-                <VCol cols="12" lg="3" md="4" sm="6">
-                    <VTextField
-                        v-model="name"
-                        class="mx-4"
-                        :autofocus="autofocus"
-                        flat
-                        hide-details
-                        label="Program name"
-                    >
-                        <template slot="append-outer">
-                            <VMenu bottom left>
-                                <template v-slot:activator="{ on }">
-                                    <VBtn icon v-on="on">
-                                        <VIcon>mdi-dots-vertical</VIcon>
-                                    </VBtn>
-                                </template>
+        <NotFound v-if="notFound">Sorry we couldn't find that program.</NotFound>
+        <template v-else>
+            <VContainer class="px-0" fluid>
+                <VRow class="no-gutters">
+                    <VCol cols="12" lg="3" md="4" sm="6">
+                        <VTextField
+                            :autofocus="autofocus"
+                            class="mx-4"
+                            flat
+                            hide-details
+                            label="Program name"
+                            v-model="name"
+                        >
+                            <template slot="append-outer">
+                                <VMenu bottom left>
+                                    <template v-slot:activator="{ on }">
+                                        <VBtn icon v-on="on">
+                                            <VIcon>mdi-dots-vertical</VIcon>
+                                        </VBtn>
+                                    </template>
 
-                                <VList>
-                                    <VList-item @click="showDeleteConfimation = true">
-                                        <VListItemTitle>Delete</VListItemTitle>
-                                    </VList-item>
-                                </VList>
-                            </VMenu>
-                        </template>
-                    </VTextField>
+                                    <VList>
+                                        <VList-item @click="showDeleteConfimation = true">
+                                            <VListItemTitle>Delete</VListItemTitle>
+                                        </VList-item>
+                                    </VList>
+                                </VMenu>
+                            </template>
+                        </VTextField>
+                    </VCol>
+                </VRow>
+            </VContainer>
+            <Draggable :forceFallback="true" class="row"
+                       dragClass="workout-drag"
+                       ghostClass="workout-drop-placeholder"
+                       handle=".js-workout-drag-handle"
+                       v-model="orderedWorkouts">
+                <VCol :key="workout.uuid" cols="12" lg="3" md="4" sm="6" v-for="(workout) in orderedWorkouts">
+                    <WorkoutCard :workoutUuid="workout.uuid"></WorkoutCard>
                 </VCol>
-            </VRow>
-        </VContainer>
-        <Draggable :forceFallback="true" class="row"
-                   dragClass="workout-drag"
-                   ghostClass="workout-drop-placeholder"
-                   handle=".js-workout-drag-handle"
-                   v-model="orderedWorkouts">
-            <VCol :key="workout.uuid" cols="12" lg="3" md="4" sm="6" v-for="(workout) in orderedWorkouts">
-                <WorkoutCard :workoutUuid="workout.uuid"></WorkoutCard>
-            </VCol>
-            <VCol cols="12" lg="3" md="4" sm="6" slot="footer">
-                <VBtn @click="addWorkoutToProgram(null)" draggable="false" width="100%">
-                    <VIcon left>mdi-plus</VIcon>
-                    Add workout
-                </VBtn>
-            </VCol>
-        </Draggable>
+                <VCol cols="12" lg="3" md="4" slot="footer" sm="6">
+                    <VBtn @click="addWorkoutToProgram(null)" draggable="false" width="100%">
+                        <VIcon left>mdi-plus</VIcon>
+                        Add workout
+                    </VBtn>
+                </VCol>
+            </Draggable>
+        </template>
     </div>
 </template>
 
@@ -52,12 +55,14 @@
     import LoadingSpinner from "../../LoadingSpinner";
     import {mapState, mapActions, mapGetters} from 'vuex';
     import WorkoutCard from "./WorkoutCard";
+    import NotFound from "../../routing/NotFound";
     import Draggable from 'vuedraggable';
 
     export default {
         components: {
             WorkoutCard,
             LoadingSpinner,
+            NotFound,
             Draggable
         },
         props: {
@@ -69,8 +74,6 @@
         created() {
             if (this.workoutProgramUuid) {
                 this.$store.dispatch('programBuilder/fetch', this.workoutProgramUuid)
-            } else {
-                this.$store.dispatch('programBuilder/tryRestoreFromLocalStorage');
             }
         },
         data() {
@@ -93,6 +96,9 @@
         computed: {
             autofocus() {
                 return !this.hasMadeSignificantChangesFromNew;
+            },
+            notFound() {
+                return !this.loading && !this.uuid;
             },
             ...mapState('programBuilder', ['uuid']),
             ...mapGetters('programBuilder', ['hasMadeSignificantChangesFromNew']),

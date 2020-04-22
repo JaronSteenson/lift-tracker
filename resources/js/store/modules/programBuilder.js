@@ -299,7 +299,7 @@ const actions = {
             const response = await WorkoutProgramService.get(uuid);
             commit('reset', response.data);
         } catch (e) {
-            dispatch('tryRestoreFromLocalStorage')
+            // dispatch('tryRestoreFromLocalStorage')
         }
     },
 

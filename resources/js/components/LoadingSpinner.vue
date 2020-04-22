@@ -1,10 +1,13 @@
 <template>
-    <div>
-        <div class="spinner-border" :style="'color: ' + colorRgb" role="status">
-            <span class="sr-only">Loading...</span>
-        </div>
-    </div>
-
+    <VContainer class="text-center" fluid>
+        <VRow justify="center">
+            <VCol cols="12">
+                <div :style="'color: ' + colorRgb" class="spinner-border" role="status">
+                    <h2>Loading...</h2>
+                </div>
+            </VCol>
+        </VRow>
+    </VContainer>
 </template>
 
 <script>
@@ -20,7 +23,7 @@
             }
         },
         computed: {
-            colorRgb () {
+            colorRgb() {
                 return `rgb(${this.red}, ${this.green}, ${this.blue})`
             }
         },

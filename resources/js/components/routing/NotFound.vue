@@ -1,0 +1,22 @@
+<template functional>
+    <VContainer fluid class="text-center">
+        <VRow justify="center">
+            <VCol cols="12">
+                <h1 class="display-2 primary--text">404</h1>
+                <p><slot></slot></p>
+                <VBtn class="home-button" :to="{ name: 'home' }" depressed large>Go to home page</VBtn>
+            </VCol>
+        </VRow>
+    </VContainer>
+</template>
+
+<style lang="scss" scoped>
+    .home-button {
+        border: 1px solid var(--v-primary-base) !important;
+
+
+        &.v-btn:before {
+            opacity: 0 !important;
+        }
+    }
+</style>
