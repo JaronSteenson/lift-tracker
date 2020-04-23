@@ -1,6 +1,6 @@
 <template>
     <VCard
-        class="exercise-card js-exercise-drag-handle"
+        class="mx-3 my-2 js-exercise-drag-handle"
         outlined role="button"
         :ripple="false"
         @click="showEditModal = true"
@@ -134,9 +134,3 @@
         },
     }
 </script>
-
-<style lang="scss" scoped>
-    .exercise-card {
-        margin: 2%;
-    }
-</style>

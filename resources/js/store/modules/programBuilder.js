@@ -318,7 +318,7 @@ const actions = {
         commit('updateSaveStatus', STATUS_SAVE_SUCCESS);
         commit('updateSaveStatusTimeout', setTimeout(() => {
             commit('updateSaveStatus', null);
-        }, 3000));
+        }, 10 * 1000));
     },
 
     finishSavingError({ commit }) {

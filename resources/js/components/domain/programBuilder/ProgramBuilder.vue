@@ -1,9 +1,9 @@
 <template>
     <div v-if="!loading">
         <NotFound v-if="notFound">Sorry we couldn't find that program.</NotFound>
-        <v-card v-else>
-            <v-system-bar></v-system-bar>
-            <v-toolbar flat :height="editingName ? '85px' : '70px'">
+        <div v-else>
+            <VSystemBar>{{ savingStatusMessage }}</VSystemBar>
+            <v-toolbar :height="editingName ? '85px' : '70px'" flat>
                 <VCardTitle v-if="editingName">
                     <VTextField
                         :autofocus="editingName"
@@ -14,15 +14,16 @@
                         v-model="localState.name"
                     >
                         <template v-slot:append-outer>
-                            <VBtn icon @click="abortEditingName" ref="abortNameEdit">
+                            <VBtn @click="abortEditingName" icon ref="abortNameEdit">
                                 <VIcon>mdi-close</VIcon>
                             </VBtn>
                         </template>
                     </VTextField>
                 </VCardTitle>
-                <v-toolbar-title v-else role="button" @click="editingName = true"> {{ nameForDisplay }}</v-toolbar-title>
+                <v-toolbar-title @click="editingName = true" role="button" v-else> {{ nameForDisplay }}
+                </v-toolbar-title>
 
-                <VContainer class="px-0" fluid v-else>
+                <VContainer class="px-0 mx-0" fluid v-else>
                     <VRow class="no-gutters">
                         <VCol cols="12" lg="3" md="4" sm="6">
                             <VTextField
@@ -54,38 +55,27 @@
                 </VContainer>
                 <v-spacer></v-spacer>
             </v-toolbar>
-            <v-banner
-                single-line
-                sticky
-            >
-                {{ savingStatusMessage }}
-            </v-banner>
-            <v-card-text class="grey lighten-4">
-                <v-sheet
-                    class="mx-auto"
-                >
-
-                    <Draggable
-                        :forceFallback="true"
-                        class="row"
-                        dragClass="workout-drag"
-                        ghostClass="workout-drop-placeholder"
-                        handle=".js-workout-drag-handle"
-                        v-model="orderedWorkouts">
-                        <VCol :key="workout.uuid" cols="12" lg="3" md="4" sm="6"
-                              v-for="(workout) in orderedWorkouts">
-                            <WorkoutCard :workoutUuid="workout.uuid"></WorkoutCard>
-                        </VCol>
-                        <VCol cols="12" lg="3" md="4" slot="footer" sm="6">
-                            <VBtn @click="addWorkoutToProgram(null)" draggable="false" width="100%">
-                                <VIcon left>mdi-plus</VIcon>
-                                Add workout
-                            </VBtn>
-                        </VCol>
-                    </Draggable>
-                </v-sheet>
-            </v-card-text>
-        </v-card>
+            <v-sheet class="mx-3">
+                <Draggable
+                    :forceFallback="true"
+                    class="row"
+                    dragClass="workout-drag"
+                    ghostClass="workout-drop-placeholder"
+                    handle=".js-workout-drag-handle"
+                    v-model="orderedWorkouts">
+                    <VCol :key="workout.uuid" cols="12" lg="3" md="4" sm="6"
+                          v-for="(workout) in orderedWorkouts">
+                        <WorkoutCard :workoutUuid="workout.uuid"></WorkoutCard>
+                    </VCol>
+                    <VCol cols="12" lg="3" md="4" slot="footer" sm="6">
+                        <VBtn @click="addWorkoutToProgram(null)" draggable="false" width="100%">
+                            <VIcon left>mdi-plus</VIcon>
+                            Add workout
+                        </VBtn>
+                    </VCol>
+                </Draggable>
+            </v-sheet>
+        </div>
     </div>
 </template>
 
@@ -120,7 +110,7 @@
             return {
                 loading: false,
                 editingName: false,
-                localState: { name: this.$store.state.programBuilder.name },
+                localState: {name: this.$store.state.programBuilder.name},
             }
         },
         watch: {

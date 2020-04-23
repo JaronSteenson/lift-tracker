@@ -48,8 +48,8 @@
             </v-menu>
         </VCardTitle>
 
-        <div class="row">
-            <div class="col">
+        <VRow class="mt-0">
+            <VCol>
                 <Draggable :forceFallback="true"
                            :group="{ name: 'exercises', pull: true, put: true }"
                            dragClass="elevation-24"
@@ -59,8 +59,8 @@
                         <ExerciseCard :exercise-uuid="exercise.uuid" :key="exercise.uuid" ref="exercise-cards"/>
                     </template>
                 </Draggable>
-            </div>
-        </div>
+            </VCol>
+        </VRow>
 
         <VBtn @click="addExercise" width="100%">
             <VIcon left>mdi-plus</VIcon>
