@@ -3,7 +3,11 @@ import UuidHelper from '../../UuidHelper'
 import { debounce, pick } from 'lodash';
 
 const LOCAL_STORAGE_NAMESPACE = 'program-builder-state';
-const SAVE_DEBOUNCE_WAIT = 2000;
+const SAVE_DEBOUNCE_WAIT = 1000;
+
+const STATUS_SAVING = Symbol('saving');
+const STATUS_SAVE_SUCCESS = Symbol('save_success');
+const STATUS_SAVE_ERROR = Symbol('save_error');
 
 function localStorageKey(uuid) {
     return `${LOCAL_STORAGE_NAMESPACE}_${uuid}`
@@ -15,6 +19,8 @@ function sortByPosition(a, b) {
 
 const state = {
     uuid: null,
+    saveStatus: null,
+    updateSaveStatusTimeout: null,
     name: '',
     workoutProgramRoutines: [],
     justAddedModelUuid: null,
@@ -48,6 +54,15 @@ const exerciseFields = [
 ];
 
 const getters = {
+
+    savingStatusMessage(state) {
+        switch (state.saveStatus) {
+            case null: return ''
+            case STATUS_SAVE_ERROR: return 'Error saving program';
+            case STATUS_SAVE_SUCCESS: return 'Program saved';
+            case STATUS_SAVING: return 'Saving...';
+        }
+    },
 
     hasMadeSignificantChangesFromNew(state) {
         return state.uuid || // Has somehow forced a save or uuid assignment.
@@ -268,6 +283,8 @@ const actions = {
     },
 
     save: debounce(async ({ state, commit, dispatch, getters }) => {
+        dispatch('startSaving');
+
         // Don't actually save anything until there is some decent changes.
         if (!getters.hasMadeSignificantChangesFromNew) {
             return;
@@ -284,11 +301,29 @@ const actions = {
         try {
             const response = await WorkoutProgramService.save(getters.savePayload);
             commit('patchInSaveResponse', response.data);
+            dispatch('finishSaving');
         } catch (error) {
             console.error(error); // TODO add to toast queue/user facing error message.
+            dispatch('finishSavingError');
         }
 
     }, SAVE_DEBOUNCE_WAIT),
+
+    startSaving({ commit }) {
+        commit('updateSaveStatusTimeout', null);
+        commit('updateSaveStatus', STATUS_SAVING);
+    },
+
+    finishSaving({ commit }) {
+        commit('updateSaveStatus', STATUS_SAVE_SUCCESS);
+        commit('updateSaveStatusTimeout', setTimeout(() => {
+            commit('updateSaveStatus', null);
+        }, 3000));
+    },
+
+    finishSavingError({ commit }) {
+        commit('updateSaveStatus', STATUS_SAVE_ERROR);
+    },
 
     saveToLocalStorage({ state }) {
         localStorage.setItem(localStorageKey(state.uuid), JSON.stringify(state));
@@ -320,6 +355,18 @@ const mutations = {
         Object.keys(newState).forEach(key => {
             state[key] = newState[key]
         });
+    },
+
+    updateSaveStatus(state, saveStatus) {
+        state.saveStatus = saveStatus;
+    },
+
+    updateSaveStatusTimeout(state, saveStatusTimeout) {
+        if (state.updateSaveStatusTimeout !== null) {
+            clearTimeout(state.updateSaveStatusTimeout);
+        }
+
+        state.updateSaveStatusTimeout = saveStatusTimeout;
     },
 
     assignTopLevelUuid(state) {

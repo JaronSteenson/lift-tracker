@@ -1,53 +1,91 @@
 <template>
-    <div>
+    <div v-if="!loading">
         <NotFound v-if="notFound">Sorry we couldn't find that program.</NotFound>
-        <template v-else>
-            <VContainer class="px-0" fluid>
-                <VRow class="no-gutters">
-                    <VCol cols="12" lg="3" md="4" sm="6">
-                        <VTextField
-                            :autofocus="autofocus"
-                            class="mx-4"
-                            flat
-                            hide-details
-                            label="Program name"
-                            v-model="name"
-                        >
-                            <template slot="append-outer">
-                                <VMenu bottom left>
-                                    <template v-slot:activator="{ on }">
-                                        <VBtn icon v-on="on">
-                                            <VIcon>mdi-dots-vertical</VIcon>
-                                        </VBtn>
-                                    </template>
+        <v-card v-else>
+            <v-system-bar></v-system-bar>
+            <v-toolbar flat :height="editingName ? '85px' : '70px'">
+                <VCardTitle v-if="editingName">
+                    <VTextField
+                        :autofocus="editingName"
+                        @blur="finishEditingName"
+                        @keydown.enter="finishEditingName"
+                        @keydown.esc="abortEditingName"
+                        label="Program name"
+                        v-model="localState.name"
+                    >
+                        <template v-slot:append-outer>
+                            <VBtn icon @click="abortEditingName" ref="abortNameEdit">
+                                <VIcon>mdi-close</VIcon>
+                            </VBtn>
+                        </template>
+                    </VTextField>
+                </VCardTitle>
+                <v-toolbar-title v-else role="button" @click="editingName = true"> {{ nameForDisplay }}</v-toolbar-title>
 
-                                    <VList>
-                                        <VList-item @click="showDeleteConfimation = true">
-                                            <VListItemTitle>Delete</VListItemTitle>
-                                        </VList-item>
-                                    </VList>
-                                </VMenu>
-                            </template>
-                        </VTextField>
-                    </VCol>
-                </VRow>
-            </VContainer>
-            <Draggable :forceFallback="true" class="row"
-                       dragClass="workout-drag"
-                       ghostClass="workout-drop-placeholder"
-                       handle=".js-workout-drag-handle"
-                       v-model="orderedWorkouts">
-                <VCol :key="workout.uuid" cols="12" lg="3" md="4" sm="6" v-for="(workout) in orderedWorkouts">
-                    <WorkoutCard :workoutUuid="workout.uuid"></WorkoutCard>
-                </VCol>
-                <VCol cols="12" lg="3" md="4" slot="footer" sm="6">
-                    <VBtn @click="addWorkoutToProgram(null)" draggable="false" width="100%">
-                        <VIcon left>mdi-plus</VIcon>
-                        Add workout
-                    </VBtn>
-                </VCol>
-            </Draggable>
-        </template>
+                <VContainer class="px-0" fluid v-else>
+                    <VRow class="no-gutters">
+                        <VCol cols="12" lg="3" md="4" sm="6">
+                            <VTextField
+                                :autofocus="autofocus"
+                                class="mx-4"
+                                flat
+                                hide-details
+                                label="Program name"
+                                v-model="name"
+                            >
+                                <template slot="append-outer">
+                                    <VMenu bottom left>
+                                        <template v-slot:activator="{ on }">
+                                            <VBtn icon v-on="on">
+                                                <VIcon>mdi-dots-vertical</VIcon>
+                                            </VBtn>
+                                        </template>
+
+                                        <VList>
+                                            <VList-item @click="showDeleteConfimation = true">
+                                                <VListItemTitle>Delete</VListItemTitle>
+                                            </VList-item>
+                                        </VList>
+                                    </VMenu>
+                                </template>
+                            </VTextField>
+                        </VCol>
+                    </VRow>
+                </VContainer>
+                <v-spacer></v-spacer>
+            </v-toolbar>
+            <v-banner
+                single-line
+                sticky
+            >
+                {{ savingStatusMessage }}
+            </v-banner>
+            <v-card-text class="grey lighten-4">
+                <v-sheet
+                    class="mx-auto"
+                >
+
+                    <Draggable
+                        :forceFallback="true"
+                        class="row"
+                        dragClass="workout-drag"
+                        ghostClass="workout-drop-placeholder"
+                        handle=".js-workout-drag-handle"
+                        v-model="orderedWorkouts">
+                        <VCol :key="workout.uuid" cols="12" lg="3" md="4" sm="6"
+                              v-for="(workout) in orderedWorkouts">
+                            <WorkoutCard :workoutUuid="workout.uuid"></WorkoutCard>
+                        </VCol>
+                        <VCol cols="12" lg="3" md="4" slot="footer" sm="6">
+                            <VBtn @click="addWorkoutToProgram(null)" draggable="false" width="100%">
+                                <VIcon left>mdi-plus</VIcon>
+                                Add workout
+                            </VBtn>
+                        </VCol>
+                    </Draggable>
+                </v-sheet>
+            </v-card-text>
+        </v-card>
     </div>
 </template>
 
@@ -71,14 +109,18 @@
                 required: false,
             }
         },
-        created() {
+        async created() {
             if (this.workoutProgramUuid) {
-                this.$store.dispatch('programBuilder/fetch', this.workoutProgramUuid)
+                this.loading = true;
+                await this.$store.dispatch('programBuilder/fetch', this.workoutProgramUuid)
+                this.loading = false;
             }
         },
         data() {
             return {
                 loading: false,
+                editingName: false,
+                localState: { name: this.$store.state.programBuilder.name },
             }
         },
         watch: {
@@ -101,7 +143,7 @@
                 return !this.loading && !this.uuid;
             },
             ...mapState('programBuilder', ['uuid']),
-            ...mapGetters('programBuilder', ['hasMadeSignificantChangesFromNew']),
+            ...mapGetters('programBuilder', ['hasMadeSignificantChangesFromNew', 'savingStatusMessage']),
             orderedWorkouts: {
                 get() {
                     return this.$store.getters['programBuilder/getOrderedWorkouts'];
@@ -109,6 +151,9 @@
                 set(orderedWorkouts) {
                     this.$store.dispatch('programBuilder/updateWorkoutPositionFromOrder', orderedWorkouts);
                 },
+            },
+            nameForDisplay() {
+                return this.name || 'Unnamed program';
             },
             name: {
                 get() {
@@ -120,7 +165,21 @@
             }
         },
         methods: {
-            ...mapActions('programBuilder', ['addWorkoutToProgram'])
+            ...mapActions('programBuilder', ['addWorkoutToProgram']),
+            finishEditingName(e) {
+                // Allow canceling addition of element by clicking the cancel cross.
+                if (e.relatedTarget === this.$refs.abortNameEdit.$el) {
+                    this.abortEditingName();
+                    return;
+                }
+
+                this.editingName = false;
+                this.name = this.localState.name;
+            },
+            abortEditingName() {
+                this.localState.name = this.name;
+                this.editingName = false;
+            },
         }
     }
 </script>
