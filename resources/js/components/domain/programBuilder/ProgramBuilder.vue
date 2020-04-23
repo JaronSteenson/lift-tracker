@@ -1,11 +1,10 @@
 <template>
     <div v-if="!loading">
         <NotFound v-if="notFound">Sorry we couldn't find that program.</NotFound>
-
         <VContainer fluid v-else>
             <VRow>
-                <VCol cols="12" lg="3" md="4" sm="6">
-                    <VCard class="" elevation="5">
+                <VCol cols="12" lg="3" md="4" sm="6" class="my-0 py-0">
+                    <VCard flat style="border: none !important">
                         <VCardTitle>
                             <VTextField
                                 :autofocus="editingName"
@@ -38,12 +37,7 @@
                                 </VList>
                             </VMenu>
                         </VCardTitle>
-
-                        <VRow class="my-0 py-0">
-                            <VCol>
-                                <VSubheader class="pa-0">{{ statusMessage }}</VSubheader>
-                            </VCol>
-                        </VRow>
+                        <VSubheader>{{ statusMessage }}</VSubheader>
                     </VCard>
                 </VCol>
             </VRow>
