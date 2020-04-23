@@ -2,58 +2,40 @@
     <div v-if="!loading">
         <NotFound v-if="notFound">Sorry we couldn't find that program.</NotFound>
         <div v-else>
-            <VSystemBar>{{ savingStatusMessage }}</VSystemBar>
-            <v-toolbar :height="editingName ? '85px' : '70px'" flat>
-                <VCardTitle v-if="editingName">
+            <v-toolbar flat>
+                <VCardTitle v-if="editingName" class="mt-3">
                     <VTextField
                         :autofocus="editingName"
                         @blur="finishEditingName"
                         @keydown.enter="finishEditingName"
                         @keydown.esc="abortEditingName"
                         label="Program name"
-                        v-model="localState.name"
-                    >
-                        <template v-slot:append-outer>
-                            <VBtn @click="abortEditingName" icon ref="abortNameEdit">
-                                <VIcon>mdi-close</VIcon>
-                            </VBtn>
-                        </template>
-                    </VTextField>
+                        v-model="localState.name"/>
                 </VCardTitle>
-                <v-toolbar-title @click="editingName = true" role="button" v-else> {{ nameForDisplay }}
-                </v-toolbar-title>
+                <v-toolbar-title v-else @click="editingName = true" role="button">{{ nameForDisplay }}</v-toolbar-title>
 
-                <VContainer class="px-0 mx-0" fluid v-else>
-                    <VRow class="no-gutters">
-                        <VCol cols="12" lg="3" md="4" sm="6">
-                            <VTextField
-                                :autofocus="autofocus"
-                                class="mx-4"
-                                flat
-                                hide-details
-                                label="Program name"
-                                v-model="name"
-                            >
-                                <template slot="append-outer">
-                                    <VMenu bottom left>
-                                        <template v-slot:activator="{ on }">
-                                            <VBtn icon v-on="on">
-                                                <VIcon>mdi-dots-vertical</VIcon>
-                                            </VBtn>
-                                        </template>
+                <VBtn v-if="editingName" @click="abortEditingName" icon ref="abortNameEdit">
+                    <VIcon>mdi-close</VIcon>
+                </VBtn>
 
-                                        <VList>
-                                            <VList-item @click="showDeleteConfimation = true">
-                                                <VListItemTitle>Delete</VListItemTitle>
-                                            </VList-item>
-                                        </VList>
-                                    </VMenu>
-                                </template>
-                            </VTextField>
-                        </VCol>
-                    </VRow>
-                </VContainer>
+                <VMenu v-if="!editingName" bottom left>
+                    <template v-slot:activator="{ on }">
+                        <VBtn icon v-on="on">
+                            <VIcon>mdi-dots-vertical</VIcon>
+                        </VBtn>
+                    </template>
+
+                    <VList>
+                        <VList-item @click="showDeleteConfimation = true">
+                            <VListItemTitle>Delete</VListItemTitle>
+                        </VList-item>
+                    </VList>
+                </VMenu>
+
                 <v-spacer></v-spacer>
+
+                <VSubheader>{{ savingStatusMessage || 'Last updated 1984' }}</VSubheader>
+
             </v-toolbar>
             <v-sheet class="mx-3">
                 <Draggable
