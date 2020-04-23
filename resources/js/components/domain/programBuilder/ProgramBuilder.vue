@@ -1,63 +1,74 @@
 <template>
     <div v-if="!loading">
         <NotFound v-if="notFound">Sorry we couldn't find that program.</NotFound>
-        <div v-else>
-            <v-toolbar flat>
-                <VCardTitle v-if="editingName" class="mt-3">
-                    <VTextField
-                        :autofocus="editingName"
-                        @blur="finishEditingName"
-                        @keydown.enter="finishEditingName"
-                        @keydown.esc="abortEditingName"
-                        label="Program name"
-                        v-model="localState.name"/>
-                </VCardTitle>
-                <v-toolbar-title v-else @click="editingName = true" role="button">{{ nameForDisplay }}</v-toolbar-title>
 
-                <VBtn v-if="editingName" @click="abortEditingName" icon ref="abortNameEdit">
-                    <VIcon>mdi-close</VIcon>
-                </VBtn>
+        <VContainer fluid v-else>
+            <VRow>
+                <VCol cols="12" lg="3" md="4" sm="6">
+                    <VCard class="" elevation="5">
+                        <VCardTitle>
+                            <VTextField
+                                :autofocus="editingName"
+                                @blur="finishEditingName" @keydown.enter="finishEditingName"
+                                @keydown.esc="abortEditingName"
+                                class="mt-3"
+                                label="Program name"
+                                v-if="editingName"
+                                v-model="localState.name"
+                            >
+                                <template v-slot:append-outer>
+                                    <VBtn @click="abortEditingName" icon ref="abortNameEdit" v-if="editingName">
+                                        <VIcon>mdi-close</VIcon>
+                                    </VBtn>
+                                </template>
+                            </VTextField>
+                            <EditableTitle @click="editingName = true" v-else>{{ nameForDisplay }}</EditableTitle>
 
-                <VMenu v-if="!editingName" bottom left>
-                    <template v-slot:activator="{ on }">
-                        <VBtn icon v-on="on">
-                            <VIcon>mdi-dots-vertical</VIcon>
-                        </VBtn>
-                    </template>
+                            <VMenu bottom left v-if="!editingName">
+                                <template v-slot:activator="{ on }">
+                                    <VBtn icon v-on="on">
+                                        <VIcon>mdi-dots-vertical</VIcon>
+                                    </VBtn>
+                                </template>
 
-                    <VList>
-                        <VList-item @click="showDeleteConfimation = true">
-                            <VListItemTitle>Delete</VListItemTitle>
-                        </VList-item>
-                    </VList>
-                </VMenu>
+                                <VList>
+                                    <VList-item @click="showDeleteConfimation = true">
+                                        <VListItemTitle>Delete</VListItemTitle>
+                                    </VList-item>
+                                </VList>
+                            </VMenu>
+                        </VCardTitle>
 
-                <v-spacer></v-spacer>
+                        <VRow class="my-0 py-0">
+                            <VCol>
+                                <VSubheader class="pa-0">{{ statusMessage }}</VSubheader>
+                            </VCol>
+                        </VRow>
+                    </VCard>
+                </VCol>
+            </VRow>
+        </VContainer>
 
-                <VSubheader>{{ savingStatusMessage || 'Last updated 1984' }}</VSubheader>
-
-            </v-toolbar>
-            <v-sheet class="mx-3">
-                <Draggable
-                    :forceFallback="true"
-                    class="row"
-                    dragClass="workout-drag"
-                    ghostClass="workout-drop-placeholder"
-                    handle=".js-workout-drag-handle"
-                    v-model="orderedWorkouts">
-                    <VCol :key="workout.uuid" cols="12" lg="3" md="4" sm="6"
-                          v-for="(workout) in orderedWorkouts">
-                        <WorkoutCard :workoutUuid="workout.uuid"></WorkoutCard>
-                    </VCol>
-                    <VCol cols="12" lg="3" md="4" slot="footer" sm="6">
-                        <VBtn @click="addWorkoutToProgram(null)" draggable="false" width="100%">
-                            <VIcon left>mdi-plus</VIcon>
-                            Add workout
-                        </VBtn>
-                    </VCol>
-                </Draggable>
-            </v-sheet>
-        </div>
+        <v-sheet class="mx-3">
+            <Draggable
+                :forceFallback="true"
+                class="row"
+                dragClass="workout-drag"
+                ghostClass="workout-drop-placeholder"
+                handle=".js-workout-drag-handle"
+                v-model="orderedWorkouts">
+                <VCol :key="workout.uuid" cols="12" lg="3" md="4" sm="6"
+                      v-for="(workout) in orderedWorkouts">
+                    <WorkoutCard :workoutUuid="workout.uuid"></WorkoutCard>
+                </VCol>
+                <VCol cols="12" lg="3" md="4" slot="footer" sm="6">
+                    <VBtn @click="addWorkoutToProgram(null)" draggable="false" width="100%">
+                        <VIcon left>mdi-plus</VIcon>
+                        Add workout
+                    </VBtn>
+                </VCol>
+            </Draggable>
+        </v-sheet>
     </div>
 </template>
 
@@ -67,13 +78,15 @@
     import WorkoutCard from "./WorkoutCard";
     import NotFound from "../../routing/NotFound";
     import Draggable from 'vuedraggable';
+    import EditableTitle from "../../formFields/EditableTitle";
 
     export default {
         components: {
             WorkoutCard,
             LoadingSpinner,
             NotFound,
-            Draggable
+            Draggable,
+            EditableTitle,
         },
         props: {
             workoutProgramUuid: {
@@ -114,7 +127,7 @@
             notFound() {
                 return !this.loading && !this.uuid;
             },
-            ...mapState('programBuilder', ['uuid']),
+            ...mapState('programBuilder', ['uuid', 'updatedAt']),
             ...mapGetters('programBuilder', ['hasMadeSignificantChangesFromNew', 'savingStatusMessage']),
             orderedWorkouts: {
                 get() {
@@ -134,6 +147,13 @@
                 set(name) {
                     this.$store.dispatch('programBuilder/updateName', name);
                 },
+            },
+            statusMessage() {
+                if (this.savingStatusMessage) {
+                    return this.savingStatusMessage;
+                }
+
+                return this.updatedAt ? `last updated ${this.updatedAt}` : '';
             }
         },
         methods: {
@@ -146,7 +166,10 @@
                 }
 
                 this.editingName = false;
-                this.name = this.localState.name;
+
+                if (this.name !== this.localState.name) {
+                    this.name = this.localState.name;
+                }
             },
             abortEditingName() {
                 this.localState.name = this.name;

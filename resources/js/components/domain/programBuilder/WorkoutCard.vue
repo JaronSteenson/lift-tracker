@@ -1,5 +1,5 @@
 <template>
-    <VCard class="js-workout-drag-handle workout-builder-card" width="100%">
+    <VCard elevation="5" class="js-workout-drag-handle workout-builder-card" width="100%">
         <VCardTitle>
             <VTextField
                 v-if="isEditingTitle"

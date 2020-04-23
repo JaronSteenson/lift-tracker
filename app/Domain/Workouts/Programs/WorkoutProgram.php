@@ -47,6 +47,7 @@ class WorkoutProgram extends AbstractModel implements UserOwnershipInterface
         'uuid',
         'name',
         'createdAt',
+        'updatedAt',
         'workoutProgramRoutines',
     ];
 

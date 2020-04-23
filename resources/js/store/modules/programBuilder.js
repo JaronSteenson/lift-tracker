@@ -26,6 +26,7 @@ const state = {
     justAddedModelUuid: null,
     hasMadeSignificantChangesFromNew: false,
     createdAt: null,
+    updatedAt: null,
 };
 
 const workoutProgramFields = [
@@ -290,7 +291,7 @@ const actions = {
             return;
         }
 
-        //  We still don't have a top level uuid, but we have made some changes,
+        // We still don't have a top level uuid, but we have made some changes,
         // assign a uuid and actually save the program.
         if (!state.uuid && getters.hasMadeSignificantChangesFromNew) {
             commit('assignTopLevelUuid');
@@ -303,7 +304,7 @@ const actions = {
             commit('patchInSaveResponse', response.data);
             dispatch('finishSaving');
         } catch (error) {
-            console.error(error); // TODO add to toast queue/user facing error message.
+            console.error(error);
             dispatch('finishSavingError');
         }
 
@@ -318,7 +319,7 @@ const actions = {
         commit('updateSaveStatus', STATUS_SAVE_SUCCESS);
         commit('updateSaveStatusTimeout', setTimeout(() => {
             commit('updateSaveStatus', null);
-        }, 10 * 1000));
+        }, 3 * 1000));
     },
 
     finishSavingError({ commit }) {
