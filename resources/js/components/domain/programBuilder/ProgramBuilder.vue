@@ -2,47 +2,43 @@
     <div v-if="!loading">
         <NotFound v-if="notFound">Sorry we couldn't find that program.</NotFound>
         <template v-else>
-            <VContainer fluid>
-            <VRow>
-                <VCol cols="12" lg="3" md="4" sm="6" class="my-0 py-0">
-                    <VCard flat style="border: none !important">
-                        <VCardTitle>
-                            <VTextField
-                                :autofocus="editingName"
-                                @blur="finishEditingName" @keydown.enter="finishEditingName"
-                                @keydown.esc="abortEditingName"
-                                class="mt-3"
-                                label="Program name"
-                                v-if="editingName"
-                                v-model="localState.name"
-                            >
-                                <template v-slot:append-outer>
-                                    <VBtn @click="abortEditingName" icon ref="abortNameEdit" v-if="editingName">
-                                        <VIcon>mdi-close</VIcon>
-                                    </VBtn>
-                                </template>
-                            </VTextField>
-                            <EditableTitle @click="editingName = true" v-else>{{ nameForDisplay }}</EditableTitle>
+            <VToolbar>
+                <VToolbarTitle>
+                    <VTextField
+                        :autofocus="editingName"
+                        @blur="finishEditingName" @keydown.enter="finishEditingName"
+                        @keydown.esc="abortEditingName"
+                        label="Program name"
+                        v-if="editingName"
+                        v-model="localState.name"
+                    >
+                        <template v-slot:append-outer>
+                            <VBtn @click="abortEditingName" icon ref="abortNameEdit" v-if="editingName">
+                                <VIcon>mdi-close</VIcon>
+                            </VBtn>
+                        </template>
+                    </VTextField>
+                    <EditableTitle v-else @click="editingName = true" class="mt-5">{{ nameForDisplay }}</EditableTitle>
+                </VToolbarTitle>
+                    <VSpacer></VSpacer>
 
-                            <VMenu bottom left v-if="!editingName">
-                                <template v-slot:activator="{ on }">
-                                    <VBtn icon v-on="on">
-                                        <VIcon>mdi-dots-vertical</VIcon>
-                                    </VBtn>
-                                </template>
+                <VSubheader v-if="$vuetify.breakpoint.smAndUp">{{ statusMessage }}</VSubheader>
 
-                                <VList>
-                                    <VList-item @click="showDeleteConfimation = true">
-                                        <VListItemTitle>Delete</VListItemTitle>
-                                    </VList-item>
-                                </VList>
-                            </VMenu>
-                        </VCardTitle>
-                        <VSubheader>{{ statusMessage }}</VSubheader>
-                    </VCard>
-                </VCol>
-            </VRow>
-        </VContainer>
+
+                <VMenu bottom left>
+                    <template v-slot:activator="{ on }">
+                        <VBtn icon v-on="on">
+                            <VIcon>mdi-dots-vertical</VIcon>
+                        </VBtn>
+                    </template>
+
+                    <VList>
+                        <VList-item @click="showDeleteConfimation = true">
+                            <VListItemTitle>Delete</VListItemTitle>
+                        </VList-item>
+                    </VList>
+                </VMenu>
+            </VToolbar>
 
             <v-sheet class="mx-3">
                 <Draggable
@@ -102,7 +98,7 @@
             return {
                 loading: false,
                 editingName: false,
-                localState: { name: this.$store.state.programBuilder.name },
+                localState: {name: this.$store.state.programBuilder.name},
             }
         },
         watch: {
@@ -173,7 +169,7 @@
                 this.editingName = false;
             },
             resetLocalState() {
-                this.localState = { name: this.$store.state.programBuilder.name };
+                this.localState = {name: this.$store.state.programBuilder.name};
             },
         }
     }

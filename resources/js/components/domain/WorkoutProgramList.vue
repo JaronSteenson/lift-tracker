@@ -1,5 +1,5 @@
 <template>
-    <div>
+    <VContainer fluid>
         <h2 class="title">Your workout programs</h2>
 
         <v-row :justify="hasNoWorkoutProgram ? 'center' : 'start'">
@@ -40,7 +40,7 @@
                 </v-btn>
             </v-col>
         </v-row>
-    </div>
+    </VContainer>
 </template>
 
 <script>

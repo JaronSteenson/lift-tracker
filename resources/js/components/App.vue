@@ -46,10 +46,8 @@
         </VAppBar>
 
         <v-content>
-            <v-container fluid>
-                <LoadingSpinner v-if="!hasLoaded"></LoadingSpinner>
-                <router-view v-else/>
-            </v-container>
+            <LoadingSpinner v-if="!hasLoaded"></LoadingSpinner>
+            <RouterView v-else/>
         </v-content>
     </v-app>
 </template>
