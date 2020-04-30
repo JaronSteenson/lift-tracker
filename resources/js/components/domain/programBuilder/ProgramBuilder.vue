@@ -1,7 +1,8 @@
 <template>
     <div v-if="!loading">
         <NotFound v-if="notFound">Sorry we couldn't find that program.</NotFound>
-        <VContainer fluid v-else>
+        <template v-else>
+            <VContainer fluid>
             <VRow>
                 <VCol cols="12" lg="3" md="4" sm="6" class="my-0 py-0">
                     <VCard flat style="border: none !important">
@@ -43,26 +44,27 @@
             </VRow>
         </VContainer>
 
-        <v-sheet class="mx-3">
-            <Draggable
-                :forceFallback="true"
-                class="row"
-                dragClass="workout-drag"
-                ghostClass="workout-drop-placeholder"
-                handle=".js-workout-drag-handle"
-                v-model="orderedWorkouts">
-                <VCol :key="workout.uuid" cols="12" lg="3" md="4" sm="6"
-                      v-for="(workout) in orderedWorkouts">
-                    <WorkoutCard :workoutUuid="workout.uuid"></WorkoutCard>
-                </VCol>
-                <VCol cols="12" lg="3" md="4" slot="footer" sm="6">
-                    <VBtn @click="addWorkoutToProgram(null)" draggable="false" width="100%">
-                        <VIcon left>mdi-plus</VIcon>
-                        Add workout
-                    </VBtn>
-                </VCol>
-            </Draggable>
-        </v-sheet>
+            <v-sheet class="mx-3">
+                <Draggable
+                    :forceFallback="true"
+                    class="row"
+                    dragClass="workout-drag"
+                    ghostClass="workout-drop-placeholder"
+                    handle=".js-workout-drag-handle"
+                    v-model="orderedWorkouts">
+                    <VCol :key="workout.uuid" cols="12" lg="3" md="4" sm="6"
+                          v-for="(workout) in orderedWorkouts">
+                        <WorkoutCard :workoutUuid="workout.uuid"></WorkoutCard>
+                    </VCol>
+                    <VCol cols="12" lg="3" md="4" slot="footer" sm="6">
+                        <VBtn @click="addWorkoutToProgram(null)" draggable="false" width="100%">
+                            <VIcon left>mdi-plus</VIcon>
+                            Add workout
+                        </VBtn>
+                    </VCol>
+                </Draggable>
+            </v-sheet>
+        </template>
     </div>
 </template>
 
@@ -92,6 +94,7 @@
             if (this.workoutProgramUuid) {
                 this.loading = true;
                 await this.$store.dispatch('programBuilder/fetch', this.workoutProgramUuid)
+                this.resetLocalState();
                 this.loading = false;
             }
         },
@@ -99,7 +102,7 @@
             return {
                 loading: false,
                 editingName: false,
-                localState: {name: this.$store.state.programBuilder.name},
+                localState: { name: this.$store.state.programBuilder.name },
             }
         },
         watch: {
@@ -112,7 +115,7 @@
                 if (this.$route.params.workoutProgramUuid !== newUuid) {
                     this.$router.replace({name: 'programBuilder', params: {workoutProgramUuid: newUuid}});
                 }
-            }
+            },
         },
         computed: {
             autofocus() {
@@ -168,6 +171,9 @@
             abortEditingName() {
                 this.localState.name = this.name;
                 this.editingName = false;
+            },
+            resetLocalState() {
+                this.localState = { name: this.$store.state.programBuilder.name };
             },
         }
     }
