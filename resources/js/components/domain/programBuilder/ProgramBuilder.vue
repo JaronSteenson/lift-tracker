@@ -3,23 +3,22 @@
         <NotFound v-if="notFound">Sorry we couldn't find that program.</NotFound>
         <template v-else>
             <VToolbar>
-                <VToolbarTitle>
                     <VTextField
+                        class="program-builder-title"
                         :autofocus="editingName"
-                        @blur="finishEditingName" @keydown.enter="finishEditingName"
+                        single-line
+                        @blur="finishEditingName"
+                        @keydown.enter="finishEditingName"
                         @keydown.esc="abortEditingName"
                         label="Program name"
                         v-if="editingName"
                         v-model="localState.name"
+                        hide-details
                     >
-                        <template v-slot:append-outer>
-                            <VBtn @click="abortEditingName" icon ref="abortNameEdit" v-if="editingName">
-                                <VIcon>mdi-close</VIcon>
-                            </VBtn>
-                        </template>
                     </VTextField>
-                    <EditableTitle v-else @click="editingName = true" class="mt-5">{{ nameForDisplay }}</EditableTitle>
-                </VToolbarTitle>
+                    <VToolbarTitle v-else>
+                        <EditableTitle @click="editingName = true">{{ nameForDisplay }}</EditableTitle>
+                    </VToolbarTitle>
                     <VSpacer></VSpacer>
 
                 <VSubheader v-if="$vuetify.breakpoint.smAndUp">{{ statusMessage }}</VSubheader>
@@ -98,7 +97,7 @@
             return {
                 loading: false,
                 editingName: false,
-                localState: {name: this.$store.state.programBuilder.name},
+                localState: { name: this.$store.state.programBuilder.name },
             }
         },
         watch: {
@@ -151,13 +150,7 @@
         },
         methods: {
             ...mapActions('programBuilder', ['addWorkoutToProgram']),
-            finishEditingName(e) {
-                // Allow canceling addition of element by clicking the cancel cross.
-                if (e.relatedTarget === this.$refs.abortNameEdit.$el) {
-                    this.abortEditingName();
-                    return;
-                }
-
+            finishEditingName() {
                 this.editingName = false;
 
                 if (this.name !== this.localState.name) {
@@ -176,6 +169,10 @@
 </script>
 
 <style lang="scss" scoped>
+    .program-builder-title {
+        max-width: 390px;
+    }
+
     .builder-workouts-container {
         padding: 10px;
     }
