@@ -45,29 +45,26 @@
             </VMenu>
         </VAppBar>
 
-        <v-content>
-            <LoadingSpinner v-if="!hasLoaded"></LoadingSpinner>
-            <RouterView v-else/>
-        </v-content>
+        <VContent>
+            <RouterView v-if="hasLoaded"/>
+            <AppSplashScreen v-else />
+        </VContent>
     </v-app>
 </template>
 
 
 <script>
-    import LoadingSpinner from './LoadingSpinner.vue';
+    import AppSplashScreen from './AppSplashScreen.vue';
     import { mapState, mapGetters } from 'vuex';
 
     export default {
         components: {
-            LoadingSpinner
+            AppSplashScreen
         },
         data() {
             return {
                 drawer: null,
             }
-        },
-        mounted() {
-            this.$store.dispatch('app/fetchAppBootstrapData');
         },
         computed: {
             ...mapState('app', [

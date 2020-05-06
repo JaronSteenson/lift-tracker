@@ -45,12 +45,10 @@
 
 <script>
     import WorkoutProgramService from '../../api/WorkoutProgramService';
-    import LoadingSpinner from '../LoadingSpinner';
-    import {mapGetters} from "vuex";
 
     export default {
         components: {
-            LoadingSpinner,
+
         },
         created() {
             this.fetchWorkoutPrograms();

@@ -64,7 +64,6 @@
 </template>
 
 <script>
-    import LoadingSpinner from "../../LoadingSpinner";
     import {mapState, mapActions, mapGetters} from 'vuex';
     import WorkoutCard from "./WorkoutCard";
     import NotFound from "../../routing/NotFound";
@@ -74,7 +73,6 @@
     export default {
         components: {
             WorkoutCard,
-            LoadingSpinner,
             NotFound,
             Draggable,
             EditableTitle,

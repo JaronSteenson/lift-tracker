@@ -1,5 +1,5 @@
 <template>
-    <loading-spinner v-if="loading"></loading-spinner>
+    <div v-if="loading">Loading...</div>
     <form v-else @submit.prevent>
         <div class="form-group row">
             <label for="edit-workout-program-name"
@@ -56,12 +56,11 @@
 <script>
     import WorkoutRoutineForm from "../domain/WorkoutRoutineForm";
     import WorkoutProgramService from "../../api/WorkoutProgramService";
-    import LoadingSpinner from "../LoadingSpinner";
     import { mapState } from 'vuex'
 
     export default {
         name: 'WorkoutProgramForm',
-        components: {LoadingSpinner, WorkoutRoutineForm},
+        components: {WorkoutRoutineForm},
         data () {
             return {
                 loading: false,
