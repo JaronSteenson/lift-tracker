@@ -1,55 +1,54 @@
 <template>
-    <VContainer fluid>
-        <h2 class="title">Your workout programs</h2>
+    <VCard>
+        <v-toolbar
+            color="primary"
+            dark
+        >
+            <v-toolbar-title>Your workout programs</v-toolbar-title>
 
-        <v-row :justify="hasNoWorkoutProgram ? 'center' : 'start'">
-            <v-col
-                :key="program.id"
-                cols="12"
-                lg="3"
-                md="4"
-                sm="6"
+            <v-spacer></v-spacer>
+
+            <v-btn icon :to="{ name: 'newProgramBuilder' }">
+                <VIcon>mdi-plus</VIcon>
+            </v-btn>
+        </v-toolbar>
+
+
+        <VList>
+            <v-list-item
+                :key="program.uuid"
                 v-for="program in workoutPrograms"
+                :to="{ name: 'programBuilder', params: { workoutProgramUuid: program.uuid } }"
             >
-                <v-card width="100%">
-                    <v-list-item three-line>
-                        <v-list-item-content>
-                            <v-list-item-title class="headline mb-1">{{ program.name }}</v-list-item-title>
-                            <v-list-item-subtitle>Created: {{ program.createdAt }}</v-list-item-subtitle>
-                        </v-list-item-content>
-                    </v-list-item>
+                <v-list-item-avatar>
+                    <VIcon>mdi-table</VIcon>
+                </v-list-item-avatar>
 
-                    <v-card-actions>
-                        <v-btn :to="{ name: 'programBuilder', params: { workoutProgramUuid: program.uuid } }"
-                               class="ma-2">
-                            <v-icon left>mdi-pencil</v-icon>
-                            Edit
-                        </v-btn>
-                    </v-card-actions>
-                </v-card>
-            </v-col>
-            <v-col
-                cols="12"
-                lg="3"
-                md="4"
-                sm="6"
-            >
-                <v-btn :to="{ name: 'newProgramBuilder' }" width="100%">
-                    <v-icon left>mdi-plus</v-icon>
-                    Build new program
-                </v-btn>
-            </v-col>
-        </v-row>
-    </VContainer>
+                <v-list-item-content>
+                    <v-list-item-title>{{ program.name }}</v-list-item-title>
+                    <v-list-item-subtitle>Last edited {{ program.updatedAt }}</v-list-item-subtitle>
+                </v-list-item-content>
+
+                <v-list-item-action>
+                    <v-btn icon>
+                        <VIcon color="grey lighten-1">mdi-table-cog</VIcon>
+                    </v-btn>
+                </v-list-item-action>
+            </v-list-item>
+        </VList>
+
+        <v-divider></v-divider>
+
+
+    </VCard>
+
 </template>
 
 <script>
     import WorkoutProgramService from '../../api/WorkoutProgramService';
 
     export default {
-        components: {
-
-        },
+        components: {},
         created() {
             this.fetchWorkoutPrograms();
         },
