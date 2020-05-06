@@ -47,7 +47,7 @@
 
         <VContent>
             <RouterView v-if="hasLoaded"/>
-            <AppSplashScreen v-else />
+            <AppSplashScreen v-else/>
         </VContent>
     </v-app>
 </template>

@@ -1,5 +1,5 @@
 <template>
-    <VCard>
+    <VCard anim>
         <v-toolbar
             color="primary"
             dark
@@ -13,16 +13,18 @@
             </v-btn>
         </v-toolbar>
 
-
-        <VList>
+        <VList v-if="loading">
+            <VSkeletonLoader type="list-item-avatar-two-line@5" />
+        </VList>
+        <VList v-else>
             <v-list-item
                 :key="program.uuid"
                 v-for="program in workoutPrograms"
                 :to="{ name: 'programBuilder', params: { workoutProgramUuid: program.uuid } }"
             >
-                <v-list-item-avatar>
+                <VListItemAvatar>
                     <VIcon>mdi-table</VIcon>
-                </v-list-item-avatar>
+                </VListItemAvatar>
 
                 <v-list-item-content>
                     <v-list-item-title>{{ program.name }}</v-list-item-title>
@@ -36,10 +38,6 @@
                 </v-list-item-action>
             </v-list-item>
         </VList>
-
-        <v-divider></v-divider>
-
-
     </VCard>
 
 </template>
