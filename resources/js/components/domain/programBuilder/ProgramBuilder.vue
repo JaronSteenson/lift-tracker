@@ -1,45 +1,6 @@
 <template>
     <div>
-        <template v-if="loading">
-            <VToolbar>
-                <VSkeletonLoader type="heading" width="600px"/>
-            </VToolbar>
-            <VSheet class="mx-3">
-
-                <VRow>
-                    <VCol cols="12" lg="3" md="4" sm="6">
-                        <VCard>
-                            <VSkeletonLoader type="heading" style="margin: 20px" />
-                            <VSkeletonLoader type="image" style="margin: 10px; height: 100px" />
-                            <VSkeletonLoader type="image" style="margin: 10px; height: 100px" />
-                            <VSkeletonLoader type="image" style="margin: 10px; height: 50px" />
-                        </VCard>
-                    </VCol>
-                    <VCol cols="12" lg="3" md="4" sm="6">
-                        <VCard>
-                            <VSkeletonLoader type="heading" style="margin: 20px" />
-                            <VSkeletonLoader type="image" style="margin: 10px; height: 100px" />
-                            <VSkeletonLoader type="image" style="margin: 10px; height: 100px" />
-                            <VSkeletonLoader type="image" style="margin: 10px; height: 100px" />
-                            <VSkeletonLoader type="image" style="margin: 10px; height: 100px" />
-                            <VSkeletonLoader type="image" style="margin: 10px; height: 50px" />
-                        </VCard>
-                    </VCol>
-                    <VCol cols="12" lg="3" md="4" sm="6">
-                        <VCard>
-                            <VSkeletonLoader type="heading" style="margin: 20px" />
-                            <VSkeletonLoader type="image" style="margin: 10px; height: 100px" />
-                            <VSkeletonLoader type="image" style="margin: 10px; height: 100px" />
-                            <VSkeletonLoader type="image" style="margin: 10px; height: 100px" />
-                            <VSkeletonLoader type="image" style="margin: 10px; height: 50px" />
-                        </VCard>
-                    </VCol>
-                    <VCol cols="12" lg="3" md="4" slot="footer" sm="6">
-                        <VSkeletonLoader type="image" style="height: 40px" />
-                    </VCol>
-                </VRow>
-            </VSheet>
-        </template>
+        <ProgramBuilderLoadingSkeleton v-if="loading"/>
         <div v-else>
             <NotFound v-if="notFound">Sorry we couldn't find that program.</NotFound>
             <template v-else>
@@ -111,6 +72,7 @@
     import NotFound from "../../routing/NotFound";
     import Draggable from 'vuedraggable';
     import EditableTitle from "../../formFields/EditableTitle";
+    import ProgramBuilderLoadingSkeleton from "./ProgramBuilderLoadingSkeleton";
 
     export default {
         components: {
@@ -118,6 +80,7 @@
             NotFound,
             Draggable,
             EditableTitle,
+            ProgramBuilderLoadingSkeleton,
         },
         props: {
             workoutProgramUuid: {

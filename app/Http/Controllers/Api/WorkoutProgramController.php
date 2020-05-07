@@ -42,7 +42,7 @@ class WorkoutProgramController extends Controller
      * @return WorkoutProgram|Model
      */
     public function show(WorkoutProgramRequest $request): WorkoutProgram
-    {sleep(100);
+    {
         return $request->getModelOr404();
     }
 
