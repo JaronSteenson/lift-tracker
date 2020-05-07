@@ -8,24 +8,34 @@
 
                 <VRow>
                     <VCol cols="12" lg="3" md="4" sm="6">
-                        <VCard height="400px">
-                            <VSkeletonLoader type="image@2" />
+                        <VCard>
+                            <VSkeletonLoader type="heading" style="margin: 20px" />
+                            <VSkeletonLoader type="image" style="margin: 10px; height: 100px" />
+                            <VSkeletonLoader type="image" style="margin: 10px; height: 100px" />
+                            <VSkeletonLoader type="image" style="margin: 10px; height: 50px" />
                         </VCard>
                     </VCol>
                     <VCol cols="12" lg="3" md="4" sm="6">
                         <VCard>
-                            <VSkeletonLoader type="image" />
+                            <VSkeletonLoader type="heading" style="margin: 20px" />
+                            <VSkeletonLoader type="image" style="margin: 10px; height: 100px" />
+                            <VSkeletonLoader type="image" style="margin: 10px; height: 100px" />
+                            <VSkeletonLoader type="image" style="margin: 10px; height: 100px" />
+                            <VSkeletonLoader type="image" style="margin: 10px; height: 100px" />
+                            <VSkeletonLoader type="image" style="margin: 10px; height: 50px" />
                         </VCard>
                     </VCol>
                     <VCol cols="12" lg="3" md="4" sm="6">
                         <VCard>
-                            <VSkeletonLoader type="image@3" />
+                            <VSkeletonLoader type="heading" style="margin: 20px" />
+                            <VSkeletonLoader type="image" style="margin: 10px; height: 100px" />
+                            <VSkeletonLoader type="image" style="margin: 10px; height: 100px" />
+                            <VSkeletonLoader type="image" style="margin: 10px; height: 100px" />
+                            <VSkeletonLoader type="image" style="margin: 10px; height: 50px" />
                         </VCard>
                     </VCol>
                     <VCol cols="12" lg="3" md="4" slot="footer" sm="6">
-                        <VBtn width="100%" disabled>
-                            <VSkeletonLoader type="image" height="400" />
-                        </VBtn>
+                        <VSkeletonLoader type="image" style="height: 40px" />
                     </VCol>
                 </VRow>
             </VSheet>
