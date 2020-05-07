@@ -47,7 +47,7 @@
 
         <VContent>
             <VFadeTransition v-if="hasLoaded" leave-absolute>
-                <RouterView />
+                <RouterView/>
             </VFadeTransition>
             <AppSplashScreen v-else-if="slowLoading"/>
         </VContent>

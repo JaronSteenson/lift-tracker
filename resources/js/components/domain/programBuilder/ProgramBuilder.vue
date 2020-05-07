@@ -90,6 +90,7 @@
         },
         async created() {
             if (!this.$route.params.workoutProgramUuid) {
+                this.$store.dispatch('programBuilder/startNew')
                 return;
             }
 

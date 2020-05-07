@@ -26,7 +26,7 @@ function forceLogin(to, from, next) {
     next();
 }
 
-async function waitForAppBoostrap(to, from, next) {
+async function waitForAppBootstrap(to, from, next) {
     if (!store.getters['app/isBootstraped']) {
         await store.dispatch('app/fetchAppBootstrapData');
     }
@@ -49,7 +49,7 @@ const routes = [
         name: 'newProgramBuilder',
         path: '/program-builder',
         component: ProgramBuilderPage,
-        props: true
+        props: true,
     },
     {
         name: 'programBuilder',
@@ -69,7 +69,7 @@ const router =  new VueRouter({
     mode: 'history',
 });
 
-router.beforeEach(waitForAppBoostrap);
+router.beforeEach(waitForAppBootstrap);
 router.beforeEach(forceLogin);
 
 export default router;
