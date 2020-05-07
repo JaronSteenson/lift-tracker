@@ -1,65 +1,97 @@
 <template>
-    <div v-if="!loading">
-        <NotFound v-if="notFound">Sorry we couldn't find that program.</NotFound>
-        <template v-else>
+    <div>
+        <template v-if="loading">
             <VToolbar>
-                    <VTextField
-                        class="program-builder-title"
-                        :autofocus="editingName"
-                        single-line
-                        @blur="finishEditingName"
-                        @keydown.enter="finishEditingName"
-                        @keydown.esc="abortEditingName"
-                        label="Program name"
-                        v-if="editingName"
-                        v-model="localState.name"
-                        hide-details
-                    >
-                    </VTextField>
-                    <VToolbarTitle v-else>
-                        <EditableTitle @click="editingName = true">{{ nameForDisplay }}</EditableTitle>
-                    </VToolbarTitle>
-                    <VSpacer></VSpacer>
-
-                <VSubheader v-if="$vuetify.breakpoint.smAndUp">{{ statusMessage }}</VSubheader>
-
-
-                <VMenu bottom left>
-                    <template v-slot:activator="{ on }">
-                        <VBtn icon v-on="on">
-                            <VIcon>mdi-dots-vertical</VIcon>
-                        </VBtn>
-                    </template>
-
-                    <VList>
-                        <VList-item @click="showDeleteConfimation = true">
-                            <VListItemTitle>Delete</VListItemTitle>
-                        </VList-item>
-                    </VList>
-                </VMenu>
+                <VSkeletonLoader type="heading" width="600px"/>
             </VToolbar>
+            <VSheet class="mx-3">
 
-            <v-sheet class="mx-3">
-                <Draggable
-                    :forceFallback="true"
-                    class="row"
-                    dragClass="workout-drag"
-                    ghostClass="workout-drop-placeholder"
-                    handle=".js-workout-drag-handle"
-                    v-model="orderedWorkouts">
-                    <VCol :key="workout.uuid" cols="12" lg="3" md="4" sm="6"
-                          v-for="(workout) in orderedWorkouts">
-                        <WorkoutCard :workoutUuid="workout.uuid"></WorkoutCard>
+                <VRow>
+                    <VCol cols="12" lg="3" md="4" sm="6">
+                        <VCard height="400px">
+                            <VSkeletonLoader type="image@2" />
+                        </VCard>
+                    </VCol>
+                    <VCol cols="12" lg="3" md="4" sm="6">
+                        <VCard>
+                            <VSkeletonLoader type="image" />
+                        </VCard>
+                    </VCol>
+                    <VCol cols="12" lg="3" md="4" sm="6">
+                        <VCard>
+                            <VSkeletonLoader type="image@3" />
+                        </VCard>
                     </VCol>
                     <VCol cols="12" lg="3" md="4" slot="footer" sm="6">
-                        <VBtn @click="addWorkoutToProgram(null)" draggable="false" width="100%">
-                            <VIcon left>mdi-plus</VIcon>
-                            Add workout
+                        <VBtn width="100%" disabled>
+                            <VSkeletonLoader type="image" height="400" />
                         </VBtn>
                     </VCol>
-                </Draggable>
-            </v-sheet>
+                </VRow>
+            </VSheet>
         </template>
+        <div v-else>
+            <NotFound v-if="notFound">Sorry we couldn't find that program.</NotFound>
+            <template v-else>
+                <VToolbar>
+                        <VTextField
+                            class="program-builder-title"
+                            :autofocus="editingName"
+                            single-line
+                            @blur="finishEditingName"
+                            @keydown.enter="finishEditingName"
+                            @keydown.esc="abortEditingName"
+                            label="Program name"
+                            v-if="editingName"
+                            v-model="localState.name"
+                            hide-details
+                        >
+                        </VTextField>
+                        <VToolbarTitle v-else>
+                            <EditableTitle @click="editingName = true">{{ nameForDisplay }}</EditableTitle>
+                        </VToolbarTitle>
+                        <VSpacer></VSpacer>
+
+                    <VSubheader v-if="$vuetify.breakpoint.smAndUp">{{ statusMessage }}</VSubheader>
+
+
+                    <VMenu bottom left>
+                        <template v-slot:activator="{ on }">
+                            <VBtn icon v-on="on">
+                                <VIcon>mdi-dots-vertical</VIcon>
+                            </VBtn>
+                        </template>
+
+                        <VList>
+                            <VList-item @click="showDeleteConfimation = true">
+                                <VListItemTitle>Delete</VListItemTitle>
+                            </VList-item>
+                        </VList>
+                    </VMenu>
+                </VToolbar>
+
+                <VSheet class="mx-3">
+                    <Draggable
+                        :forceFallback="true"
+                        class="row"
+                        dragClass="workout-drag"
+                        ghostClass="workout-drop-placeholder"
+                        handle=".js-workout-drag-handle"
+                        v-model="orderedWorkouts">
+                        <VCol :key="workout.uuid" cols="12" lg="3" md="4" sm="6"
+                              v-for="(workout) in orderedWorkouts">
+                            <WorkoutCard :workoutUuid="workout.uuid"></WorkoutCard>
+                        </VCol>
+                        <VCol cols="12" lg="3" md="4" slot="footer" sm="6">
+                            <VBtn @click="addWorkoutToProgram(null)" draggable="false" width="100%">
+                                <VIcon left>mdi-plus</VIcon>
+                                Add workout
+                            </VBtn>
+                        </VCol>
+                    </Draggable>
+                </VSheet>
+            </template>
+        </div>
     </div>
 </template>
 
