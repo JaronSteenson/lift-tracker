@@ -17,17 +17,21 @@ function sortByPosition(a, b) {
     return a < b ? 1 : 0;
 }
 
-const state = {
-    uuid: null,
-    saveStatus: null,
-    updateSaveStatusTimeout: null,
-    name: '',
-    workoutProgramRoutines: [],
-    justAddedModelUuid: null,
-    hasMadeSignificantChangesFromNew: false,
-    createdAt: null,
-    updatedAt: null,
-};
+function defaultState() {
+    return {
+        uuid: null,
+        saveStatus: null,
+        updateSaveStatusTimeout: null,
+        name: '',
+        workoutProgramRoutines: [],
+        justAddedModelUuid: null,
+        hasMadeSignificantChangesFromNew: false,
+        createdAt: null,
+        updatedAt: null,
+    }
+}
+
+const state = defaultState();
 
 const workoutProgramFields = [
     'uuid',
@@ -69,7 +73,7 @@ const getters = {
         return state.uuid || // Has somehow forced a save or uuid assignment.
             state.name.trim() !== '' || // Has added a name.
             state.workoutProgramRoutines.length > 1 || // Has added a workout.
-            state.workoutProgramRoutines[0]?.name.trim() !== '' || // Has a name for the first routine.
+            state.workoutProgramRoutines[0]?.name || // Has a name for the first routine.
             state.workoutProgramRoutines[0]?.routineExercises.length > 0; // Has added an exercise to the first routine.
     },
 
@@ -150,19 +154,7 @@ const getters = {
 
 const actions = {
     startNew({ commit }) {
-        commit('reset', {
-            // We don't assign a uuid or save until the user does something (add a name, workout, or exercise).
-            uuid: null,
-            name: '',
-            workoutProgramRoutines: [
-                {
-                    uuid: UuidHelper.assign(),
-                    name: '',
-                    position: 0,
-                    routineExercises: [],
-                }
-            ],
-        });
+        commit('reset', { ...defaultState() });
     },
 
     updateName({ state, commit, dispatch }, name) {
@@ -284,12 +276,12 @@ const actions = {
     },
 
     save: debounce(async ({ state, commit, dispatch, getters }) => {
-        dispatch('startSaving');
-
         // Don't actually save anything until there is some decent changes.
         if (!getters.hasMadeSignificantChangesFromNew) {
             return;
         }
+
+        dispatch('startSaving');
 
         // We still don't have a top level uuid, but we have made some changes,
         // assign a uuid and actually save the program.
