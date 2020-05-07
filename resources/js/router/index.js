@@ -47,7 +47,7 @@ const routes = [
     },
     {
         name: 'newProgramBuilder',
-        path: '/program-builder/new',
+        path: '/program-builder',
         component: ProgramBuilderPage,
         props: true
     },

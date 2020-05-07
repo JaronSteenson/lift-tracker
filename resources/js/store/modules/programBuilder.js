@@ -331,12 +331,8 @@ const actions = {
     },
 
     async fetch({ commit, dispatch }, uuid) {
-        try {
-            const response = await WorkoutProgramService.get(uuid);
-            commit('reset', response.data);
-        } catch (e) {
-            // dispatch('tryRestoreFromLocalStorage')
-        }
+        const response = await WorkoutProgramService.get(uuid);
+        commit('reset', response.data);
     },
 
     tryRestoreFromLocalStorage({ commit, getters, dispatch }) {

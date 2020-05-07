@@ -89,16 +89,24 @@
             }
         },
         async created() {
-            if (this.workoutProgramUuid) {
-                this.loading = true;
-                await this.$store.dispatch('programBuilder/fetch', this.workoutProgramUuid)
-                this.resetLocalState();
-                this.loading = false;
+            if (!this.$route.params.workoutProgramUuid) {
+                return;
             }
+
+            this.loading = true;
+            try {
+                await this.$store.dispatch('programBuilder/fetch', this.workoutProgramUuid)
+            } catch (e) {
+                this.fetchError = true;
+            }
+
+            this.resetLocalState();
+            this.loading = false;
         },
         data() {
             return {
                 loading: false,
+                fetchError: false,
                 editingName: false,
                 localState: { name: this.$store.state.programBuilder.name },
             }
@@ -120,9 +128,9 @@
                 return !this.hasMadeSignificantChangesFromNew;
             },
             notFound() {
-                return !this.loading && !this.uuid;
+                return !this.loading && this.fetchError;
             },
-            ...mapState('programBuilder', ['uuid', 'updatedAt']),
+            ...mapState('programBuilder', ['updatedAt']),
             ...mapGetters('programBuilder', ['hasMadeSignificantChangesFromNew', 'savingStatusMessage']),
             orderedWorkouts: {
                 get() {
