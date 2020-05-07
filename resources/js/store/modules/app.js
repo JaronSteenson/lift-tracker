@@ -1,8 +1,11 @@
 import AppService from "../../api/AppService";
-import ClientSideId from "../../UuidHelper";
+
+const SLOW_BOOTSTRAP_LOAD_TIME = 1000;
 
 const state = {
     hasLoaded: false,
+    slowLoading: false,
+    slowLoadingTimeout: null,
     appName: null,
     authenticatedUser: null,
     csrfToken: null,
@@ -38,14 +41,29 @@ const getters = {
 };
 
 const actions = {
-    async fetchAppBootstrapData({state, commit}, id) {
+    async fetchAppBootstrapData({state, commit, dispatch}, id) {
+        dispatch('startSlowLoadingTimeout');
+
         const response = await AppService.getBootstrapData(id);
 
         const newState = { ...state, ...response.data, hasLoaded: true };
 
+        dispatch('clearSlowLoadingTimeout');
         commit('reset', newState);
 
         return response.data;
+    },
+
+    startSlowLoadingTimeout({ commit }) {
+        const slowLoadingTimeout = setTimeout(() => {
+            commit('reset', {slowLoading: true});
+        }, SLOW_BOOTSTRAP_LOAD_TIME)
+
+        commit('reset', { slowLoadingTimeout });
+    },
+
+    clearSlowLoadingTimeout({ state }) {
+        clearTimeout(state.slowLoadingTimeout);
     },
 
     setAfterLoginRoute({ commit }, to) {
@@ -81,11 +99,13 @@ const actions = {
 };
 
 const mutations = {
+
     reset(state, newState) {
         Object.keys(newState).forEach(key => {
             state[key] = newState[key]
         });
     },
+
     setAfterLoginRoute(state, to) {
         state.afterLoginRoute = to
     },

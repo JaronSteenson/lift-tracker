@@ -47,7 +47,7 @@
 
         <VContent>
             <RouterView v-if="hasLoaded"/>
-            <AppSplashScreen v-else/>
+            <AppSplashScreen v-else-if="slowLoading"/>
         </VContent>
     </v-app>
 </template>
@@ -69,6 +69,7 @@
         computed: {
             ...mapState('app', [
                 'hasLoaded',
+                'slowLoading',
                 'appName',
                 'authenticatedUser'
             ]),
