@@ -12,13 +12,6 @@
     import WorkoutProgramList from "../domain/WorkoutProgramList";
 
     export default {
-        name: 'HomePage',
         components: { WorkoutProgramList },
     }
 </script>
-
-<style>
-    .v-data-table__wrapper {
-        max-height: 80vh !important;
-    }
-</style>

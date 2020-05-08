@@ -1,5 +1,5 @@
 <template>
-    <VCard anim>
+    <VCard>
         <VToolbar
             color="primary"
             dark
@@ -14,58 +14,52 @@
         </VToolbar>
 
         <VSkeletonLoader class="ma-5" type="table-heading, table-row@3" v-if="loading"/>
-        <VSimpleTable fixed-header v-else>
-            <template>
-                <thead>
-                    <tr>
-                        <th v-if="$vuetify.breakpoint.mdAndUp" style="width: 40px"/>
-                        <th class="text-left">Program name</th>
-                        <th v-if="$vuetify.breakpoint.mdAndUp" class="text-right">Last edited</th>
-                        <th style="width: 40px"/>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr
-                        :key="program.uuid"
-                        v-for="program in workoutPrograms"
-                    >
-                        <td v-if="$vuetify.breakpoint.mdAndUp">
-                                <VIcon>mdi-table</VIcon>
-                        </td>
-
-                        <td>
-                            <RouterLink :to="{ name: 'programBuilder', params: { workoutProgramUuid: program.uuid } }">{{
-                                program.name }}
-                            </RouterLink>
-                        </td>
-
-                        <td v-if="$vuetify.breakpoint.mdAndUp" class="text-right">
-                            {{ program.updatedAt }}
-                        </td>
-
-                        <td>
-                            <VMenu bottom left>
-                                <template v-slot:activator="{ on }">
-                                    <VBtn icon v-on="on">
-                                        <VIcon>mdi-dots-vertical</VIcon>
-                                    </VBtn>
-                                </template>
-
-                                <VList>
-                                    <VListItem
-                                        :to="{ name: 'programBuilder', params: { workoutProgramUuid: program.uuid } }">
-                                        <VListItemTitle>Edit</VListItemTitle>
-                                    </VListItem>
-                                    <VListItem>
-                                        <VListItemTitle>Delete</VListItemTitle>
-                                    </VListItem>
-                                </VList>
-                            </VMenu>
-                        </td>
-                    </tr>
-                </tbody>
+        <VDataTable v-else :headers="headers" :items="workoutPrograms">
+            <template v-slot:item.icon="{ item: program }">
+                <VIcon>mdi-table</VIcon>
             </template>
-        </VSimpleTable>
+            <template v-slot:item.name="{ item: program }">
+                <RouterLink class="program-name" :to="{ name: 'programBuilder', params: { workoutProgramUuid: program.uuid } }">
+                    {{ program.name }}
+                </RouterLink>
+                <VMenu v-if="$vuetify.breakpoint.xsOnly" bottom left>
+                    <template v-slot:activator="{ on }">
+                        <VBtn icon v-on="on">
+                            <VIcon>mdi-dots-vertical</VIcon>
+                        </VBtn>
+                    </template>
+
+                    <VList>
+                        <VListItem
+                            :to="{ name: 'programBuilder', params: { workoutProgramUuid: program.uuid } }">
+                            <VListItemTitle>Edit</VListItemTitle>
+                        </VListItem>
+                        <VListItem>
+                            <VListItemTitle>Delete</VListItemTitle>
+                        </VListItem>
+                    </VList>
+                </VMenu>
+            </template>
+            <template v-if="$vuetify.breakpoint.smAndUp" v-slot:item.menu="{ item: program }">
+                <VMenu bottom left>
+                    <template v-slot:activator="{ on }">
+                        <VBtn icon v-on="on">
+                            <VIcon>mdi-dots-vertical</VIcon>
+                        </VBtn>
+                    </template>
+
+                    <VList>
+                        <VListItem
+                            :to="{ name: 'programBuilder', params: { workoutProgramUuid: program.uuid } }">
+                            <VListItemTitle>Edit</VListItemTitle>
+                        </VListItem>
+                        <VListItem>
+                            <VListItemTitle>Delete</VListItemTitle>
+                        </VListItem>
+                    </VList>
+                </VMenu>
+            </template>
+        </VDataTable>
     </VCard>
 
 </template>
@@ -74,7 +68,6 @@
     import WorkoutProgramService from '../../api/WorkoutProgramService';
 
     export default {
-        components: {},
         created() {
             this.fetchWorkoutPrograms();
         },
@@ -91,6 +84,42 @@
         computed: {
             hasNoWorkoutProgram() {
                 return this.workoutPrograms.length === 0;
+            },
+            headers() {
+                if (this.$vuetify.breakpoint.xsOnly) {
+                    return [
+                        {
+                            text: 'Name',
+                            value: 'name',
+                        },
+                        {
+                            text: 'Last edited',
+                            value: 'updatedAt',
+                        },
+                    ]
+                }
+
+                return [
+                    {
+                        sortable: false,
+                        value: 'icon',
+                        width: '40',
+                    },
+                    {
+                        text: 'Program name',
+                        value: 'name',
+                    },
+                    {
+                        text: 'Last edited',
+                        value: 'updatedAt',
+                        align: 'end',
+                    },
+                    {
+                        sortable: false,
+                        value: 'menu',
+                        width: '40',
+                    }
+                ];
             }
         },
         methods: {
@@ -104,3 +133,10 @@
         },
     }
 </script>
+
+<style lang="scss" scoped>
+    .program-name {
+        color: var(--v-primary-base);
+        font-size: 1.15em;
+    }
+</style>
