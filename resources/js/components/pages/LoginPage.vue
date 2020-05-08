@@ -26,6 +26,7 @@
                         >
                             <VTextField
                                 v-model.lazy="email"
+                                autofocus
                                 :rules="emailRules"
                                 label="Email"
                                 name="email"

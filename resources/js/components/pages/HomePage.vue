@@ -1,7 +1,7 @@
 <template>
     <VContainer fluid>
         <VRow>
-            <VCol cols="12" xl="3" lg="4" md="6" sm="12">
+            <VCol cols="12" xl="6" lg="6" md="12" sm="12">
                 <WorkoutProgramList></WorkoutProgramList>
             </VCol>
         </VRow>
@@ -16,3 +16,9 @@
         components: { WorkoutProgramList },
     }
 </script>
+
+<style>
+    .v-data-table__wrapper {
+        max-height: 80vh !important;
+    }
+</style>

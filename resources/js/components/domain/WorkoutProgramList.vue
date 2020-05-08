@@ -1,43 +1,71 @@
 <template>
     <VCard anim>
-        <v-toolbar
+        <VToolbar
             color="primary"
             dark
         >
-            <v-toolbar-title>Your workout programs</v-toolbar-title>
+            <VToolbarTitle>Your workout programs</VToolbarTitle>
 
-            <v-spacer></v-spacer>
+            <VSpacer/>
 
-            <v-btn icon :to="{ name: 'newProgramBuilder' }">
+            <VBtn :to="{ name: 'newProgramBuilder' }" icon>
                 <VIcon>mdi-plus</VIcon>
-            </v-btn>
-        </v-toolbar>
+            </VBtn>
+        </VToolbar>
 
-        <VList v-if="loading">
-            <VSkeletonLoader type="list-item-avatar-two-line@5" />
-        </VList>
-        <VList v-else>
-            <v-list-item
-                :key="program.uuid"
-                v-for="program in workoutPrograms"
-                :to="{ name: 'programBuilder', params: { workoutProgramUuid: program.uuid } }"
-            >
-                <VListItemAvatar>
-                    <VIcon>mdi-table</VIcon>
-                </VListItemAvatar>
+        <VSkeletonLoader class="ma-5" type="table-heading, table-row@3" v-if="loading"/>
+        <VSimpleTable fixed-header v-else>
+            <template>
+                <thead>
+                    <tr>
+                        <th v-if="$vuetify.breakpoint.mdAndUp" style="width: 40px"/>
+                        <th class="text-left">Program name</th>
+                        <th v-if="$vuetify.breakpoint.mdAndUp" class="text-right">Last edited</th>
+                        <th style="width: 40px"/>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr
+                        :key="program.uuid"
+                        v-for="program in workoutPrograms"
+                    >
+                        <td v-if="$vuetify.breakpoint.mdAndUp">
+                                <VIcon>mdi-table</VIcon>
+                        </td>
 
-                <v-list-item-content>
-                    <v-list-item-title>{{ program.name }}</v-list-item-title>
-                    <v-list-item-subtitle>Last edited {{ program.updatedAt }}</v-list-item-subtitle>
-                </v-list-item-content>
+                        <td>
+                            <RouterLink :to="{ name: 'programBuilder', params: { workoutProgramUuid: program.uuid } }">{{
+                                program.name }}
+                            </RouterLink>
+                        </td>
 
-                <v-list-item-action>
-                    <v-btn icon>
-                        <VIcon color="grey lighten-1">mdi-table-cog</VIcon>
-                    </v-btn>
-                </v-list-item-action>
-            </v-list-item>
-        </VList>
+                        <td v-if="$vuetify.breakpoint.mdAndUp" class="text-right">
+                            {{ program.updatedAt }}
+                        </td>
+
+                        <td>
+                            <VMenu bottom left>
+                                <template v-slot:activator="{ on }">
+                                    <VBtn icon v-on="on">
+                                        <VIcon>mdi-dots-vertical</VIcon>
+                                    </VBtn>
+                                </template>
+
+                                <VList>
+                                    <VListItem
+                                        :to="{ name: 'programBuilder', params: { workoutProgramUuid: program.uuid } }">
+                                        <VListItemTitle>Edit</VListItemTitle>
+                                    </VListItem>
+                                    <VListItem>
+                                        <VListItemTitle>Delete</VListItemTitle>
+                                    </VListItem>
+                                </VList>
+                            </VMenu>
+                        </td>
+                    </tr>
+                </tbody>
+            </template>
+        </VSimpleTable>
     </VCard>
 
 </template>
