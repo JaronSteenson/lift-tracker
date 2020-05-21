@@ -16,7 +16,7 @@
                 <template v-else>
                     <p>
                         Please select a routine for this workout.
-                        The program you are selecting from is <strong>{{ workoutProgram.name }}</strong>.
+                        You are selecting from your <strong>{{ workoutProgram.name }}</strong> program.
                     </p>
                     <v-radio-group v-model="routineSelection" column>
                         <v-radio v-for="{ uuid, name } in routines" :key="uuid" :label="name" :value="uuid"/>
