@@ -275,6 +275,15 @@ const actions = {
         dispatch('save')
     },
 
+    async delete({ state, dispatch }) {
+        try {
+            await WorkoutProgramService.delete(state.uuid);
+        } catch (error) {
+            console.error(error);
+            dispatch('finishSavingError');  // TODO it's own status.
+        }
+    },
+
     save: debounce(async ({ state, commit, dispatch, getters }) => {
         // Don't actually save anything until there is some decent changes.
         if (!getters.hasMadeSignificantChangesFromNew) {

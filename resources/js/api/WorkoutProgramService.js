@@ -16,6 +16,10 @@ const WorkoutProgramService = {
         return ApiService.save(RESOURCE_NAME, workoutProgram);
     },
 
+    delete(uuid) {
+        return ApiService.delete(RESOURCE_NAME, uuid);
+    }
+
 };
 
 export default WorkoutProgramService;

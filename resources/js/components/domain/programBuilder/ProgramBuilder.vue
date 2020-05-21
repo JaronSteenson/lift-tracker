@@ -34,7 +34,7 @@
                         </template>
 
                         <VList>
-                            <VList-item @click="showDeleteConfimation = true">
+                            <VList-item @click="showDeleteConfirmation">
                                 <VListItemTitle>Delete</VListItemTitle>
                             </VList-item>
                         </VList>
@@ -161,7 +161,15 @@
             }
         },
         methods: {
-            ...mapActions('programBuilder', ['addWorkoutToProgram']),
+            ...mapActions('programBuilder', ['addWorkoutToProgram', 'delete']),
+            async showDeleteConfirmation() {
+                const deleteConfirmed = window.confirm('Are you sure you want to permanently delete this program?');
+
+                if (deleteConfirmed) {
+                    await this.$store.dispatch('programBuilder/delete');
+                    await this.$router.replace({ name: 'home' });
+                }
+            },
             finishEditingName() {
                 this.editingName = false;
 
