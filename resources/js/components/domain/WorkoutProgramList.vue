@@ -34,8 +34,8 @@
                             :to="{ name: 'programBuilder', params: { workoutProgramUuid: program.uuid } }">
                             <VListItemTitle>Edit</VListItemTitle>
                         </VListItem>
-                        <VListItem>
-                            <VListItemTitle>Delete</VListItemTitle>
+                        <VListItem @click="showNewSessionModal(program.uuid)">
+                            <VListItemTitle>New session</VListItemTitle>
                         </VListItem>
                     </VList>
                 </VMenu>
@@ -53,21 +53,24 @@
                             :to="{ name: 'programBuilder', params: { workoutProgramUuid: program.uuid } }">
                             <VListItemTitle>Edit</VListItemTitle>
                         </VListItem>
-                        <VListItem>
-                            <VListItemTitle>Delete</VListItemTitle>
+                        <VListItem @click="showNewSessionModal(program.uuid)">
+                            <VListItemTitle>New session</VListItemTitle>
                         </VListItem>
                     </VList>
                 </VMenu>
             </template>
         </VDataTable>
-    </VCard>
 
+        <NewSessionModal :program-uuid.sync="newSessionModalProgramUuid"></NewSessionModal>
+    </VCard>
 </template>
 
 <script>
     import WorkoutProgramService from '../../api/WorkoutProgramService';
+    import NewSessionModal from "./workoutSessions/NewSessionModal";
 
     export default {
+        components: {NewSessionModal},
         created() {
             this.fetchWorkoutPrograms();
         },
@@ -79,6 +82,7 @@
             return {
                 workoutPrograms: [],
                 loading: true,
+                newSessionModalProgramUuid: null,
             }
         },
         computed: {
@@ -129,6 +133,9 @@
 
                 this.workoutPrograms = response.data;
                 this.loading = false;
+            },
+            showNewSessionModal(programUuid) {
+                this.newSessionModalProgramUuid = programUuid;
             }
         },
     }
