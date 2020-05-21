@@ -16,8 +16,9 @@ use LiftTracker\Traits\HasUuidTrait;
  * @see Exercise
  *
  * @mixin Builder
- * @property string id Is a UUID
- * @property string workoutProgramRoutineId Is a UUID
+ * @property string id
+ * @property string uuid
+ * @property string workoutProgramRoutineId
  * @property string name
  * @property string normalDay
  * @property Carbon createdAt
@@ -25,6 +26,7 @@ use LiftTracker\Traits\HasUuidTrait;
  * @property int numberOfSets
  * @property int weight in kg
  * @property int restPeriod in seconds
+ * @property int position
  *
  */
 class RoutineExercise extends AbstractModel

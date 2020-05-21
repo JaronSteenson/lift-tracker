@@ -18,12 +18,12 @@ export default new Vuetify({
         },
         themes: {
             light: {
-                primary: '#4d51d5',
+                primary: colors.blue,
                 accent: colors.white,
                 anchor: colors.grey.darken4,
                 secondary: undefined,
                 info: undefined,
-                warning: colors.orange,
+                warning: colors.deepOrange,
                 error: colors.red.lighten2,
                 success: undefined,
             },

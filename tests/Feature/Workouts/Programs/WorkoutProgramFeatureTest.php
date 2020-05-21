@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Support\Str;
 use LiftTracker\Domain\Workouts\Programs\RoutineExercise;
@@ -185,7 +186,6 @@ class WorkoutProgramFeatureTest extends TestCase
 
         $request->assertJson($savedProgram->toArray());
 
-        /** @var RoutineExerciseCollection $routineExercises */
         $savedExercise = $savedProgram->workoutProgramRoutines->first()
             ->routineExercises()->first();
 
@@ -193,16 +193,16 @@ class WorkoutProgramFeatureTest extends TestCase
         static::assertThat($savedExercise->numberOfSets, static::equalTo(100));
 
         // Now swap out the push ups with sit ups.
-        /** @var RoutineExerciseCollection $routineExercises */
+
         $savedProgram->workoutProgramRoutines->first()
-            ->setRoutineExercises(new RoutineExerciseCollection([new RoutineExercise([
+            ->setRoutineExercises(new Collection([new RoutineExercise([
                 'name' => 'Sit ups',
                 'numberOfSets' => 50,
                 'position' => 2,
             ])]));
 
         $exerciseSwapRequest = $this->actingAs($user)
-            ->put(route('workout-programs.update', $savedProgram->id), $savedProgram->toArray())
+            ->put(route('workout-programs.update', $savedProgram->uuid), $savedProgram->toArray())
             ->assertStatus(200);
 
         /** @var WorkoutProgram $withSwappedExercises */
@@ -216,6 +216,80 @@ class WorkoutProgramFeatureTest extends TestCase
 
         static::assertThat($swappedExercise->name, static::equalTo('Sit ups'));
         static::assertThat($swappedExercise->numberOfSets, static::equalTo(50));
+    }
+
+    public function testExercisesCanMoveBetweenWorkouts(): void
+    {
+        $data = [
+            'name' => 'Program 1',
+            'workoutProgramRoutines' => [
+                [
+                    'name' => 'Day one',
+                    'normalDay' => 'Monday',
+                    'position' => 0,
+                    'routineExercises' => [
+                        [
+                            'name' => 'Push ups',
+                            'numberOfSets' => 100,
+                            'position' => 0,
+                        ]
+                    ]
+                ],
+                [
+                    'name' => 'Day two',
+                    'normalDay' => 'Tuesday',
+                    'position' => 1,
+                    'routineExercises' => [
+                        [
+                            'name' => 'Sit ups',
+                            'numberOfSets' => 100,
+                            'position' => 0,
+                        ]
+                    ]
+                ]
+            ]
+        ];
+
+        /** @var User $user */
+        $user = factory(User::class)->create();
+
+        $request = $this->actingAs($user)
+            ->post(route('workout-programs.store'), $data)
+            ->assertStatus(201);
+
+        /** @var WorkoutProgram $savedProgram */
+        $savedProgram = $user->findWorkoutPrograms()->first();
+
+        $request->assertJson($savedProgram->toArray());
+
+        // Remove pushups.
+        /** @var RoutineExercise $pushups */
+        $pushups = $savedProgram->workoutProgramRoutines[0]->routineExercises->pop();
+        $pushups->position = 1;
+
+        static::assertThat($pushups->name, static::equalTo('Push ups'));
+        static::assertThat($pushups->numberOfSets, static::equalTo(100));
+
+        // Move them to the second workout.
+        $savedProgram->workoutProgramRoutines[1]->routineExercises->push($pushups);
+
+        $exerciseSwapRequest = $this->actingAs($user)
+            ->put(route('workout-programs.update', $savedProgram->uuid), $savedProgram->toArray())
+            ->assertStatus(200);
+
+        /** @var WorkoutProgram $withPushupsMovedWorkouts */
+        $withPushupsMovedWorkouts = $user->findWorkoutPrograms()->first();
+
+        $exerciseSwapRequest->assertJson($withPushupsMovedWorkouts->toArray());
+
+
+        static::assertEmpty($withPushupsMovedWorkouts->workoutProgramRoutines[0]->routineExercises->toArray());
+
+        $dayTwo = $withPushupsMovedWorkouts->workoutProgramRoutines[1];
+
+        static::assertThat($dayTwo->routineExercises[0]->name, static::equalTo('Sit ups'));
+        static::assertThat($dayTwo->routineExercises[1]->name, static::equalTo('Push ups'));
+        static::assertThat($dayTwo->routineExercises[1]->uuid, static::equalTo($pushups->uuid));
     }
 
     public function testWorkoutProgramsCanBeSwappedInAndOut(): void
@@ -255,7 +329,7 @@ class WorkoutProgramFeatureTest extends TestCase
         ];
 
         $this->actingAs($user)
-            ->put(route('workout-programs.update', $savedProgram->id), $withSwappedRoutine)
+            ->put(route('workout-programs.update', $savedProgram->uuid), $withSwappedRoutine)
             ->assertStatus(200);
 
         /** @var RoutineExercise $exercise */
@@ -293,7 +367,7 @@ class WorkoutProgramFeatureTest extends TestCase
         $usersProgram->save();
 
         $this->actingAs($user)
-            ->put(route('workout-programs.update', $usersProgram->id), $usersProgram->toArray())
+            ->put(route('workout-programs.update', $usersProgram->uuid), $usersProgram->toArray())
             ->assertStatus(200)
             ->assertJson($usersProgram->toArray());
     }
@@ -308,7 +382,7 @@ class WorkoutProgramFeatureTest extends TestCase
         $otherUsersProgram->save();
 
         $this->actingAs($user)
-            ->put(route('workout-programs.update', $otherUsersProgram->id), $otherUsersProgram->toArray())
+            ->put(route('workout-programs.update', $otherUsersProgram->uuid), $otherUsersProgram->toArray())
             ->assertStatus(403);
     }
 
@@ -321,7 +395,7 @@ class WorkoutProgramFeatureTest extends TestCase
         $usersProgram->save();
 
         $this->actingAs($user)
-            ->delete(route('workout-programs.destroy', $usersProgram->id))
+            ->delete(route('workout-programs.destroy', $usersProgram->uuid))
             ->assertStatus(200);
     }
 
@@ -335,7 +409,7 @@ class WorkoutProgramFeatureTest extends TestCase
         $otherUsersProgram->save();
 
         $this->actingAs($user)
-            ->delete(route('workout-programs.destroy', $otherUsersProgram->id))
+            ->delete(route('workout-programs.destroy', $otherUsersProgram->uuid))
             ->assertStatus(403);
     }
 

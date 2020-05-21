@@ -3,6 +3,7 @@
 namespace LiftTracker\Tests\Unit\Domain\Workouts\Programs;
 
 use Exception;
+use Illuminate\Support\Collection;
 use LiftTracker\Domain\Workouts\Programs\RoutineExercise;
 use LiftTracker\Domain\Workouts\Programs\RoutineExerciseCollection;
 use LiftTracker\Domain\Workouts\Programs\WorkoutProgramRoutine;
@@ -47,7 +48,7 @@ class WorkoutProgramRoutineTest extends TestCase
             'position' => 0,
         ]);
 
-        $exercises = new RoutineExerciseCollection([new RoutineExercise(['name' => 'push ups', 'position' => 0])]);
+        $exercises = new Collection([new RoutineExercise(['name' => 'push ups', 'position' => 0])]);
 
         $routine->setRoutineExercises($exercises)->saveWithExercises();
 

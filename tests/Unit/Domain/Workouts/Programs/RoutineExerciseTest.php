@@ -54,7 +54,7 @@ class RoutineExerciseTest extends TestCase
     /**
      * @throws Exception
      */
-    public function testMultipleRoutineExercisesSameIdCannotBeSaved(): void
+    public function testMultipleRoutineExercisesSameUuidCannotBeSaved(): void
     {
         $exerciseOne = new RoutineExercise([
             'name' => 'exercise one',
@@ -62,7 +62,8 @@ class RoutineExerciseTest extends TestCase
             'position' => 0,
         ]);
 
-        $exerciseOne->workoutProgramRoutineId = '123e4567-e89b-12d3-a456-426655440000';
+        $exerciseOne->uuid = '123e4567-e89b-12d3-a456-426655440000';
+        $exerciseOne->workoutProgramRoutineId = null;
         $exerciseOne->save();
 
         $exerciseTwo = new RoutineExercise([
@@ -70,8 +71,8 @@ class RoutineExerciseTest extends TestCase
             'numberOfSets' => 0,
             'position' => 1,
         ]);
-        $exerciseTwo->id = $exerciseOne->id;
-        $exerciseTwo->workoutProgramRoutineId = '123e4567-e89b-12d3-a456-000000000000';
+        $exerciseTwo->uuid = $exerciseOne->uuid;
+        $exerciseTwo->workoutProgramRoutineId = null;
 
         $this->expectException(QueryException::class);
         $exerciseTwo->save();
