@@ -4,7 +4,14 @@
         <div v-else>
             <NotFound v-if="notFound">Sorry we couldn't find that routine.</NotFound>
             <template v-else>
-                <WorkoutCard :workoutUuid="originRoutineUuid" is-session-overview class="mb-10"></WorkoutCard>
+                <VContainer v-if="$vuetify.breakpoint.mdAndUp" fill-height>
+                    <VRow justify="center" align="center">
+                        <VCol cols="12" md="6">
+                            <WorkoutCard :workoutUuid="originRoutineUuid" is-session-overview class="mb-10"></WorkoutCard>
+                        </VCol>
+                    </VRow>
+                </VContainer>
+                <WorkoutCard v-else :workoutUuid="originRoutineUuid" is-session-overview class="mb-10"></WorkoutCard>
             </template>
         </div>
     </div>
