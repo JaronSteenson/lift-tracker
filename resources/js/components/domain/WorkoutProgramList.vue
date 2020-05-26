@@ -143,7 +143,7 @@
 
 <style lang="scss" scoped>
     .program-name {
-        color: var(--v-primary-base);
+        color: var(--v-anchor-base);
         font-size: 1.15em;
     }
 </style>
