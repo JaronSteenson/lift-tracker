@@ -20,6 +20,11 @@ trait CanBeOwnedByUserTrait
         return $this->userId === $user->id;
     }
 
+    public function isNotOwnedBy(User $user): bool
+    {
+        return !$this->userOwnsThis($user);
+    }
+
     /**
      * Get the user that owns the workout program, null if it is a community owned.
      */

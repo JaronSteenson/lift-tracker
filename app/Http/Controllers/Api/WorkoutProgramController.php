@@ -13,6 +13,7 @@ use LiftTracker\Http\Controllers\Controller;
 use LiftTracker\Http\Requests\BuilderMoveExerciseRequest;
 use LiftTracker\Http\Requests\WorkoutProgramRequest;
 use LiftTracker\User;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class WorkoutProgramController extends Controller
 {
@@ -21,10 +22,14 @@ class WorkoutProgramController extends Controller
      * Display a listing of the resource.
      *
      * @param WorkoutProgramRequest $request
-     * @return Collection|WorkoutPRogram[]
+     * @return Collection|WorkoutPRogram[]|WorkoutProgram
      */
-    public function index(WorkoutProgramRequest $request): Collection
+    public function index(WorkoutProgramRequest $request)
     {
+        if ($request->has('routine-uuid')) {
+            return $this->byRoutine($request);
+        }
+
         /** @var User $loggedInUser */
         $loggedInUser = $request->user();
 
@@ -44,6 +49,23 @@ class WorkoutProgramController extends Controller
     public function show(WorkoutProgramRequest $request): WorkoutProgram
     {
         return $request->getModelOr404();
+    }
+
+    /**
+     * Display by routine uuid look up.
+     *
+     * @param WorkoutProgramRequest $request
+     * @return WorkoutProgram
+     */
+    public function byRoutine(WorkoutProgramRequest $request): WorkoutProgram
+    {
+        $foundByRoutine = (new WorkoutProgram())->findByRoutine($request->get('routine-uuid'));
+
+        if ($foundByRoutine === null || $foundByRoutine->isNotOwnedBy($request->user())) {
+            throw new NotFoundHttpException();
+        }
+
+        return $foundByRoutine;
     }
 
     /**

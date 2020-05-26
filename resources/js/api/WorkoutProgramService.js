@@ -8,6 +8,10 @@ const WorkoutProgramService = {
         return ApiService.get(RESOURCE_NAME, uuid)
     },
 
+    getByRoutine(routineUuid) {
+        return ApiService.get(`${RESOURCE_NAME}?routine-uuid=${routineUuid}`)
+    },
+
     getAll() {
         return ApiService.get(RESOURCE_NAME)
     },

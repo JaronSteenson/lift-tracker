@@ -1,5 +1,5 @@
 <template>
-    <SessionOverview :originProgramUuid="originProgramUuid" :originRoutineUuid="originRoutineUuid"></SessionOverview>
+    <SessionOverview :originRoutineUuid="originRoutineUuid"></SessionOverview>
 </template>
 
 <script>
@@ -10,10 +10,6 @@
             SessionOverview
         },
         props: {
-            originProgramUuid: {
-                type: String,
-                required: true,
-            },
             originRoutineUuid: {
                 type: String,
                 required: true,

@@ -28,6 +28,7 @@ function defaultState() {
         hasMadeSignificantChangesFromNew: false,
         createdAt: null,
         updatedAt: null,
+        delayedSavingToServer: false,
     }
 }
 
@@ -300,6 +301,10 @@ const actions = {
 
         dispatch('saveToLocalStorage');
 
+        if (state.delayedSavingToServer) {
+            return;
+        }
+
         try {
             const response = await WorkoutProgramService.save(getters.savePayload);
             commit('patchInSaveResponse', response.data);
@@ -334,6 +339,11 @@ const actions = {
     async fetch({ commit, dispatch }, uuid) {
         const response = await WorkoutProgramService.get(uuid);
         commit('reset', response.data);
+    },
+
+    async prepareForSessionOverview({ commit, dispatch }, routineUuid) {
+        const response = await WorkoutProgramService.getByRoutine(routineUuid);
+        commit('reset', { ...response.data, ...{ delayedSavingToServer: true } });
     },
 
     tryRestoreFromLocalStorage({ commit, getters, dispatch }) {

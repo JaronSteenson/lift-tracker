@@ -1,39 +1,46 @@
 <template>
-    <VCard elevation="5" class="js-workout-drag-handle workout-builder-card" width="100%">
-        <VCardTitle>
+    <component :elevation="useInlineMobileView ? 0 : 5"
+               :is="useInlineMobileView ? 'div' : 'VCard'"
+               class="js-workout-drag-handle workout-builder-card"
+               max-width="960"
+               width="100%"
+    >
+        <VToolbar :flat="!isSessionOverview">
             <VTextField
-                v-if="isEditingTitle"
-                v-model="localState.name"
                 :autofocus="isEditingTitle"
-                label="Workout name"
+                :hide-details="isSessionOverview"
+                :label="isSessionOverview ? null : 'Workout name'"
+                :single-line="isSessionOverview"
                 @blur="finishEditingTitle"
                 @keydown.enter="finishEditingTitle"
                 @keydown.esc="abortEditingTitle"
+                v-if="isEditingTitle"
+                v-model="localState.name"
             >
                 <template v-slot:append-outer>
-                    <VBtn icon @click="abortEditingTitle" ref="abortEditingTitleButton">
+                    <VBtn @click="abortEditingTitle" icon ref="abortEditingTitleButton">
                         <VIcon>mdi-close</VIcon>
                     </VBtn>
                 </template>
             </VTextField>
             <VTextField
-                v-else-if="isAddingNew"
-                v-model="localState.name"
                 :autofocus="isAddingNew"
-                label="Workout name"
                 @blur="finishAddingNew"
                 @keydown.enter="finishAddingNew"
                 @keydown.esc="abortAddingNew"
+                label="Workout name"
+                v-else-if="isAddingNew"
+                v-model="localState.name"
             >
                 <template v-slot:append-outer>
-                    <VBtn icon @click="abortAddingNew" ref="abortAddNewButton">
+                    <VBtn @click="abortAddingNew" icon ref="abortAddNewButton">
                         <VIcon>mdi-close</VIcon>
                     </VBtn>
                 </template>
             </VTextField>
-            <EditableTitle v-else @click="editTitle">{{ nameDisplay }}</EditableTitle>
+            <EditableTitle @click="editTitle" v-else>{{ nameDisplay }}</EditableTitle>
 
-            <v-menu v-if="!isAddingNew && !isEditingTitle" bottom left>
+            <v-menu bottom left v-if="!isSessionOverview && !isAddingNew && !isEditingTitle">
                 <template v-slot:activator="{ on }">
                     <VBtn icon v-on="on">
                         <VIcon>mdi-dots-vertical</VIcon>
@@ -46,10 +53,9 @@
                     </v-list-item>
                 </v-list>
             </v-menu>
-        </VCardTitle>
-
-        <VRow class="mt-0">
-            <VCol>
+        </VToolbar>
+        <component :is="isSessionOverview ? 'div' : 'VRow'" class="mt-0">
+            <component :is="isSessionOverview ? 'div' : 'VCol'">
                 <Draggable :forceFallback="true"
                            :group="{ name: 'exercises', pull: true, put: true }"
                            dragClass="elevation-24"
@@ -59,14 +65,13 @@
                         <ExerciseCard :exercise-uuid="exercise.uuid" :key="exercise.uuid" ref="exercise-cards"/>
                     </template>
                 </Draggable>
-            </VCol>
-        </VRow>
-
+            </component>
+        </component>
         <VBtn @click="addExercise" width="100%">
             <VIcon left>mdi-plus</VIcon>
             Add exercise
         </VBtn>
-    </VCard>
+    </component>
 </template>
 
 <script>
@@ -84,14 +89,15 @@
             return {
                 isAddingNew: false,
                 isEditingTitle: false,
-                localState: { ...this.$store.getters['programBuilder/getWorkout'](this.workoutUuid) },
+                localState: {...this.$store.getters['programBuilder/getWorkout'](this.workoutUuid)},
             }
         },
         props: {
             workoutUuid: {
                 type: String,
                 required: true,
-            }
+            },
+            isSessionOverview: Boolean,
         },
         mounted() {
             if (this.$store.getters['programBuilder/isJustAddedModelUuid'](this.workoutUuid)) {
@@ -107,7 +113,7 @@
                     return this.$store.getters['programBuilder/getWorkout'](this.workoutUuid);
                 },
                 set(newState) {
-                    this.$store.dispatch('programBuilder/updateWorkout', { uuid: this.workoutUuid, ...newState });
+                    this.$store.dispatch('programBuilder/updateWorkout', {uuid: this.workoutUuid, ...newState});
                 }
             },
             nameDisplay() {
@@ -123,6 +129,9 @@
                         newOrderedExercises
                     });
                 }
+            },
+            useInlineMobileView() {
+                return this.isSessionOverview && this.$vuetify.breakpoint.smAndDown;
             }
         },
         methods: {
@@ -157,10 +166,10 @@
                 this.deleteWorkout();
             },
             addExercise() {
-                this.$store.dispatch('programBuilder/addExerciseToWorkout', { workoutUuid: this.workoutUuid });
+                this.$store.dispatch('programBuilder/addExerciseToWorkout', {workoutUuid: this.workoutUuid});
             },
             deleteWorkout() {
-                this.$store.dispatch('programBuilder/deleteWorkout', { workoutUuid: this.workoutUuid });
+                this.$store.dispatch('programBuilder/deleteWorkout', {workoutUuid: this.workoutUuid});
             },
         }
     }
@@ -178,6 +187,8 @@
     }
 
     @keyframes blink {
-        50% { border-color: var(--v-warning-base); }
+        50% {
+            border-color: var(--v-warning-base);
+        }
     }
 </style>

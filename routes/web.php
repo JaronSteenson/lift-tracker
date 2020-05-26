@@ -37,7 +37,11 @@ Route::get('api/app', 'Api\AppController@index');
  * Program builder endpoints.
  * @see \LiftTracker\Http\Controllers\Api\WorkoutProgramController
  */
-Route::apiResource('api/workout-programs', 'Api\WorkoutProgramController')->middleware('auth');
+Route::apiResource('api/workout-programs', 'Api\WorkoutProgramController')
+    ->middleware('auth');
+
+//Route::get('api/workout-program/by-routine/', 'Api\WorkoutProgramController@byRoutine')
+//    ->middleware('auth');
 
 /**
  *  Catch all route.

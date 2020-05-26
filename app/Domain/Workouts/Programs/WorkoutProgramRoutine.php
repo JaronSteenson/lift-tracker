@@ -18,6 +18,7 @@ use LiftTracker\User;
  * @property string id Is a UUID
  * @property string workoutProgramId Is a UUID
  * @property string name
+ * @property WorkoutProgram workoutProgram
  * @property string normalDay
  * @property Carbon createdAt
  * @property Carbon updatedAt

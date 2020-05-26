@@ -85,7 +85,6 @@
             async start() {
                 try {
                     this.starting = true;
-                    await this.$store.dispatch('programBuilder/fetch', this.workoutProgramUuid)
                     await this.$router.push({ name: 'newSessionOverview', params: { originRoutineUuid: this.routineSelection } });
                     this.starting = false;
                 } catch (e) {

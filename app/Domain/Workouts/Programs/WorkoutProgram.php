@@ -82,6 +82,18 @@ class WorkoutProgram extends AbstractModel implements UserOwnershipInterface
         return $workoutProgram;
     }
 
+    public function findByRoutine(string $routineUuid): ?self
+    {
+        /** @var WorkoutProgramRoutine $routine */
+        $routine = (new WorkoutProgramRoutine())->findByUUid($routineUuid);
+
+        if ($routine === null) {
+            return null;
+        }
+
+        return $routine->workoutProgram;
+    }
+
     public function saveWithChildren(): self
     {
         return DB::transaction(function() {
