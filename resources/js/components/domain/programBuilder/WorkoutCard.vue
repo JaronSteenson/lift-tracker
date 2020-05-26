@@ -53,24 +53,46 @@
                     </v-list-item>
                 </v-list>
             </v-menu>
+            <v-menu bottom left v-if="isSessionOverview">
+                <template v-slot:activator="{ on }">
+                    <VBtn icon v-on="on">
+                        <VIcon>mdi-dots-vertical</VIcon>
+                    </VBtn>
+                </template>
+
+                <v-list>
+                    <v-list-item @click="addExercise">
+                        <v-list-item-title>Add exercise</v-list-item-title>
+                    </v-list-item>
+                </v-list>
+            </v-menu>
         </VToolbar>
-        <component :is="isSessionOverview ? 'div' : 'VRow'" class="mt-0">
-            <component :is="isSessionOverview ? 'div' : 'VCol'">
-                <Draggable :forceFallback="true"
-                           :group="{ name: 'exercises', pull: true, put: true }"
-                           dragClass="elevation-24"
-                           ghostClass="drop-placeholder-exercise"
-                           handle=".js-exercise-drag-handle" v-model="orderedExercises">
-                    <template v-for="(exercise) in orderedExercises">
-                        <ExerciseCard :exercise-uuid="exercise.uuid" :key="exercise.uuid" ref="exercise-cards"/>
-                    </template>
-                </Draggable>
+
+            <VSubheader v-if="isSessionOverview">Today's session overview</VSubheader>
+
+            <component :is="isSessionOverview ? 'div' : 'VRow'" class="mt-0">
+                <component :is="isSessionOverview ? 'div' : 'VCol'">
+                    <Draggable :forceFallback="true"
+                               :group="{ name: 'exercises', pull: true, put: true }"
+                               dragClass="elevation-24"
+                               ghostClass="drop-placeholder-exercise"
+                               handle=".js-exercise-drag-handle" v-model="orderedExercises">
+                        <template v-for="(exercise) in orderedExercises">
+                            <ExerciseCard :exercise-uuid="exercise.uuid" :key="exercise.uuid" ref="exercise-cards"/>
+                        </template>
+                    </Draggable>
+                </component>
             </component>
-        </component>
-        <VBtn @click="addExercise" width="100%">
-            <VIcon left>mdi-plus</VIcon>
-            Add exercise
-        </VBtn>
+        <VCardActions class="justify-center" width="100%">
+                <VBtn v-if="isSessionOverview" :loading="starting" @click="startWorkout" color="success" x-large width="80%" class="my-5">
+                    <VIcon left>mdi-clock-start</VIcon>
+                    Start workout
+                </VBtn>
+                <VBtn v-else @click="addExercise" width="100%">
+                    <VIcon left>mdi-plus</VIcon>
+                    Add exercise
+                </VBtn>
+        </VcardActions>
     </component>
 </template>
 
@@ -90,6 +112,7 @@
                 isAddingNew: false,
                 isEditingTitle: false,
                 localState: {...this.$store.getters['programBuilder/getWorkout'](this.workoutUuid)},
+                starting: false,
             }
         },
         props: {
@@ -166,11 +189,17 @@
                 this.deleteWorkout();
             },
             addExercise() {
-                this.$store.dispatch('programBuilder/addExerciseToWorkout', {workoutUuid: this.workoutUuid});
+                this.$store.dispatch('programBuilder/addExerciseToWorkout', { workoutUuid: this.workoutUuid });
             },
             deleteWorkout() {
-                this.$store.dispatch('programBuilder/deleteWorkout', {workoutUuid: this.workoutUuid});
+                this.$store.dispatch('programBuilder/deleteWorkout', { workoutUuid: this.workoutUuid });
             },
+            async startWorkout() {
+                this.starting = true;
+                await this.$store.dispatch('programBuilder/saveChangesFormSessionSetup', { workoutUuid: this.workoutUuid });
+                //TODO jaron  await this.$store.dispatch('workoutSession/startNew', { originWorkoutUuid: this.workoutUuid });
+                this.starting = false;
+            }
         }
     }
 </script>

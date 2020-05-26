@@ -25,7 +25,7 @@ export default new Vuetify({
                 info: undefined,
                 warning: colors.deepOrange,
                 error: colors.red.lighten2,
-                success: undefined,
+                success: '#4caf50',
             },
         },
     }

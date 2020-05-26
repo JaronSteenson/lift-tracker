@@ -346,6 +346,11 @@ const actions = {
         commit('reset', { ...response.data, ...{ delayedSavingToServer: true } });
     },
 
+    async saveChangesFormSessionSetup({ commit }) {
+        commit('reset', { delayedSavingToServer: false });
+        return await WorkoutProgramService.save(getters.savePayload);
+    },
+
     tryRestoreFromLocalStorage({ commit, getters, dispatch }) {
         const stateFromLocalStorage = getters.fromLocalStorage;
 
