@@ -1,11 +1,11 @@
 <template>
-    <v-dialog :value="programUuid" scrollable max-width="300px" @input="updateDialogValue">
-        <v-card>
-            <v-card-title>
+    <VDialog :value="programUuid" :persistent="starting" scrollable max-width="300px" @input="updateDialogValue">
+        <VCard>
+            <VCardTitle>
                 New workout session
-            </v-card-title>
-            <v-divider></v-divider>
-            <v-card-text>
+            </VCardTitle>
+            <VDivider></VDivider>
+            <VCardText>
                 <template v-if="loading">
                     <VSkeletonLoader type="text@4" class="mt-1"></VSkeletonLoader>
 
@@ -18,31 +18,33 @@
                         Please select a routine for this workout.
                         You are selecting from your <strong>{{ workoutProgram.name }}</strong> program.
                     </p>
-                    <v-radio-group v-model="routineSelection" column>
-                        <v-radio v-for="{ uuid, name } in routines" :key="uuid" :label="name" :value="uuid"/>
-                    </v-radio-group>
+                    <VRadioGroup v-model="routineSelection" :disabled="starting" column>
+                        <VRadio v-for="{ uuid, name } in routines" :key="uuid" :label="name" :value="uuid"/>
+                    </VRadioGroup>
                 </template>
-            </v-card-text>
-            <v-divider></v-divider>
-            <v-card-actions>
-                <v-btn
+            </VCardText>
+            <VDivider/>
+            <VCardActions>
+                <VBtn
                     color="red"
                     text
+                    :disabled="starting"
                     @click="cancel"
                 >
                     Cancel
-                </v-btn>
+                </VBtn>
                 <VSpacer/>
-                <v-btn
+                <VBtn
                     color="green"
                     text :disabled="routineSelection === null"
-                    @click="cancel"
+                    :loading="starting"
+                    @click="start"
                  >
                     Choose
-                </v-btn>
-            </v-card-actions>
-        </v-card>
-    </v-dialog>
+                </VBtn>
+            </VCardActions>
+        </VCard>
+    </VDialog>
 </template>
 
 <script>
@@ -56,7 +58,9 @@
             return {
                 routineSelection: null,
                 loading: true,
+                starting: false,
                 workoutProgram: null,
+                fetchError: null,
             }
         },
         watch: {
@@ -78,6 +82,16 @@
             }
         },
         methods: {
+            async start() {
+                try {
+                    this.starting = true;
+                    await this.$store.dispatch('programBuilder/fetch', this.workoutProgramUuid)
+                    await this.$router.push({ name: 'newSessionOverview', params: { originRoutineUuid: this.routineSelection } });
+                    this.starting = false;
+                } catch (e) {
+                    this.fetchError = true;
+                }
+            },
             updateDialogValue(value) {
                 if (value === false) {
                     this.cancel();

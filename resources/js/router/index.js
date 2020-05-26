@@ -2,6 +2,8 @@ import Vue from 'vue'
 import HomePage from "../components/pages/HomePage";
 import LoginPage from "../components/pages/LoginPage";
 import ProgramBuilderPage from "../components/pages/ProgramBuilderPage";
+import NewSessionOverviewPage from "../components/pages/NewSessionOverviewPage";
+import SessionOverviewPage from "../components/pages/SessionOverviewPage";
 import NotFoundPage from "../components/pages/NotFoundPage";
 import VueRouter from "vue-router";
 import store from './../store';
@@ -55,6 +57,18 @@ const routes = [
         name: 'programBuilder',
         path: '/program-builder/:workoutProgramUuid',
         component: ProgramBuilderPage,
+        props: true
+    },
+    {
+        name: 'newSessionOverview',
+        path: '/new-session-overview/:originRoutineUuid',
+        component: NewSessionOverviewPage,
+        props: true
+    },
+    {
+        name: 'sessionOverview',
+        path: '/new-session-overview/:workoutSessionUuid',
+        component: SessionOverviewPage,
         props: true
     },
     {
