@@ -196,8 +196,22 @@
             },
             async startWorkout() {
                 this.starting = true;
-                await this.$store.dispatch('programBuilder/finalizeChangesFormSessionSetup', { workoutUuid: this.workoutUuid });
+
+                // Save updates to the master workout routine.
+                await this.$store.dispatch('programBuilder/saveChangesFormSessionSetup', { workoutUuid: this.workoutUuid });
+
+                // Create a new workout session from the updated master routine.
                 await this.$store.dispatch('workoutSession/startWorkout', { originWorkoutUuid: this.workoutUuid });
+
+                // Replace history with the in progress over view, so that back button takes you there instead of
+                // the set up screen for a new session.
+                const workoutSessionUuid = this.$store.getters['workoutSession/uuid'];
+                await this.$router.replace({ name: 'sessionOverview', params: { workoutSessionUuid }});
+
+                const firstSet = this.$store.getters['workoutSession/firstSet']
+
+                // Finally go to the first set in the workout.
+                await this.$router.push({ name: 'setOverview', params: { workoutSessionUuid: firstSet.uuid }});
                 this.starting = false;
             }
         }

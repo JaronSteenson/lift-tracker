@@ -346,12 +346,8 @@ const actions = {
         commit('reset', { ...response.data, ...{ delayedSavingToServer: true } });
     },
 
-    async finalizeChangesFormSessionSetup({ commit }) {
-        const response = await WorkoutProgramService.save(getters.savePayload);
-
-        commit('reset', defaultState());
-
-        return response;
+    async saveChangesFormSessionSetup({ getters }) {
+        return await WorkoutProgramService.save(getters.savePayload);
     },
 
     tryRestoreFromLocalStorage({ commit, getters, dispatch }) {

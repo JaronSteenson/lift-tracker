@@ -7,6 +7,7 @@ import SessionOverviewPage from "../components/pages/SessionOverviewPage";
 import NotFoundPage from "../components/pages/NotFoundPage";
 import VueRouter from "vue-router";
 import store from './../store';
+import SetOverviewPage from "../components/pages/SetOverviewPage";
 
 Vue.use(VueRouter);
 
@@ -67,8 +68,14 @@ const routes = [
     },
     {
         name: 'sessionOverview',
-        path: '/new-session-overview/:workoutSessionUuid',
+        path: '/session-overview/:workoutSessionUuid',
         component: SessionOverviewPage,
+        props: true
+    },
+    {
+        name: 'setOverview',
+        path: '/set-overview/:sessionSetUuid',
+        component: SetOverviewPage,
         props: true
     },
     {

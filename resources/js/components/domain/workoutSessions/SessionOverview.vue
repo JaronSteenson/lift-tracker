@@ -55,7 +55,7 @@
             notFound() {
                 return !this.loading && this.fetchError;
             },
-        }
+        },
     }
 </script>
 

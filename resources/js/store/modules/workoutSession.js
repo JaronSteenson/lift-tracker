@@ -6,7 +6,7 @@ function defaultState() {
     return {
         originRoutineUuid: null,
         name: '',
-        routineExercises: null,
+        sessionExercises: null,
         saveStatus: null,
         updateSaveStatusTimeout: null,
         justAddedModelUuid: null,
@@ -18,6 +18,16 @@ function defaultState() {
 const state = defaultState();
 
 const getters = {
+
+    uuid(state) {
+        debugger
+        return state.uuid;
+    },
+
+    firstSet(state) {
+        debugger
+        return state.sessionExercises[0].sessionSets[0]
+    }
 
 };
 
@@ -37,6 +47,11 @@ const actions = {
 
 const mutations = {
 
+    reset(state, newState) {
+        Object.keys(newState).forEach(key => {
+            state[key] = newState[key]
+        });
+    },
 
 };
 

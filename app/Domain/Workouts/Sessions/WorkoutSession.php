@@ -64,7 +64,7 @@ class WorkoutSession extends AbstractModel
         'startedAt',
         'endedAt',
         'notes',
-        'sessionExercises'
+        'sessionExercises',
     ];
 
     protected $casts = [
@@ -74,7 +74,6 @@ class WorkoutSession extends AbstractModel
 
     protected $with = [
         'sessionExercises',
-        'sessionExercises.sessionSets',
     ];
 
     public static function createFromRoutine(WorkoutProgramRoutine $originRoutine, string $userId): self
@@ -95,7 +94,7 @@ class WorkoutSession extends AbstractModel
                 }
             );
 
-            return $workoutSession;
+            return $workoutSession->fresh();
         });
     }
 

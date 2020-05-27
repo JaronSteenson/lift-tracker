@@ -68,6 +68,10 @@ class SessionExercise extends AbstractModel
         'sessionSets',
     ];
 
+    protected $with = [
+        'sessionSets',
+    ];
+
     protected $casts = [
         'plannedReps' => 'integer',
         'plannedWeight' => 'integer',
@@ -98,7 +102,7 @@ class SessionExercise extends AbstractModel
                 $sessionSet->save();
             }
 
-            return $sessionExercise;
+            return $sessionExercise->fresh();
         });
     }
 
