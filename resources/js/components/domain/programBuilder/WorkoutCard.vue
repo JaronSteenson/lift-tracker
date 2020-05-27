@@ -208,10 +208,9 @@
                 const workoutSessionUuid = this.$store.getters['workoutSession/uuid'];
                 await this.$router.replace({ name: 'sessionOverview', params: { workoutSessionUuid }});
 
-                const firstSet = this.$store.getters['workoutSession/firstSet']
-
                 // Finally go to the first set in the workout.
-                await this.$router.push({ name: 'setOverview', params: { workoutSessionUuid: firstSet.uuid }});
+                const firstSet = this.$store.getters['workoutSession/firstSet'];
+                await this.$router.push({ name: 'setOverview', params: { sessionSetUuid: firstSet.uuid }});
                 this.starting = false;
             }
         }

@@ -68,8 +68,8 @@ class WorkoutSession extends AbstractModel
     ];
 
     protected $casts = [
-        'startedAt' => 'date',
-        'endedAt' => 'date',
+        'startedAt' => 'datetime',
+        'endedAt' => 'datetime',
     ];
 
     protected $with = [

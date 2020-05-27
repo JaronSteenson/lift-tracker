@@ -1,6 +1,10 @@
 <template>
     <div>
-        <VToolbar :flat="!isSessionOverview">
+        <VToolbar :flat="$vuetify.breakpoint.smAndDown">
+            <VToolbarTitle>{{ workoutName }}</VToolbarTitle>
+
+            <VSpacer/>
+
             <VMenu bottom left>
                 <template v-slot:activator="{ on }">
                     <VBtn icon v-on="on">
@@ -9,8 +13,8 @@
                 </template>
 
                 <VList>
-                    <VListItem @click="addExercise">
-                        <VListItemTitle>End workout early</VListItemTitle>
+                    <VListItem @click="skipSet">
+                        <VListItemTitle>Skip set</VListItemTitle>
                     </VListItem>
                 </VList>
             </VMenu>
@@ -19,6 +23,8 @@
 </template>
 
 <script>
+    import {mapGetters} from "vuex";
+
     export default {
         components: {
 
@@ -33,6 +39,14 @@
             return {
             }
         },
+        computed: {
+            ...mapGetters('workoutSession', ['workoutName'])
+        },
+        methods: {
+            skipSet() {
+
+            }
+        }
     }
 </script>
 

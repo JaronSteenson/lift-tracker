@@ -72,8 +72,8 @@ class SessionSet extends AbstractModel
         'reps' => 'integer',
         'weight' => 'integer',
         'restPeriodDuration' => 'integer',
-        'restPeriodStartedAt' => 'date',
-        'restPeriodEndedAt' => 'date',
+        'restPeriodStartedAt' => 'datetime',
+        'restPeriodEndedAt' => 'datetime',
         'position' => 'integer',
     ];
 

@@ -1,5 +1,6 @@
 <template>
-    <SessionOverview :workoutSessionUuid="workoutSessionUuid"></SessionOverview>
+<!--    <SessionOverview :workoutSessionUuid="workoutSessionUuid"></SessionOverview>-->
+    <h1>Will be an existing/past session overview uuid: {{workoutSessionUuid}}</h1>
 </template>
 
 <script>
