@@ -123,7 +123,7 @@ class SessionExercise extends AbstractModel
 
     public function sessionSets(): HasMany
     {
-        return $this->hasMany(SessionSet::class, 'SessionExerciseId');
+        return $this->hasMany(SessionSet::class, 'sessionExerciseId');
     }
 
 }
