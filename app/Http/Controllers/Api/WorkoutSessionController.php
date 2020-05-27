@@ -10,9 +10,8 @@ use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use LiftTracker\Domain\Workouts\Programs\WorkoutProgram;
 use LiftTracker\Domain\Workouts\Programs\WorkoutProgramRoutine;
-use LiftTracker\Domain\Workouts\Programs\WorkoutSession;
+use LiftTracker\Domain\Workouts\Sessions\WorkoutSession;
 use LiftTracker\Http\Controllers\Controller;
-use LiftTracker\Http\Requests\ApiRequest;
 use LiftTracker\Http\Requests\WorkoutSessionRequest;
 use LiftTracker\User;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
@@ -24,31 +23,26 @@ class WorkoutSessionController extends Controller
      * Display a listing of the resource.
      *
      * @param WorkoutSessionRequest $request
-     * @return Collection|WorkoutPRogram[]|WorkoutProgram
+     * @return Collection|WorkoutProgram[]|WorkoutProgram
      */
-    public function index(WorkoutSessionRequest $request)
+    public function index(WorkoutSessionRequest $request): Collection
     {
-//        if ($request->has('routine-uuid')) {
-//            return $this->byRoutine($request);
-//        }
-//
-//        /** @var User $loggedInUser */
-//        $loggedInUser = $request->user();
-//
-//        return $loggedInUser->workoutPrograms()
-//            ->without('workoutProgramRoutines')
-//            ->orderBy('name')
-//            ->orderBy('createdAt', 'desc')
-//            ->get();
+        /** @var User $loggedInUser */
+        $loggedInUser = $request->user();
+
+        return $loggedInUser->workoutSessions()
+            ->without('sessionExercises', 'sessionExercises.sessionSets')
+            ->orderBy('createdAt', 'asc')
+            ->get();
     }
 
     /**
      * Display the specified resource.
      *
      * @param WorkoutSessionRequest $request
-     * @return WorkoutProgram|Model
+     * @return WorkoutSession|Model
      */
-    public function show(WorkoutSessionRequest $request): WorkoutProgram
+    public function show(WorkoutSessionRequest $request): WorkoutSession
     {
         return $request->getModelOr404();
     }
@@ -56,29 +50,31 @@ class WorkoutSessionController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param ApiRequest $request
-     * @return WorkoutProgram
+     * @param WorkoutSessionRequest $request
+     * @return WorkoutSession
      */
-    public function store(WorkoutSessionRequest $request)
+    public function store(WorkoutSessionRequest $request): WorkoutSession
     {
         if (!$request->has('origin-workout-uuid')) {
             throw new BadRequestHttpException('origin-workout-uuid must be supplied');
         }
 
+        /** @var WorkoutProgramRoutine $originRoutine */
         $originRoutine = (new WorkoutProgramRoutine())->findByUuid($request->get('origin-workout-uuid'));
 
+        // Only supporting doing your own workout for now.
         if ($originRoutine === null || $originRoutine->workoutProgram->isNotOwnedBy($request->user())) {
             throw new BadRequestHttpException('Origin workout not found');
         }
 
-        return WorkoutSession::createFromRoutine($originRoutine);
+        return WorkoutSession::createFromRoutine($originRoutine, $request->user()->id)->refresh();
     }
 
     /**
      * Update the specified resource in storage.
      *
      * @param WorkoutSessionRequest $request
-     * @return WorkoutProgram
+     * @return WorkoutSession
      */
     public function update(WorkoutSessionRequest $request)
     {
@@ -87,10 +83,10 @@ class WorkoutSessionController extends Controller
 
     private function saveFromRequest(WorkoutSessionRequest $request): WorkoutSession
     {
-        $workoutProgram = WorkoutSession::createFromRequest($request);
+        $workoutSession = WorkoutSession::createFromRequest($request);
 
         // Ensure partial payloads return the full response.
-        return $workoutProgram->refresh();
+        return $workoutSession->refresh();
     }
 
 

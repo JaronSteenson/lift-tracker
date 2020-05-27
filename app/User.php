@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use LiftTracker\Domain\Workouts\Programs\WorkoutProgram;
+use LiftTracker\Domain\Workouts\Sessions\WorkoutSession;
 
 /**
  * Class User
@@ -44,6 +45,11 @@ class User extends Authenticatable
     public function workoutPrograms(): HasMany
     {
         return $this->hasMany(WorkoutProgram::class, 'userId');
+    }
+
+    public function workoutSessions(): HasMany
+    {
+        return $this->hasMany(WorkoutSession::class, 'userId');
     }
 
     public function findWorkoutPrograms(): Collection

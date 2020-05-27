@@ -7,6 +7,7 @@ use Illuminate\Support\Collection;
 use LiftTracker\Domain\Workouts\Programs\RoutineExercise;
 use LiftTracker\Domain\Workouts\Programs\WorkoutProgram;
 use LiftTracker\Domain\Workouts\Programs\WorkoutProgramRoutine;
+use LiftTracker\Domain\Workouts\Sessions\WorkoutSession;
 use LiftTracker\Rules\DayOfTheWeek;
 use LiftTracker\Rules\UniquePositions;
 use LiftTracker\Rules\Uuid;
