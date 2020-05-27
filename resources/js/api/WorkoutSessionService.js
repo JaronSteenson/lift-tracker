@@ -1,8 +1,12 @@
 import ApiService from './ApiService';
 
-const RESOURCE_NAME = 'workout-session';
+const RESOURCE_NAME = 'workout-sessions';
 
 const WorkoutProgramService = {
+
+    startNew(originWorkoutUuid) {
+          return ApiService.post(`${RESOURCE_NAME}?origin-workout-uuid=${originWorkoutUuid}`)
+    },
 
     get(uuid) {
         return ApiService.get(RESOURCE_NAME, uuid)

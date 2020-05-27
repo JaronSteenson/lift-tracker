@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use LiftTracker\Domain\AbstractModel;
+use LiftTracker\Domain\Users\CanBeOwnedByUserTrait;
 use LiftTracker\Domain\Users\UserOwnershipInterface;
 use LiftTracker\Traits\HasUuidTrait;
 use LiftTracker\User;
@@ -28,6 +29,7 @@ use LiftTracker\User;
 class WorkoutProgramRoutine extends AbstractModel implements UserOwnershipInterface
 {
     use HasUuidTrait;
+    use CanBeOwnedByUserTrait;
 
     /**
      * The attributes that are mass assignable.

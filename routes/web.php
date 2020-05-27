@@ -32,7 +32,6 @@ Route::post('api/logout', 'Auth\LoginController@logout');
  */
 Route::get('api/app', 'Api\AppController@index');
 
-
 /**
  * Program builder endpoints.
  * @see \LiftTracker\Http\Controllers\Api\WorkoutProgramController
@@ -40,8 +39,12 @@ Route::get('api/app', 'Api\AppController@index');
 Route::apiResource('api/workout-programs', 'Api\WorkoutProgramController')
     ->middleware('auth');
 
-//Route::get('api/workout-program/by-routine/', 'Api\WorkoutProgramController@byRoutine')
-//    ->middleware('auth');
+/**
+ * Workout session endpoints.
+ * @see \LiftTracker\Http\Controllers\Api\WorkoutSessionController
+ */
+Route::apiResource('api/workout-sessions', 'Api\WorkoutSessionController')
+    ->middleware('auth');
 
 /**
  *  Catch all route.

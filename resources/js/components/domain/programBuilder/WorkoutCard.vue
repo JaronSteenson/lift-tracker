@@ -196,8 +196,8 @@
             },
             async startWorkout() {
                 this.starting = true;
-                await this.$store.dispatch('programBuilder/saveChangesFormSessionSetup', { workoutUuid: this.workoutUuid });
-                //TODO jaron  await this.$store.dispatch('workoutSession/startNew', { originWorkoutUuid: this.workoutUuid });
+                await this.$store.dispatch('programBuilder/finalizeChangesFormSessionSetup', { workoutUuid: this.workoutUuid });
+                await this.$store.dispatch('workoutSession/startWorkout', { originWorkoutUuid: this.workoutUuid });
                 this.starting = false;
             }
         }

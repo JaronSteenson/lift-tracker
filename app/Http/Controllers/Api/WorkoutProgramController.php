@@ -10,7 +10,6 @@ use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use LiftTracker\Domain\Workouts\Programs\WorkoutProgram;
 use LiftTracker\Http\Controllers\Controller;
-use LiftTracker\Http\Requests\BuilderMoveExerciseRequest;
 use LiftTracker\Http\Requests\WorkoutProgramRequest;
 use LiftTracker\User;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
