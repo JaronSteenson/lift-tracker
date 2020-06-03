@@ -61,8 +61,6 @@ class SessionSet extends AbstractModel
      */
     protected $visible = [
         'uuid',
-        'sessionExerciseId',
-        'routineExerciseId',
         'reps',
         'weight',
         'restPeriodDuration',

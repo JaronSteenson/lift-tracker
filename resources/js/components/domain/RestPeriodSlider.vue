@@ -2,6 +2,7 @@
     <div>
         <VMessages v-if="$vuetify.breakpoint.xsOnly" :value="['Rest period (mins)']"/>
         <VSlider
+            :disabled="disabled"
             :label="$vuetify.breakpoint.smAndUp ? 'Rest period (mins)' : null"
             :max="5 * 60"
             :min="0"
@@ -26,7 +27,11 @@
             value: {
                 type: Number,
                 required: false,
-            }
+            },
+            disabled: {
+                type: Boolean,
+                required: false,
+            },
         },
     }
 </script>

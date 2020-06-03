@@ -65,7 +65,7 @@
                 </VRow>
                 <VRow>
                     <VCol class="pt-0" cols="12" md="12" sm="12" xs="6">
-                        <RestPeriodSlider v-model="restPeriod"/>
+                        <RestPeriodSlider v-model="restPeriod" :disabled="isDuringRestPeriod"/>
                     </VCol>
                 </VRow>
                 <VRow class="pt-0 mt-0">
@@ -85,11 +85,25 @@
                 </VRow>
             </VContainer>
 
+            <RestPeriodTimer v-if="isDuringRestPeriod" :session-set-uuid="sessionSetUuid""/>
+
             <VCardActions class="justify-center" width="100%">
-                <VBtn @click="startRestPeriod" color="primary" x-large width="80%">
-                    <VIcon left>mdi-clock-start</VIcon>
-                    Start rest period
-                </VBtn>
+                <template v-if="isDuringRestPeriod">
+                    <VBtn @click="endRestPeriod" color="warning" small>
+                        <VIcon left>mdi-stop</VIcon>
+                        End rest period
+                    </VBtn>
+                    <VBtn @click="startRestPeriod" color="success" small>
+                        <VIcon left>mdi-skip-forward</VIcon>
+                        Skip rest period
+                    </VBtn>
+                </template>
+                <template v-else>
+                    <VBtn @click="startRestPeriod" color="primary" x-large width="80%">
+                        <VIcon left>mdi-clock-start</VIcon>
+                        Start rest period
+                    </VBtn>
+                </template>
             </VcardActions>
         </VCardText>
     </component>
@@ -98,19 +112,18 @@
 <script>
     import {mapGetters} from "vuex";
     import RestPeriodSlider from "../RestPeriodSlider";
+    import RestPeriodTimer from "../RestPeriodTimer";
 
     export default {
         components: {
-            RestPeriodSlider
+            RestPeriodSlider,
+            RestPeriodTimer,
         },
         props: {
             sessionSetUuid: {
                 type: String,
                 required: true,
             },
-        },
-        data() {
-            return {}
         },
         computed: {
             ...mapGetters('workoutSession', ['workoutName']),
@@ -119,6 +132,9 @@
             },
             exercise() {
                 return this.$store.getters['workoutSession/exerciseBySet'](this.sessionSetUuid);
+            },
+            isDuringRestPeriod() {
+                return this.$store.getters['workoutSession/isDuringRestPeriod'](this.sessionSetUuid);
             },
             isLastSet(set) {
                 return this.$store.getters['workoutSession/isLastSet'](set);
@@ -173,7 +189,14 @@
 
             },
             startRestPeriod() {
-
+                this.$store.dispatch('workoutSession/startRestPeriod', {
+                    uuid: this.sessionSetUuid,
+                })
+            },
+            endRestPeriod() {
+                this.$store.dispatch('workoutSession/endRestPeriod', {
+                    uuid: this.sessionSetUuid,
+                })
             },
         }
     }

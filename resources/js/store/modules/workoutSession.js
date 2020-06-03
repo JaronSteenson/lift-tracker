@@ -11,7 +11,27 @@ function defaultState() {
             name: '',
             sessionExercises: null,
         },
+        updateRestPeriodTimer: null,
     }
+}
+
+function utcNow() {
+    const date = new Date();
+
+    let realMonth = date.getUTCMonth() + 1;
+    if (realMonth < 10) {
+        realMonth = `0${realMonth}`;
+    }
+
+    let realDay = date.getUTCDay()
+    if (realDay < 10) {
+        realDay = `0${realDay}`;
+    }
+
+    const utcDate = `${date.getUTCFullYear()}-${realMonth}-${realDay}`;
+    const utcTime = `${date.getUTCHours()}:${date.getUTCMinutes()}:${date.getUTCSeconds()}`;
+
+    return `${utcDate} ${utcTime}`;
 }
 
 const state = defaultState();
@@ -90,6 +110,38 @@ const getters = {
         return null;
     },
 
+    isDuringRestPeriod: (state, getters) => (uuid) => {
+        const set = getters.set(uuid);
+
+        return set.restPeriodStartedAt !== null && set.restPeriodEndedAt === null;
+    },
+
+    restPeriodTimeRemaining: (state, getters) => (uuid) => {
+        if (!getters.isDuringRestPeriod(uuid)) {
+            return null;
+        }
+
+        // In seconds.
+        const expectedDuration = getters.restPeriodForCurrentSet(uuid);
+
+        const minutesToAdd = Math.floor(expectedDuration / 60);
+        const secondsToAdd =  expectedDuration - minutesToAdd * 60;
+
+        let startTime = new Date(getters.set(uuid).restPeriodStartedAt);
+
+        const finishTimeMinutes = minutesToAdd + startTime.getMinutes();
+        const finishTimeSeconds = secondsToAdd + startTime.getSeconds();
+
+        let finishTime = new Date(getters.set(uuid).restPeriodStartedAt);
+        finishTime.setMinutes(finishTimeMinutes)
+        finishTime.setSeconds(finishTimeSeconds)
+
+        const now = Math.round((new Date(utcNow()).getTime()) / 1000);
+        const finishInSeconds = Math.round((finishTime).getTime() / 1000);
+
+        return finishInSeconds - now;
+    },
+
 };
 
 const actions = {
@@ -118,9 +170,28 @@ const actions = {
         dispatch('saveExercise', uuid);
     },
 
+    startRestPeriod({ commit, dispatch  }, { uuid }) {
+        const restPeriodStartedAt = utcNow();
+
+        commit('updateSet', { uuid, restPeriodStartedAt, restPeriodEndedAt: null });
+
+        dispatch('saveSet', uuid);
+    },
+
+    endRestPeriod({ commit, dispatch  }, { uuid }) {
+        const restPeriodEndedAt = utcNow();
+
+        // TODO set duration
+
+        commit('updateSet', { uuid, restPeriodEndedAt });
+
+        dispatch('saveSet', uuid);
+    },
+
     saveSet: debounce(async ({ commit, getters }, uuid) => {
         try {
             const response = await WorkoutSessionService.saveSet(getters.set(uuid));
+
             commit('updateSet', response.data);
         } catch (error) {
             console.error(error);
