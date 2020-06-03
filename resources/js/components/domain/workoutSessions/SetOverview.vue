@@ -61,7 +61,12 @@
                         <RestPeriodSlider v-model="restPeriod"/>
                     </VCol>
                 </VRow>
-                <VRow>
+                <VRow class="pt-0 mt-0">
+                    <VCol class="pt-0 mt-0" cols="12">
+                        <a href="#">Last weeks summary of this exercise</a>
+                    </VCol>
+                </VRow>
+                 <VRow>
                     <VCol class="pt-0" cols="12">
                         <VTextarea
                             v-model="exerciseNotes"
