@@ -62,7 +62,6 @@ const getters = {
     },
 
     restPeriodForCurrentSet: (state, getters) => (uuid) => {
-        debugger;
         const actualSet = getters.set(uuid);
 
         if (actualSet.restPeriodDuration !== null) {
@@ -74,16 +73,34 @@ const getters = {
         return exercise.plannedRestPeriodDuration;
     },
 
+    repsForCurrentSet: (state, getters) => (uuid) => {
+        const actualSet = getters.set(uuid);
+
+        if (actualSet.reps !== null) {
+            return actualSet.reps;
+        }
+
+        return null;
+    },
+
 };
 
 const actions = {
 
-    updateSetWeight({ commit, getters }, { uuid, weight }) {
+    updateSetWeight({ commit }, { uuid, weight }) {
         commit('updateSet', { uuid, weight });
     },
 
-    updateSetRestPeriodDuration({ commit, getters }, { uuid, restPeriodDuration }) {
+    updateSetRestPeriodDuration({ commit }, { uuid, restPeriodDuration }) {
         commit('updateSet', { uuid, restPeriodDuration });
+    },
+
+    updateSetReps({ commit }, { uuid, reps }) {
+        commit('updateSet', { uuid, reps });
+    },
+
+    updateExerciseNotes({ commit }, { uuid, notes }) {
+        commit('updateExercise', { uuid, notes });
     },
 
     async fetch({ commit, dispatch }, uuid) {
@@ -121,7 +138,15 @@ const mutations = {
         Object.keys(newSetState).forEach(key => {
             set[key] = newSetState[key]
         });
-    }
+    },
+
+    updateExercise(state, newExerciseState) {
+        const exercise = UuidHelper.findIn(state.workoutSession.sessionExercises, newExerciseState.uuid);
+
+        Object.keys(newExerciseState).forEach(key => {
+            exercise[key] = newExerciseState[key]
+        });
+    },
 
 };
 

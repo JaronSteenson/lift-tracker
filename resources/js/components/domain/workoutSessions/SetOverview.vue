@@ -44,8 +44,8 @@
             </VStepperHeader>
         </VStepper>
 
-        <VCardText class="pt-0">
-            <VContainer class="pt-0">
+        <VCardText class="py-0">
+            <VContainer class="py-0">
                 <VRow>
                     <VCol class="pt-0" cols="6" md="6" sm="6">
                         <VTextField
@@ -136,12 +136,12 @@
             },
             reps: {
                 get() {
-                    return this.$store.getters['workoutSession/weightForCurrentSet'](this.sessionSetUuid);
+                    return this.$store.getters['workoutSession/repsForCurrentSet'](this.sessionSetUuid);
                 },
-                set(weight) {
-                    this.$store.dispatch('workoutSession/updateSetWeight', {
+                set(reps) {
+                    this.$store.dispatch('workoutSession/updateSetReps', {
                         uuid: this.sessionSetUuid,
-                        weight
+                        reps
                     })
                 },
             },
@@ -157,12 +157,15 @@
                 },
             },
             exerciseNotes: {
-                set() {
+                get() {
                     return this.exercise.notes;
                 },
-                get() {
-
-                }
+                set(notes) {
+                    this.$store.dispatch('workoutSession/updateExerciseNotes', {
+                        uuid: this.exercise.uuid,
+                        notes
+                    })
+                },
             },
         },
         methods: {
