@@ -48,7 +48,8 @@ class AddTheWorkoutSessionTables extends Migration
             $table->unsignedInteger('workoutSessionId');
             $table->foreign('workoutSessionId')
                 ->references('id')
-                ->on('WorkoutSessions');
+                ->on('WorkoutSessions')
+                ->onDelete('cascade');
 
             $table->unsignedInteger('routineExerciseId')->nullable()->index();
 
@@ -71,7 +72,8 @@ class AddTheWorkoutSessionTables extends Migration
             $table->unsignedInteger('sessionExerciseId');
             $table->foreign('sessionExerciseId')
                 ->references('id')
-                ->on('SessionExercises');
+                ->on('SessionExercises')
+                ->onDelete('cascade');
 
             $table->unsignedInteger('reps')->nullable();
             $table->unsignedInteger('weight')->nullable();
