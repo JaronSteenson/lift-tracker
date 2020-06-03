@@ -1,7 +1,5 @@
 import WorkoutSessionService from '../../api/WorkoutSessionService'
 import UuidHelper from '../../UuidHelper'
-import { debounce, pick } from 'lodash';
-import WorkoutProgramService from "../../api/WorkoutProgramService";
 
 function defaultState() {
     return {
@@ -35,6 +33,20 @@ const getters = {
         }
 
         return false;
+    },
+
+    set: (state, getters) => (uuid) => {
+        const exercise = getters.exerciseBySet(uuid);
+
+        return UuidHelper.findIn(exercise.sessionSets, uuid);
+    },
+
+    exerciseBySet: (state) => (uuid) => {
+        const exercises = state.workoutSession.sessionExercises;
+
+        return exercises.find(exercise => {
+            return UuidHelper.arrayIncludes(exercise.sessionSets, uuid);
+        });
     },
 
 };

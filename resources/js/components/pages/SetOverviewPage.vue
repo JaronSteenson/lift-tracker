@@ -7,11 +7,11 @@
                 <VContainer fill-height v-if="$vuetify.breakpoint.mdAndUp">
                     <VRow align="center" justify="center">
                         <VCol cols="12" md="6">
-                            <SetOverview :sessionSetUuid="sessionSetUuid"></SetOverview>
+                            <SetOverview :sessionSetUuid="sessionSetUuid"/>
                         </VCol>
                     </VRow>
                 </VContainer>
-                <SetOverview :sessionSetUuid="sessionSetUuid"></SetOverview>
+                <SetOverview v-else :sessionSetUuid="sessionSetUuid"/>
             </template>
         </div>
     </div>
