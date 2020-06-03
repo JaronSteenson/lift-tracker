@@ -47,6 +47,20 @@ Route::apiResource('api/workout-sessions', 'Api\WorkoutSessionController')
     ->middleware('auth');
 
 /**
+ * Workout session exercise endpoints.
+ * @see \LiftTracker\Http\Controllers\Api\SessionExerciseController
+ */
+Route::apiResource('api/sessions-exercises', 'Api\SessionExerciseController')
+    ->middleware('auth');
+
+/**
+ * Workout session exercise endpoints.
+ * @see \LiftTracker\Http\Controllers\Api\SessionSetController
+ */
+Route::apiResource('api/sessions-sets', 'Api\SessionSetController')
+    ->middleware('auth');
+
+/**
  *  Catch all route.
  * @see \LiftTracker\Http\Controllers\VueAppController
  */

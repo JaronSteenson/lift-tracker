@@ -69,6 +69,8 @@ class SessionSet extends AbstractModel
         'restPeriodStartedAt',
         'restPeriodEndedAt',
         'position',
+        'createdAt',
+        'updatedAt',
     ];
 
     protected $casts = [

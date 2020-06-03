@@ -1,5 +1,8 @@
 import WorkoutSessionService from '../../api/WorkoutSessionService'
 import UuidHelper from '../../UuidHelper'
+import {debounce} from "lodash";
+
+const SAVE_DEBOUNCE_WAIT = 1000;
 
 function defaultState() {
     return {
@@ -49,6 +52,10 @@ const getters = {
         });
     },
 
+    exercise: (state) => (uuid) => {
+        return UuidHelper.findIn(state.workoutSession.sessionExercises, uuid);
+    },
+
     weightForCurrentSet: (state, getters) => (uuid) => {
         const actualSet = getters.set(uuid);
 
@@ -87,21 +94,49 @@ const getters = {
 
 const actions = {
 
-    updateSetWeight({ commit }, { uuid, weight }) {
+    updateSetWeight({ commit, dispatch }, { uuid, weight }) {
         commit('updateSet', { uuid, weight });
+
+        dispatch('saveSet', uuid);
     },
 
-    updateSetRestPeriodDuration({ commit }, { uuid, restPeriodDuration }) {
+    updateSetRestPeriodDuration({ commit, dispatch  }, { uuid, restPeriodDuration }) {
         commit('updateSet', { uuid, restPeriodDuration });
+
+        dispatch('saveSet', uuid);
     },
 
-    updateSetReps({ commit }, { uuid, reps }) {
+    updateSetReps({ commit, dispatch  }, { uuid, reps }) {
         commit('updateSet', { uuid, reps });
+
+        dispatch('saveSet', uuid);
     },
 
-    updateExerciseNotes({ commit }, { uuid, notes }) {
+    updateExerciseNotes({ commit, dispatch  }, { uuid, notes }) {
         commit('updateExercise', { uuid, notes });
+
+        dispatch('saveExercise', uuid);
     },
+
+    saveSet: debounce(async ({ commit, getters }, uuid) => {
+        try {
+            const response = await WorkoutSessionService.saveSet(getters.set(uuid));
+            commit('updateSet', response.data);
+        } catch (error) {
+            console.error(error);
+        }
+
+    }, SAVE_DEBOUNCE_WAIT),
+
+    saveExercise: debounce(async ({ commit, getters }, uuid) => {
+        try {
+            const response = await WorkoutSessionService.saveExercise(getters.exercise(uuid));
+            commit('updateExercise', response.data);
+        } catch (error) {
+            console.error(error);
+        }
+
+    }, SAVE_DEBOUNCE_WAIT),
 
     async fetch({ commit, dispatch }, uuid) {
         const response = await WorkoutSessionService.get(uuid);

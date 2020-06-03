@@ -12,7 +12,6 @@ use LiftTracker\Domain\Workouts\Programs\WorkoutProgram;
 use LiftTracker\Domain\Workouts\Programs\WorkoutProgramRoutine;
 use LiftTracker\Domain\Workouts\Sessions\WorkoutSession;
 use LiftTracker\Http\Controllers\Controller;
-use LiftTracker\Http\Requests\WorkoutProgramRequest;
 use LiftTracker\Http\Requests\WorkoutSessionRequest;
 use LiftTracker\User;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;

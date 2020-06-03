@@ -68,6 +68,8 @@ class SessionExercise extends AbstractModel
         'notes',
         'position',
         'sessionSets',
+        'createdAt',
+        'updatedAt',
     ];
 
     protected $with = [
