@@ -26,14 +26,14 @@
         </VToolbar>
 
         <VStepper
-            :vertical="false"
             :value="set.position + 1"
+            :vertical="false"
         >
             <VStepperHeader>
                 <template v-for="(otherSet) in exercise.sessionSets">
                     <VStepperStep
-                        :key="otherSet.uuid"
                         :complete="otherSet.position < set.position"
+                        :key="otherSet.uuid"
                         :step="otherSet.position + 1"
                     >
                         Set {{ otherSet.position + 1 }}
@@ -49,23 +49,23 @@
                 <VRow>
                     <VCol class="pt-0" cols="6" md="6" sm="6">
                         <VTextField
-                            v-model="weight"
                             autofocus
                             label="Weight (kg)"
                             type="number"
+                            v-model="weight"
                         />
                     </VCol>
                     <VCol class="pt-0" cols="6" md="6" sm="6">
                         <VTextField
-                            v-model="reps"
                             label="Reps"
                             type="number"
+                            v-model="reps"
                         />
                     </VCol>
                 </VRow>
                 <VRow>
                     <VCol class="pt-0" cols="12" md="12" sm="12" xs="6">
-                        <RestPeriodSlider v-model="restPeriod" :disabled="isDuringRestPeriod"/>
+                        <RestPeriodSlider :disabled="isDuringRestPeriod" v-model="restPeriod"/>
                     </VCol>
                 </VRow>
                 <VRow class="pt-0 mt-0">
@@ -73,33 +73,52 @@
                         <a href="#">Last weeks summary of this exercise</a>
                     </VCol>
                 </VRow>
-                 <VRow>
+                <VRow>
                     <VCol class="pt-0" cols="12">
                         <VTextarea
-                            v-model="exerciseNotes"
+                            auto-grow
                             filled
                             label="Notes"
-                            auto-grow
+                            v-model="exerciseNotes"
                         />
+                    </VCol>
+                </VRow>
+                <VRow justify="space-between" v-if="isDuringRestPeriod">
+                    <VCol class="pt-0" cols="6">
+                        <RestPeriodTimer
+                            :session-set-uuid="sessionSetUuid"
+                            label="Rest period remaining"
+                        />
+                    </VCol>
+
+                    <VCol class="pt-0 text-right" cols="6">
+                        <VBtn
+                            :width="$vuetify.breakpoint.xsOnly ?  '100%' : null"
+                            @click="endRestPeriod"
+                            class="mb-2"
+                            color="warning"
+                            small
+                        >
+                            <VIcon left>mdi-stop</VIcon>
+                            End rest
+                        </VBtn>
+
+                        <VBtn
+                            :width="$vuetify.breakpoint.xsOnly ?  '100%' : null"
+                            @click="startRestPeriod"
+                            class="mb-2"
+                            color="success"
+                            small>
+                            <VIcon left>mdi-skip-forward</VIcon>
+                            Skip rest
+                        </VBtn>
                     </VCol>
                 </VRow>
             </VContainer>
 
-            <RestPeriodTimer v-if="isDuringRestPeriod" :session-set-uuid="sessionSetUuid""/>
-
             <VCardActions class="justify-center" width="100%">
-                <template v-if="isDuringRestPeriod">
-                    <VBtn @click="endRestPeriod" color="warning" small>
-                        <VIcon left>mdi-stop</VIcon>
-                        End rest period
-                    </VBtn>
-                    <VBtn @click="startRestPeriod" color="success" small>
-                        <VIcon left>mdi-skip-forward</VIcon>
-                        Skip rest period
-                    </VBtn>
-                </template>
-                <template v-else>
-                    <VBtn @click="startRestPeriod" color="primary" x-large width="80%">
+                <template v-if="!isDuringRestPeriod">
+                    <VBtn class="start-rest-button" @click="startRestPeriod" color="primary" x-large>
                         <VIcon left>mdi-clock-start</VIcon>
                         Start rest period
                     </VBtn>
@@ -145,8 +164,8 @@
                 },
                 set(weight) {
                     this.$store.dispatch('workoutSession/updateSetWeight', {
-                            uuid: this.sessionSetUuid,
-                            weight
+                        uuid: this.sessionSetUuid,
+                        weight
                     })
                 },
             },
@@ -203,7 +222,11 @@
 </script>
 
 <style lang="scss" scoped>
-    .v-stepper{
+    .v-stepper {
         box-shadow: none;
+    }
+
+    .start-rest-button {
+        margin-bottom: 15px;
     }
 </style>

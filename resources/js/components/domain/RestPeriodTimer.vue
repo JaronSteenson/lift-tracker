@@ -1,6 +1,9 @@
 <template>
     <div :class="timerClass">
-        <span class="timer__time-part">{{ min }}</span><span class="timer__time-part">:</span><span class="timer__time-part">{{ sec }}</span>
+        <VMessages v-if="label" :value="[label]"/>
+        <div class="timer__time-parts">
+            <span class="timer__time-part">{{ min }}</span><span class="timer__time-part">:</span><span class="timer__time-part">{{ sec }}</span>
+        </div>
     </div>
 </template>
 
@@ -11,6 +14,10 @@
                 type: String,
                 required: true,
             },
+            label: {
+                type: String,
+                required: false,
+            }
         },
         data() {
             return {
@@ -104,8 +111,12 @@
             color: var(--v-warning-base);
         }
 
+        &__time-parts {
+            margin-top: 15px;
+        }
+
         &__time-part {
-            font-size: 3em;
+            font-size: 3.5em;
         }
     }
 
