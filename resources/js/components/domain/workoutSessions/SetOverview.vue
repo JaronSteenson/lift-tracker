@@ -25,7 +25,10 @@
             </VMenu>
         </VToolbar>
 
-        <VStepper :vertical="false" :value="set.position + 1">
+        <VStepper
+            :vertical="false"
+            :value="set.position + 1"
+        >
             <VStepperHeader>
                 <template v-for="(otherSet) in exercise.sessionSets">
                     <VStepperStep
@@ -41,28 +44,31 @@
             </VStepperHeader>
         </VStepper>
 
-        <VCardText>
-            <VContainer>
+        <VCardText class="pt-0">
+            <VContainer class="pt-0">
                 <VRow>
-                    <VCol cols="12" md="6" sm="6">
+                    <VCol class="pt-0" cols="12" md="6" sm="6">
                         <VTextField
+                            v-model="weight"
+                            autofocus
                             label="Weight (kg)"
                             type="number"
-                            v-model="weight"
                         />
                     </VCol>
                 </VRow>
                 <VRow>
-                    <VCol cols="12" md="6" sm="6">
-                        <VTextarea
-                            label="Exercise notes"
-                            v-model="exerciseNotes"
-                        />
-                    </VCol>
-                </VRow>
-                <VRow>
-                    <VCol cols="12" md="6" sm="6">
+                    <VCol class="pt-0" cols="12" md="12" sm="12" xs="6">
                         <RestPeriodSlider v-model="restPeriod"/>
+                    </VCol>
+                </VRow>
+                <VRow>
+                    <VCol class="pt-0" cols="12">
+                        <VTextarea
+                            v-model="exerciseNotes"
+                            filled
+                            label="Notes"
+                            auto-grow
+                        />
                     </VCol>
                 </VRow>
             </VContainer>
@@ -131,3 +137,8 @@
     }
 </script>
 
+<style lang="scss" scoped>
+    .v-stepper{
+        box-shadow: none;
+    }
+</style>
