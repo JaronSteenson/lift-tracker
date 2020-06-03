@@ -46,6 +46,56 @@ export default {
     },
 
     /**
+     * Find an object by uuid recursively in an array or object.
+     * @param subject {Array | object}
+     * @param uuid {string}
+     * @return {null | object}
+     */
+    findDeep(subject, uuid) {
+        if (!uuid instanceof String) {
+            throw new Error('Uuid must be a string');
+        }
+
+        let found = null;
+
+        for (const property in subject) {
+            if (!subject.hasOwnProperty(property)) {
+                continue;
+            }
+
+            const entry = subject[property]
+
+            if (!entry) {
+                continue;
+            }
+
+            if (typeof entry === 'object') {
+                if (entry?.uuid === uuid) {
+                    return entry;
+                }
+
+                let foundDeep = this.findDeep(entry, uuid);
+
+                if (foundDeep) {
+                    return foundDeep;
+                } else {
+                    continue;
+                }
+            }
+
+            if (typeof entry === 'Array') {
+                let foundDeep =  this.findDeep(entry, uuid);
+
+                if (foundDeep) {
+                    return foundDeep;
+                }
+            }
+        }
+
+        return found;
+    },
+
+    /**
      * Does an object in an array have the specified uuid.
      * @param array
      * @param uuid

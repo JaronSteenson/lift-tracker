@@ -77,6 +77,13 @@
                     </VCol>
                 </VRow>
             </VContainer>
+
+            <VCardActions class="justify-center" width="100%">
+                <VBtn @click="startRestPeriod" color="primary" x-large width="80%">
+                    <VIcon left>mdi-clock-start</VIcon>
+                    Start rest period
+                </VBtn>
+            </VcardActions>
         </VCardText>
     </component>
 </template>
@@ -110,8 +117,19 @@
                 return this.$store.getters['workoutSession/isLastSet'](set);
             },
             weight: {
+                get() {
+                    return this.$store.getters['workoutSession/weightForCurrentSet'](this.sessionSetUuid);
+                },
+                set(weight) {
+                    this.$store.dispatch('workoutSession/updateSetWeight', {
+                            uuid: this.sessionSetUuid,
+                            weight
+                    })
+                },
+            },
+            restPeriod: {
                 set() {
-
+                    this.set.restPeriod;
                 },
                 get() {
 
@@ -119,25 +137,20 @@
             },
             exerciseNotes: {
                 set() {
-
+                    return this.exercise.notes;
                 },
                 get() {
 
                 }
             },
-            restPeriod: {
-                set() {
-
-                },
-                get() {
-
-                }
-            }
         },
         methods: {
             skipSet() {
 
-            }
+            },
+            startRestPeriod() {
+
+            },
         }
     }
 </script>

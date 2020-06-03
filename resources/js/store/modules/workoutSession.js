@@ -49,9 +49,25 @@ const getters = {
         });
     },
 
+    weightForCurrentSet: (state, getters) => (uuid) => {
+        const actualSet = getters.set(uuid);
+
+        if (actualSet.weight !== null) {
+            return actualSet.weight;
+        }
+
+        const exercise = getters.exerciseBySet(uuid);
+
+        return exercise.plannedWeight;
+    },
+
 };
 
 const actions = {
+
+    updateSetWeight({ commit, getters }, { uuid, weight }) {
+        commit('updateSet', { uuid, weight });
+    },
 
     async fetch({ commit, dispatch }, uuid) {
         const response = await WorkoutSessionService.get(uuid);
@@ -81,6 +97,14 @@ const mutations = {
             state[key] = newState[key]
         });
     },
+
+    updateSet(state, newSetState) {
+        const set = UuidHelper.findDeep(state.workoutSession.sessionExercises, newSetState.uuid);
+
+        Object.keys(newSetState).forEach(key => {
+            set[key] = newSetState[key]
+        });
+    }
 
 };
 
