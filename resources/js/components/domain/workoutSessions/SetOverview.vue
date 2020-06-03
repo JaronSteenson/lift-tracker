@@ -47,11 +47,18 @@
         <VCardText class="pt-0">
             <VContainer class="pt-0">
                 <VRow>
-                    <VCol class="pt-0" cols="12" md="6" sm="6">
+                    <VCol class="pt-0" cols="6" md="6" sm="6">
                         <VTextField
                             v-model="weight"
                             autofocus
                             label="Weight (kg)"
+                            type="number"
+                        />
+                    </VCol>
+                    <VCol class="pt-0" cols="6" md="6" sm="6">
+                        <VTextField
+                            v-model="reps"
+                            label="Reps"
                             type="number"
                         />
                     </VCol>
@@ -127,13 +134,27 @@
                     })
                 },
             },
-            restPeriod: {
-                set() {
-                    this.set.restPeriod;
-                },
+            reps: {
                 get() {
-
-                }
+                    return this.$store.getters['workoutSession/weightForCurrentSet'](this.sessionSetUuid);
+                },
+                set(weight) {
+                    this.$store.dispatch('workoutSession/updateSetWeight', {
+                        uuid: this.sessionSetUuid,
+                        weight
+                    })
+                },
+            },
+            restPeriod: {
+                get() {
+                    return this.$store.getters['workoutSession/restPeriodForCurrentSet'](this.sessionSetUuid);
+                },
+                set(restPeriodDuration) {
+                    this.$store.dispatch('workoutSession/updateSetRestPeriodDuration', {
+                        uuid: this.sessionSetUuid,
+                        restPeriodDuration
+                    })
+                },
             },
             exerciseNotes: {
                 set() {

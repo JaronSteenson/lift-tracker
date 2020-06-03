@@ -61,12 +61,29 @@ const getters = {
         return exercise.plannedWeight;
     },
 
+    restPeriodForCurrentSet: (state, getters) => (uuid) => {
+        debugger;
+        const actualSet = getters.set(uuid);
+
+        if (actualSet.restPeriodDuration !== null) {
+            return actualSet.restPeriodDuration;
+        }
+
+        const exercise = getters.exerciseBySet(uuid);
+
+        return exercise.plannedRestPeriodDuration;
+    },
+
 };
 
 const actions = {
 
     updateSetWeight({ commit, getters }, { uuid, weight }) {
         commit('updateSet', { uuid, weight });
+    },
+
+    updateSetRestPeriodDuration({ commit, getters }, { uuid, restPeriodDuration }) {
+        commit('updateSet', { uuid, restPeriodDuration });
     },
 
     async fetch({ commit, dispatch }, uuid) {
