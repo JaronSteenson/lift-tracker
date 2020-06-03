@@ -6,7 +6,7 @@
                width="100%"
     >
         <VToolbar :flat="$vuetify.breakpoint.smAndDown">
-            <VToolbarTitle>{{ workoutName }}</VToolbarTitle>
+            <VToolbarTitle>{{ exercise.name }} - set {{ set.position + 1 }}</VToolbarTitle>
 
             <VSpacer/>
 
@@ -25,10 +25,6 @@
             </VMenu>
         </VToolbar>
 
-        <VSubheader>
-            <h3>{{ exercise.name }} - set {{ set.position + 1 }}</h3>
-        </VSubheader>
-
         <VStepper :vertical="false" :value="set.position + 1">
             <VStepperHeader>
                 <template v-for="(otherSet) in exercise.sessionSets">
@@ -44,14 +40,44 @@
                 </template>
             </VStepperHeader>
         </VStepper>
+
+        <VCardText>
+            <VContainer>
+                <VRow>
+                    <VCol cols="12" md="6" sm="6">
+                        <VTextField
+                            label="Weight (kg)"
+                            type="number"
+                            v-model="weight"
+                        />
+                    </VCol>
+                </VRow>
+                <VRow>
+                    <VCol cols="12" md="6" sm="6">
+                        <VTextarea
+                            label="Exercise notes"
+                            v-model="exerciseNotes"
+                        />
+                    </VCol>
+                </VRow>
+                <VRow>
+                    <VCol cols="12" md="6" sm="6">
+                        <RestPeriodSlider v-model="restPeriod"/>
+                    </VCol>
+                </VRow>
+            </VContainer>
+        </VCardText>
     </component>
 </template>
 
 <script>
     import {mapGetters} from "vuex";
+    import RestPeriodSlider from "../RestPeriodSlider";
 
     export default {
-        components: {},
+        components: {
+            RestPeriodSlider
+        },
         props: {
             sessionSetUuid: {
                 type: String,
@@ -71,6 +97,30 @@
             },
             isLastSet(set) {
                 return this.$store.getters['workoutSession/isLastSet'](set);
+            },
+            weight: {
+                set() {
+
+                },
+                get() {
+
+                }
+            },
+            exerciseNotes: {
+                set() {
+
+                },
+                get() {
+
+                }
+            },
+            restPeriod: {
+                set() {
+
+                },
+                get() {
+
+                }
             }
         },
         methods: {

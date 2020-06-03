@@ -32,40 +32,8 @@
                                     v-model="localState.numberOfSets"
                                 ></VSelect>
                             </VCol>
-                        </VRow>
-                        <VRow>
-                            <VCol class="d-flex d-sm-none py-0" cols="12">
-                                <VMessages :value="['Rest period (mins)']" />
-                            </VCol>
-                            <VCol class="d-flex d-sm-none" cols="12">
-                                <VSlider
-                                    class="px-0"
-                                    :max="5 * 60"
-                                    :min="0"
-                                    step="15"
-                                    thumb
-                                    ticks
-                                    v-model="localState.restPeriod"
-                                >
-                                    <template v-slot:prepend>
-                                        <span>{{ localState.restPeriod | minsSecDuration }}</span>
-                                    </template>
-                                </VSlider>
-                            </VCol>
-                            <VCol class="d-none d-sm-flex" cols="12">
-                                <VSlider
-                                    :max="5 * 60"
-                                    :min="0"
-                                    label="Rest period (mins)"
-                                    prepend-icon="mdi-clock"
-                                    step="15"
-                                    ticks
-                                    v-model="localState.restPeriod"
-                                >
-                                    <template v-slot:append>
-                                        <span>{{ localState.restPeriod | minsSecDuration }}</span>
-                                    </template>
-                                </VSlider>
+                            <VCol cols="12">
+                                <RestPeriodSlider v-model="localState.restPeriod"/>
                             </VCol>
                         </VRow>
                     </v-container>
@@ -78,10 +46,12 @@
 <script>
     import EditableTitle from "../../formFields/EditableTitle";
     import exerciseMixin from "./mixins/exerciseMixin";
+    import RestPeriodSlider from "../RestPeriodSlider";
 
     export default {
         mixins: [exerciseMixin],
         components: {
+            RestPeriodSlider,
             EditableTitle
         },
         props: {
