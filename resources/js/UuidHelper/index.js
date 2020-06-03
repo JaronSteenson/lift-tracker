@@ -46,6 +46,16 @@ export default {
     },
 
     /**
+     * Does an object in an array have the specified uuid.
+     * @param array
+     * @param uuid
+     * @return {boolean}
+     */
+    arrayIncludes(array, uuid) {
+        return this.findIn(array, uuid) !== undefined;
+    },
+
+    /**
      * Remove an object from an array where it has the specified uuid.
      * @param array
      * @param uuid

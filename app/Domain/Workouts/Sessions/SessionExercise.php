@@ -5,6 +5,7 @@ namespace LiftTracker\Domain\Workouts\Sessions;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Facades\DB;
 use LiftTracker\Domain\AbstractModel;
@@ -30,7 +31,8 @@ use LiftTracker\Traits\HasUuidTrait;
  * @property string plannedRestPeriodDuration
  * @property string notes
  * @property string position
- * @property SessionSet[]|Collection workoutSessions
+ * @property SessionSet[]|Collection sessionSets
+ * @property WorkoutSession workoutSession
  * @property Carbon createdAt
  * @property Carbon updatedAt
  *
@@ -119,6 +121,11 @@ class SessionExercise extends AbstractModel
 //        }
 //
 //        return $workoutProgram;
+    }
+
+    public function workoutSession(): BelongsTo
+    {
+        return $this->belongsTo(WorkoutSession::class, 'workoutSessionId');
     }
 
     public function sessionSets(): HasMany

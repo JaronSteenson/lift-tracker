@@ -41,13 +41,17 @@
             }
         },
         async created() {
+            if (this.$store.getters['workoutSession/hasSetInSession'](this.sessionSetUuid)) {
+                return;
+            }
+
             this.loading = true;
 
-            // try {
-            //     await this.$store.dispatch('programBuilder/prepareForSessionOverview', this.originRoutineUuid);
-            // } catch (e) {
-            //     this.fetchError = true;
-            // }
+            try {
+                await this.$store.dispatch('workoutSession/fetchBySet', this.sessionSetUuid);
+            } catch (e) {
+                this.fetchError = true;
+            }
 
             this.loading = false;
         },

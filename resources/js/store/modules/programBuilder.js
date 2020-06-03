@@ -63,11 +63,12 @@ const getters = {
 
     savingStatusMessage(state) {
         switch (state.saveStatus) {
-            case null: return ''
             case STATUS_SAVE_ERROR: return 'Error saving program';
             case STATUS_SAVE_SUCCESS: return 'Program saved';
             case STATUS_SAVING: return 'Saving...';
         }
+
+        return ''
     },
 
     hasMadeSignificantChangesFromNew(state) {

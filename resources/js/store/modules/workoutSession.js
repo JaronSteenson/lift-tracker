@@ -1,6 +1,7 @@
 import WorkoutSessionService from '../../api/WorkoutSessionService'
 import UuidHelper from '../../UuidHelper'
 import { debounce, pick } from 'lodash';
+import WorkoutProgramService from "../../api/WorkoutProgramService";
 
 function defaultState() {
     return {
@@ -26,7 +27,15 @@ const getters = {
 
     firstSet(state) {
         return state.workoutSession.sessionExercises[0].sessionSets[0]
-    }
+    },
+
+    hasSetInSession: (state) => (uuid) => {
+        if (state?.workoutSession?.sessionExercises) {
+            return UuidHelper.arrayIncludes(state.workoutSession.sessionExercises, uuid)
+        }
+
+        return false;
+    },
 
 };
 
@@ -35,6 +44,15 @@ const actions = {
     async fetch({ commit, dispatch }, uuid) {
         const response = await WorkoutSessionService.get(uuid);
         commit('reset', { workoutSession: response.data });
+
+        return response;
+    },
+
+    async fetchBySet({ commit, dispatch }, sessionSetUuid) {
+        const response = await WorkoutSessionService.getBySet(sessionSetUuid);
+        commit('reset', { workoutSession: response.data });
+
+        return response;
     },
 
     async startWorkout({ commit, dispatch }, { originWorkoutUuid }) {

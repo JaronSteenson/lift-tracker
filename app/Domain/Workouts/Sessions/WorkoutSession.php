@@ -5,12 +5,14 @@ namespace LiftTracker\Domain\Workouts\Sessions;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Facades\DB;
 use LiftTracker\Domain\AbstractModel;
 use LiftTracker\Domain\Users\CanBeOwnedByUserTrait;
 use LiftTracker\Domain\Workouts\Exercises\Exercise;
 use LiftTracker\Domain\Workouts\Programs\RoutineExercise;
+use LiftTracker\Domain\Workouts\Programs\WorkoutProgram;
 use LiftTracker\Domain\Workouts\Programs\WorkoutProgramRoutine;
 use LiftTracker\Http\Requests\WorkoutSessionRequest;
 use LiftTracker\Traits\HasUuidTrait;
@@ -111,6 +113,24 @@ class WorkoutSession extends AbstractModel
         }
 
         return $workoutProgram;
+    }
+
+    public function findBySet(string $setUuid): ?self
+    {
+        /** @var SessionSet $routine */
+        $sessionSet = (new SessionSet())->findByUUid($setUuid);
+
+        if ($sessionSet === null) {
+            return null;
+        }
+
+        $exercise = $sessionSet->sessionExercise;
+
+        if ($exercise === null) {
+            return null;
+        }
+
+        return $exercise->workoutSession;
     }
 
     public function sessionExercises(): HasMany

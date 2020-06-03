@@ -12,6 +12,10 @@ const WorkoutProgramService = {
         return ApiService.get(RESOURCE_NAME, uuid)
     },
 
+    getBySet(sessionSetUuid) {
+        return ApiService.get(`${RESOURCE_NAME}?session-set-uuid=${sessionSetUuid}`)
+    },
+
     save(workoutProgram) {
         return ApiService.save(RESOURCE_NAME, workoutProgram);
     },

@@ -88,7 +88,7 @@ class WorkoutProgramRoutine extends AbstractModel implements UserOwnershipInterf
         return $this->hasMany(RoutineExercise::class);
     }
 
-    public function setRoutineExercises(Collection $exercises)
+    public function setRoutineExercises(Collection $exercises): self
     {
         return $this->setRelation('routineExercises', $exercises);
     }
@@ -105,7 +105,7 @@ class WorkoutProgramRoutine extends AbstractModel implements UserOwnershipInterf
 
     }
 
-    public function saveExercises()
+    public function saveExercises(): self
     {
         $this->routineExercises->each(function (RoutineExercise $exercises) {
             $exercises->workoutProgramRoutineId = $this->id;
