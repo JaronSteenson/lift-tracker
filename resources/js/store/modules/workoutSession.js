@@ -1,7 +1,7 @@
 import WorkoutSessionService from '../../api/WorkoutSessionService'
 import UuidHelper from '../../UuidHelper'
 import {debounce} from "lodash";
-import { formatISO } from 'date-fns'
+import { differenceInSeconds } from 'date-fns'
 
 const SAVE_DEBOUNCE_WAIT = 1000;
 
@@ -12,7 +12,7 @@ function defaultState() {
             name: '',
             sessionExercises: null,
         },
-        updateRestPeriodTimer: null,
+        restPeriodTimout: null,
     }
 }
 
@@ -187,21 +187,24 @@ const actions = {
         dispatch('saveExercise', uuid);
     },
 
-    startRestPeriod({ commit, dispatch  }, { uuid }) {
+    startRestPeriod({ commit, dispatch, getters  }, { uuid }) {
         const restPeriodStartedAt = utcNow();
 
         commit('updateSet', { uuid, restPeriodStartedAt, restPeriodEndedAt: null });
+
+        const restPeriodInSeconds = getters.restPeriodForCurrentSet(uuid);
+        const restPeriodTimeout = setTimeout(() => {
+            commit('endRestPeriod', uuid);
+            dispatch('saveSet', uuid);
+        }, restPeriodInSeconds * 1000)
+
+        commit('setRestPeriodTimeout', restPeriodTimeout);
 
         dispatch('saveSet', uuid);
     },
 
     endRestPeriod({ commit, dispatch  }, { uuid }) {
-        const restPeriodEndedAt = utcNow();
-
-        // TODO set duration
-
-        commit('updateSet', { uuid, restPeriodEndedAt });
-
+        commit('endRestPeriod', uuid);
         dispatch('saveSet', uuid);
     },
 
@@ -269,6 +272,20 @@ const mutations = {
         Object.keys(newExerciseState).forEach(key => {
             exercise[key] = newExerciseState[key]
         });
+    },
+
+    setRestPeriodTimeout(state, restPeriodTimeout) {
+        state.restPeriodTimeout = restPeriodTimeout;
+    },
+
+    endRestPeriod(state, uuid) {
+        const set = UuidHelper.findDeep(state.workoutSession.sessionExercises, uuid);
+
+        set.restPeriodEndedAt = utcNow();
+        set.restPeriodDuration = differenceInSeconds(new Date(set.restPeriodEndedAt), new Date(set.restPeriodStartedAt));
+
+        clearTimeout(state.restPeriodTimeout);
+        state.restPeriodTimout = null;
     },
 
 };

@@ -35,8 +35,6 @@
         },
         watch: {
             isFinished(value) {
-                debugger;
-
                 if (value === true) {
                     this.clearRefreshInterval();
                 } else {

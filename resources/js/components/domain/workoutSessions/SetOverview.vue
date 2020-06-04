@@ -5,7 +5,7 @@
                max-width="960"
                width="100%"
     >
-        <VToolbar :flat="$vuetify.breakpoint.smAndDown">
+        <VToolbar :flat="$vuetify.breakpoint.xsOnly">
             <VToolbarTitle>{{ exercise.name }} - set {{ set.position + 1 }}</VToolbarTitle>
 
             <VSpacer/>
