@@ -2,6 +2,7 @@
     <div>
         <VMessages v-if="$vuetify.breakpoint.xsOnly" :value="['Rest period (mins)']"/>
         <VSlider
+            :step="step"
             :disabled="disabled"
             :label="$vuetify.breakpoint.smAndUp ? 'Rest period (mins)' : null"
             :max="5 * 60"
@@ -25,6 +26,10 @@
     export default {
         props: {
             value: {
+                type: Number,
+                required: false,
+            },
+            step: {
                 type: Number,
                 required: false,
             },

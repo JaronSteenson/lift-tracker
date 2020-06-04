@@ -65,7 +65,17 @@
                 </VRow>
                 <VRow>
                     <VCol class="pt-0" cols="12" md="12" sm="12" xs="6">
-                        <RestPeriodSlider :disabled="isDuringRestPeriod" v-model="restPeriod"/>
+                        <RestPeriodSlider
+                            v-if="restPeriodNotStarted"
+                            v-model="restPeriod"
+                        />
+                        <VTextField
+                            v-else
+                            :value="restPeriodDisplay"
+                            label="Rest period (mins)"
+                            type="text"
+                            disabled
+                        />
                     </VCol>
                 </VRow>
                 <VRow class="pt-0 mt-0">
@@ -105,7 +115,7 @@
 
                         <VBtn
                             :width="$vuetify.breakpoint.xsOnly ?  '100%' : null"
-                            @click="startRestPeriod"
+                            @click="startNextSet"
                             class="mb-2"
                             color="success"
                             small>
@@ -114,11 +124,32 @@
                         </VBtn>
                     </VCol>
                 </VRow>
+                <VRow justify="space-between" v-else-if="restPeriodIsFinished">
+                    <VCol class="pt-0" cols="6">
+                        <RestPeriodTimer
+                            :session-set-uuid="sessionSetUuid"
+                            label="Rest period finished"
+                        />
+                    </VCol>
+
+                    <VCol class="pt-0 text-right" cols="6">
+                        <VBtn
+                            :width="$vuetify.breakpoint.xsOnly ?  '100%' : null"
+                            :height="'75%'"
+                            @click="startNextSet"
+                            class="mt-2"
+                            color="success"
+                            small>
+                            <VIcon left>mdi-play</VIcon>
+                            Next set
+                        </VBtn>
+                    </VCol>
+                </VRow>
             </VContainer>
 
             <VCardActions class="justify-center" width="100%">
-                <template v-if="!isDuringRestPeriod">
-                    <VBtn class="start-rest-button" @click="startRestPeriod" color="primary" x-large>
+                <template v-if="restPeriodNotStarted">
+                    <VBtn @click="startRestPeriod" class="start-rest-button" color="primary" x-large>
                         <VIcon left>mdi-clock-start</VIcon>
                         Start rest period
                     </VBtn>
@@ -132,6 +163,7 @@
     import {mapGetters} from "vuex";
     import RestPeriodSlider from "../RestPeriodSlider";
     import RestPeriodTimer from "../RestPeriodTimer";
+    import { minsSecDuration } from "../../../filters";
 
     export default {
         components: {
@@ -144,6 +176,11 @@
                 required: true,
             },
         },
+        created() {
+            if (this.isDuringRestPeriod) {
+                this.resumeRestPeriod();
+            }
+        },
         computed: {
             ...mapGetters('workoutSession', ['workoutName']),
             set() {
@@ -152,11 +189,17 @@
             exercise() {
                 return this.$store.getters['workoutSession/exerciseBySet'](this.sessionSetUuid);
             },
+            restPeriodNotStarted() {
+                return this.$store.getters['workoutSession/restPeriodNotStarted'](this.sessionSetUuid);
+            },
             isDuringRestPeriod() {
                 return this.$store.getters['workoutSession/isDuringRestPeriod'](this.sessionSetUuid);
             },
-            isLastSet(set) {
-                return this.$store.getters['workoutSession/isLastSet'](set);
+            restPeriodIsFinished() {
+                return this.$store.getters['workoutSession/restPeriodIsFinished'](this.sessionSetUuid);
+            },
+            restPeriodDisplay() {
+                return minsSecDuration(this.restPeriod);
             },
             weight: {
                 get() {
@@ -205,7 +248,21 @@
         },
         methods: {
             skipSet() {
+                this.startNextSet();
+            },
+            startNextSet() {
+                if (this.isDuringRestPeriod) {
+                    this.endRestPeriod()
+                }
 
+                const nextSet =  this.$store.getters['workoutSession/nextSet'](this.sessionSetUuid);
+
+                this.$router.push({ name: 'setOverview', params: { sessionSetUuid: nextSet.uuid }});
+            },
+            resumeRestPeriod() {
+                this.$store.dispatch('workoutSession/startRestPeriodTimeout', {
+                    uuid: this.sessionSetUuid,
+                })
             },
             startRestPeriod() {
                 this.$store.dispatch('workoutSession/startRestPeriod', {

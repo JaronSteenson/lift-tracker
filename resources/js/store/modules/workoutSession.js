@@ -93,6 +93,39 @@ const getters = {
         return UuidHelper.findIn(state.workoutSession.sessionExercises, uuid);
     },
 
+    nextSet: (state, getters) => (uuid) => {
+        const currentSetsExercise = getters.exerciseBySet(uuid);
+
+        // Look in our current exercise.
+        let nextSetIndex = null;
+        currentSetsExercise.sessionSets.forEach((set, index) => {
+            if (set.uuid === uuid) {
+                nextSetIndex = index + 1;
+            }
+        })
+
+        const inSameExercise = currentSetsExercise.sessionSets[nextSetIndex];
+        if (inSameExercise) {
+            return inSameExercise;
+        }
+
+        // Look for the next exercise instead then.
+        let nextExerciseIndex = null;
+        state.workoutSession.sessionExercises.forEach((exercise, index) => {
+            if (exercise.uuid === currentSetsExercise.uuid) {
+                nextExerciseIndex = index + 1;
+            }
+        })
+
+        const inNextExercise = state.workoutSession.sessionExercises[nextExerciseIndex];
+        if (inNextExercise) {
+            return inNextExercise.sessionSets[0];
+        }
+
+        // Must be finished the workout
+        return null;
+    },
+
     weightForCurrentSet: (state, getters) => (uuid) => {
         const actualSet = getters.set(uuid);
 
@@ -127,10 +160,22 @@ const getters = {
         return null;
     },
 
+    restPeriodNotStarted: (state, getters) => (uuid) => {
+        const set = getters.set(uuid);
+
+        return set.restPeriodStartedAt === null;
+    },
+
     isDuringRestPeriod: (state, getters) => (uuid) => {
         const set = getters.set(uuid);
 
         return set.restPeriodStartedAt !== null && set.restPeriodEndedAt === null;
+    },
+
+    restPeriodIsFinished: (state, getters) => (uuid) => {
+        const set = getters.set(uuid);
+
+        return set.restPeriodStartedAt !== null && set.restPeriodEndedAt !== null;
     },
 
     restPeriodTimeRemaining: (state, getters) => (uuid) => {
@@ -192,19 +237,28 @@ const actions = {
 
         commit('updateSet', { uuid, restPeriodStartedAt, restPeriodEndedAt: null });
 
-        const restPeriodInSeconds = getters.restPeriodForCurrentSet(uuid);
-        const restPeriodTimeout = setTimeout(() => {
-            commit('endRestPeriod', uuid);
-            dispatch('saveSet', uuid);
-        }, restPeriodInSeconds * 1000)
-
-        commit('setRestPeriodTimeout', restPeriodTimeout);
-
+        dispatch('startRestPeriodTimeout', { uuid });
         dispatch('saveSet', uuid);
     },
 
-    endRestPeriod({ commit, dispatch  }, { uuid }) {
-        commit('endRestPeriod', uuid);
+    startRestPeriodTimeout({ commit, dispatch, getters  }, { uuid }) {
+        const timeRemaining = getters.restPeriodTimeRemaining(uuid);
+
+        const restPeriodTimeout = setTimeout(() => {
+            dispatch('endRestPeriod', { uuid });
+            dispatch('saveSet', uuid);
+        }, timeRemaining * 1000)
+
+        commit('setRestPeriodTimeout', restPeriodTimeout);
+    },
+
+    endRestPeriod({ commit, dispatch, getters  }, { uuid }) {
+        const set = getters.set(uuid);
+
+        const restPeriodEndedAt = utcNow();
+        const restPeriodDuration = differenceInSeconds(new Date(restPeriodEndedAt), new Date(set.restPeriodStartedAt));
+
+        commit('endRestPeriod', { uuid, restPeriodEndedAt, restPeriodDuration });
         dispatch('saveSet', uuid);
     },
 
@@ -278,14 +332,13 @@ const mutations = {
         state.restPeriodTimeout = restPeriodTimeout;
     },
 
-    endRestPeriod(state, uuid) {
+    endRestPeriod(state, { uuid, restPeriodEndedAt, restPeriodDuration }) {
         const set = UuidHelper.findDeep(state.workoutSession.sessionExercises, uuid);
-
-        set.restPeriodEndedAt = utcNow();
-        set.restPeriodDuration = differenceInSeconds(new Date(set.restPeriodEndedAt), new Date(set.restPeriodStartedAt));
+        set.restPeriodEndedAt = restPeriodEndedAt;
+        set.restPeriodDuration = restPeriodDuration;
 
         clearTimeout(state.restPeriodTimeout);
-        state.restPeriodTimout = null;
+        state.restPeriodTimeout = null;
     },
 
 };
