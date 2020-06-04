@@ -18,8 +18,6 @@ use Webpatser\Uuid\Uuid;
  */
 trait HasUuidTrait
 {
-
-
     /**
      * Execute a query for a single record by ID.
      *

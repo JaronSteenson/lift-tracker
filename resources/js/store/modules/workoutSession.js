@@ -1,6 +1,7 @@
 import WorkoutSessionService from '../../api/WorkoutSessionService'
 import UuidHelper from '../../UuidHelper'
 import {debounce} from "lodash";
+import { formatISO } from 'date-fns'
 
 const SAVE_DEBOUNCE_WAIT = 1000;
 
@@ -18,20 +19,36 @@ function defaultState() {
 function utcNow() {
     const date = new Date();
 
-    let realMonth = date.getUTCMonth() + 1;
-    if (realMonth < 10) {
-        realMonth = `0${realMonth}`;
+    let paddedMonth = date.getUTCMonth() + 1;
+    if (paddedMonth < 10) {
+        paddedMonth = `0${paddedMonth}`;
     }
 
-    let realDay = date.getUTCDay()
-    if (realDay < 10) {
-        realDay = `0${realDay}`;
+    let paddedDay = date.getUTCDay();
+    if (paddedDay < 10) {
+        paddedDay = `0${paddedDay}`;
     }
 
-    const utcDate = `${date.getUTCFullYear()}-${realMonth}-${realDay}`;
-    const utcTime = `${date.getUTCHours()}:${date.getUTCMinutes()}:${date.getUTCSeconds()}`;
+    let paddedHour = date.getUTCHours();
+    if (paddedHour < 10) {
+        paddedHour = `0${paddedHour}`;
+    }
 
-    return `${utcDate} ${utcTime}`;
+    let paddedMinutes = date.getUTCMinutes();
+    if (paddedMinutes < 10) {
+        paddedMinutes = `0${paddedMinutes}`;
+    }
+
+    let paddedSeconds = date.getUTCSeconds();
+    if (paddedSeconds < 10) {
+        paddedSeconds = `0${paddedSeconds}`;
+    }
+
+    const utcDate = `${date.getUTCFullYear()}-${paddedMonth}-${paddedDay}`;
+    const utcTime = `${paddedHour}:${paddedMinutes}:${paddedSeconds}`;
+
+
+    return `${utcDate}T${utcTime}+00:00`;
 }
 
 const state = defaultState();

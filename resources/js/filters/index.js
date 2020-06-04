@@ -40,11 +40,11 @@ export function editedTimeDescription(utcDate) {
     }
 
     if (isToday(date)) {
-        return format(date, 'today, p');
+        return `Today, ${format(date, 'p')}`;
     }
 
     if (isYesterday(date)) {
-        return format(date, 'yesterday, p');
+        return `Yesterday, ${format(date, 'p')}`;
     }
 
     if (isThisYear(date)) {

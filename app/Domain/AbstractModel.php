@@ -2,6 +2,8 @@
 
 namespace LiftTracker\Domain;
 
+use Carbon\Carbon;
+use DateTimeInterface;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Collection;
@@ -63,6 +65,29 @@ abstract class AbstractModel extends Model
         $idsToDelete = $toBeDeleted->pluck('id')->toArray();
 
         $relation->getRelated()::destroy($idsToDelete);
+    }
+
+    /**
+     * Determine whether a value is Date / DateTime castable for inbound manipulation.
+     *
+     * @param string $key
+     * @return bool
+     */
+    protected function isDateCastable($key): bool
+    {
+        return $this->hasCast($key, ['date', 'datetime', 'custom_datetime']);
+    }
+
+    /**
+     * Return a timestamp as DateTime object.
+     *
+     * @param mixed $value
+     * @return Carbon
+     * @throws \Exception
+     */
+    protected function asDateTime($value): Carbon
+    {
+        return new Carbon('@' . strtotime($value));
     }
 
 }
