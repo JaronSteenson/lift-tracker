@@ -23,7 +23,10 @@
                         </VToolbarTitle>
                         <VSpacer></VSpacer>
 
-                    <VSubheader v-if="$vuetify.breakpoint.smAndUp">{{ statusMessage }}</VSubheader>
+                    <VSubheader v-if="$vuetify.breakpoint.smAndUp">
+                        <VIcon>mdi-cloud-sync</VIcon>
+                        <span class="mx-2">{{ statusMessage }}</span>
+                    </VSubheader>
 
 
                     <VMenu bottom left>
@@ -73,6 +76,7 @@
     import Draggable from 'vuedraggable';
     import EditableTitle from "../../formFields/EditableTitle";
     import ProgramBuilderLoadingSkeleton from "./ProgramBuilderLoadingSkeleton";
+    import {editedTimeDescription} from "../../../filters";
 
     export default {
         components: {
@@ -157,7 +161,7 @@
                     return this.savingStatusMessage;
                 }
 
-                return this.updatedAt ? `last updated ${this.updatedAt}` : '';
+                return this.updatedAt ? `${editedTimeDescription(this.updatedAt)}` : '';
             }
         },
         methods: {

@@ -98,6 +98,8 @@ class WorkoutProgram extends AbstractModel implements UserOwnershipInterface
     public function saveWithChildren(): self
     {
         return DB::transaction(function() {
+            // Always update the timestamps because we display them in the ui.
+            $this->touch();
             $this->save();
             $this->saveRoutinesWithExercises();
 

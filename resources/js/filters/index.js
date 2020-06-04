@@ -20,6 +20,7 @@ export function minsSecDuration(valueInSeconds) {
 
     return `${minutes}:${seconds}`
 }
+
 export function editedTimeDescription(utcDate) {
     const now = new Date();
     const date = new Date(utcDate);

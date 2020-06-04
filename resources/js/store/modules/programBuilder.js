@@ -475,6 +475,7 @@ const mutations = {
         // Nothing should be different from the server except the create date. And uuid if it was assigned there.
         state.uuid = saveResponse.uuid;
         state.createdAt = saveResponse.createdAt;
+        state.updatedAt = saveResponse.updatedAt;
     },
 
 };
