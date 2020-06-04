@@ -80,6 +80,8 @@ class SessionExercise extends AbstractModel
         'plannedReps' => 'integer',
         'plannedWeight' => 'integer',
         'plannedRestPeriodDuration' => 'integer',
+        'createdAt' => 'datetime:c',
+        'updatedAt' => 'datetime:c',
     ];
 
     public static function createFromRoutineExercise(

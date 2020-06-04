@@ -61,7 +61,8 @@ class WorkoutProgram extends AbstractModel implements UserOwnershipInterface
      * @var array
      */
     protected $casts = [
-        'id' => 'string', //is a uuid
+        'createdAt' => 'datetime:c',
+        'updatedAt' => 'datetime:c',
     ];
 
     public static function createFromRequest(WorkoutProgramRequest $request): self

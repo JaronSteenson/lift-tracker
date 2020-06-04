@@ -119,6 +119,4 @@
             font-size: 3.5em;
         }
     }
-
-
 </style>

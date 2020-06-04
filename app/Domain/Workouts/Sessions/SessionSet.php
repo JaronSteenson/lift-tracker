@@ -75,9 +75,11 @@ class SessionSet extends AbstractModel
         'reps' => 'integer',
         'weight' => 'integer',
         'restPeriodDuration' => 'integer',
-        'restPeriodStartedAt' => 'datetime',
-        'restPeriodEndedAt' => 'datetime',
+        'restPeriodStartedAt' => 'datetime:c',
+        'restPeriodEndedAt' => 'datetime:c',
         'position' => 'integer',
+        'createdAt' => 'datetime:c',
+        'updatedAt' => 'datetime:c',
     ];
 
     public static function createFromRequest(WorkoutSessionRequest $request): self

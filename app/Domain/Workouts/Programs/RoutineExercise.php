@@ -64,6 +64,8 @@ class RoutineExercise extends AbstractModel
         'numberOfSets' => 'integer',
         'weight' => 'integer',
         'restPeriod' => 'integer',
+        'createdAt' => 'datetime:c',
+        'updatedAt' => 'datetime:c',
     ];
 
     public function routine(): BelongsTo

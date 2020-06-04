@@ -56,6 +56,11 @@ class WorkoutProgramRoutine extends AbstractModel implements UserOwnershipInterf
         'position',
     ];
 
+    protected $casts = [
+        'createdAt' => 'datetime:c',
+        'updatedAt' => 'datetime:c',
+    ];
+
     protected $with = [
         'routineExercises',
     ];

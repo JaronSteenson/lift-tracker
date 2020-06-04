@@ -14,7 +14,7 @@
         </VToolbar>
 
         <VSkeletonLoader class="ma-5" type="table-heading, table-row@3" v-if="loading"/>
-        <VDataTable v-else :headers="headers" :items="workoutPrograms">
+        <VDataTable v-else :headers="headers" :items="workoutProgramsForDisplay">
             <template v-slot:item.icon="{ item: program }">
                 <VIcon>mdi-table</VIcon>
             </template>
@@ -68,6 +68,7 @@
 <script>
     import WorkoutProgramService from '../../api/WorkoutProgramService';
     import NewSessionModal from "./workoutSessions/NewSessionModal";
+    import { editedTimeDescription } from "./../../filters";
 
     export default {
         components: {NewSessionModal},
@@ -76,7 +77,7 @@
         },
         watch: {
             // call again the method if the route changes
-            '$route': 'fetchWorkoutPrograms'
+            $route: 'fetchWorkoutPrograms'
         },
         data() {
             return {
@@ -88,6 +89,11 @@
         computed: {
             hasNoWorkoutProgram() {
                 return this.workoutPrograms.length === 0;
+            },
+            workoutProgramsForDisplay() {
+                return this.workoutPrograms.map(workoutProgram => {
+                    return { ...workoutProgram, ...{ updatedAt: editedTimeDescription(workoutProgram.updatedAt) } };
+                })
             },
             headers() {
                 if (this.$vuetify.breakpoint.xsOnly) {
