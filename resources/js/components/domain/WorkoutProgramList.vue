@@ -68,7 +68,7 @@
 <script>
     import WorkoutProgramService from '../../api/WorkoutProgramService';
     import NewSessionModal from "./workoutSessions/NewSessionModal";
-    import { editedTimeDescription } from "./../../filters";
+    import { dateTimeDescription } from "./../../filters";
 
     export default {
         components: {NewSessionModal},
@@ -92,7 +92,7 @@
             },
             workoutProgramsForDisplay() {
                 return this.workoutPrograms.map(workoutProgram => {
-                    return { ...workoutProgram, ...{ updatedAt: editedTimeDescription(workoutProgram.updatedAt) } };
+                    return { ...workoutProgram, ...{ updatedAt: dateTimeDescription(workoutProgram.updatedAt) } };
                 })
             },
             headers() {

@@ -1,13 +1,13 @@
 <template>
-    <SessionOverview :originRoutineUuid="originRoutineUuid"></SessionOverview>
+    <NewSessionOverview :originRoutineUuid="originRoutineUuid"></NewSessionOverview>
 </template>
 
 <script>
-    import SessionOverview from '../domain/workoutSessions/SessionOverview';
+    import NewSessionOverview from '../domain/workoutSessions/NewSessionOverview';
 
     export default {
         components: {
-            SessionOverview
+            NewSessionOverview
         },
         props: {
             originRoutineUuid: {

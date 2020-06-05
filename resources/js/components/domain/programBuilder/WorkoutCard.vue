@@ -5,7 +5,7 @@
                max-width="960"
                width="100%"
     >
-        <VToolbar :flat="!isSessionOverview">
+        <VToolbar flat>
             <VTextField
                 :autofocus="isEditingTitle"
                 :hide-details="isSessionOverview"

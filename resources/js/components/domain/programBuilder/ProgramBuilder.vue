@@ -76,7 +76,7 @@
     import Draggable from 'vuedraggable';
     import EditableTitle from "../../formFields/EditableTitle";
     import ProgramBuilderLoadingSkeleton from "./ProgramBuilderLoadingSkeleton";
-    import {editedTimeDescription} from "../../../filters";
+    import {dateTimeDescription} from "../../../filters";
 
     export default {
         components: {
@@ -161,7 +161,7 @@
                     return this.savingStatusMessage;
                 }
 
-                return this.updatedAt ? `${editedTimeDescription(this.updatedAt)}` : '';
+                return this.updatedAt ? `${dateTimeDescription(this.updatedAt)}` : '';
             }
         },
         methods: {

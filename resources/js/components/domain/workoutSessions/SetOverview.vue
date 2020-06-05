@@ -5,7 +5,7 @@
                max-width="960"
                width="100%"
     >
-        <VToolbar :flat="$vuetify.breakpoint.xsOnly">
+        <VToolbar flat>
             <VToolbarTitle>{{ exercise.name }} - set {{ set.position + 1 }}</VToolbarTitle>
 
             <VSpacer/>
@@ -49,6 +49,7 @@
                 <VRow>
                     <VCol class="pt-0" cols="6" md="6" sm="6">
                         <VTextField
+                            class="mt-0"
                             autofocus
                             label="Weight (kg)"
                             type="number"
@@ -57,6 +58,7 @@
                     </VCol>
                     <VCol class="pt-0" cols="6" md="6" sm="6">
                         <VTextField
+                            class="mt-0"
                             label="Reps"
                             type="number"
                             v-model="reps"
@@ -72,7 +74,7 @@
                         <VTextField
                             v-else
                             :value="restPeriodDisplay"
-                            label="Rest period (mins)"
+                            label="Rest period"
                             type="text"
                             disabled
                         />
@@ -308,6 +310,11 @@
 
 <style lang="scss" scoped>
     .v-stepper {
+        margin-top: 5px;
+        box-shadow: none;
+    }
+
+    .v-stepper__header {
         box-shadow: none;
     }
 

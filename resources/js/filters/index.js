@@ -1,9 +1,16 @@
 
-import { differenceInSeconds, differenceInMinutes, isYesterday, isToday, isThisYear, format } from 'date-fns'
+import {
+    differenceInSeconds,
+    differenceInMinutes,
+    isYesterday,
+    isToday,
+    isThisYear,
+    format,
+} from 'date-fns'
 
 export default {
     minsSecDuration,
-    editedTimeDescription,
+    timeDescription: dateTimeDescription,
 }
 
 export function minsSecDuration(valueInSeconds) {
@@ -14,16 +21,77 @@ export function minsSecDuration(valueInSeconds) {
     const minutes = Math.floor(valueInSeconds / 60);
     let seconds = valueInSeconds - minutes * 60;
 
-    if (seconds < 10) {
-        seconds = `0${seconds}`;
+    if (minutes === 0) {
+        return `${seconds}s`;
     }
 
-    return `${minutes}:${seconds}`
+    return `${minutes}m ${seconds}s`;
 }
 
-export function editedTimeDescription(utcDate) {
-    const now = new Date();
+export function hoursMinutesFromStartEnd(start, end) {
+    const seconds = differenceInSeconds(new Date(end), new Date(start));
+
+    return hoursMinutesDuration(seconds);
+}
+
+export function hoursMinutesDuration(seconds) {
+    const hours = Math.floor(seconds / 3600);
+    const minutes = Math.floor((seconds / 60) - (hours * 60));
+
+    if (hours === 0) {
+        return `${minutes}m`;
+    }
+
+    return `${hours}h ${minutes}m`;
+}
+
+export function dateTimeDescription(utcDate) {
+    const resent = resentDescription(utcDate);
+
+    if (resent) {
+        return resent;
+    }
+
+    return `${dateDescription(utcDate)}, ${timeDescription(utcDate)}`;
+}
+
+export function timeDescription(utcDate) {
     const date = new Date(utcDate);
+    const resent = resentDescription(date);
+
+    if (resent) {
+        return resent;
+    }
+
+    return format(date, 'p');
+}
+
+export function dateDescription(utcDate) {
+    const date = new Date(utcDate);
+    const resent = resentDescription(date);
+
+    if (resent) {
+        return resent;
+    }
+
+    if (isToday(date)) {
+        return 'Today';
+    }
+
+    if (isYesterday(date)) {
+        return 'Yesterday';
+    }
+
+    if (isThisYear(date)) {
+        return format(date, 'd MMM');
+    }
+
+    return format(date, 'd MMM u');
+}
+
+function resentDescription(utcDate) {
+    const date = new Date(utcDate);
+    const now = new Date();
 
     const secondsAgo = differenceInSeconds(now, date);
     if (secondsAgo < 10) {
@@ -39,17 +107,5 @@ export function editedTimeDescription(utcDate) {
         return `${minutesAgo} minutes ago`;
     }
 
-    if (isToday(date)) {
-        return `Today, ${format(date, 'p')}`;
-    }
-
-    if (isYesterday(date)) {
-        return `Yesterday, ${format(date, 'p')}`;
-    }
-
-    if (isThisYear(date)) {
-        return format(date, 'd MMM, p');
-    }
-
-    return format(date, 'd MMM u, p');
+    return null;
 }

@@ -1,10 +1,10 @@
 <template>
     <div>
-        <VMessages v-if="$vuetify.breakpoint.xsOnly" :value="['Rest period (mins)']"/>
+        <VMessages v-if="$vuetify.breakpoint.xsOnly" :value="[label]"/>
         <VSlider
             :step="step"
             :disabled="disabled"
-            :label="$vuetify.breakpoint.smAndUp ? 'Rest period (mins)' : null"
+            :label="$vuetify.breakpoint.smAndUp ? label : null"
             :max="5 * 60"
             :min="0"
             :prepend-icon="$vuetify.breakpoint.smAndUp ? 'mdi-clock' : null"
@@ -15,14 +15,13 @@
             thumb
             ticks
         >
-            <template v-slot:append>
-                <span>{{ value | minsSecDuration }}</span>
-            </template>
         </VSlider>
     </div>
 </template>
 
 <script>
+    import { minsSecDuration } from "../../filters";
+
     export default {
         props: {
             value: {
@@ -38,6 +37,14 @@
                 required: false,
             },
         },
+        computed: {
+            label() {
+                return `Rest period ${this.minsSecDuration}`
+            },
+            minsSecDuration() {
+                return minsSecDuration(this.value)
+            }
+        }
     }
 </script>
 

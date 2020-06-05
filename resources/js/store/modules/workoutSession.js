@@ -58,12 +58,20 @@ const state = defaultState();
 
 const getters = {
 
+    workoutSessionIsLoaded: (state, getters) => (uuid) => {
+        return getters.uuid === uuid;
+    },
+
     uuid(state) {
         return state.workoutSession.uuid;
     },
 
     workoutName(state) {
         return state.workoutSession.name;
+    },
+
+    workoutSession(state) {
+        return state.workoutSession;
     },
 
     firstSet(state) {
