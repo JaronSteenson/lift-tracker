@@ -1,7 +1,7 @@
 import WorkoutSessionService from '../../api/WorkoutSessionService'
 import UuidHelper from '../../UuidHelper'
 import {debounce} from "lodash";
-import { differenceInSeconds } from 'date-fns'
+import { differenceInSeconds, isBefore } from 'date-fns'
 
 const SAVE_DEBOUNCE_WAIT = 1000;
 
@@ -289,8 +289,16 @@ const actions = {
 
     saveSet: debounce(async ({ commit, getters }, uuid) => {
         try {
+            commit('updateSet', { updatedAt: utcNow() });
             const response = await WorkoutSessionService.saveSet(getters.set(uuid));
-            commit('updateSet', response.data);
+
+            const localUpdatedAt = new Date(getters.set(uuid).updatedAt);
+            const serverUpdatedAt = new Date(response.data.updatedAt);
+
+            if (!isBefore(localUpdatedAt, serverUpdatedAt)) {
+                commit('updateSet', response.data);
+            }
+
         } catch (error) {
             console.error(error);
         }
@@ -305,14 +313,15 @@ const actions = {
         }
     }, SAVE_DEBOUNCE_WAIT),
 
-    saveWorkout: debounce(async ({ commit, state }) => {
+    async saveWorkout({ commit, state }) {
+        debugger;
         try {
             const response = await WorkoutSessionService.save(state.workoutSession);
             commit('updateWorkout', { workout: state.workoutSession, newState: response  });
         } catch (error) {
             console.error(error);
         }
-    }, SAVE_DEBOUNCE_WAIT),
+    },
 
     async fetch({ commit, dispatch }, uuid) {
         const response = await WorkoutSessionService.get(uuid);
@@ -337,7 +346,7 @@ const actions = {
         const endedAt = utcNow();
 
         commit('endWorkout', { endedAt });
-        dispatch('saveWorkout');
+        return dispatch('saveWorkout');
     },
 
 };
@@ -380,7 +389,7 @@ const mutations = {
     },
 
     endWorkout(state, { endedAt }) {
-        state.endedAt = endedAt;
+        state.workoutSession.endedAt = endedAt;
     },
 
 };

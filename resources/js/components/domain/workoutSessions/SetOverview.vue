@@ -273,9 +273,9 @@
 
                 this.startNextSet();
             },
-            endWorkout() {
-                this.$store.dispatch('workoutSession/endWorkout');
-                this.$router.push({ name: 'sessionOverview', params: { workoutSessionUuid: this.uuid }});
+            async endWorkout() {
+                await this.$store.dispatch('workoutSession/endWorkout');
+                await this.$router.push({ name: 'sessionOverview', params: { workoutSessionUuid: this.uuid }});
             },
             skipSet() {
                 this.startNextSet();

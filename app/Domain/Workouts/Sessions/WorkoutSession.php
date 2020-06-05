@@ -67,6 +67,8 @@ class WorkoutSession extends AbstractModel
         'endedAt',
         'notes',
         'sessionExercises',
+        'createdAt',
+        'updatedAt',
     ];
 
     protected $casts = [
