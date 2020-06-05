@@ -10,17 +10,30 @@
             <VSpacer/>
         </VToolbar>
 
-        <VCardText class="py-0">
+        <VCardText class="pt-0">
             <hr>
             <SessionDateTimeStats :workout-session="workoutSession"/>
             <hr>
 
             <ExerciseSummaryCard
+                class="mt-5"
                 v-for="(sessionExercise) in sessionExercises"
                 :exercise="sessionExercise"
                 :key="sessionExercise.uuid"
             />
         </VCardText>
+        <VCardActions>
+            <VContainer class="text-center" fluid>
+                <VRow justify="center">
+                    <VCol cols="12">
+                        <VBtn :to="{ name: 'home' }" class="home-button">
+                            <VIcon>mdi-home</VIcon>
+                            Go to home page
+                        </VBtn>
+                    </VCol>
+                </VRow>
+            </VContainer>
+        </VCardActions>
     </component>
 </template>
 
