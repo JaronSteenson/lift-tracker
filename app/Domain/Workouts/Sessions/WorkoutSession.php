@@ -80,15 +80,17 @@ class WorkoutSession extends AbstractModel
         'sessionExercises',
     ];
 
-    public static function createFromRoutine(WorkoutProgramRoutine $originRoutine, string $userId): self
+    public static function createFromRoutine(WorkoutProgramRoutine $originRoutine, string $userId, bool $startNow): self
     {
-        return DB::transaction(static function () use ($originRoutine, $userId) {
+        return DB::transaction(static function () use ($originRoutine, $userId, $startNow) {
             $workoutSession = new static();
             $workoutSession->userId = $userId;
             $workoutSession->workoutProgramId = $originRoutine->id;
             $workoutSession->name = $originRoutine->name;
 
-            $workoutSession->startedAt = new Carbon();
+            if ($startNow) {
+                $workoutSession->startedAt = new Carbon();
+            }
 
             $workoutSession->save();
 

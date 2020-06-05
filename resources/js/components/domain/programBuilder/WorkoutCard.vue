@@ -203,7 +203,7 @@
                 // Create a new workout session from the updated master routine.
                 await this.$store.dispatch('workoutSession/startWorkout', { originWorkoutUuid: this.workoutUuid });
 
-                // Replace history with the in progress over view, so that back button takes you there instead of
+                // Replace history with the in progress overview, so that back button takes you there instead of
                 // the set up screen for a new session.
                 const workoutSessionUuid = this.$store.getters['workoutSession/uuid'];
                 await this.$router.replace({ name: 'sessionOverview', params: { workoutSessionUuid }});

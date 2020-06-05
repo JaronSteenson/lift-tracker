@@ -89,7 +89,7 @@ class WorkoutSessionController extends Controller
             throw new BadRequestHttpException('Origin workout not found');
         }
 
-        return WorkoutSession::createFromRoutine($originRoutine, $request->user()->id);
+        return WorkoutSession::createFromRoutine($originRoutine, $request->user()->id, true);
     }
 
     /**

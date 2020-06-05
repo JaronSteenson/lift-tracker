@@ -115,7 +115,7 @@
 
                         <VBtn
                             :width="$vuetify.breakpoint.xsOnly ?  '100%' : null"
-                            @click="startNextSet"
+                            @click="skipRest"
                             class="mb-2"
                             color="success"
                             small>
@@ -134,6 +134,18 @@
 
                     <VCol class="pt-0 text-right" cols="6">
                         <VBtn
+                            v-if="isLastSetOfWorkout"
+                            :width="$vuetify.breakpoint.xsOnly ?  '100%' : null"
+                            :height="'75%'"
+                            @click="endWorkout"
+                            class="mt-2"
+                            color="success"
+                            small>
+                            <VIcon left>mdi-check</VIcon>
+                            Finish <br v-if="$vuetify.breakpoint.xsOnly"/> workout
+                        </VBtn>
+                        <VBtn
+                            v-else
                             :width="$vuetify.breakpoint.xsOnly ?  '100%' : null"
                             :height="'75%'"
                             @click="startNextSet"
@@ -164,6 +176,7 @@
     import RestPeriodSlider from "../RestPeriodSlider";
     import RestPeriodTimer from "../RestPeriodTimer";
     import { minsSecDuration } from "../../../filters";
+    import workoutSession from "../../../store/modules/workoutSession";
 
     export default {
         components: {
@@ -182,7 +195,7 @@
             }
         },
         computed: {
-            ...mapGetters('workoutSession', ['workoutName']),
+            ...mapGetters('workoutSession', ['workoutName', 'uuid']),
             set() {
                 return this.$store.getters['workoutSession/set'](this.sessionSetUuid);
             },
@@ -197,6 +210,9 @@
             },
             restPeriodIsFinished() {
                 return this.$store.getters['workoutSession/restPeriodIsFinished'](this.sessionSetUuid);
+            },
+            isLastSetOfWorkout() {
+                return this.$store.getters['workoutSession/isLastSetOfWorkout'](this.sessionSetUuid);
             },
             restPeriodDisplay() {
                 return minsSecDuration(this.restPeriod);
@@ -247,6 +263,18 @@
             },
         },
         methods: {
+            skipRest() {
+                if (this.isLastSetOfWorkout) {
+                    this.endWorkout();
+                    return;
+                }
+
+                this.startNextSet();
+            },
+            endWorkout() {
+                this.$store.dispatch('workoutSession/endWorkout');
+                this.$router.push({ name: 'sessionOverview', params: { workoutSessionUuid: this.uuid }});
+            },
             skipSet() {
                 this.startNextSet();
             },

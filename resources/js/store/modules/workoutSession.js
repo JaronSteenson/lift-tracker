@@ -10,6 +10,9 @@ function defaultState() {
         workoutSession: {
             uuid: null,
             name: '',
+            startedAt: null,
+            endedAt: null,
+            notes: null,
             sessionExercises: null,
         },
         restPeriodTimout: null,
@@ -160,6 +163,17 @@ const getters = {
         return null;
     },
 
+    isLastSetOfWorkout: (state, getters) => (uuid) => {
+        debugger
+        const actualSet = getters.set(uuid);
+
+        const lastExercise = state.workoutSession.sessionExercises[state.workoutSession.sessionExercises.length - 1];
+
+        const lastSet = lastExercise.sessionSets[lastExercise.sessionSets.length - 1];
+
+        return actualSet.uuid === lastSet.uuid;
+    },
+
     restPeriodNotStarted: (state, getters) => (uuid) => {
         const set = getters.set(uuid);
 
@@ -265,12 +279,10 @@ const actions = {
     saveSet: debounce(async ({ commit, getters }, uuid) => {
         try {
             const response = await WorkoutSessionService.saveSet(getters.set(uuid));
-
             commit('updateSet', response.data);
         } catch (error) {
             console.error(error);
         }
-
     }, SAVE_DEBOUNCE_WAIT),
 
     saveExercise: debounce(async ({ commit, getters }, uuid) => {
@@ -280,7 +292,15 @@ const actions = {
         } catch (error) {
             console.error(error);
         }
+    }, SAVE_DEBOUNCE_WAIT),
 
+    saveWorkout: debounce(async ({ commit, state }) => {
+        try {
+            const response = await WorkoutSessionService.save(state.workoutSession);
+            commit('updateWorkout', { workout: state.workoutSession, newState: response  });
+        } catch (error) {
+            console.error(error);
+        }
     }, SAVE_DEBOUNCE_WAIT),
 
     async fetch({ commit, dispatch }, uuid) {
@@ -300,6 +320,13 @@ const actions = {
     async startWorkout({ commit, dispatch }, { originWorkoutUuid }) {
         const response = await WorkoutSessionService.startNew(originWorkoutUuid);
         commit('reset', { workoutSession: response.data });
+    },
+
+    endWorkout({ commit, dispatch }) {
+        const endedAt = utcNow();
+
+        commit('endWorkout', { endedAt });
+        dispatch('saveWorkout');
     },
 
 };
@@ -339,6 +366,10 @@ const mutations = {
 
         clearTimeout(state.restPeriodTimeout);
         state.restPeriodTimeout = null;
+    },
+
+    endWorkout(state, { endedAt }) {
+        state.endedAt = endedAt;
     },
 
 };
