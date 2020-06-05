@@ -19,7 +19,7 @@ export function minsSecDuration(valueInSeconds) {
     }
 
     const minutes = Math.floor(valueInSeconds / 60);
-    let seconds = valueInSeconds - minutes * 60;
+    let seconds = Math.round(valueInSeconds - minutes * 60);
 
     if (minutes === 0) {
         return `${seconds}s`;
@@ -55,12 +55,15 @@ export function dateTimeDescription(utcDate) {
     return `${dateDescription(utcDate)}, ${timeDescription(utcDate)}`;
 }
 
-export function timeDescription(utcDate) {
+export function timeDescription(utcDate, noRecent) {
     const date = new Date(utcDate);
-    const resent = resentDescription(date);
 
-    if (resent) {
-        return resent;
+    if (!noRecent) {
+        const resent = resentDescription(date);
+
+        if (resent) {
+            return resent;
+        }
     }
 
     return format(date, 'p');

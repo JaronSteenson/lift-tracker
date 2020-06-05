@@ -39,11 +39,11 @@
                     },
                     {
                         icon: 'mdi-play',
-                        value: timeDescription(this.workoutSession.startedAt)
+                        value: timeDescription(this.workoutSession.startedAt, true)
                     },
                     {
                         icon: 'mdi-stop',
-                        value: timeDescription(this.workoutSession.endedAt)
+                        value: timeDescription(this.workoutSession.endedAt, true)
                     },
                 ]
             }

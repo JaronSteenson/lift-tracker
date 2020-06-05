@@ -74,6 +74,10 @@ const getters = {
         return state.workoutSession;
     },
 
+    sessionExercises(state) {
+        return state.workoutSession.sessionExercises;
+    },
+
     firstSet(state) {
         return state.workoutSession.sessionExercises[0].sessionSets[0]
     },
@@ -172,7 +176,6 @@ const getters = {
     },
 
     isLastSetOfWorkout: (state, getters) => (uuid) => {
-        debugger
         const actualSet = getters.set(uuid);
 
         const lastExercise = state.workoutSession.sessionExercises[state.workoutSession.sessionExercises.length - 1];

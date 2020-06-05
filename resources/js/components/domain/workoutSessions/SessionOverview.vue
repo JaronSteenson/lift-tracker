@@ -11,7 +11,15 @@
         </VToolbar>
 
         <VCardText class="py-0">
+            <hr>
             <SessionDateTimeStats :workout-session="workoutSession"/>
+            <hr>
+
+            <ExerciseSummaryCard
+                v-for="(sessionExercise) in sessionExercises"
+                :exercise="sessionExercise"
+                :key="sessionExercise.uuid"
+            />
         </VCardText>
     </component>
 </template>
@@ -22,6 +30,7 @@
     import SessionDateTimeStats from './SessionDateTimeStats';
     import WorkoutCard from './../programBuilder/WorkoutCard';
     import {mapGetters} from "vuex";
+    import ExerciseSummaryCard from "./ExerciseSummaryCard";
 
     export default {
         components: {
@@ -29,13 +38,14 @@
             SessionOverviewLoadingSkeleton,
             WorkoutCard,
             SessionDateTimeStats,
+            ExerciseSummaryCard,
         },
         props: {
             originRoutineUuid: String,
             workoutSessionUuid: String,
         },
         computed: {
-            ...mapGetters('workoutSession', ['workoutName', 'workoutSession']),
+            ...mapGetters('workoutSession', ['workoutName', 'workoutSession', 'sessionExercises']),
         },
     }
 </script>
