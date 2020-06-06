@@ -61,6 +61,12 @@ Route::apiResource('api/sessions-sets', 'Api\SessionSetController')
     ->middleware('auth');
 
 /**
+ * @see \LiftTracker\Http\Controllers\Api\LastTimeSessionExercise
+ */
+Route::get('api/last-time-session-exercise/{sessionExerciseUuid}', 'Api\LastTimeSessionExercise')
+    ->middleware('auth');
+
+/**
  *  Catch all route.
  * @see \LiftTracker\Http\Controllers\VueAppController
  */

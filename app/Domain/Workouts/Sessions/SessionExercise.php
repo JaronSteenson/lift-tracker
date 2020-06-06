@@ -10,10 +10,12 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Facades\DB;
 use LiftTracker\Domain\AbstractModel;
 use LiftTracker\Domain\Users\CanBeOwnedByUserTrait;
+use LiftTracker\Domain\Users\UserOwnershipInterface;
 use LiftTracker\Domain\Workouts\Exercises\Exercise;
 use LiftTracker\Domain\Workouts\Programs\RoutineExercise;
 use LiftTracker\Http\Requests\WorkoutSessionRequest;
 use LiftTracker\Traits\HasUuidTrait;
+use LiftTracker\User;
 
 /**
  * This class/table doesn't link to exercise instead when adding an exercise to a routine
@@ -37,10 +39,9 @@ use LiftTracker\Traits\HasUuidTrait;
  * @property Carbon updatedAt
  *
  */
-class SessionExercise extends AbstractModel
+class SessionExercise extends AbstractModel implements UserOwnershipInterface
 {
     use HasUuidTrait;
-    use CanBeOwnedByUserTrait;
 
     /**
      * The attributes that are mass assignable.
@@ -112,19 +113,30 @@ class SessionExercise extends AbstractModel
         });
     }
 
-    public static function createFromRequest(WorkoutSessionRequest $request): self
+    public function userOwnsThis(User $user): bool
     {
-//        /** @var static $workoutProgram */
-//        $workoutProgram = $request->getExistingModel() ?? new static();
-//
-//        $workoutProgram->name = $request->get('name');
-//
-//        // Associate the user with the top level entity.
-//        if (!$workoutProgram->exists) {
-//            $workoutProgram->user()->associate($request->user());
-//        }
-//
-//        return $workoutProgram;
+        return $this->workoutSession->userId === $user->id;
+    }
+
+    public function isNotOwnedBy(User $user): bool
+    {
+        return !$this->userOwnsThis($user);
+    }
+
+    public function findLastTime(): ?self {
+        if ($this->routineExerciseId === null) {
+            return null;
+        }
+
+        $userId = $this->workoutSession->userId;
+
+        return $this->select('SessionExercises.*')
+            ->where('routineExerciseId', $this->routineExerciseId)
+            ->join('WorkoutSessions','WorkoutSessions.id','=','workoutSessionId')
+            ->where('WorkoutSessions.userId', $userId)
+            ->where('SessionExercises.id', '!=', $this->id)
+            ->orderBy('WorkoutSessions.startedAt', 'asc')
+            ->first();
     }
 
     public function workoutSession(): BelongsTo
@@ -136,5 +148,4 @@ class SessionExercise extends AbstractModel
     {
         return $this->hasMany(SessionSet::class, 'sessionExerciseId');
     }
-
 }
