@@ -15,6 +15,7 @@ function defaultState() {
             notes: null,
             sessionExercises: null,
         },
+        lastTimeExercises: {}, // Keyed by the exercise uuid.
         restPeriodTimout: null,
     }
 }
@@ -229,6 +230,14 @@ const getters = {
         return finishInSeconds - now;
     },
 
+    hasLoadedLastTimeExercise: (state) => (exerciseUuid) => {
+        return typeof state.lastTimeExercises[exerciseUuid] !== 'undefined';
+    },
+
+    lastTimeExercise: (state) => (exerciseUuid) => {
+        return state.lastTimeExercises[exerciseUuid];
+    },
+
 };
 
 const actions = {
@@ -337,6 +346,18 @@ const actions = {
         return response;
     },
 
+    async fetchLastTimeExercise({ commit, dispatch }, exerciseUuid) {
+        const response = await WorkoutSessionService.getLastTimeSessionExercise(exerciseUuid);
+
+        if (response.data === '') {
+            response.data = null;
+        }
+
+        commit('updateLastTimeExercise', { exerciseUuid, lastTimeExercise: response.data });
+
+        return response;
+    },
+
     async startWorkout({ commit, dispatch }, { originWorkoutUuid }) {
         const response = await WorkoutSessionService.startNew(originWorkoutUuid);
         commit('reset', { workoutSession: response.data });
@@ -374,6 +395,11 @@ const mutations = {
             exercise[key] = newExerciseState[key]
         });
     },
+
+    updateLastTimeExercise(state, {exerciseUuid, lastTimeExercise}) {
+        state.lastTimeExercises[exerciseUuid] = lastTimeExercise;
+    },
+
 
     setRestPeriodTimeout(state, restPeriodTimeout) {
         state.restPeriodTimeout = restPeriodTimeout;

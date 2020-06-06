@@ -82,7 +82,16 @@
                 </VRow>
                 <VRow class="pt-0 mt-0">
                     <VCol class="pt-0 mt-0" cols="12">
-                        <a href="#">Last weeks summary of this exercise</a>
+                        <span v-if="!this.hasLoadedLastTimeExercise">
+                            Loading last times stats...
+                            <VProgressLinear indeterminate/>
+                        </span>
+                        <template v-else>
+                            <a href="#" v-if="this.lastTimeExercise">
+                                Last times summary of this exercise
+                            </a>
+                            <span v-else>This is the first time you are doing this exercise.</span>
+                        </template>
                     </VCol>
                 </VRow>
                 <VRow>
@@ -195,9 +204,16 @@
             if (this.isDuringRestPeriod) {
                 this.resumeRestPeriod();
             }
+
+            this.ensureLastTimeStatsAreLoaded();
+        },
+        data() {
+            return {
+                hasLoadedLastTimeExercise: false,
+            }
         },
         computed: {
-            ...mapGetters('workoutSession', ['workoutName', 'uuid']),
+            ...mapGetters('workoutSession', ['workoutName', 'uuid', 'lastTimeExercise']),
             set() {
                 return this.$store.getters['workoutSession/set'](this.sessionSetUuid);
             },
@@ -215,6 +231,9 @@
             },
             isLastSetOfWorkout() {
                 return this.$store.getters['workoutSession/isLastSetOfWorkout'](this.sessionSetUuid);
+            },
+            lastTimeExercise() {
+                return this.$store.getters['workoutSession/lastTimeExercise'](this.exercise.uuid);
             },
             restPeriodDisplay() {
                 return minsSecDuration(this.restPeriod);
@@ -273,6 +292,9 @@
 
                 this.startNextSet();
             },
+            async fetchLastTimeExercise() {
+                return this.$store.dispatch('workoutSession/fetchLastTimeExercise', this.exercise.uuid);
+            },
             async endWorkout() {
                 await this.$store.dispatch('workoutSession/endWorkout');
                 await this.$router.push({ name: 'sessionOverview', params: { workoutSessionUuid: this.uuid }});
@@ -304,6 +326,18 @@
                     uuid: this.sessionSetUuid,
                 })
             },
+            async ensureLastTimeStatsAreLoaded() {
+                this.hasLoadedLastTimeExercise = this.$store.getters['workoutSession/hasLoadedLastTimeExercise'](this.exercise.uuid);
+                if (!this.hasLoadedLastTimeExercise) {
+                    await this.fetchLastTimeExercise();
+                    this.hasLoadedLastTimeExercise = true;
+                }
+            }
+        },
+        watch: {
+            sessionSetUuid() {
+                this.ensureLastTimeStatsAreLoaded();
+            }
         }
     }
 </script>

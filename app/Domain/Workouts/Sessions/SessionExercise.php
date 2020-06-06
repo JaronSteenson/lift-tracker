@@ -97,6 +97,7 @@ class SessionExercise extends AbstractModel implements UserOwnershipInterface
             $sessionExercise->plannedWeight = $originExercise->weight;
             $sessionExercise->plannedRestPeriodDuration = $originExercise->restPeriod;
             $sessionExercise->position = $originExercise->position;
+            $sessionExercise->routineExerciseId = $originExercise->id;
 
             $sessionExercise->save();
 

@@ -3,6 +3,7 @@ import ApiService from './ApiService';
 const RESOURCE_NAME = 'workout-sessions';
 const SET_RESOURCE_NAME = 'sessions-sets';
 const EXERCISE_RESOURCE_NAME = 'sessions-exercises';
+const LAST_TIME_SESSION_EXERCISE = 'last-time-session-exercise';
 
 const WorkoutProgramService = {
 
@@ -16,6 +17,10 @@ const WorkoutProgramService = {
 
     getBySet(sessionSetUuid) {
         return ApiService.get(`${RESOURCE_NAME}?session-set-uuid=${sessionSetUuid}`)
+    },
+
+    getLastTimeSessionExercise(sessionExerciseUuid) {
+        return ApiService.get(`${LAST_TIME_SESSION_EXERCISE}/${sessionExerciseUuid}`)
     },
 
     saveSet(sessionSet) {
