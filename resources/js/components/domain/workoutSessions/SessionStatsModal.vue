@@ -34,11 +34,13 @@
                         :labels="weightLabels"
                         :line-width="15"
                         :padding="5"
-                        :radius="5"
+                        :radius="10"
                         :value="weights"
                         auto-draw
+                        stroke-linecap="round"
                         show-labels
                         type="bar"
+                        smooth="radius"
                     />
                     <hr class="mt-2">
                 </div>
@@ -51,11 +53,13 @@
                         :labels="repLabels"
                         :line-width="15"
                         :padding="5"
-                        :radius="5"
+                        :radius="10"
                         :value="reps"
                         auto-draw
+                        stroke-linecap="round"
                         show-labels
                         type="bar"
+                        smooth="radius"
                     />
                     <hr class="mt-2">
                 </div>
@@ -71,7 +75,7 @@
                         :radius="5"
                         :value="rest"
                         auto-draw
-                        line-cap="round"
+                        stroke-linecap="round"
                         show-labels
                         type="trend"
                     />
