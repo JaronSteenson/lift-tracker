@@ -323,7 +323,6 @@ const actions = {
     }, SAVE_DEBOUNCE_WAIT),
 
     async saveWorkout({ commit, state }) {
-        debugger;
         try {
             const response = await WorkoutSessionService.save(state.workoutSession);
             commit('updateWorkout', { workout: state.workoutSession, newState: response  });

@@ -301,6 +301,10 @@
                     return;
                 }
 
+                if (this.isDuringRestPeriod) {
+                    this.endRestPeriod();
+                }
+
                 this.startNextSet();
             },
             async fetchLastTimeExercise() {
