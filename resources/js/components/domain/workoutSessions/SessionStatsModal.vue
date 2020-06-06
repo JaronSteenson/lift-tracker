@@ -175,8 +175,3 @@
     }
 </script>
 
-<style lang="scss">
-    .graph {
-        max-width: 400px;
-    }
-</style>
