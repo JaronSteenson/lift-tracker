@@ -13,8 +13,8 @@ export default {
     timeDescription: dateTimeDescription,
 }
 
-export function minsSecDuration(valueInSeconds) {
-    if (!valueInSeconds) {
+export function minsSecDuration(valueInSeconds, noZeroTreatment) {
+    if (typeof noZeroTreatment === 'undefined' && !valueInSeconds) {
         return 'None';
     }
 
@@ -45,11 +45,13 @@ export function hoursMinutesDuration(seconds) {
     return `${hours}h ${minutes}m`;
 }
 
-export function dateTimeDescription(utcDate) {
+export function dateTimeDescription(utcDate, noRecent) {
     const resent = resentDescription(utcDate);
 
-    if (resent) {
-        return resent;
+    if (!noRecent) {
+        if (resent) {
+            return resent;
+        }
     }
 
     return `${dateDescription(utcDate)}, ${timeDescription(utcDate)}`;
@@ -69,12 +71,14 @@ export function timeDescription(utcDate, noRecent) {
     return format(date, 'p');
 }
 
-export function dateDescription(utcDate) {
+export function dateDescription(utcDate, noRecent) {
     const date = new Date(utcDate);
     const resent = resentDescription(date);
 
-    if (resent) {
-        return resent;
+    if (!noRecent) {
+        if (resent) {
+            return resent;
+        }
     }
 
     if (isToday(date)) {

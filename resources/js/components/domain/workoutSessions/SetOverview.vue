@@ -87,9 +87,17 @@
                             <VProgressLinear indeterminate/>
                         </span>
                         <template v-else>
-                            <a href="#" v-if="this.lastTimeExercise">
-                                Last times summary of this exercise
-                            </a>
+                            <template v-if="this.lastTimeExercise">
+                                <a href="#" @click="openLastTimeStats">
+                                    View last time's stats
+                                </a>
+
+                                <SessionStatsModal
+                                    v-if="showLastTimeStats"
+                                    :session-exercise="exercise"
+                                    v-model="showLastTimeStats"
+                                />
+                            </template>
                             <span v-else>This is the first time you are doing this exercise.</span>
                         </template>
                     </VCol>
@@ -188,9 +196,11 @@
     import RestPeriodTimer from "../RestPeriodTimer";
     import { minsSecDuration } from "../../../filters";
     import workoutSession from "../../../store/modules/workoutSession";
+    import SessionStatsModal from "./SessionStatsModal";
 
     export default {
         components: {
+            SessionStatsModal,
             RestPeriodSlider,
             RestPeriodTimer,
         },
@@ -210,6 +220,7 @@
         data() {
             return {
                 hasLoadedLastTimeExercise: false,
+                showLastTimeStats: false,
             }
         },
         computed: {
@@ -332,7 +343,10 @@
                     await this.fetchLastTimeExercise();
                     this.hasLoadedLastTimeExercise = true;
                 }
-            }
+            },
+            openLastTimeStats() {
+                this.showLastTimeStats = true;
+            },
         },
         watch: {
             sessionSetUuid() {
