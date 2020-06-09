@@ -195,8 +195,7 @@
     import RestPeriodSlider from "../RestPeriodSlider";
     import RestPeriodTimer from "../RestPeriodTimer";
     import { minsSecDuration } from "../../../filters";
-    import workoutSession from "../../../store/modules/workoutSession";
-    import SessionStatsModal from "./SessionStatsModal";
+    import SessionStatsModal from "./SessionExerciseStatsModal";
 
     export default {
         components: {

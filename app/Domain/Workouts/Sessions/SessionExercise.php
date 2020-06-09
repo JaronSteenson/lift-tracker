@@ -149,4 +149,5 @@ class SessionExercise extends AbstractModel implements UserOwnershipInterface
     {
         return $this->hasMany(SessionSet::class, 'sessionExerciseId');
     }
+
 }

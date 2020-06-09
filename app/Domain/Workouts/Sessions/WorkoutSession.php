@@ -141,6 +141,22 @@ class WorkoutSession extends AbstractModel
         return $exercise->workoutSession;
     }
 
+    /**
+     * Find workouts that have been started but not finished.
+     * Any workout started over 24 hours ago is considered finished.
+     *
+     * @param int $userId
+     * @return Collection|WorkoutSession[]
+     */
+    public function findInProgress(int $userId)
+    {
+        return $this->whereNull('endedAt')
+            ->where('startedAt', '>=', Carbon::now()->modify('-24 hour'))
+            ->where('userId', $userId)
+            ->orderBy('createdAt', 'desc')
+            ->get();
+    }
+
     public function sessionExercises(): HasMany
     {
         return $this->hasMany(SessionExercise::class, 'workoutSessionId');

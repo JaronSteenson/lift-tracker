@@ -32,6 +32,7 @@ function forceLogin(to, from, next) {
 async function waitForAppBootstrap(to, from, next) {
     if (!store.getters['app/isBootstraped']) {
         await store.dispatch('app/fetchAppBootstrapData');
+        await store.dispatch('workoutSession/fetchInProgressWorkouts');
     }
 
     next();

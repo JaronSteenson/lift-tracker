@@ -1,28 +1,49 @@
 <template>
-    <v-app>
-        <v-navigation-drawer
+    <VApp>
+        <VNavigationDrawer
             v-if="userIsAuthenticated"
             v-model="drawer"
             app
             :clipped="$vuetify.breakpoint.lgAndUp"
         >
-            <v-list dense>
-                <v-list-item link :to="{ name: 'home'}">
-                    <v-list-item-action>
+            <VList dense>
+                <VListItem
+                    link
+                    :to="{ path: '/'}"
+                 >
+                    <VListItemIcon>
                         <VIcon>mdi-home</VIcon>
-                    </v-list-item-action>
-                    <v-list-item-content>
-                        <v-list-item-title>Home</v-list-item-title>
-                    </v-list-item-content>
-                </v-list-item>
-            </v-list>
-        </v-navigation-drawer>
+                    </VListItemIcon>
+
+                    <VListItemContent>
+                        <VListItemTitle>Home</VListItemTitle>
+                    </VListItemContent>
+                </VListItem>
+
+                <VDivider/>
+
+                <VListItem
+                    v-for="workout in inProgressWorkouts"
+                    :key="workout.uuid"
+                    link
+                    :to="{ name: 'sessionOverview', params: { workoutSessionUuid: workout.uuid } }"
+                >
+                    <VListItemAction>
+                        <VIcon>mdi-dumbbell</VIcon>
+                    </VListItemAction>
+                    <VListItemContent>
+                        <VListItemTitle>Resume workout</VListItemTitle>
+                        <VListItemSubtitle>{{ workout.name }}</VListItemSubtitle>
+                    </VListItemContent>
+                </VListItem>
+            </VList>
+        </VNavigationDrawer>
 
         <VAppBar app title color="primary" dark :clipped-left="$vuetify.breakpoint.lgAndUp">
             <VAppBarNavIcon v-if="userIsAuthenticated" @click.stop="drawer = !drawer" />
-            <v-toolbar-title>{{ appName }}</v-toolbar-title>
+            <VToolbarTitle>{{ appName }}</VToolbarTitle>
 
-            <v-spacer></v-spacer>
+            <VSpacer/>
 
             <VMenu
                 v-if="userIsAuthenticated"
@@ -32,16 +53,16 @@
             >
                 <template v-slot:activator="{ on }">
                     <VBtn icon v-on="on">
-                        <v-avatar class="app-avatar">
+                        <VAvatar class="app-avatar">
                             <span class="accent--text headline">{{ avatarInitial }}</span>
-                        </v-avatar>
+                        </VAvatar>
                     </VBtn>
                 </template>
-                <v-list>
-                    <v-list-item @click="logout">
-                        <v-list-item-title>Logout</v-list-item-title>
-                    </v-list-item>
-                </v-list>
+                <VList>
+                    <VListItem @click="logout">
+                        <VListItemTitle>Logout</VListItemTitle>
+                    </VListItem>
+                </VList>
             </VMenu>
         </VAppBar>
 
@@ -51,7 +72,7 @@
             </VFadeTransition>
             <AppSplashScreen v-else-if="slowLoading"/>
         </VContent>
-    </v-app>
+    </VApp>
 </template>
 
 
@@ -79,6 +100,9 @@
                 avatarInitial: 'getUserAvatarInitial',
                 userIsAuthenticated: 'userIsAuthenticated',
             }),
+            ...mapGetters('workoutSession',
+                ['hasLoadedInProgressWorkouts', 'inProgressWorkouts']
+            ),
         },
         methods: {
             async logout() {

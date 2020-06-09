@@ -76,7 +76,7 @@
 <script>
     import WorkoutSessionService from '../../api/WorkoutSessionService';
     import NewSessionModal from './workoutSessions/NewSessionModal';
-    import {dateDescription, dateTimeDescription} from '../../filters';
+    import {dateDescription} from '../../filters';
     import UuidHelper from "../../UuidHelper";
 
     export default {
@@ -101,8 +101,14 @@
             },
             workoutSessionsForDisplay() {
                 return this.workoutSessions.map(workoutSession => {
+                    let startedAt = dateDescription(workoutSession.startedAt);
+
+                    if (this.$store.getters['workoutSession/isInProgressWorkout'](workoutSession.uuid)) {
+                        startedAt = `${startedAt} (in progress)`;
+                    }
+
                     return { ...workoutSession, ...{
-                        startedAt: dateDescription(workoutSession.startedAt),
+                        startedAt,
                         programName: workoutSession.workoutProgramRoutine.workoutProgram.name,
                     } };
                 })

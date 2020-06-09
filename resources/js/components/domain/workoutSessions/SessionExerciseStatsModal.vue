@@ -87,7 +87,7 @@
 </template>
 
 <script>
-    import {dateDescription, minsSecDuration} from "../../../filters";
+    import { dateDescription, minsSecDuration } from "../../../filters";
 
     export default {
         props: {

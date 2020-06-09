@@ -15,7 +15,8 @@ function defaultState() {
             notes: null,
             sessionExercises: null,
         },
-        lastTimeExercises: {}, // Keyed by the exercise uuid.
+        lastTimeExercises: {}, // A map of sessionExercises Keyed by the exercise uuid.
+        inProgressWorkouts: null, // An array of workouts.
         restPeriodTimout: null,
     }
 }
@@ -58,6 +59,18 @@ function utcNow() {
 const state = defaultState();
 
 const getters = {
+
+    hasLoadedInProgressWorkouts(state, getters) {
+        return getters.inProgressWorkouts !== null;
+    },
+
+    isInProgressWorkout: (state, getters) => (uuid) => {
+        return UuidHelper.findIn(getters.inProgressWorkouts, uuid);
+    },
+
+    inProgressWorkouts(state) {
+        return state.inProgressWorkouts;
+    },
 
     workoutSessionIsLoaded: (state, getters) => (uuid) => {
         return getters.uuid === uuid;
@@ -345,6 +358,18 @@ const actions = {
         return response;
     },
 
+    async fetchInProgressWorkouts({ commit }) {
+        const response = await WorkoutSessionService.getInProgressWorkouts();
+
+        if (response.data === '') {
+            response.data = null;
+        }
+
+        commit('updateInProgress', response.data);
+
+        return response;
+    },
+
     async fetchLastTimeExercise({ commit, dispatch }, exerciseUuid) {
         const response = await WorkoutSessionService.getLastTimeSessionExercise(exerciseUuid);
 
@@ -359,6 +384,7 @@ const actions = {
 
     async startWorkout({ commit, dispatch }, { originWorkoutUuid }) {
         commit('reset', defaultState());
+        dispatch('fetchInProgressWorkouts');
 
         const response = await WorkoutSessionService.startNew(originWorkoutUuid);
         commit('reset', { workoutSession: response.data });
@@ -397,10 +423,13 @@ const mutations = {
         });
     },
 
+    updateInProgress(state, inProgressWorkouts) {
+        state.inProgressWorkouts = inProgressWorkouts
+    },
+
     updateLastTimeExercise(state, {exerciseUuid, lastTimeExercise}) {
         state.lastTimeExercises[exerciseUuid] = lastTimeExercise;
     },
-
 
     setRestPeriodTimeout(state, restPeriodTimeout) {
         state.restPeriodTimeout = restPeriodTimeout;

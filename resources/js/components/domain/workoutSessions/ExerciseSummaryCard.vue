@@ -15,19 +15,34 @@
                         {{ averageRestPeriod }}
                     </VCol>
                 </VRow>
+                <VRow>
+                    <VCol class="px-0 pt-1 pb-0">
+                        <VIcon size="small">mdi-chart-line-variant</VIcon>
+                        <a href="#" @click.prevent="openStatsModal">View graphs</a>
+                        <SessionExerciseStatsModal v-model="showStatsModal" :session-exercise="exercise"/>
+                    </VCol>
+                </VRow>
             </VContainer>
         </VCardText>
     </VCard>
 </template>
 
 <script>
-    import {minsSecDuration} from "../../../filters";
-
+    import {minsSecDuration} from '../../../filters';
+    import SessionExerciseStatsModal from './SessionExerciseStatsModal';
     export default {
+        components: {
+            SessionExerciseStatsModal
+        },
         props: {
             exercise: {
                 type: Object,
                 required: true,
+            }
+        },
+        data() {
+            return {
+                showStatsModal: false,
             }
         },
         computed: {
@@ -76,6 +91,11 @@
 
                 return `${minsSecDuration(average)} rest on average`;
             }
+        },
+        methods: {
+            openStatsModal() {
+                this.showStatsModal = true;
+            },
         }
     }
 </script>

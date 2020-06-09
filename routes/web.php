@@ -67,6 +67,12 @@ Route::get('api/last-time-session-exercise/{sessionExerciseUuid}', 'Api\LastTime
     ->middleware('auth');
 
 /**
+ * @see \LiftTracker\Http\Controllers\Api\InProgressWorkoutSessions
+ */
+Route::get('api/in-progress-workouts', 'Api\InProgressWorkoutSessions')
+    ->middleware('auth');
+
+/**
  *  Catch all route.
  * @see \LiftTracker\Http\Controllers\VueAppController
  */
