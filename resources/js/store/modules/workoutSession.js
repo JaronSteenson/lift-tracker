@@ -1,7 +1,7 @@
 import WorkoutSessionService from '../../api/WorkoutSessionService'
 import UuidHelper from '../../UuidHelper'
 import {debounce} from "lodash";
-import { differenceInSeconds, isBefore } from 'date-fns'
+import {differenceInSeconds, isAfter, isBefore} from 'date-fns'
 
 const SAVE_DEBOUNCE_WAIT = 1000;
 
@@ -66,6 +66,24 @@ const getters = {
 
     isInProgressWorkout: (state, getters) => (uuid) => {
         return UuidHelper.findIn(getters.inProgressWorkouts, uuid);
+    },
+
+    currentSetForInProgressWorkout: (state, getters) => (uuid) => {
+        const workout =  UuidHelper.findIn(getters.inProgressWorkouts, uuid);
+
+        const setGroups = workout.sessionExercises.map(exercise => exercise.sessionSets);
+        const allSets = setGroups.reduce((accumulator, setGroup) => {
+            accumulator.push(...setGroup);
+            return accumulator;
+        }, [])
+
+        return allSets.reduce((lastTouched, set) => {
+            if (isAfter(new Date(set.updatedAt), new Date(lastTouched.updatedAt))) {
+                return set;
+            }
+
+            return lastTouched;
+        }, allSets[0]);
     },
 
     inProgressWorkouts(state) {

@@ -15,6 +15,13 @@
             <SessionDateTimeStats :workout-session="workoutSession"/>
             <hr>
 
+            <p class="mt-5" v-if="isInProgress">This workout is still in progress.
+                <RouterLink
+                    :to="{ name: 'setOverview', params: { sessionSetUuid: currentSet.uuid }}"
+                >Jump to current set.
+                </RouterLink>
+            </p>
+
             <ExerciseSummaryCard
                 class="mt-5"
                 v-for="(sessionExercise) in sessionExercises"
@@ -59,6 +66,12 @@
         },
         computed: {
             ...mapGetters('workoutSession', ['workoutName', 'workoutSession', 'sessionExercises']),
+            isInProgress() {
+                return this.$store.getters['workoutSession/isInProgressWorkout'](this.workoutSession.uuid);
+            },
+            currentSet() {
+                return this.$store.getters['workoutSession/currentSetForInProgressWorkout'](this.workoutSession.uuid);
+            },
         },
     }
 </script>
