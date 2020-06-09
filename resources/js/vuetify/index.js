@@ -21,7 +21,7 @@ export default new Vuetify({
                 primary: colors.deepPurple,
                 accent: colors.white,
                 anchor: colors.blue.base,
-                secondary: undefined,
+                secondary: colors.deepPurple.lighten2,
                 info: undefined,
                 warning: colors.deepOrange,
                 error: colors.red.lighten2,

@@ -8,18 +8,18 @@
 
             <VSpacer/>
 
-            <VBtn @click="showNewSessionModal" icon>
-                <VIcon>mdi-plus</VIcon>
-            </VBtn>
+<!--            <VBtn @click="showNewSessionModal" icon>-->
+<!--                <VIcon>mdi-plus</VIcon>-->
+<!--            </VBtn>-->
         </VToolbar>
 
         <VSkeletonLoader class="ma-5" type="table-heading, table-row@3" v-if="loading"/>
         <VDataTable v-else :headers="headers" :items="workoutSessionsForDisplay">
             <template v-slot:item.icon="{ item: program }">
-                <VIcon>mdi-table</VIcon>
+                <VIcon>mdi-dumbbell</VIcon>
             </template>
             <template v-slot:item.name="{ item: session }">
-                <RouterLink class="workout-name" :to="{ name: 'workoutSession', params: { workoutSessionUuid: session.uuid } }">
+                <RouterLink class="workout-name" :to="{ name: 'sessionOverview', params: { workoutSessionUuid: session.uuid } }">
                     {{ session.name }}
                 </RouterLink>
                 <VMenu v-if="$vuetify.breakpoint.xsOnly" bottom left>
@@ -31,8 +31,8 @@
 
                     <VList>
                         <VListItem
-                            :to="{ name: 'workoutSession', params: { workoutSessionUuid: session.uuid } }">
-                            <VListItemTitle>View</VListItemTitle>
+                            :to="{ name: 'sessionOverview', params: { workoutSessionUuid: session.uuid } }">
+                            <VListItemTitle>View summary</VListItemTitle>
                         </VListItem>
                         <VListItem @click="repeatWorkoutNow(session.uuid)">
                             <VListItemTitle>Repeat this workout now</VListItemTitle>
@@ -40,7 +40,15 @@
                     </VList>
                 </VMenu>
             </template>
-            <template v-if="$vuetify.breakpoint.smAndUp" v-slot:item.menu="{ item: program }">
+            <template v-slot:item.programName="{ item: session }">
+                <RouterLink
+                    :to="{ name: 'programBuilder', params: { workoutProgramUuid: getOriginProgramId(session) } }"
+                    class="workout-name"
+                >
+                    {{ session.workoutProgramRoutine.workoutProgram.name }}
+                </RouterLink>
+            </template>
+            <template v-if="$vuetify.breakpoint.smAndUp" v-slot:item.menu="{ item: session }">
                 <VMenu bottom left>
                     <template v-slot:activator="{ on }">
                         <VBtn icon v-on="on">
@@ -50,11 +58,11 @@
 
                     <VList>
                         <VListItem
-                            :to="{ name: 'programBuilder', params: { workoutProgramUuid: program.uuid } }">
-                            <VListItemTitle>Edit</VListItemTitle>
+                            :to="{ name: 'sessionOverview', params: { workoutSessionUuid: session.uuid } }">
+                            <VListItemTitle>View summary</VListItemTitle>
                         </VListItem>
-                        <VListItem @click="showNewSessionModal(program.uuid)">
-                            <VListItemTitle>New session</VListItemTitle>
+                        <VListItem @click="repeatWorkoutNow(session.uuid)">
+                            <VListItemTitle>Repeat this workout now</VListItemTitle>
                         </VListItem>
                     </VList>
                 </VMenu>
@@ -68,7 +76,7 @@
 <script>
     import WorkoutSessionService from '../../api/WorkoutSessionService';
     import NewSessionModal from './workoutSessions/NewSessionModal';
-    import { dateTimeDescription } from '../../filters';
+    import {dateDescription, dateTimeDescription} from '../../filters';
     import UuidHelper from "../../UuidHelper";
 
     export default {
@@ -92,9 +100,10 @@
                 return this.workoutSessions.length === 0;
             },
             workoutSessionsForDisplay() {
-                return this.workoutSessions.map(workoutProgram => {
-                    return { ...workoutProgram, ...{
-                        updatedAt: dateTimeDescription(workoutProgram.updatedAt)
+                return this.workoutSessions.map(workoutSession => {
+                    return { ...workoutSession, ...{
+                        startedAt: dateDescription(workoutSession.startedAt),
+                        programName: workoutSession.workoutProgramRoutine.workoutProgram.name,
                     } };
                 })
             },
@@ -102,12 +111,12 @@
                 if (this.$vuetify.breakpoint.xsOnly) {
                     return [
                         {
-                            text: 'Name',
+                            text: 'Routine name',
                             value: 'name',
                         },
                         {
-                            text: 'Last edited',
-                            value: 'updatedAt',
+                            text: 'Date',
+                            value: 'startedAt',
                         },
                     ]
                 }
@@ -119,12 +128,16 @@
                         width: '40',
                     },
                     {
-                        text: 'Program name',
+                        text: 'Routine name',
                         value: 'name',
                     },
                     {
-                        text: 'Last edited',
-                        value: 'updatedAt',
+                        text: 'Program name',
+                        value: 'programName',
+                    },
+                    {
+                        text: 'Date',
+                        value: 'startedAt',
                         align: 'end',
                     },
                     {
@@ -146,12 +159,15 @@
             repeatWorkoutNow(sessionUuid) {
                 const workoutSession = UuidHelper.findIn(this.workoutSessions, sessionUuid);
 
-                const originRoutineUuid = workoutSession.
+                const originRoutineUuid = workoutSession.workoutProgramRoutine.uuid;
 
                 this.$router.push({ name: 'newSessionOverview', params: { originRoutineUuid } });
             },
-            showNewSessionModal() {
-                this.newSessionModalProgramUuid = programUuid;
+            // showNewSessionModal() {
+            //     this.newSessionModalProgramUuid = programUuid;
+            // },
+            getOriginProgramId(session) {
+                return session?.workoutProgramRoutine?.workoutProgram.uuid
             }
         },
     }

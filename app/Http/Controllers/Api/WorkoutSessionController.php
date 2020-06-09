@@ -36,9 +36,9 @@ class WorkoutSessionController extends Controller
         $loggedInUser = $request->user();
 
         return $loggedInUser->workoutSessions()
-            ->with('workoutProgramRoutine')
+            ->with('workoutProgramRoutine.workoutProgram')
             ->without('sessionExercises', 'sessionExercises.sessionSets')
-            ->orderBy('createdAt', 'asc')
+            ->orderBy('createdAt', 'desc')
             ->get();
     }
 

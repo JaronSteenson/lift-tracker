@@ -114,4 +114,8 @@
             border-width: 2px !important;
         }
     }
+
+    .theme--light.v-icon {
+        color: var(--v-primary-base);
+    }
 </style>

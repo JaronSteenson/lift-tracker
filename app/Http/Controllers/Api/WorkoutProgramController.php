@@ -33,7 +33,6 @@ class WorkoutProgramController extends Controller
         $loggedInUser = $request->user();
 
         return $loggedInUser->workoutPrograms()
-            ->without('workoutProgramRoutines')
             ->orderBy('name')
             ->orderBy('createdAt', 'desc')
             ->get();
@@ -47,7 +46,7 @@ class WorkoutProgramController extends Controller
      */
     public function show(WorkoutProgramRequest $request): WorkoutProgram
     {
-        return $request->getModelOr404();
+        return $request->getModelOr404()->load('workoutProgramRoutines.routineExercises');
     }
 
     /**
@@ -64,7 +63,7 @@ class WorkoutProgramController extends Controller
             throw new NotFoundHttpException();
         }
 
-        return $foundByRoutine;
+        return $foundByRoutine->load('workoutProgramRoutines.routineExercises');
     }
 
     /**

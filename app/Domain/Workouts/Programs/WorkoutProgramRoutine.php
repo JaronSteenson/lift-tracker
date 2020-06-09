@@ -54,15 +54,12 @@ class WorkoutProgramRoutine extends AbstractModel implements UserOwnershipInterf
         'normalDay',
         'routineExercises',
         'position',
+        'workoutProgram',
     ];
 
     protected $casts = [
         'createdAt' => 'datetime:c',
         'updatedAt' => 'datetime:c',
-    ];
-
-    protected $with = [
-        'routineExercises',
     ];
 
     public static function boot(): void
