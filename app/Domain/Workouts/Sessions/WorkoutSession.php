@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Support\Facades\DB;
 use LiftTracker\Domain\AbstractModel;
 use LiftTracker\Domain\Users\CanBeOwnedByUserTrait;
@@ -26,7 +27,7 @@ use LiftTracker\Traits\HasUuidTrait;
  * @mixin Builder
  * @property string id
  * @property string uuid
- * @property string workoutProgramId
+ * @property int workoutProgramRoutineId
  * @property string userId
  * @property string name
  * @property Carbon startedAt
@@ -69,6 +70,7 @@ class WorkoutSession extends AbstractModel
         'sessionExercises',
         'createdAt',
         'updatedAt',
+        'workoutProgramRoutine'
     ];
 
     protected $casts = [
@@ -87,7 +89,7 @@ class WorkoutSession extends AbstractModel
         return DB::transaction(static function () use ($originRoutine, $userId, $startNow) {
             $workoutSession = new static();
             $workoutSession->userId = $userId;
-            $workoutSession->workoutProgramId = $originRoutine->id;
+            $workoutSession->workoutProgramRoutineId = $originRoutine->id;
             $workoutSession->name = $originRoutine->name;
 
             if ($startNow) {
@@ -108,17 +110,17 @@ class WorkoutSession extends AbstractModel
 
     public static function createFromRequest(WorkoutSessionRequest $request): self
     {
-        /** @var static $workoutProgram */
-        $workoutProgram = $request->getExistingModel() ?? new static();
+        /** @var static $workoutSession */
+        $workoutSession = $request->getExistingModel() ?? new static();
 
-        $workoutProgram->name = $request->get('name');
+        $workoutSession->fill($request->all());
 
         // Associate the user with the top level entity.
-        if (!$workoutProgram->exists) {
-            $workoutProgram->user()->associate($request->user());
+        if (!$workoutSession->exists) {
+            $workoutSession->user()->associate($request->user());
         }
 
-        return $workoutProgram;
+        return $workoutSession;
     }
 
     public function findBySet(string $setUuid): ?self
@@ -142,6 +144,11 @@ class WorkoutSession extends AbstractModel
     public function sessionExercises(): HasMany
     {
         return $this->hasMany(SessionExercise::class, 'workoutSessionId');
+    }
+
+    public function workoutProgramRoutine(): BelongsTo
+    {
+        return $this->BelongsTo(WorkoutProgramRoutine::class, 'workoutProgramRoutineId');
     }
 
 }

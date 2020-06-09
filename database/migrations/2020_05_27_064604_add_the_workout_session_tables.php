@@ -25,7 +25,7 @@ class AddTheWorkoutSessionTables extends Migration
 
             $table->char('uuid', '36')->index();
 
-            $table->unsignedInteger('workoutProgramId')->nullable()->index();
+            $table->unsignedInteger('workoutProgramRoutineId')->nullable()->index();
             $table->unsignedInteger('userId')->nullable()->index();
 
             $table->string('name', 100)->nullable();

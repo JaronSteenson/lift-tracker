@@ -28,7 +28,7 @@ function utcNow() {
         paddedMonth = `0${paddedMonth}`;
     }
 
-    let paddedDay = date.getUTCDay();
+    let paddedDay = date.getUTCDate();
     if (paddedDay < 10) {
         paddedDay = `0${paddedDay}`;
     }
@@ -325,7 +325,7 @@ const actions = {
     async saveWorkout({ commit, state }) {
         try {
             const response = await WorkoutSessionService.save(state.workoutSession);
-            commit('updateWorkout', { workout: state.workoutSession, newState: response  });
+            commit('reset', { workoutSession: response.data });
         } catch (error) {
             console.error(error);
         }

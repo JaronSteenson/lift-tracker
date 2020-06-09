@@ -15,6 +15,10 @@ const WorkoutProgramService = {
         return ApiService.get(RESOURCE_NAME, uuid)
     },
 
+    getAll() {
+        return ApiService.get(RESOURCE_NAME);
+    },
+
     getBySet(sessionSetUuid) {
         return ApiService.get(`${RESOURCE_NAME}?session-set-uuid=${sessionSetUuid}`)
     },

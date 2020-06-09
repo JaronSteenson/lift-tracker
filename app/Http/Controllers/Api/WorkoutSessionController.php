@@ -36,6 +36,7 @@ class WorkoutSessionController extends Controller
         $loggedInUser = $request->user();
 
         return $loggedInUser->workoutSessions()
+            ->with('workoutProgramRoutine')
             ->without('sessionExercises', 'sessionExercises.sessionSets')
             ->orderBy('createdAt', 'asc')
             ->get();
@@ -106,6 +107,8 @@ class WorkoutSessionController extends Controller
     private function saveFromRequest(WorkoutSessionRequest $request): WorkoutSession
     {
         $workoutSession = WorkoutSession::createFromRequest($request);
+
+        $workoutSession->save();
 
         // Ensure partial payloads return the full response.
         return $workoutSession->refresh();
