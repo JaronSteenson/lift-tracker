@@ -34,7 +34,7 @@ async function waitForAppBootstrap(to, from, next) {
         await store.dispatch('app/fetchAppBootstrapData');
     }
 
-    if (store.getters['app/userIsAuthenticated'] && !store.getters['workoutSession/hasLoadedInProgressWorkouts']) {
+    if (store.getters['app/userIsAuthenticated']) {
         await store.dispatch('workoutSession/fetchInProgressWorkouts');
     }
 

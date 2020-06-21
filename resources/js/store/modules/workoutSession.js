@@ -368,7 +368,6 @@ const actions = {
 
     async startWorkout({ commit, dispatch }, { originWorkoutUuid }) {
         commit('reset', defaultState());
-        dispatch('fetchInProgressWorkouts');
 
         const response = await WorkoutSessionService.startNew(originWorkoutUuid);
         commit('reset', { workoutSession: response.data });

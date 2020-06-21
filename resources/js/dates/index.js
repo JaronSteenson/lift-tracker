@@ -65,7 +65,7 @@ export function minsSecDuration(valueInSeconds, noZeroTreatment) {
 
 export function hoursMinutesFromStartEnd(start, end) {
     if (end === null) {
-        return `${hoursMinutesFromStartEnd(start, new Date(utcNow()))} (unfinished)`;
+        end = new Date(utcNow());
     }
 
     const seconds = differenceInSeconds(new Date(end), new Date(start));
@@ -97,6 +97,10 @@ export function dateTimeDescription(utcDate, noRecent) {
 }
 
 export function timeDescription(utcDate, noRecent) {
+    if (utcDate === null) {
+        return 'unfinished';
+    }
+
     const date = new Date(utcDate);
 
     if (!noRecent) {
