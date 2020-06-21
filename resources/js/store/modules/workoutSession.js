@@ -335,7 +335,7 @@ const actions = {
             const localUpdatedAt = new Date(getters.set(uuid).updatedAt);
             const serverUpdatedAt = new Date(response.data.updatedAt);
 
-            if (!isBefore(localUpdatedAt, serverUpdatedAt)) {
+            if (!isBefore(serverUpdatedAt, localUpdatedAt)) {
                 commit('updateSet', response.data);
             }
 
@@ -408,11 +408,21 @@ const actions = {
         commit('reset', { workoutSession: response.data });
     },
 
-    endWorkout({ commit, dispatch }) {
+    async endWorkout({ commit, dispatch, getters }) {
         const endedAt = utcNow();
 
+        // Remove this workout from the in progress list.
+        const inProgressWorkouts = getters.inProgressWorkouts.filter((inProgressWorkout) => {
+            return getters.workoutSession.uuid !== inProgressWorkout.uuid;
+        })
+
         commit('endWorkout', { endedAt });
-        return dispatch('saveWorkout');
+        commit('updateInProgress', inProgressWorkouts);
+
+        const save = await dispatch('saveWorkout');
+        dispatch('fetchInProgressWorkouts');
+
+        return save;
     },
 
 };

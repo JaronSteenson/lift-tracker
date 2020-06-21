@@ -26,13 +26,16 @@
                     v-for="workout in inProgressWorkouts"
                     :key="workout.uuid"
                     link
-                    :to="{ name: 'sessionOverview', params: { workoutSessionUuid: workout.uuid } }"
+                    :to="workoutIsInFocus(workout.uuid) ? null : { name: 'sessionOverview', params: { workoutSessionUuid: workout.uuid } }"
+                    :disabled="workoutIsInFocus(workout.uuid)"
                 >
                     <VListItemAction>
-                        <VIcon>mdi-dumbbell</VIcon>
+                        <VIcon v-if="workoutIsInFocus(workout.uuid)" color="success">mdi-play</VIcon>
+                        <VIcon v-else>mdi-play</VIcon>
                     </VListItemAction>
                     <VListItemContent>
-                        <VListItemTitle>Resume workout</VListItemTitle>
+                        <VListItemTitle v-if="workoutIsInFocus(workout.uuid)">In progress workout</VListItemTitle>
+                        <VListItemTitle v-else>Resume workout</VListItemTitle>
                         <VListItemSubtitle>{{ workout.name }}</VListItemSubtitle>
                     </VListItemContent>
                 </VListItem>
@@ -105,6 +108,13 @@
             ),
         },
         methods: {
+            workoutIsInFocus(workoutSessionUuid) {
+                if (this.$route.name !== 'setOverview' && this.$route.name !== 'sessionOverview') {
+                    return false;
+                }
+
+                return this.$store.getters['workoutSession/workoutSession']?.uuid === workoutSessionUuid;
+            },
             async logout() {
                 if (!this.userIsAuthenticated) {
                     this.$router.push({ name: 'login' });

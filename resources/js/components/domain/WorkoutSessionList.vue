@@ -15,8 +15,9 @@
 
         <VSkeletonLoader class="ma-5" type="table-heading, table-row@3" v-if="loading"/>
         <VDataTable v-else :headers="headers" :items="workoutSessionsForDisplay">
-            <template v-slot:item.icon="{ item: program }">
-                <VIcon>mdi-dumbbell</VIcon>
+            <template v-slot:item.icon="{ item: session }">
+                <VIcon v-if="isInProgress(session.uuid)">mdi-play</VIcon>
+                <VIcon v-else>mdi-dumbbell</VIcon>
             </template>
             <template v-slot:item.name="{ item: session }">
                 <RouterLink class="workout-name" :to="{ name: 'sessionOverview', params: { workoutSessionUuid: session.uuid } }">
@@ -103,7 +104,7 @@
                 return this.workoutSessions.map(workoutSession => {
                     let startedAt = dateDescription(workoutSession.startedAt);
 
-                    if (this.$store.getters['workoutSession/isInProgressWorkout'](workoutSession.uuid)) {
+                    if (this.isInProgress(workoutSession.uuid)) {
                         startedAt = `${startedAt} (in progress)`;
                     }
 
@@ -174,7 +175,10 @@
             // },
             getOriginProgramId(session) {
                 return session?.workoutProgramRoutine?.workoutProgram.uuid
-            }
+            },
+            isInProgress(workoutSessionUuid) {
+                return this.$store.getters['workoutSession/isInProgressWorkout'](workoutSessionUuid);
+            },
         },
     }
 </script>

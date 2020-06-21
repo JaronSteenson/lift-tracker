@@ -12,6 +12,7 @@
     "devDependencies": {
         "@babel/core": "^7.9.6",
         "cross-env": "^5.1",
+        "jest": "^26.0.1",
         "laravel-mix": "4.0.15",
         "lodash": "^4.17.15",
         "material-design-icons-iconfont": "^5.0.1",
