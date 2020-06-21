@@ -2,6 +2,7 @@ import ApiService from './ApiService';
 
 const RESOURCE_NAME = 'app';
 const LOGIN_URI = 'login';
+const SIGN_UP_URI = 'sign-up';
 const LOGOUT_URI = 'logout';
 
 const WorkoutProgramService = {
@@ -16,6 +17,14 @@ const WorkoutProgramService = {
 
     async login(payload) {
         const result = await ApiService.simplePost(LOGIN_URI, payload);
+
+        ApiService.setCsrfToken(result.data.csrfToken);
+
+        return result;
+    },
+
+    async signUp(payload) {
+        const result = await ApiService.simplePost(SIGN_UP_URI, payload);
 
         ApiService.setCsrfToken(result.data.csrfToken);
 

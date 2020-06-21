@@ -1,6 +1,7 @@
 import Vue from 'vue'
 import HomePage from "../components/pages/HomePage";
 import LoginPage from "../components/pages/LoginPage";
+import SignUpPage from "../components/pages/SignUpPage";
 import ProgramBuilderPage from "../components/pages/ProgramBuilderPage";
 import NewSessionOverviewPage from "../components/pages/NewSessionOverviewPage";
 import SessionOverviewPage from "../components/pages/SessionOverviewPage";
@@ -13,7 +14,7 @@ Vue.use(VueRouter);
 
 function forceLogin(to, from, next) {
     const isAuthed = store.getters['app/userIsAuthenticated'];
-    const toLogin = to.name === 'login';
+    const toLogin = to.name === 'login' || to.name === 'sign-up';
 
     if (isAuthed && toLogin) {
         next({ name: 'home' });
@@ -51,6 +52,13 @@ const routes = [
         name: 'login',
         path: '/login',
         component: LoginPage,
+        props: true,
+    },
+    {
+        name: 'sign-up',
+        path: '/sign-up',
+        component: SignUpPage,
+        props: true,
     },
     {
         name: 'newProgramBuilder',

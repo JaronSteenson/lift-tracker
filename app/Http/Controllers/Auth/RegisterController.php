@@ -2,6 +2,8 @@
 
 namespace LiftTracker\Http\Controllers\Auth;
 
+use Illuminate\Http\Request;
+use LiftTracker\Domain\AppBootstrapData;
 use LiftTracker\User;
 use LiftTracker\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Hash;
@@ -41,6 +43,18 @@ class RegisterController extends Controller
     }
 
     /**
+     * The user has been registered.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  mixed  $user
+     * @return mixed
+     */
+    protected function registered(Request $request, $user)
+    {
+        return new AppBootstrapData();
+    }
+
+    /**
      * Get a validator for an incoming registration request.
      *
      * @param  array  $data
@@ -51,7 +65,7 @@ class RegisterController extends Controller
         return Validator::make($data, [
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users',
-            'password' => 'required|string|min:6|confirmed',
+            'password' => 'required|string|min:6',
         ]);
     }
 

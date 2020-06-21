@@ -1,7 +1,7 @@
 <template>
     <VContainer
-        class="fill-height"
         fluid
+        class="fill-height"
     >
         <VRow
             align="center"
@@ -12,52 +12,65 @@
                 md="4"
                 sm="8"
             >
-                <VCard :class="$vuetify.breakpoint.xs ? 'elevation-0 login-card--flat' : 'elevation-12 login-card--flip'"
-                       :loading="!$vuetify.breakpoint.xs && loading">
+                <VCard :class="$vuetify.breakpoint.xs ? 'elevation-0 login-card--flat' : 'elevation-12'" :loading="!$vuetify.breakpoint.xs && loading">
                     <VCardText :class="{ 'pa-0': this.$vuetify.breakpoint.xs }">
-                        <VCardTitle>
-                            Please login to continue
+                        <VCardTitle>New account sign-up
                             <VSpacer/>
                             <VSubheader>
-                                <RouterLink
-                                    :to="{ name: 'sign-up', params: { initialEmail: email, initialPassword: password } }"
-                                >
-                                    Sign up instead.
+                                <RouterLink :to="{ name: 'login', params: { initialEmail: email, initialPassword: password } }">
+                                    Already have an account?
                                 </RouterLink>
                             </VSubheader>
                         </VCardTitle>
-
-                        <VAlert type="error" v-if="failedLogin">
-                            Your email and/or password do not match.
-                        </VAlert>
 
                         <VForm
                             v-model="valid"
                         >
                             <VTextField
-                                :rules="leaving || emailRules"
+                                v-model.lazy="name"
                                 autofocus
-                                label="Email"
-                                name="email"
+                                :rules="nameRules"
+                                label="Name"
+                                name="name"
                                 prepend-icon="mdi-account-outline"
                                 type="text"
-                                v-model.lazy="email"
+                                validate-on-blur
                                 @keydown.enter="login"
                             />
                             <VTextField
-                                :rules="leaving || passwordRules"
+                                v-model.lazy="email"
+                                :rules="emailRules"
+                                label="Email"
+                                name="email"
+                                prepend-icon="mdi-email-outline"
+                                type="text"
+                                validate-on-blur
+                                @keydown.enter="login"
+                            />
+                            <VTextField
+                                v-model.lazy="password"
+                                :rules="passwordRules"
                                 label="Password"
                                 name="password"
                                 prepend-icon="mdi-lock"
                                 type="password"
-                                v-model="password"
+                                validate-on-blur
+                                @keydown.enter="login"
+                            />
+                            <VTextField
+                                v-model.lazy="confirmPassword"
+                                :rules="[passwordConfirmationRule]"
+                                label="Confirm password"
+                                name="confirm-password"
+                                prepend-icon="mdi-repeat"
+                                type="password"
                                 @keydown.enter="login"
                             />
                         </VForm>
                     </VCardText>
                     <VCard-actions>
                         <VSpacer/>
-                        <v-btn :disabled="!valid" :loading="loading" @click="login" color="primary">Login</v-btn>
+                        <v-btn color="primary" :disabled="!valid" :loading="loading" @click="login" >Sign up</v-btn>
                     </VCard-actions>
                 </VCard>
             </VCol>
@@ -78,10 +91,14 @@
         },
         data() {
             return {
-                leaving: false,
                 loading: false,
-                email: this.initialEmail,
-                password: this.initialPassword,
+                name: null,
+                email: this.initialEmail || null,
+                password: this.initialPassword || null,
+                confirmPassword: null,
+                nameRules: [
+                    v => !!v || 'Name is required',
+                ],
                 emailRules: [
                     v => !!v || 'E-mail is required',
                     v => /.+@.+\..+/.test(v) || 'E-mail must be valid',
@@ -90,8 +107,13 @@
                     v => !!v || 'Password is required',
                 ],
                 valid: false,
-                failedLogin: false,
+                failedSignUp: false,
             }
+        },
+        computed: {
+            passwordConfirmationRule() {
+                return () => (this.password === this.confirmPassword) || 'Passwords must match'
+            },
         },
         methods: {
             async login() {
@@ -100,18 +122,20 @@
                 }
 
                 this.loading = true;
-                const success = await this.$store.dispatch('app/login', {
+                const success = await this.$store.dispatch('app/signUp', {
+                    name: this.name,
                     email: this.email,
                     password: this.password
                 })
 
+                debugger;
                 if (success) {
                     const afterLoginRoute = this.$store.getters['app/afterLoginRoute'];
                     this.$router.replace(afterLoginRoute);
                     return;
                 }
 
-                this.failedLogin = true;
+                this.failedSignUp = true;
                 this.loading = false;
             }
         }

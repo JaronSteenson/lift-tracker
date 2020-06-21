@@ -20,6 +20,13 @@ use Illuminate\Support\Facades\Route;
  */
 Route::post('api/login', 'Auth\LoginController@login');
 
+
+/**
+ * Auth sign-up.
+ * @see \LiftTracker\Http\Controllers\Auth\RegisterController
+ */
+Route::post('api/sign-up', 'Auth\RegisterController@register');
+
 /**
  * Auth logout.
  * @see \LiftTracker\Http\Controllers\Auth\LoginController

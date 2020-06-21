@@ -87,6 +87,23 @@ const actions = {
         return response;
     },
 
+    async signUp({ commit }, { name, email, password }) {
+        let response = null;
+
+        try {
+            response = await AppService.signUp({ name, email, password });
+        } catch (e) {
+            console.warn('Sign up failure');
+            return false;
+        }
+
+        const newState = { ...response.data, hasLoaded: true };
+
+        commit('reset', newState);
+
+        return response;
+    },
+
     async logout({ commit }) {
         const response = await AppService.logout();
 
