@@ -68,7 +68,7 @@
 <script>
     import WorkoutProgramService from '../../api/WorkoutProgramService';
     import NewSessionModal from "./workoutSessions/NewSessionModal";
-    import { dateTimeDescription } from "./../../filters";
+    import { dateTimeDescription } from "../../dates";
 
     export default {
         components: {NewSessionModal},

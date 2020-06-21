@@ -77,7 +77,7 @@
 <script>
     import WorkoutSessionService from '../../api/WorkoutSessionService';
     import NewSessionModal from './workoutSessions/NewSessionModal';
-    import {dateDescription} from '../../filters';
+    import {dateDescription} from '../../dates';
     import UuidHelper from "../../UuidHelper";
 
     export default {

@@ -20,7 +20,7 @@
 </template>
 
 <script>
-    import { minsSecDuration } from "../../filters";
+    import { minsSecDuration } from "../../dates";
 
     export default {
         props: {

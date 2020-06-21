@@ -76,7 +76,7 @@
     import Draggable from 'vuedraggable';
     import EditableTitle from "../../formFields/EditableTitle";
     import ProgramBuilderLoadingSkeleton from "./ProgramBuilderLoadingSkeleton";
-    import {dateTimeDescription} from "../../../filters";
+    import {dateTimeDescription} from "../../../dates";
 
     export default {
         components: {

@@ -28,7 +28,7 @@
 </template>
 
 <script>
-    import {minsSecDuration} from '../../../filters';
+    import {minsSecDuration} from '../../../dates';
     import SessionExerciseStatsModal from './SessionExerciseStatsModal';
     export default {
         components: {

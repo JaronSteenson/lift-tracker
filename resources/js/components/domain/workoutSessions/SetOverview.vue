@@ -194,7 +194,7 @@
     import {mapGetters} from "vuex";
     import RestPeriodSlider from "../RestPeriodSlider";
     import RestPeriodTimer from "../RestPeriodTimer";
-    import { minsSecDuration } from "../../../filters";
+    import { minsSecDuration } from "../../../dates";
     import SessionStatsModal from "./SessionExerciseStatsModal";
 
     export default {

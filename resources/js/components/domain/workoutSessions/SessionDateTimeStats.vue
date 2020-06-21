@@ -14,7 +14,7 @@
 </template>
 
 <script>
-    import {dateDescription, hoursMinutesFromStartEnd, timeDescription} from "../../../filters";
+    import {dateDescription, hoursMinutesFromStartEnd, timeDescription} from "../../../dates";
 
     export default {
         props: {
