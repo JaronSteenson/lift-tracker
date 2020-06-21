@@ -8,16 +8,16 @@ import Vue from 'vue';
 
 const localVue = createLocalVue();
 
+
+const vuetify = new Vuetify;
+
+Vue.use(Vuetify)
+
 localVue.use(Vuex);
-localVue.use(new Vuetify);
+localVue.use(vuetify);
 
-Vue.use(Vuex);
-Vue.use(new Vuetify);
+Vue.config.productionTip = false
 
-Vue.config.productionTip = false;
-
-let actions
-let state
 let store
 
 describe('Getters.vue', () => {
@@ -45,6 +45,7 @@ describe('Getters.vue', () => {
         const wrapper = shallowMount(App, {
             store,
             localVue,
+            vuetify,
             mocks: {
                 $vuetify: { breakpoint: {} }
             }
