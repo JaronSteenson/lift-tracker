@@ -18,10 +18,10 @@ export default new Vuetify({
         },
         themes: {
             light: {
-                primary: colors.deepPurple,
+                primary: colors.purple,
                 accent: colors.white,
                 anchor: colors.blue.base,
-                secondary: colors.deepPurple.lighten2,
+                secondary: colors.purple.lighten2,
                 info: undefined,
                 warning: colors.deepOrange,
                 error: colors.red.lighten2,
