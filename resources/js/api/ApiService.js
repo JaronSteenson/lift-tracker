@@ -2,7 +2,7 @@ import axios from 'axios';
 
 axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
 
-let baseUrl = process.env.BASE_API_URL ?? 'http://lift-tracker.io/api/';
+let baseUrl = process.env.BASE_API_URL ?? '/api/';
 
 if (typeof baseUrl === 'string') {
     baseUrl = baseUrl.replace(/\/+$/, '');
