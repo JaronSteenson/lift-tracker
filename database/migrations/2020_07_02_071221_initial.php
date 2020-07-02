@@ -13,7 +13,7 @@ class Initial extends Migration
      */
     public function up()
     {
-        DB::unprepared(file_get_contents('initial-migration.sql'));
+        DB::unprepared(file_get_contents(__DIR__ . '/initial-migration.sql'));
     }
 
     /**
