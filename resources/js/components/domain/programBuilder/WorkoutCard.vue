@@ -72,11 +72,15 @@
 
             <component :is="isSessionOverview ? 'div' : 'VRow'" class="mt-0">
                 <component :is="isSessionOverview ? 'div' : 'VCol'">
-                    <Draggable :forceFallback="true"
-                               :group="{ name: 'exercises', pull: true, put: true }"
-                               dragClass="elevation-24"
-                               ghostClass="drop-placeholder-exercise"
-                               handle=".js-exercise-drag-handle" v-model="orderedExercises">
+                    <Draggable
+                        :forceFallback="true"
+                        :delay="250"
+                        delayOnTouchOnly
+                        :group="{ name: 'exercises', pull: true, put: true }"
+                        dragClass="elevation-24"
+                        ghostClass="drop-placeholder-exercise"
+                        handle=".js-exercise-drag-handle" v-model="orderedExercises"
+                    >
                         <template v-for="(exercise) in orderedExercises">
                             <ExerciseCard :exercise-uuid="exercise.uuid" :key="exercise.uuid" ref="exercise-cards"/>
                         </template>

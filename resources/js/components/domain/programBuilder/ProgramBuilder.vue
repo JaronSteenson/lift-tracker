@@ -47,6 +47,8 @@
                 <VSheet class="mx-3">
                     <Draggable
                         :forceFallback="true"
+                        :delay="250"
+                        :delayOnTouchOnly="true"
                         class="row"
                         dragClass="workout-drag"
                         ghostClass="workout-drop-placeholder"
