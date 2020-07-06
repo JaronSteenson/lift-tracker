@@ -1,6 +1,6 @@
 <template>
     <VCard
-        class="mx-3 my-2 js-exercise-drag-handle"
+        class="mx-3 my-2 exercise-card js-exercise-drag-handle"
         outlined role="button"
         :ripple="false"
         @click="showEditModal = true"
@@ -134,3 +134,24 @@
         },
     }
 </script>
+
+<style scoped lang="scss">
+    .theme--light.v-card.v-card--outlined.exercise-card {
+        border: solid 1px var(--v-primary-base);
+
+        &.sortable-chosen {
+            border: solid 1px var(--v-warning-base);
+        }
+
+        &.drop-placeholder-exercise {
+            border: 1px solid lightgray;
+            animation: blink .5s step-end infinite alternate;
+        }
+
+        @keyframes blink {
+            50% {
+                border: solid 1px var(--v-warning-base);
+            }
+        }
+    }
+</style>

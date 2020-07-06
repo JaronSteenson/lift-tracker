@@ -202,4 +202,8 @@
     .builder-workouts-container {
         padding: 10px;
     }
+
+    .sortable-chosen > div.v-card {
+        border: solid 1px var(--v-warning-base);
+    }
 </style>

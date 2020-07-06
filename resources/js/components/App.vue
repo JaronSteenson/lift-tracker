@@ -139,10 +139,6 @@
         background-color: var(--v-primary-lighten2);
     }
 
-    .v-card {
-       border: solid 1px var(--v-primary-base) !important;
-    }
-
     .v-dialog {
         .v-card {
             border-width: 2px !important;

@@ -1,7 +1,7 @@
 <template>
     <component :elevation="useInlineMobileView ? 0 : 5"
                :is="useInlineMobileView ? 'div' : 'VCard'"
-               class="js-workout-drag-handle workout-builder-card"
+               class="js-workout-drag-handle workout-card"
                max-width="960"
                width="100%"
     >
@@ -75,11 +75,12 @@
                     <Draggable
                         :forceFallback="true"
                         :delay="250"
-                        delayOnTouchOnly
+                        :delayOnTouchOnly="true"
                         :group="{ name: 'exercises', pull: true, put: true }"
                         dragClass="elevation-24"
                         ghostClass="drop-placeholder-exercise"
-                        handle=".js-exercise-drag-handle" v-model="orderedExercises"
+                        handle=".js-exercise-drag-handle"
+                        v-model="orderedExercises"
                     >
                         <template v-for="(exercise) in orderedExercises">
                             <ExerciseCard :exercise-uuid="exercise.uuid" :key="exercise.uuid" ref="exercise-cards"/>
@@ -221,20 +222,27 @@
     }
 </script>
 
-<style lang="scss" scoped>
-    .drop-placeholder-exercise {
-        animation: blink .5s step-end infinite alternate;
+<style scoped lang="scss">
+    .workout-card.v-card {
+        border: solid 1px var(--v-primary-base);
+    }
+
+    .sortable-chosen {
+        .workout-card.v-card {
+            border: solid 1px var(--v-warning-base);
+        }
     }
 
     .workout-drop-placeholder {
-        .workout-builder-card {
+        .workout-card.v-card {
+            border: 1px solid lightgray;
             animation: blink .5s step-end infinite alternate;
         }
     }
 
     @keyframes blink {
         50% {
-            border-color: var(--v-warning-base);
+            border: solid 1px var(--v-warning-base);
         }
     }
 </style>
