@@ -93,10 +93,14 @@
             }
         },
         mounted() {
-           this.$el.oncontextmenu = (e) => {
-               e.preventDefault();
-               return false;
-           }
+            const supportsTouch = 'ontouchstart' in window || navigator.msMaxTouchPoints;
+
+            if (supportsTouch) {
+                this.$el.oncontextmenu = (e) => {
+                    e.preventDefault();
+                    return false;
+                }
+            }
         },
         computed: {
             ...mapState('app', [
