@@ -1,4 +1,4 @@
-import {hoursMinutesFromStartEnd, timeDescription, utcNow} from '../../dates';
+import {hoursMinutesFromStartEnd, timeDescription, updatedAtMicro, utcNow} from '../../dates';
 import { subHours, subMinutes } from 'date-fns';
 import each from 'jest-each';
 
@@ -33,6 +33,20 @@ describe('dates', () => {
             [thirty5MinsAgo, false, '35 minutes ago'],
         ]).test('returns the time description for %s, noRecent flag: %s', (time, noRecent, expected) => {
             expect(timeDescription(time, noRecent)).toBe(expected);
+        });
+
+    });
+
+    describe('updated At micro', () => {
+        each([
+            ['Zero seconds', '2019-01-02 12:00:00', '0s'],
+            ['Some minutes', '2019-01-02 11:50:00', '10m 0s'],
+            ['Some minutes and seconds', '2019-01-02 11:49:30', '10m 30s'],
+            ['A day', '2019-01-01 12:00:00', '1d'],
+            ['A year', '2018-01-01 12:10:00', '365d'],
+            ['null',null, '0s'],
+        ]).test('returns the micro time updated at description for %s', (testCase, time, expected) => {
+            expect(updatedAtMicro(time, '2019-01-02 12:00:00')).toBe(expected);
         });
 
     });

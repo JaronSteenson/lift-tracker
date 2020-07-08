@@ -116,9 +116,14 @@ export function timeDescription(utcDate, noRecent) {
     return format(date, 'p');
 }
 
-export function updatedAtMicro(utcDate) {
+export function updatedAtMicro(utcDate, now) {
+    if (utcDate === null) {
+        return '0s';
+    }
+
     const date = new Date(utcDate);
-    const now = new Date();
+    now = new Date(now) || new Date();
+
     const hoursAgo = differenceInHours(now, date);
 
     if (hoursAgo >= 24) {
