@@ -122,7 +122,7 @@ export function updatedAtMicro(utcDate, now) {
     }
 
     const date = new Date(utcDate);
-    now = new Date(now) || new Date();
+    now = now ? new Date(now) : new Date();
 
     const hoursAgo = differenceInHours(now, date);
     const daysAgo = differenceInDays(now, date);

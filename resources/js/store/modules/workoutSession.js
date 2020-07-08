@@ -1,17 +1,20 @@
 import WorkoutSessionService from '../../api/WorkoutSessionService'
 import UuidHelper from '../../UuidHelper'
 import {debounce} from "lodash";
-import {differenceInSeconds, isAfter} from 'date-fns'
-import {dateTimeDescription, utcNow} from '../../dates'
+import {differenceInSeconds, isAfter} from 'date-fns';
+import {utcNow} from '../../dates';
+import {
+    mutations as saveStatusMutations,
+    actions as saveStatusActions,
+    state as saveStatusState,
+    saveStatusMessageGetter
+} from './saveStatusMixin';
 
 const SAVE_DEBOUNCE_WAIT = 1000;
 
-const STATUS_SAVING = Symbol('saving');
-const STATUS_SAVE_SUCCESS = Symbol('save_success');
-const STATUS_SAVE_ERROR = Symbol('save_error');
-
 function defaultState() {
     return {
+        ...saveStatusState,
         workoutSession: {
             uuid: null,
             name: '',
@@ -25,13 +28,14 @@ function defaultState() {
         lastTimeExercises: {}, // A map of sessionExercises Keyed by the exercise uuid.
         inProgressWorkouts: null, // An array of workouts.
         restPeriodTimout: null,
-        savingStatusMessage: null,
     }
 }
 
 const state = defaultState();
 
 const getters = {
+
+    savingStatusMessage: saveStatusMessageGetter('set'),
 
     hasLoadedInProgressWorkouts(state, getters) {
         return getters.inProgressWorkouts !== null;
@@ -242,16 +246,6 @@ const getters = {
         return state.lastTimeExercises[exerciseUuid];
     },
 
-    savingStatusMessage(state) {
-        switch (state.saveStatus) {
-            case STATUS_SAVE_ERROR: return 'Error saving set';
-            case STATUS_SAVE_SUCCESS: return 'Set saved';
-            case STATUS_SAVING: return 'Saving...';
-        }
-
-        return null
-    },
-
     updatedAt(state) {
         return state.workoutSession.updatedAt;
     },
@@ -259,6 +253,7 @@ const getters = {
 };
 
 const actions = {
+    ...saveStatusActions,
 
     updateSetWeight({ commit, dispatch }, { uuid, weight }) {
         commit('updateSet', { uuid, weight });
@@ -314,8 +309,10 @@ const actions = {
         dispatch('saveSet', uuid);
     },
 
-    saveSet: debounce(async ({ commit, getters }, uuid) => {
+    saveSet: debounce(async ({ commit, getters, dispatch }, uuid) => {
         try {
+            dispatch('startSaving');
+
             commit('updateSet', {
                 uuid,
                 updatedAt: utcNow()
@@ -334,13 +331,17 @@ const actions = {
                 createdAt: response.data.createdAt,
             });
 
+            dispatch('finishSaving');
         } catch (error) {
+            dispatch('finishSavingError');
             console.error(error);
         }
     }, SAVE_DEBOUNCE_WAIT),
 
-    saveExercise: debounce(async ({ commit, getters }, uuid) => {
+    saveExercise: debounce(async ({ commit, getters, dispatch }, uuid) => {
         try {
+            dispatch('startSaving');
+
             commit('updateExercise', {
                 uuid,
                 updatedAt: utcNow()
@@ -358,13 +359,18 @@ const actions = {
                 updatedAt: response.data.updatedAt,
                 createdAt: response.data.createdAt,
             });
+
+            dispatch('finishSaving');
         } catch (error) {
+            dispatch('finishSavingError');
             console.error(error);
         }
     }, SAVE_DEBOUNCE_WAIT),
 
-    async saveWorkout({ commit, state }) {
+    async saveWorkout({ commit, state, dispatch }) {
         try {
+            dispatch('startSaving');
+
             commit('updateWorkoutSession', {
                 uuid,
                 updatedAt: utcNow()
@@ -377,7 +383,10 @@ const actions = {
                 updatedAt: response.data.updatedAt,
                 createdAt: response.data.createdAt,
             });
+
+            dispatch('finishSaving');
         } catch (error) {
+            dispatch('finishSavingError');
             console.error(error);
         }
     },
@@ -447,6 +456,7 @@ const actions = {
 };
 
 const mutations = {
+    ...saveStatusMutations,
 
     reset(state, newState) {
         Object.keys(newState).forEach(key => {

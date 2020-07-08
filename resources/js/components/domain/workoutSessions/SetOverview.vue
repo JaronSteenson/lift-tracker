@@ -5,7 +5,7 @@
                max-width="960"
                width="100%"
     >
-        <VToolbar flat>
+        <VToolbar>
             <VToolbarTitle>{{ exercise.name }} - set {{ set.position + 1 }}</VToolbarTitle>
 
             <VSpacer/>
