@@ -10,6 +10,11 @@
 
             <VSpacer/>
 
+            <ServerSyncInfo
+                :status-message="savingStatusMessage"
+                :updated-at="updatedAt"
+            />
+
             <VMenu bottom left>
                 <template v-slot:activator="{ on }">
                     <VBtn icon v-on="on">
@@ -191,14 +196,16 @@
 </template>
 
 <script>
-    import {mapGetters} from "vuex";
-    import RestPeriodSlider from "../RestPeriodSlider";
-    import RestPeriodTimer from "../RestPeriodTimer";
-    import { minsSecDuration } from "../../../dates";
-    import SessionStatsModal from "./SessionExerciseStatsModal";
+    import {mapGetters} from 'vuex';
+    import RestPeriodSlider from '../RestPeriodSlider';
+    import RestPeriodTimer from '../RestPeriodTimer';
+    import {minsSecDuration} from '../../../dates';
+    import SessionStatsModal from './SessionExerciseStatsModal';
+    import ServerSyncInfo from './../../ServerSyncInfo';
 
     export default {
         components: {
+            ServerSyncInfo,
             SessionStatsModal,
             RestPeriodSlider,
             RestPeriodTimer,
@@ -223,7 +230,7 @@
             }
         },
         computed: {
-            ...mapGetters('workoutSession', ['workoutName', 'uuid', 'lastTimeExercise']),
+            ...mapGetters('workoutSession', ['workoutName', 'uuid', 'lastTimeExercise', 'savingStatusMessage', 'updatedAt']),
             set() {
                 return this.$store.getters['workoutSession/set'](this.sessionSetUuid);
             },

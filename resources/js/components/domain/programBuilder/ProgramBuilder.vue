@@ -23,11 +23,10 @@
                         </VToolbarTitle>
                         <VSpacer></VSpacer>
 
-                    <VSubheader v-if="$vuetify.breakpoint.smAndUp">
-                        <VIcon>mdi-cloud-sync</VIcon>
-                        <span class="mx-2">{{ statusMessage }}</span>
-                    </VSubheader>
-
+                    <ServerSyncInfo
+                        :status-message="savingStatusMessage"
+                        :updatedAt="updatedAt"
+                    />
 
                     <VMenu bottom left>
                         <template v-slot:activator="{ on }">
@@ -72,16 +71,18 @@
 </template>
 
 <script>
-    import {mapState, mapActions, mapGetters} from 'vuex';
+    import {mapActions, mapGetters, mapState} from 'vuex';
     import WorkoutCard from "./WorkoutCard";
     import NotFound from "../../routing/NotFound";
     import Draggable from 'vuedraggable';
     import EditableTitle from "../../formFields/EditableTitle";
     import ProgramBuilderLoadingSkeleton from "./ProgramBuilderLoadingSkeleton";
     import {dateTimeDescription} from "../../../dates";
+    import ServerSyncInfo from "../../ServerSyncInfo";
 
     export default {
         components: {
+            ServerSyncInfo,
             WorkoutCard,
             NotFound,
             Draggable,
@@ -158,13 +159,6 @@
                     this.$store.dispatch('programBuilder/updateName', name);
                 },
             },
-            statusMessage() {
-                if (this.savingStatusMessage) {
-                    return this.savingStatusMessage;
-                }
-
-                return this.updatedAt ? `${dateTimeDescription(this.updatedAt)}` : '';
-            }
         },
         methods: {
             ...mapActions('programBuilder', ['addWorkoutToProgram', 'delete']),

@@ -68,7 +68,7 @@ const getters = {
             case STATUS_SAVING: return 'Saving...';
         }
 
-        return ''
+        return null
     },
 
     hasMadeSignificantChangesFromNew(state) {

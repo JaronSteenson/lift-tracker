@@ -1,6 +1,8 @@
 
 import {
     differenceInSeconds,
+    differenceInHours,
+    differenceInDays,
     differenceInMinutes,
     isYesterday,
     isToday,
@@ -112,6 +114,22 @@ export function timeDescription(utcDate, noRecent) {
     }
 
     return format(date, 'p');
+}
+
+export function updatedAtMicro(utcDate) {
+    const date = new Date(utcDate);
+    const now = new Date();
+    const hoursAgo = differenceInHours(now, date);
+
+    if (hoursAgo >= 24) {
+        return `${differenceInDays(now, date)}d`
+    }
+
+    if (hoursAgo >= 1) {
+        return `${hoursAgo}h`
+    }
+
+    return minsSecDuration(differenceInSeconds(now, date), true)
 }
 
 export function dateDescription(utcDate, noRecent) {

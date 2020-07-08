@@ -1,10 +1,14 @@
 import WorkoutSessionService from '../../api/WorkoutSessionService'
 import UuidHelper from '../../UuidHelper'
 import {debounce} from "lodash";
-import {differenceInSeconds, isAfter, isBefore} from 'date-fns'
-import { utcNow } from '../../dates'
+import {differenceInSeconds, isAfter} from 'date-fns'
+import {dateTimeDescription, utcNow} from '../../dates'
 
 const SAVE_DEBOUNCE_WAIT = 1000;
+
+const STATUS_SAVING = Symbol('saving');
+const STATUS_SAVE_SUCCESS = Symbol('save_success');
+const STATUS_SAVE_ERROR = Symbol('save_error');
 
 function defaultState() {
     return {
@@ -15,10 +19,13 @@ function defaultState() {
             endedAt: null,
             notes: null,
             sessionExercises: null,
+            createdAt: null,
+            updatedAt: null,
         },
         lastTimeExercises: {}, // A map of sessionExercises Keyed by the exercise uuid.
         inProgressWorkouts: null, // An array of workouts.
         restPeriodTimout: null,
+        savingStatusMessage: null,
     }
 }
 
@@ -235,6 +242,20 @@ const getters = {
         return state.lastTimeExercises[exerciseUuid];
     },
 
+    savingStatusMessage(state) {
+        switch (state.saveStatus) {
+            case STATUS_SAVE_ERROR: return 'Error saving set';
+            case STATUS_SAVE_SUCCESS: return 'Set saved';
+            case STATUS_SAVING: return 'Saving...';
+        }
+
+        return null
+    },
+
+    updatedAt(state) {
+        return state.workoutSession.updatedAt;
+    },
+
 };
 
 const actions = {
@@ -295,15 +316,23 @@ const actions = {
 
     saveSet: debounce(async ({ commit, getters }, uuid) => {
         try {
-            commit('updateSet', { updatedAt: utcNow() });
+            commit('updateSet', {
+                uuid,
+                updatedAt: utcNow()
+            });
+
             const response = await WorkoutSessionService.saveSet(getters.set(uuid));
 
-            const localUpdatedAt = new Date(getters.set(uuid).updatedAt);
-            const serverUpdatedAt = new Date(response.data.updatedAt);
+            commit('updateWorkoutSession', {
+                uuid: getters.uuid,
+                updatedAt: response.data.updatedAt,
+            });
 
-            if (!isBefore(serverUpdatedAt, localUpdatedAt)) {
-                commit('updateSet', response.data);
-            }
+            commit('updateSet', {
+                uuid,
+                updatedAt: response.data.updatedAt,
+                createdAt: response.data.createdAt,
+            });
 
         } catch (error) {
             console.error(error);
@@ -312,8 +341,23 @@ const actions = {
 
     saveExercise: debounce(async ({ commit, getters }, uuid) => {
         try {
+            commit('updateExercise', {
+                uuid,
+                updatedAt: utcNow()
+            });
+
             const response = await WorkoutSessionService.saveExercise(getters.exercise(uuid));
-            commit('updateExercise', response.data);
+
+            commit('updateWorkoutSession', {
+                uuid: getters.uuid,
+                updatedAt: response.data.updatedAt,
+            });
+
+            commit('updateExercise', {
+                uuid,
+                updatedAt: response.data.updatedAt,
+                createdAt: response.data.createdAt,
+            });
         } catch (error) {
             console.error(error);
         }
@@ -321,8 +365,18 @@ const actions = {
 
     async saveWorkout({ commit, state }) {
         try {
+            commit('updateWorkoutSession', {
+                uuid,
+                updatedAt: utcNow()
+            });
+
             const response = await WorkoutSessionService.save(state.workoutSession);
-            commit('reset', { workoutSession: response.data });
+
+            commit('updateWorkoutSession', {
+                uuid,
+                updatedAt: response.data.updatedAt,
+                createdAt: response.data.createdAt,
+            });
         } catch (error) {
             console.error(error);
         }
@@ -397,6 +451,12 @@ const mutations = {
     reset(state, newState) {
         Object.keys(newState).forEach(key => {
             state[key] = newState[key]
+        });
+    },
+
+    updateWorkoutSession(state, newSetState) {
+        Object.keys(newSetState).forEach(key => {
+            state.workoutSession[key] = newSetState[key]
         });
     },
 
