@@ -28,7 +28,9 @@
 
                 <div class="graph">
                     <h3 class="mb-2 mt-8">Weight</h3>
+                    <h2 v-if="isSingleSet">{{ singleSetWeight }} {{ singleSetReps }}</h2>
                     <VSparkline
+                        v-else
                         :gradient="['purple', 'violet']"
                         :label-size="10"
                         :labels="weightLabels"
@@ -45,7 +47,7 @@
                     <hr class="mt-2">
                 </div>
 
-                <div class="graph">
+                <div v-if="!isSingleSet" class="graph">
                     <h3 class="mb-2 mt-8">Reps</h3>
                     <VSparkline
                         :gradient="['purple', 'violet']"
@@ -65,8 +67,10 @@
                 </div>
 
                 <div class="graph">
-                    <h3 class="mb-2 mt-8">Rest periods</h3>
+                    <h3 class="mb-2 mt-8"> {{ isSingleSet ? 'Rest period' : 'Rest periods' }}</h3>
+                    <h2 v-if="isSingleSet">{{ singleSetRest }}</h2>
                     <VSparkline
+                        v-else
                         :gradient="['purple', 'violet']"
                         :label-size="10"
                         :labels="restLabels"
@@ -107,6 +111,18 @@
             title() {
                 return `${this.sessionExercise.name} - ${dateDescription(this.sessionExercise.createdAt, true)}`;
             },
+            isSingleSet() {
+                return this.sessionExercise.sessionSets.length === 1
+            },
+            singleSetWeight() {
+                const weight = this.sessionExercise.sessionSets[0].weight;
+
+                if (weight === null) {
+                    return 'Unknown weight';
+                }
+
+                return `${weight}kg`;
+            },
             weights() {
                 return this.sessionExercise.sessionSets.map(set => {
                     if (set.weight === null) {
@@ -125,6 +141,15 @@
                     return `${set.weight}kg`;
                 });
             },
+            singleSetReps() {
+                const reps = this.sessionExercise.sessionSets[0].reps;
+
+                if (reps === null) {
+                    return '';
+                }
+
+                return `x ${reps} reps`;
+            },
             reps() {
                 return this.sessionExercise.sessionSets.map(set => {
                     if (set.reps === null) {
@@ -142,6 +167,9 @@
 
                     return set.reps;
                 });
+            },
+            singleSetRest() {
+                return `${minsSecDuration(this.sessionExercise.sessionSets[0].restPeriodDuration)}`;
             },
             rest() {
                 return this.sessionExercise.sessionSets.map(set => {

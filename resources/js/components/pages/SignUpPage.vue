@@ -128,7 +128,6 @@
                     password: this.password
                 })
 
-                debugger;
                 if (success) {
                     const afterLoginRoute = this.$store.getters['app/afterLoginRoute'];
                     this.$router.replace(afterLoginRoute);

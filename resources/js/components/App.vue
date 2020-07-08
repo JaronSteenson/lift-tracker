@@ -93,9 +93,7 @@
             }
         },
         mounted() {
-            debugger
            this.$el.oncontextmenu = (e) => {
-               debugger
                e.preventDefault();
                return false;
            }
