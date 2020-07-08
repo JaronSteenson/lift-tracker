@@ -125,9 +125,10 @@ export function updatedAtMicro(utcDate, now) {
     now = new Date(now) || new Date();
 
     const hoursAgo = differenceInHours(now, date);
+    const daysAgo = differenceInDays(now, date);
 
     if (hoursAgo >= 24) {
-        return `${differenceInDays(now, date)}d`
+        return `${daysAgo}d`
     }
 
     if (hoursAgo >= 1) {

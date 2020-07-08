@@ -43,7 +43,9 @@ describe('dates', () => {
             ['Some minutes', '2019-01-02 11:50:00', '10m 0s'],
             ['Some minutes and seconds', '2019-01-02 11:49:30', '10m 30s'],
             ['A day', '2019-01-01 12:00:00', '1d'],
-            ['A year', '2018-01-01 12:10:00', '365d'],
+            ['A few day', '2018-12-30 12:00:00', '3d'],
+            ['A year', '2018-01-02 12:00:00', '365d'],
+            ['Over a year', '2017-12-30 12:10:00', '367d'],
             ['null',null, '0s'],
         ]).test('returns the micro time updated at description for %s', (testCase, time, expected) => {
             expect(updatedAtMicro(time, '2019-01-02 12:00:00')).toBe(expected);
