@@ -27,8 +27,22 @@
                 required: false,
             }
         },
+        data() {
+            return {
+                refreshForce: null,
+                refreshInterval: null,
+            }
+        },
+        created() {
+            this.startRefreshInterval();
+        },
+        destroyed() {
+            this.clearRefreshInterval();
+        },
         computed: {
             generatedStatusMessage() {
+                this.refreshForce;
+
                 if (this.statusMessage) {
                     return this.statusMessage;
                 }
@@ -40,6 +54,16 @@
 
                     return `${dateTimeDescription(this.updatedAt)}`;
                 }
+            }
+        },
+        methods: {
+            startRefreshInterval() {
+                this.refreshInterval = setInterval(() => {
+                    this.refreshForce =  Date.now();
+                }, 60 * 1000);
+            },
+            clearRefreshInterval() {
+                clearInterval(this.interval);
             }
         }
     }

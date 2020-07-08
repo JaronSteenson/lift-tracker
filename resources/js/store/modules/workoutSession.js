@@ -7,7 +7,7 @@ import {
     mutations as saveStatusMutations,
     actions as saveStatusActions,
     state as saveStatusState,
-    saveStatusMessageGetter
+    getters as savingStatusGetters,
 } from './saveStatusMixin';
 
 const SAVE_DEBOUNCE_WAIT = 1000;
@@ -34,8 +34,7 @@ function defaultState() {
 const state = defaultState();
 
 const getters = {
-
-    savingStatusMessage: saveStatusMessageGetter('set'),
+    ...savingStatusGetters,
 
     hasLoadedInProgressWorkouts(state, getters) {
         return getters.inProgressWorkouts !== null;

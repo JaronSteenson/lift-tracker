@@ -50,7 +50,7 @@ export function utcNow() {
     return `${utcDate}T${utcTime}+00:00`;
 }
 
-export function minsSecDuration(valueInSeconds, noZeroTreatment) {
+export function minsSecDuration(valueInSeconds, noZeroTreatment, roundOffSeconds) {
     if (typeof noZeroTreatment === 'undefined' && !valueInSeconds) {
         return 'None';
     }
@@ -60,6 +60,10 @@ export function minsSecDuration(valueInSeconds, noZeroTreatment) {
 
     if (minutes === 0) {
         return `${seconds}s`;
+    }
+
+    if (roundOffSeconds) {
+        return `${minutes}m`;
     }
 
     return `${minutes}m ${seconds}s`;
@@ -135,7 +139,7 @@ export function updatedAtMicro(utcDate, now) {
         return `${hoursAgo}h`
     }
 
-    return minsSecDuration(differenceInSeconds(now, date), true)
+    return minsSecDuration(differenceInSeconds(now, date), true, true)
 }
 
 export function dateDescription(utcDate, noRecent) {

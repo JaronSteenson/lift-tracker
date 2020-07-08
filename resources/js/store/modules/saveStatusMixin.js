@@ -7,16 +7,19 @@ export const state = {
     updateSaveStatusTimeout: null,
 }
 
-export function saveStatusMessageGetter(domainModel) {
-    return (state) => {
+export const getters = {
+    saveStatusMessage(state) {
         switch (state.saveStatus) {
-            case STATUS_SAVE_ERROR: return `Error saving ${domainModel}`;
-            case STATUS_SAVE_SUCCESS: return `${domainModel} saved`;
-            case STATUS_SAVING: return 'Saving...';
+            case STATUS_SAVE_ERROR:
+                return `Error saving`;
+            case STATUS_SAVE_SUCCESS:
+                return `Saved`;
+            case STATUS_SAVING:
+                return 'Saving...';
         }
 
         return null
-    };
+    },
 };
 
 export const mutations = {
@@ -47,7 +50,7 @@ export const actions = {
         commit('updateSaveStatus', STATUS_SAVE_SUCCESS);
         commit('updateSaveStatusTimeout', setTimeout(() => {
             commit('updateSaveStatus', null);
-        }, 3 * 1000));
+        }, 30 * 1000));
     },
 
     finishSavingError({commit}) {

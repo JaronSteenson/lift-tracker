@@ -40,8 +40,8 @@ describe('dates', () => {
     describe('updated At micro', () => {
         each([
             ['Zero seconds', '2019-01-02 12:00:00', '0s'],
-            ['Some minutes', '2019-01-02 11:50:00', '10m 0s'],
-            ['Some minutes and seconds', '2019-01-02 11:49:30', '10m 30s'],
+            ['Some minutes', '2019-01-02 11:50:00', '10m'],
+            ['Some minutes and seconds', '2019-01-02 11:49:30', '10m'],
             ['A day', '2019-01-01 12:00:00', '1d'],
             ['A few day', '2018-12-30 12:00:00', '3d'],
             ['A year', '2018-01-02 12:00:00', '365d'],

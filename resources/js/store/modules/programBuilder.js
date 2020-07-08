@@ -5,7 +5,7 @@ import {
     mutations as saveStatusMutations,
     actions as saveStatusActions,
     state as saveStatusState,
-    saveStatusMessageGetter
+    getters as savingStatusGetters,
 } from './saveStatusMixin';
 
 const LOCAL_STORAGE_NAMESPACE = 'program-builder-state';
@@ -61,7 +61,7 @@ const exerciseFields = [
 ];
 
 const getters = {
-    savingStatusMessage: saveStatusMessageGetter('program'),
+    ...savingStatusGetters,
 
     hasMadeSignificantChangesFromNew(state) {
         return state.uuid || // Has somehow forced a save or uuid assignment.

@@ -24,7 +24,7 @@
                         <VSpacer></VSpacer>
 
                     <ServerSyncInfo
-                        :status-message="savingStatusMessage"
+                        :status-message="saveStatusMessage"
                         :updatedAt="updatedAt"
                     />
 
@@ -139,7 +139,7 @@
                 return !this.loading && this.fetchError;
             },
             ...mapState('programBuilder', ['updatedAt']),
-            ...mapGetters('programBuilder', ['hasMadeSignificantChangesFromNew', 'savingStatusMessage']),
+            ...mapGetters('programBuilder', ['hasMadeSignificantChangesFromNew', 'saveStatusMessage']),
             orderedWorkouts: {
                 get() {
                     return this.$store.getters['programBuilder/getOrderedWorkouts'];

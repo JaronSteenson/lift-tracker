@@ -11,7 +11,7 @@
             <VSpacer/>
 
             <ServerSyncInfo
-                :status-message="savingStatusMessage"
+                :status-message="saveStatusMessage"
                 :updated-at="updatedAt"
             />
 
@@ -230,7 +230,7 @@
             }
         },
         computed: {
-            ...mapGetters('workoutSession', ['workoutName', 'uuid', 'lastTimeExercise', 'savingStatusMessage', 'updatedAt']),
+            ...mapGetters('workoutSession', ['workoutName', 'uuid', 'lastTimeExercise', 'saveStatusMessage', 'updatedAt']),
             set() {
                 return this.$store.getters['workoutSession/set'](this.sessionSetUuid);
             },
