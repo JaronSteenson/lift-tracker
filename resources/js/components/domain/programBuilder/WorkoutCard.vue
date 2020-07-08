@@ -229,14 +229,14 @@
 
     .sortable-chosen {
         .workout-card.v-card {
-            border: solid 1px var(--v-warning-base);
+            border: 1px solid lightgray;
+            animation: blink .5s step-end infinite alternate;
         }
     }
 
     .workout-drop-placeholder {
         .workout-card.v-card {
-            border: 1px solid lightgray;
-            animation: blink .5s step-end infinite alternate;
+            border: solid 1px var(--v-warning-base);
         }
     }
 

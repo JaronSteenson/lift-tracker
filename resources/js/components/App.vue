@@ -92,6 +92,14 @@
                 drawer: null,
             }
         },
+        mounted() {
+            debugger
+           this.$el.oncontextmenu = (e) => {
+               debugger
+               e.preventDefault();
+               return false;
+           }
+        },
         computed: {
             ...mapState('app', [
                 'hasLoaded',

@@ -140,12 +140,12 @@
         border: solid 1px var(--v-primary-base);
 
         &.sortable-chosen {
-            border: solid 1px var(--v-warning-base);
+            border: 1px solid lightgray;
+            animation: blink .5s step-end infinite alternate;
         }
 
         &.drop-placeholder-exercise {
-            border: 1px solid lightgray;
-            animation: blink .5s step-end infinite alternate;
+            border: solid 1px var(--v-warning-base);
         }
 
         @keyframes blink {
