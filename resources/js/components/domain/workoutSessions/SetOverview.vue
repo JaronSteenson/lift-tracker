@@ -87,19 +87,19 @@
                 </VRow>
                 <VRow class="pt-0 mt-0">
                     <VCol class="pt-0 mt-0" cols="12">
-                        <span v-if="!this.hasLoadedLastTimeExercise">
+                        <span v-if="!hasLoadedLastTimeExercise">
                             Loading last times stats...
                             <VProgressLinear indeterminate/>
                         </span>
                         <template v-else>
-                            <template v-if="this.lastTimeExercise">
+                            <template v-if="lastTimeExercise">
                                 <a href="#" @click="openLastTimeStats">
                                     View last time's stats
                                 </a>
 
                                 <SessionStatsModal
                                     v-if="showLastTimeStats"
-                                    :session-exercise="exercise"
+                                    :session-exercise="lastTimeExercise"
                                     v-model="showLastTimeStats"
                                 />
                             </template>

@@ -17,7 +17,7 @@ class LastTimeSessionExercise extends Controller
      */
     public function __invoke(string $sessionExerciseUuid): ?SessionExercise
     {
-        $sessionExercise = (new SessionExercise)->findByUuid($sessionExerciseUuid);
+        $sessionExercise = (new SessionExercise())->findByUuid($sessionExerciseUuid);
 
         /** @var User $user */
         $user = auth()->user();
