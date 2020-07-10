@@ -16,7 +16,7 @@
         <VSkeletonLoader class="ma-5" type="table-heading, table-row@3" v-if="loading"/>
         <VDataTable v-else :headers="headers" :items="workoutSessionsForDisplay">
             <template v-slot:item.icon="{ item: session }">
-                <VIcon v-if="isInProgress(session.uuid)">mdi-play</VIcon>
+                <VIcon v-if="isInProgress(session.uuid)" color="success">mdi-play</VIcon>
                 <VIcon v-else>mdi-dumbbell</VIcon>
             </template>
             <template v-slot:item.name="{ item: session }">
