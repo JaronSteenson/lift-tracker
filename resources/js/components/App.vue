@@ -22,23 +22,40 @@
 
                 <VDivider/>
 
-                <VListItem
+                <template
                     v-for="workout in inProgressWorkouts"
-                    :key="workout.uuid"
-                    link
-                    :to="workoutIsInFocus(workout.uuid) ? null : { name: 'sessionOverview', params: { workoutSessionUuid: workout.uuid } }"
-                    :disabled="workoutIsInFocus(workout.uuid)"
                 >
-                    <VListItemAction>
-                        <VIcon v-if="workoutIsInFocus(workout.uuid)" color="success">mdi-play</VIcon>
-                        <VIcon v-else>mdi-play</VIcon>
-                    </VListItemAction>
-                    <VListItemContent>
-                        <VListItemTitle v-if="workoutIsInFocus(workout.uuid)">In progress workout</VListItemTitle>
-                        <VListItemTitle v-else>Resume workout</VListItemTitle>
-                        <VListItemSubtitle>{{ workout.name }}</VListItemSubtitle>
-                    </VListItemContent>
-                </VListItem>
+                    <VListItem
+                        :key="workout.uuid"
+                        link
+                        :to="{ name: 'sessionOverview', params: { workoutSessionUuid: workout.uuid } }"
+                    >
+                        <VListItemAction>
+                            <VIcon color="success">mdi-play</VIcon>
+                        </VListItemAction>
+                        <VListItemContent>
+                            <VListItemTitle v-if="workoutIsInFocus(workout.uuid)">In progress workout</VListItemTitle>
+                            <VListItemTitle v-else>Resume workout</VListItemTitle>
+                            <VListItemSubtitle>{{ workout.name }}</VListItemSubtitle>
+                        </VListItemContent>
+                    </VListItem>
+
+                    <VListItem
+                        :key="getCurrentSet(workout.uuid).uuid"
+                        link
+                        :to="{ name: 'setOverview', params: { sessionSetUuid: getCurrentSet(workout.uuid).uuid }}"
+                    >
+                        <VListItemAction>
+                            <VIcon color="success">mdi-play</VIcon>
+                        </VListItemAction>
+                        <VListItemContent>
+                            <VListItemTitle v-if="setIsInFocus(getCurrentSet(workout.uuid))">In progress set</VListItemTitle>
+                            <VListItemTitle v-else>Resume set</VListItemTitle>
+                            <VListItemSubtitle> {{ getCurrentSet(workout.uuid).exercise.name }} - set {{ getCurrentSet(workout.uuid).position + 1 }} </VListItemSubtitle>
+                        </VListItemContent>
+                    </VListItem>
+
+                </template>
             </VList>
         </VNavigationDrawer>
 
@@ -125,6 +142,9 @@
 
                 return this.$store.getters['workoutSession/workoutSession']?.uuid === workoutSessionUuid;
             },
+            setIsInFocus(set) {
+                return this.$route.name === 'setOverview' && this.$route.params.sessionSetUuid === set.uuid;
+            },
             async logout() {
                 if (!this.userIsAuthenticated) {
                     this.$router.push({ name: 'login' });
@@ -134,7 +154,10 @@
                 await this.$store.dispatch('app/logout');
 
                 this.$router.push({ name: 'login' });
-            }
+            },
+            getCurrentSet(workoutSessionUuid) {
+                return this.$store.getters['workoutSession/currentSetForInProgressWorkout'](workoutSessionUuid);
+            },
         },
     }
 </script>

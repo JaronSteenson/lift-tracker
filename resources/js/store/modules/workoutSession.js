@@ -47,7 +47,12 @@ const getters = {
     currentSetForInProgressWorkout: (state, getters) => (uuid) => {
         const workout =  UuidHelper.findIn(getters.inProgressWorkouts, uuid);
 
-        const setGroups = workout.sessionExercises.map(exercise => exercise.sessionSets);
+        const setGroups = workout.sessionExercises.map(exercise => {
+            return exercise.sessionSets.map(set => {
+                return { exercise: exercise, ...set }
+            })
+        });
+
         const allSets = setGroups.reduce((accumulator, setGroup) => {
             accumulator.push(...setGroup);
             return accumulator;

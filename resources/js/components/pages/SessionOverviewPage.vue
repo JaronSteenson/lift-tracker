@@ -42,25 +42,38 @@
                 fetchError: false,
             }
         },
-        async created() {
-            if (this.$store.getters['workoutSession/workoutSessionIsLoaded'](this.workoutSessionUuid)) {
-                return;
-            }
-
-            this.loading = true;
-
-            try {
-                await this.$store.dispatch('workoutSession/fetch', this.workoutSessionUuid);
-            } catch (e) {
-                this.fetchError = true;
-            }
-
-            this.loading = false;
+        created() {
+            this.ensureWorkoutSessionIsLoaded();
+        },
+        watch: {
+            workoutSessionUuid(newUuid, oldUuid) {
+                debugger
+                if (newUuid !== oldUuid) {
+                    this.ensureWorkoutSessionIsLoaded();
+                }
+            },
         },
         computed: {
             notFound() {
                 return !this.loading && this.fetchError;
             },
+        },
+        methods: {
+            async ensureWorkoutSessionIsLoaded() {
+                if (this.$store.getters['workoutSession/workoutSessionIsLoaded'](this.workoutSessionUuid)) {
+                    return;
+                }
+
+                this.loading = true;
+
+                try {
+                    await this.$store.dispatch('workoutSession/fetch', this.workoutSessionUuid);
+                } catch (e) {
+                    this.fetchError = true;
+                }
+
+                this.loading = false;
+            }
         }
     }
 </script>
