@@ -35,7 +35,6 @@
                         :label-size="10"
                         :labels="weightLabels"
                         :line-width="15"
-                        :padding="5"
                         :radius="10"
                         :value="weights"
                         auto-draw
@@ -54,7 +53,6 @@
                         :label-size="10"
                         :labels="repLabels"
                         :line-width="15"
-                        :padding="5"
                         :radius="10"
                         :value="reps"
                         auto-draw
@@ -75,7 +73,7 @@
                         :label-size="10"
                         :labels="restLabels"
                         :line-width="5"
-                        :padding="5"
+                        :padding="20"
                         :radius="5"
                         :value="rest"
                         auto-draw
