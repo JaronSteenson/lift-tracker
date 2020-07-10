@@ -370,6 +370,8 @@ const actions = {
         try {
             dispatch('startSaving');
 
+            const uuid = state.workoutSession.uuid;
+
             commit('updateWorkoutSession', {
                 uuid,
                 updatedAt: utcNow()
