@@ -28,6 +28,8 @@ use LiftTracker\Traits\HasUuidTrait;
  * @property Carbon restPeriodStartedAt
  * @property Carbon restPeriodEndedAt
  * @property int position
+ * @property Carbon startedAt
+ * @property Carbon endedAt
  * @property Carbon createdAt
  * @property Carbon updatedAt
  * @property SessionExercise sessionExercise
@@ -51,6 +53,8 @@ class SessionSet extends AbstractModel
         'restPeriodDuration',
         'restPeriodStartedAt',
         'restPeriodEndedAt',
+        'startedAt',
+        'endedAt',
         'position',
     ];
 
@@ -67,6 +71,8 @@ class SessionSet extends AbstractModel
         'restPeriodStartedAt',
         'restPeriodEndedAt',
         'position',
+        'startedAt',
+        'endedAt',
         'createdAt',
         'updatedAt',
     ];
@@ -78,24 +84,11 @@ class SessionSet extends AbstractModel
         'restPeriodStartedAt' => 'datetime:c',
         'restPeriodEndedAt' => 'datetime:c',
         'position' => 'integer',
+        'startedAt' => 'datetime:c',
+        'endedAt' => 'datetime:c',
         'createdAt' => 'datetime:c',
         'updatedAt' => 'datetime:c',
     ];
-
-    public static function createFromRequest(WorkoutSessionRequest $request): self
-    {
-//        /** @var static $workoutProgram */
-//        $workoutProgram = $request->getExistingModel() ?? new static();
-//
-//        $workoutProgram->name = $request->get('name');
-//
-//        // Associate the user with the top level entity.
-//        if (!$workoutProgram->exists) {
-//            $workoutProgram->user()->associate($request->user());
-//        }
-//
-//        return $workoutProgram;
-    }
 
     public function sessionExercise(): BelongsTo
     {
