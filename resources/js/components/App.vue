@@ -22,7 +22,8 @@
 
                 <VDivider/>
 
-                <template
+                <div
+                    :key="inProgressWorkouts"
                     v-for="workout in inProgressWorkouts"
                 >
                     <VListItem
@@ -55,7 +56,7 @@
                         </VListItemContent>
                     </VListItem>
 
-                </template>
+                </div>
             </VList>
         </VNavigationDrawer>
 
