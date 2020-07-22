@@ -23,7 +23,7 @@
                 <VDivider/>
 
                 <div
-                    :key="inProgressWorkouts"
+                    :key="workout.uuid"
                     v-for="workout in inProgressWorkouts"
                 >
                     <VListItem

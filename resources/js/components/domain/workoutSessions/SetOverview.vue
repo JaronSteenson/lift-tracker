@@ -307,10 +307,7 @@
                     return;
                 }
 
-                if (this.isDuringRestPeriod) {
-                    this.endRestPeriod();
-                }
-
+                this.endSet();
                 this.startNextSet();
             },
             async fetchLastTimeExercise() {
@@ -324,11 +321,15 @@
                 this.startNextSet();
             },
             startNextSet() {
-                if (this.isDuringRestPeriod) {
-                    this.endRestPeriod()
+                if (this.set.endedAt === null) {
+                    this.endSet();
                 }
 
                 const nextSet =  this.$store.getters['workoutSession/nextSet'](this.sessionSetUuid);
+
+                this.$store.dispatch('workoutSession/startSet', {
+                    uuid: nextSet.uuid,
+                })
 
                 this.$router.push({ name: 'setOverview', params: { sessionSetUuid: nextSet.uuid }});
             },
@@ -344,6 +345,11 @@
             },
             endRestPeriod() {
                 this.$store.dispatch('workoutSession/endRestPeriod', {
+                    uuid: this.sessionSetUuid,
+                })
+            },
+            endSet() {
+                this.$store.dispatch('workoutSession/endSet', {
                     uuid: this.sessionSetUuid,
                 })
             },

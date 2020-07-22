@@ -92,8 +92,10 @@ class WorkoutSession extends AbstractModel
             $workoutSession->workoutProgramRoutineId = $originRoutine->id;
             $workoutSession->name = $originRoutine->name;
 
+            $startedAt = null;
             if ($startNow) {
-                $workoutSession->startedAt = new Carbon();
+                $startedAt = new Carbon();
+                $workoutSession->startedAt = $startedAt;
             }
 
             $workoutSession->save();
@@ -103,6 +105,17 @@ class WorkoutSession extends AbstractModel
                         SessionExercise::createFromRoutineExercise($routineExercise, $workoutSession->id);
                 }
             );
+
+            if ($startedAt) {
+                /** @var SessionExercise $firstExercise */
+                $firstExercise = $workoutSession->sessionExercises->first();
+
+                /** @var SessionSet $firstSet */
+                $firstSet = $firstExercise->sessionSets->first();
+
+                $firstSet->startedAt = $startedAt;
+                $firstSet->save();
+            }
 
             return $workoutSession->fresh();
         });

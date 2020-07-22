@@ -47,7 +47,6 @@
         },
         watch: {
             workoutSessionUuid(newUuid, oldUuid) {
-                debugger
                 if (newUuid !== oldUuid) {
                     this.ensureWorkoutSessionIsLoaded();
                 }

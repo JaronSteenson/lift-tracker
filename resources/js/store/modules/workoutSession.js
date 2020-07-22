@@ -58,12 +58,24 @@ const getters = {
             return accumulator;
         }, [])
 
-        return allSets.reduce((lastTouched, set) => {
-            if (isAfter(new Date(set.updatedAt), new Date(lastTouched.updatedAt))) {
+        if (allSets[0].startedAt === null) {
+            return allSets[0];
+        }
+
+        return allSets.reduce((lastStartedSet, set) => {
+            if (set.startedAt === null) {
+                return lastStartedSet;
+            }
+
+            if (set.startedAt === lastStartedSet.startedAt) {
                 return set;
             }
 
-            return lastTouched;
+            if (isAfter(new Date(set.startedAt), new Date(lastStartedSet.startedAt))) {
+                return set;
+            }
+
+            return lastStartedSet;
         }, allSets[0]);
     },
 
@@ -283,6 +295,13 @@ const actions = {
         dispatch('saveExercise', uuid);
     },
 
+    startSet({ commit, dispatch, getters  }, { uuid }) {
+        const startedAt = utcNow();
+
+        commit('startSet', { uuid, startedAt });
+        dispatch('saveSet', uuid);
+    },
+
     startRestPeriod({ commit, dispatch, getters  }, { uuid }) {
         const restPeriodStartedAt = utcNow();
 
@@ -308,8 +327,23 @@ const actions = {
 
         const restPeriodEndedAt = utcNow();
         const restPeriodDuration = differenceInSeconds(new Date(restPeriodEndedAt), new Date(set.restPeriodStartedAt));
-
         commit('endRestPeriod', { uuid, restPeriodEndedAt, restPeriodDuration });
+
+        dispatch('saveSet', uuid);
+    },
+
+    endSet({ commit, dispatch, getters  }, { uuid }) {
+        const set = getters.set(uuid);
+
+        const endedAt = utcNow();
+
+        if (set.restPeriodEndedAt === null) {
+            const restPeriodEndedAt = utcNow();
+            const restPeriodDuration = differenceInSeconds(new Date(restPeriodEndedAt), new Date(set.restPeriodStartedAt));
+            commit('endRestPeriod', { uuid, restPeriodEndedAt, restPeriodDuration });
+        }
+
+        commit('endSet', { uuid, endedAt });
         dispatch('saveSet', uuid);
     },
 
@@ -435,10 +469,11 @@ const actions = {
         return response;
     },
 
-    async startWorkout({ commit, dispatch }, { originWorkoutUuid }) {
+    async startWorkout({ commit, dispatch, state }, { originWorkoutUuid }) {
         commit('reset', defaultState());
 
         const response = await WorkoutSessionService.startNew(originWorkoutUuid);
+
         commit('reset', { workoutSession: response.data });
     },
 
@@ -493,11 +528,34 @@ const mutations = {
     },
 
     updateInProgress(state, inProgressWorkouts) {
-        state.inProgressWorkouts = inProgressWorkouts
+        if (state.inProgressWorkouts === null || inProgressWorkouts.length === 0) {
+            state.inProgressWorkouts = inProgressWorkouts;
+            return;
+        }
+
+        inProgressWorkouts.forEach(fromServer => {
+            const inState = UuidHelper.findIn(state.inProgressWorkouts, fromServer.uuid)
+
+            const fromServerUpdatedAt = new Date(fromServer.updatedAt);
+            const fromStateUpdatedAt = new Date(inState.updatedAt);
+
+            if (isAfter(fromServerUpdatedAt, fromStateUpdatedAt)) {
+                Object.assign(inState, fromServer);
+            }
+        })
     },
 
     updateLastTimeExercise(state, {exerciseUuid, lastTimeExercise}) {
         state.lastTimeExercises[exerciseUuid] = lastTimeExercise;
+    },
+
+    startSet(state, { uuid, startedAt }) {
+        const set = UuidHelper.findDeep(state.workoutSession.sessionExercises, uuid);
+
+        const inProgressSet = UuidHelper.findDeep(state.inProgressWorkouts, uuid);
+
+        set.startedAt = startedAt;
+        inProgressSet.startedAt = startedAt;
     },
 
     setRestPeriodTimeout(state, restPeriodTimeout) {
@@ -511,6 +569,12 @@ const mutations = {
 
         clearTimeout(state.restPeriodTimeout);
         state.restPeriodTimeout = null;
+    },
+
+    endSet(state, { uuid, endedAt }) {
+        const set = UuidHelper.findDeep(state.workoutSession.sessionExercises, uuid);
+
+        set.endedAt = endedAt;
     },
 
     endWorkout(state, { endedAt }) {
