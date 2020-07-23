@@ -4,6 +4,16 @@
         <div class="timer__time-parts">
             <span class="timer__time-part">{{ min }}</span><span class="timer__time-part">:</span><span class="timer__time-part">{{ sec }}</span>
         </div>
+
+        <audio ref="alarm-audio-1">
+            <source src="/audio/alarm.ogg" type="audio/ogg">
+        </audio>
+        <audio ref="alarm-audio-2">
+            <source src="/audio/alarm.ogg" type="audio/ogg">
+        </audio>
+        <audio ref="alarm-audio-3">
+            <source src="/audio/alarm.ogg" type="audio/ogg">
+        </audio>
     </div>
 </template>
 
@@ -23,6 +33,7 @@
             return {
                 refreshForce: null,
                 refreshInterval: null,
+                snackbar: true,
             }
         },
         created() {
@@ -34,9 +45,15 @@
             this.clearRefreshInterval();
         },
         watch: {
+            timeRemaining(value) {
+                if (value === 3) {
+                    this.playCountdown();
+                }
+            },
             isFinished(value) {
                 if (value === true) {
                     this.clearRefreshInterval();
+                    this.snackbar = true;
                 } else {
                     this.startRefreshInterval()
                 }
@@ -98,7 +115,16 @@
             },
             clearRefreshInterval() {
                 clearInterval(this.interval);
-            }
+            },
+            playCountdown() {
+                this.playAlarm(1);
+                setTimeout(() => { this.playAlarm(2) }, 1000)
+                setTimeout(() => { this.playAlarm(3) }, 2000)
+            },
+            playAlarm(i) {
+                const audio = this.$refs['alarm-audio-' + i];
+                audio.play();
+            },
         }
     }
 </script>
