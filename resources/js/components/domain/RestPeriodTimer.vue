@@ -33,7 +33,6 @@
             return {
                 refreshForce: null,
                 refreshInterval: null,
-                snackbar: true,
             }
         },
         created() {
@@ -53,7 +52,7 @@
             isFinished(value) {
                 if (value === true) {
                     this.clearRefreshInterval();
-                    this.snackbar = true;
+                    window.navigator.vibrate(200);
                 } else {
                     this.startRefreshInterval()
                 }
