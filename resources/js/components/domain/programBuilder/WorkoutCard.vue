@@ -7,6 +7,7 @@
     >
         <VToolbar flat>
             <VTextField
+                class="workout-title-edit"
                 :autofocus="isEditingTitle"
                 :hide-details="isSessionOverview"
                 :label="isSessionOverview ? null : 'Workout name'"
@@ -18,7 +19,7 @@
                 v-model="localState.name"
             >
                 <template v-slot:append-outer>
-                    <VBtn @click="abortEditingTitle" icon ref="abortEditingTitleButton">
+                    <VBtn class="workout-title-edit__abort" @click="abortEditingTitle" icon ref="abortEditingTitleButton">
                         <VIcon>mdi-close</VIcon>
                     </VBtn>
                 </template>
@@ -225,6 +226,17 @@
 <style scoped lang="scss">
     .workout-card.v-card {
         border: solid 1px var(--v-primary-base);
+    }
+
+    .workout-title-edit {
+        &.v-input {
+            margin-top: 50px;
+        }
+
+
+        &__abort.v-btn {
+            margin-top: -15px;
+        }
     }
 
     .sortable-chosen {
