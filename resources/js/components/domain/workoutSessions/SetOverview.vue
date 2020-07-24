@@ -132,6 +132,7 @@
                             class="mb-2"
                             color="warning"
                             small
+                            :disabled="changingSet"
                         >
                             <VIcon left>mdi-stop</VIcon>
                             End rest
@@ -142,7 +143,9 @@
                             @click="skipRest"
                             class="mb-2"
                             color="success"
-                            small>
+                            small
+                            :loading="changingSet"
+                        >
                             <VIcon left>mdi-skip-forward</VIcon>
                             Skip rest
                         </VBtn>
@@ -164,7 +167,9 @@
                             @click="endWorkout"
                             class="mt-2"
                             color="success"
-                            small>
+                            small
+                            :loading="changingSet"
+                        >
                             <VIcon left>mdi-check</VIcon>
                             Finish <br v-if="$vuetify.breakpoint.xsOnly"/> workout
                         </VBtn>
@@ -175,7 +180,9 @@
                             @click="startNextSet"
                             class="mt-2"
                             color="success"
-                            small>
+                            small
+                            :loading="changingSet"
+                        >
                             <VIcon left>mdi-play</VIcon>
                             Next set
                         </VBtn>
@@ -227,6 +234,7 @@
             return {
                 hasLoadedLastTimeExercise: false,
                 showLastTimeStats: false,
+                changingSet: false,
             }
         },
         computed: {
@@ -302,6 +310,8 @@
         },
         methods: {
             skipRest() {
+                this.changingSet = true;
+
                 if (this.isLastSetOfWorkout) {
                     this.endWorkout();
                     return;
@@ -314,24 +324,32 @@
                 return this.$store.dispatch('workoutSession/fetchLastTimeExercise', this.exercise.uuid);
             },
             async endWorkout() {
+                this.changingSet = true;
+
                 await this.$store.dispatch('workoutSession/endWorkout');
                 await this.$router.push({ name: 'sessionOverview', params: { workoutSessionUuid: this.uuid }});
+
+                this.changingSet = false;
             },
             skipSet() {
                 this.startNextSet();
             },
-            startNextSet() {
+            async startNextSet() {
+                this.changingSet = true;
+
                 if (this.set.endedAt === null) {
                     this.endSet();
                 }
 
                 const nextSet =  this.$store.getters['workoutSession/nextSet'](this.sessionSetUuid);
 
-                this.$store.dispatch('workoutSession/startSet', {
+                await this.$store.dispatch('workoutSession/startSet', {
                     uuid: nextSet.uuid,
                 })
 
-                this.$router.push({ name: 'setOverview', params: { sessionSetUuid: nextSet.uuid }});
+                await this.$router.push({ name: 'setOverview', params: { sessionSetUuid: nextSet.uuid }});
+
+                this.changingSet = false;
             },
             resumeRestPeriod() {
                 this.$store.dispatch('workoutSession/startRestPeriodTimeout', {
