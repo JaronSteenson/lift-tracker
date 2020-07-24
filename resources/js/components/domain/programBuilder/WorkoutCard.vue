@@ -25,6 +25,7 @@
                 </template>
             </VTextField>
             <VTextField
+                class="workout-title-edit"
                 :autofocus="isAddingNew"
                 @blur="finishAddingNew"
                 @keydown.enter="finishAddingNew"
