@@ -90,6 +90,13 @@ class SessionSet extends AbstractModel
         'updatedAt' => 'datetime:c',
     ];
 
+    /**
+     * The relationships that should be touched on save.
+     *
+     * @var array
+     */
+    protected $touches = ['sessionExercise'];
+
     public function sessionExercise(): BelongsTo
     {
         return $this->belongsTo(SessionExercise::class, 'sessionExerciseId');

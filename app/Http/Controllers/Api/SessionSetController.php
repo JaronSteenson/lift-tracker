@@ -65,6 +65,7 @@ class SessionSetController extends Controller
         $sessionSet = $request->getModelOr404()->fill($request->all());
 
         $sessionSet->save();
+        $sessionSet->touchOwners();
 
         return $sessionSet;
     }

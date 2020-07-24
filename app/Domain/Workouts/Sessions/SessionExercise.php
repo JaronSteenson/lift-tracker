@@ -85,6 +85,10 @@ class SessionExercise extends AbstractModel implements UserOwnershipInterface
         'updatedAt' => 'datetime:c',
     ];
 
+    protected $touches = [
+        'workoutSession'
+    ];
+
     public static function createFromRoutineExercise(
         RoutineExercise $originExercise,
         string $workoutSessionId

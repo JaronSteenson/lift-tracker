@@ -65,6 +65,7 @@ class SessionExerciseController extends Controller
         $sessionExercise = $request->getModelOr404()->fill($request->all());
 
         $sessionExercise->save();
+        $sessionExercise->touchOwners();
 
         return $sessionExercise;
     }
