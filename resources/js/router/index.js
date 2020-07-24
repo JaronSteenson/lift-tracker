@@ -30,6 +30,25 @@ function forceLogin(to, from, next) {
     next();
 }
 
+function checkPwaStart(to, from, next) {
+    const isAuthed = store.getters['app/userIsAuthenticated'];
+    const toPwaStart = to.fullPath === '/pwa-start';
+
+    if (!isAuthed || !toPwaStart) {
+        next();
+        return;
+    }
+
+    const inProgressWorkouts = store.getters['workoutSession/inProgressWorkouts'];
+    if (inProgressWorkouts === null || inProgressWorkouts.length === 0) {
+        next({ name: 'home' });
+        return;
+    }
+
+    const inProgressSet = store.getters['workoutSession/currentSetForInProgressWorkout'](inProgressWorkouts[0].uuid);
+    next({ name: 'setOverview', params: { sessionSetUuid: inProgressSet.uuid }});
+}
+
 async function waitForAppBootstrap(to, from, next) {
     if (!store.getters['app/isBootstraped']) {
         await store.dispatch('app/fetchAppBootstrapData');
@@ -46,6 +65,11 @@ const routes = [
     {
         name: 'home',
         path: '/',
+        component: HomePage
+    },
+    {
+        name: 'home',
+        path: '/pwa-start',
         component: HomePage
     },
     {
@@ -104,5 +128,6 @@ const router =  new VueRouter({
 
 router.beforeEach(waitForAppBootstrap);
 router.beforeEach(forceLogin);
+router.beforeEach(checkPwaStart);
 
 export default router;
