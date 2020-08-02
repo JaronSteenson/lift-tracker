@@ -22,7 +22,7 @@ export default new Vuetify({
                 accent: colors.white,
                 anchor: colors.blue.base,
                 secondary: colors.purple.lighten2,
-                info: undefined,
+                info: colors.blue.lighten1,
                 warning: colors.deepOrange,
                 error: colors.red.lighten2,
                 success: '#4caf50',

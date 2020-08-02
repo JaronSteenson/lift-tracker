@@ -23,20 +23,37 @@
                 </template>
 
                 <VList>
-                    <VListItem @click="lookBehind">
-                        <VListItemTitle>Look behind</VListItemTitle>
+                    <VListItem @click="lookBehind" :disabled="isFirstSetOfWorkout">
+                        <VListItemTitle>View previous</VListItemTitle>
                     </VListItem>
-                    <VListItem @click="lookAhead">
-                        <VListItemTitle>Look ahead</VListItemTitle>
+                    <VListItem @click="lookAhead" :disabled="isLastSetOfWorkout">
+                        <VListItemTitle>View next</VListItemTitle>
                     </VListItem>
-                    <VListItem @click="skipSet">
+                    <VListItem @click="skipSet" :disabled="!isInProgressSet">
                         <VListItemTitle>Skip set</VListItemTitle>
                     </VListItem>
                 </VList>
             </VMenu>
         </VToolbar>
 
+        <VAlert
+            v-if="!changingSet && !isInProgressSet"
+            dense
+            text
+            type="info"
+        >
+            <template v-if="isLookingBack">This is a previous set.</template>
+            <template v-else>This is an upcoming set.</template>
+            <br/>
+            <RouterLink
+                :to="{ name: 'setOverview', params: { sessionSetUuid: this.inProgressSet.uuid }}"
+            >
+                Jump to current.
+            </RouterLink>
+        </VAlert>
+
         <VStepper
+            v-else
             :value="set.position + 1"
             :vertical="false"
         >
@@ -123,7 +140,7 @@
                         />
                     </VCol>
                 </VRow>
-                <VRow justify="space-between" v-if="isDuringRestPeriod">
+                <VRow justify="space-between" v-if="isInProgressSet && isDuringRestPeriod">
                     <VCol class="pt-0" cols="6">
                         <RestPeriodTimer
                             :session-set-uuid="sessionSetUuid"
@@ -146,7 +163,7 @@
                         </VBtn>
                     </VCol>
                 </VRow>
-                <VRow justify="space-between" v-else-if="restPeriodIsFinished">
+                <VRow justify="space-between" v-else-if="isInProgressSet && restPeriodIsFinished">
                     <VCol class="pt-0" cols="6">
                         <RestPeriodTimer
                             :session-set-uuid="sessionSetUuid"
@@ -154,7 +171,7 @@
                         />
                     </VCol>
 
-                    <VCol class="pt-0 text-right" cols="6">
+                    <VCol v-if="isInProgressSet" class="pt-0 text-right" cols="6">
                         <VBtn
                             v-if="isLastSetOfWorkout"
                             :width="$vuetify.breakpoint.xsOnly ?  '100%' : null"
@@ -185,13 +202,11 @@
                 </VRow>
             </VContainer>
 
-            <VCardActions class="justify-center" width="100%">
-                <template v-if="restPeriodNotStarted">
-                    <VBtn @click="startRestPeriod" class="start-rest-button" color="primary" x-large>
-                        <VIcon left>mdi-clock-start</VIcon>
-                        Start rest period
-                    </VBtn>
-                </template>
+            <VCardActions v-if="isInProgressSet && restPeriodNotStarted" class="justify-center" width="100%">
+                <VBtn @click="startRestPeriod" class="start-rest-button" color="primary" x-large>
+                    <VIcon left>mdi-clock-start</VIcon>
+                    Start rest period
+                </VBtn>
             </VcardActions>
         </VCardText>
     </component>
@@ -237,6 +252,32 @@
             set() {
                 return this.$store.getters['workoutSession/set'](this.sessionSetUuid);
             },
+            isInProgressSet() {
+                return this.set.uuid === this.inProgressSet?.uuid;
+            },
+            isLookingBack() {
+                if (this.isInProgressSet) {
+                    return false;
+                }
+
+                if (this.nextSet === null) {
+                    return false;
+                }
+
+                return this.nextSet.startedAt !== null;
+            },
+            isLookingAhead() {
+                return !this.isInProgressSet && !this.isLookingBack;
+            },
+            previousSet() {
+                return this.$store.getters['workoutSession/previousSet'](this.sessionSetUuid);
+            },
+            nextSet() {
+                return this.$store.getters['workoutSession/nextSet'](this.sessionSetUuid);
+            },
+            inProgressSet() {
+                return this.$store.getters['workoutSession/currentSetForInProgressWorkout'](this.uuid);
+            },
             exercise() {
                 return this.$store.getters['workoutSession/exerciseBySet'](this.sessionSetUuid);
             },
@@ -248,6 +289,9 @@
             },
             restPeriodIsFinished() {
                 return this.$store.getters['workoutSession/restPeriodIsFinished'](this.sessionSetUuid);
+            },
+            isFirstSetOfWorkout() {
+                return this.$store.getters['workoutSession/isFirstSetOfWorkout'](this.sessionSetUuid);
             },
             isLastSetOfWorkout() {
                 return this.$store.getters['workoutSession/isLastSetOfWorkout'](this.sessionSetUuid);
@@ -304,11 +348,11 @@
             },
         },
         methods: {
-            lookAhead() {
-
+            async lookAhead() {
+                await this.$router.push({ name: 'setOverview', params: { sessionSetUuid: this.nextSet.uuid }});
             },
-            lookBehind() {
-
+            async lookBehind() {
+                await this.$router.push({ name: 'setOverview', params: { sessionSetUuid: this.previousSet.uuid }});
             },
             async fetchLastTimeExercise() {
                 return this.$store.dispatch('workoutSession/fetchLastTimeExercise', this.exercise.uuid);
@@ -331,13 +375,11 @@
                     this.endSet();
                 }
 
-                const nextSet =  this.$store.getters['workoutSession/nextSet'](this.sessionSetUuid);
-
                 await this.$store.dispatch('workoutSession/startSet', {
-                    uuid: nextSet.uuid,
+                    uuid: this.nextSet.uuid,
                 })
 
-                await this.$router.push({ name: 'setOverview', params: { sessionSetUuid: nextSet.uuid }});
+                await this.$router.push({ name: 'setOverview', params: { sessionSetUuid: this.nextSet.uuid }});
 
                 this.changingSet = false;
             },

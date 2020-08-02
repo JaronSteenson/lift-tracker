@@ -47,6 +47,10 @@ const getters = {
     currentSetForInProgressWorkout: (state, getters) => (uuid) => {
         const workout =  UuidHelper.findIn(getters.inProgressWorkouts, uuid);
 
+        if (!workout) {
+            return null;
+        }
+
         const setGroups = workout.sessionExercises.map(exercise => {
             return exercise.sessionSets.map(set => {
                 return { exercise: exercise, ...set }
@@ -133,6 +137,43 @@ const getters = {
         return UuidHelper.findIn(state.workoutSession.sessionExercises, uuid);
     },
 
+    previousSet: (state, getters) => (uuid) => {
+        const currentSetsExercise = getters.exerciseBySet(uuid);
+
+        // Look in our current exercise.
+        let previousSetIndex = null;
+        currentSetsExercise.sessionSets.forEach((set, index) => {
+            if (set.uuid === uuid) {
+                previousSetIndex = index - 1;
+            }
+        })
+
+        const inSameExercise = currentSetsExercise.sessionSets[previousSetIndex];
+        if (inSameExercise) {
+            return inSameExercise;
+        }
+
+        // Look for the previous exercise instead then.
+        let previousExerciseIndex = null;
+        state.workoutSession.sessionExercises.forEach((exercise, index) => {
+            if (exercise.uuid === currentSetsExercise.uuid) {
+                previousExerciseIndex = index - 1;
+            }
+        });
+
+        const inPreviousExercise = state.workoutSession.sessionExercises[previousExerciseIndex];
+        if (inPreviousExercise) {
+            return inPreviousExercise.sessionSets[inPreviousExercise.sessionSets.length - 1];
+        }
+
+        // Must be on the first set of the workout
+        return null;
+    },
+
+    inProgressSet: (state, getters) => (uuid) => {
+
+    },
+
     nextSet: (state, getters) => (uuid) => {
         const currentSetsExercise = getters.exerciseBySet(uuid);
 
@@ -198,6 +239,16 @@ const getters = {
         }
 
         return null;
+    },
+
+    isFirstSetOfWorkout: (state, getters) => (uuid) => {
+        const actualSet = getters.set(uuid);
+
+        const firstExercise = state.workoutSession.sessionExercises[0];
+
+        const firstSet = firstExercise.sessionSets[0];
+
+        return actualSet.uuid === firstSet.uuid;
     },
 
     isLastSetOfWorkout: (state, getters) => (uuid) => {
