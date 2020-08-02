@@ -147,7 +147,7 @@ class LastTimeSessionExerciseTest extends TestCase
         $previousWorkoutSession = new WorkoutSession;
         $previousWorkoutSession->name = 'Body weight Wednesday';
         $previousWorkoutSession->userId = $user->id;
-        $timeBeforeLastWorkoutSession->startedAt = Carbon::yesterday();
+        $previousWorkoutSession->startedAt = Carbon::yesterday();
         $previousWorkoutSession->save();
 
         $previousSessionExercise = new SessionExercise;

@@ -140,7 +140,7 @@ class SessionExercise extends AbstractModel implements UserOwnershipInterface
             ->join('WorkoutSessions','WorkoutSessions.id','=','workoutSessionId')
             ->where('WorkoutSessions.userId', $userId)
             ->where('SessionExercises.id', '!=', $this->id)
-            ->orderBy('WorkoutSessions.startedAt', 'asc')
+            ->orderBy('WorkoutSessions.startedAt', 'desc')
             ->first();
     }
 
