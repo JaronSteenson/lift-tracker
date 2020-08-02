@@ -23,6 +23,12 @@
                 </template>
 
                 <VList>
+                    <VListItem @click="lookBehind">
+                        <VListItemTitle>Look behind</VListItemTitle>
+                    </VListItem>
+                    <VListItem @click="lookAhead">
+                        <VListItemTitle>Look ahead</VListItemTitle>
+                    </VListItem>
                     <VListItem @click="skipSet">
                         <VListItemTitle>Skip set</VListItemTitle>
                     </VListItem>
@@ -129,25 +135,14 @@
                         <VBtn
                             :width="$vuetify.breakpoint.xsOnly ?  '100%' : null"
                             @click="endRestPeriod"
-                            class="mb-2"
+                            class="mt-2"
+                            :height="'75%'"
                             color="warning"
                             small
                             :disabled="changingSet"
                         >
                             <VIcon left>mdi-stop</VIcon>
                             End rest
-                        </VBtn>
-
-                        <VBtn
-                            :width="$vuetify.breakpoint.xsOnly ?  '100%' : null"
-                            @click="skipRest"
-                            class="mb-2"
-                            color="success"
-                            small
-                            :loading="changingSet"
-                        >
-                            <VIcon left>mdi-skip-forward</VIcon>
-                            Skip rest
                         </VBtn>
                     </VCol>
                 </VRow>
@@ -309,16 +304,11 @@
             },
         },
         methods: {
-            skipRest() {
-                this.changingSet = true;
+            lookAhead() {
 
-                if (this.isLastSetOfWorkout) {
-                    this.endWorkout();
-                    return;
-                }
+            },
+            lookBehind() {
 
-                this.endSet();
-                this.startNextSet();
             },
             async fetchLastTimeExercise() {
                 return this.$store.dispatch('workoutSession/fetchLastTimeExercise', this.exercise.uuid);
