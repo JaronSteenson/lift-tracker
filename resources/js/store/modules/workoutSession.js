@@ -350,6 +350,7 @@ const actions = {
         const startedAt = utcNow();
 
         commit('startSet', { uuid, startedAt });
+
         dispatch('saveSet', uuid);
     },
 
