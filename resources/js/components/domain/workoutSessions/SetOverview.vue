@@ -134,17 +134,15 @@
                     </VCol>
                 </VRow>
                 <VRow>
-                    <VCol class="pt-0" cols="12" md="12" sm="12" xs="6">
+                    <VCol class="pt-0" cols="12" md="6" sm="6" xs="6">
                         <RestPeriodSlider
                             v-if="restPeriodNotStarted && !workoutIsFinished"
                             v-model="restPeriod"
                         />
-                        <VTextField
-                            :value="restPeriodDisplay"
-                            :disabled="!isOpenForEdits"
-                            label="Rest period"
-                            type="text"
+                        <RestPeriodInput
                             v-else
+                            v-model="restPeriod"
+                            :disabled="!isOpenForEdits"
                         />
                     </VCol>
                 </VRow>
@@ -256,6 +254,7 @@
 <script>
 import {mapGetters} from 'vuex';
 import RestPeriodSlider from '../RestPeriodSlider';
+import RestPeriodInput from '../RestPeriodInput';
 import RestPeriodTimer from '../RestPeriodTimer';
 import {minsSecDuration} from '../../../dates';
 import SessionStatsModal from './SessionExerciseStatsModal';
@@ -266,6 +265,7 @@ export default {
         ServerSyncInfo,
         SessionStatsModal,
         RestPeriodSlider,
+        RestPeriodInput,
         RestPeriodTimer,
     },
     props: {
@@ -289,7 +289,7 @@ export default {
             showLastTimeStats: false,
             isChangingSet: false,
             isEndingWorkout: false,
-            isOpenForEdits: false,
+            isOpenForEdits: true,
         }
     },
     computed: {
@@ -399,7 +399,7 @@ export default {
                 this.$store.dispatch('workoutSession/updateSetRestPeriodDuration', {
                     uuid: this.sessionSetUuid,
                     restPeriodDuration
-                })
+                });
             },
         },
         exerciseNotes: {

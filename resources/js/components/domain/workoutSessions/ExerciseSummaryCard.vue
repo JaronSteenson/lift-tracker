@@ -64,7 +64,7 @@ export default {
 
                 const lastWeightGroup = weightGroups[weightGroups.length - 1];
                 const lastWeight = lastWeightGroup[lastWeightGroup.length - 1].weight;
-                
+
                 if (lastWeight === set.weight) {
                     lastWeightGroup.push(set);
                 } else {
