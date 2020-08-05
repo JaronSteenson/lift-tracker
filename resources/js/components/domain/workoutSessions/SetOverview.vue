@@ -93,12 +93,12 @@
         <VStepper
             :value="set.position + 1"
             :vertical="false"
-            v-else
         >
             <VStepperHeader>
-                <template v-for="(otherSet) in exercise.sessionSets">
+                <template v-for="otherSet in exercise.sessionSets">
                     <VStepperStep
                         :complete="otherSet.endedAt !== null"
+                        :color="otherSet.position !== set.position ? 'grey' : 'primary'"
                         :key="otherSet.uuid"
                         :step="otherSet.position + 1"
                     >

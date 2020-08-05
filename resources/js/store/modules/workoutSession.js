@@ -251,7 +251,6 @@ export const getters = {
         const actualSet = getters.set(uuid);
 
         const lastExercise = state.workoutSession.sessionExercises[state.workoutSession.sessionExercises.length - 1];
-
         const lastSet = lastExercise.sessionSets[lastExercise.sessionSets.length - 1];
 
         return actualSet.uuid === lastSet.uuid;
@@ -354,8 +353,25 @@ const actions = {
         const startedAt = utcNow();
 
         commit('startSet', { uuid, startedAt });
+        commit('updateSet', { uuid, updatedAt: utcNow() });
 
-        dispatch('saveSet', uuid);
+        dispatch('saveSetNoDebounce', uuid);
+    },
+
+    endSet({ commit, dispatch, getters  }, { uuid, endedAt }) {
+        const set = getters.set(uuid);
+
+        endedAt = endedAt || utcNow();
+
+        if (set.restPeriodStartedAt !== null && set.restPeriodEndedAt === null) {
+            const restPeriodEndedAt = utcNow();
+            const restPeriodDuration = differenceInSeconds(new Date(restPeriodEndedAt), new Date(set.restPeriodStartedAt));
+            commit('endRestPeriod', { uuid, restPeriodEndedAt, restPeriodDuration });
+        }
+
+        commit('endSet', { uuid, endedAt });
+
+        dispatch('saveSetNoDebounce', uuid);
     },
 
     startRestPeriod({ commit, dispatch, getters  }, { uuid }) {
@@ -385,25 +401,20 @@ const actions = {
         const restPeriodDuration = differenceInSeconds(new Date(restPeriodEndedAt), new Date(set.restPeriodStartedAt));
         commit('endRestPeriod', { uuid, restPeriodEndedAt, restPeriodDuration });
 
-        dispatch('saveSet', uuid);
+        dispatch('saveSetNoDebounce', uuid);
     },
 
-    endSet({ commit, dispatch, getters  }, { uuid }) {
-        const set = getters.set(uuid);
-
-        const endedAt = utcNow();
-
-        if (set.restPeriodEndedAt === null) {
-            const restPeriodEndedAt = utcNow();
-            const restPeriodDuration = differenceInSeconds(new Date(restPeriodEndedAt), new Date(set.restPeriodStartedAt));
-            commit('endRestPeriod', { uuid, restPeriodEndedAt, restPeriodDuration });
-        }
-
-        commit('endSet', { uuid, endedAt });
-        dispatch('saveSet', uuid);
-    },
-
-    saveSet: debounce(async ({ commit, getters, dispatch }, uuid) => {
+    /**
+     * Save a set without the debounce, required for ending one set then starting the next,
+     * or for quickly ending the rest period then the exercise.
+     *
+     * @param commit
+     * @param getters
+     * @param dispatch
+     * @param uuid The sets uuid
+     * @return {Promise<void>}
+     */
+    async saveSetNoDebounce({ commit, getters, dispatch }, uuid) {
         try {
             dispatch('startSaving');
 
@@ -412,7 +423,8 @@ const actions = {
                 updatedAt: utcNow()
             });
 
-            const response = await WorkoutSessionService.saveSet(getters.set(uuid));
+            const set = getters.set(uuid);
+            const response = await WorkoutSessionService.saveSet(set);
 
             commit('updateWorkoutSession', {
                 uuid: getters.uuid,
@@ -430,6 +442,10 @@ const actions = {
             dispatch('finishSavingError');
             console.error(error);
         }
+    },
+
+    saveSet: debounce(async ({ dispatch }, uuid) => {
+        dispatch('saveSet', uuid);
     }, SAVE_DEBOUNCE_WAIT),
 
     saveExercise: debounce(async ({ commit, getters, dispatch }, uuid) => {
@@ -536,6 +552,14 @@ const actions = {
     async endWorkout({ commit, dispatch, getters }) {
         const endedAt = utcNow();
 
+        const lastExercise = state.workoutSession.sessionExercises[state.workoutSession.sessionExercises.length - 1];
+        const lastSet = lastExercise.sessionSets[lastExercise.sessionSets.length - 1];
+
+        debugger
+        if (lastSet.endedAt === null) {
+            dispatch('endSet', { uuid: lastSet.uuid, endedAt });
+        }
+
         // Remove this workout from the in progress list.
         const inProgressWorkouts = getters.inProgressWorkouts.filter((inProgressWorkout) => {
             return getters.workoutSession.uuid !== inProgressWorkout.uuid;
@@ -607,11 +631,18 @@ const mutations = {
 
     startSet(state, { uuid, startedAt }) {
         const set = UuidHelper.findDeep(state.workoutSession.sessionExercises, uuid);
-
         const inProgressSet = UuidHelper.findDeep(state.inProgressWorkouts, uuid);
 
         set.startedAt = startedAt;
         inProgressSet.startedAt = startedAt;
+    },
+
+    endSet(state, { uuid, endedAt }) {
+        const set = UuidHelper.findDeep(state.workoutSession.sessionExercises, uuid);
+        const inProgressSet = UuidHelper.findDeep(state.inProgressWorkouts, uuid);
+
+        set.endedAt = endedAt;
+        inProgressSet.endedAt = endedAt;
     },
 
     setRestPeriodTimeout(state, restPeriodTimeout) {
@@ -625,12 +656,6 @@ const mutations = {
 
         clearTimeout(state.restPeriodTimeout);
         state.restPeriodTimeout = null;
-    },
-
-    endSet(state, { uuid, endedAt }) {
-        const set = UuidHelper.findDeep(state.workoutSession.sessionExercises, uuid);
-
-        set.endedAt = endedAt;
     },
 
     endWorkout(state, { endedAt }) {
