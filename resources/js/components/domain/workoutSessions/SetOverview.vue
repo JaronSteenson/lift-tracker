@@ -1,9 +1,11 @@
 <template>
-    <component :elevation="this.$vuetify.breakpoint.smAndDown ? 0 : 5"
-               :is="this.$vuetify.breakpoint.smAndDown ? 'div' : 'VCard'"
-               class="js-workout-drag-handle workout-builder-card"
-               max-width="960"
-               width="100%"
+    <component
+        :elevation="this.$vuetify.breakpoint.smAndDown ? 0 : 5"
+        :is="this.$vuetify.breakpoint.smAndDown ? 'div' : 'VCard'"
+        class="js-workout-drag-handle workout-builder-card"
+        max-width="960"
+        v-touch:swipe="handleSwipe"
+        width="100%"
     >
         <VToolbar>
             <VToolbarTitle>{{ exercise.name }} - set {{ set.position + 1 }}</VToolbarTitle>
@@ -428,6 +430,20 @@ export default {
         },
     },
     methods: {
+        handleSwipe(eventName) {
+            if (eventName === 'swiperight' && !this.isFirstSetOfWorkout) {
+                this.lookBehind();
+                return;
+            }
+
+            if (eventName === 'swipeleft' && !this.isLastSetOfWorkout) {
+                this.lookAhead();
+                return;
+            }
+        },
+        canLookAhead() {
+            return this.isLastSetOfWorkout;
+        },
         async lookAhead() {
             await this.$router.push({name: 'setOverview', params: {sessionSetUuid: this.nextSet.uuid}});
         },
