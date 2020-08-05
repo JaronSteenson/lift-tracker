@@ -98,7 +98,7 @@
             <VStepperHeader>
                 <template v-for="(otherSet) in exercise.sessionSets">
                     <VStepperStep
-                        :complete="otherSet.position < set.position"
+                        :complete="otherSet.endedAt !== null"
                         :key="otherSet.uuid"
                         :step="otherSet.position + 1"
                     >
