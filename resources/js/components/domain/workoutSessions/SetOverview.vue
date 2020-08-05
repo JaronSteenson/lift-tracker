@@ -204,7 +204,7 @@
                         </VBtn>
                     </VCol>
                 </VRow>
-                <VRow justify="space-between" v-else-if="(isInProgressSet && restPeriodIsFinished) || isEndingWorkout || isLastSetOfExercise">
+                <VRow justify="space-between" v-else-if="(isInProgressSet && restPeriodIsFinished) || (isLastSetOfWorkout && !workoutIsFinished) || isEndingWorkout">
                     <VCol v-if="!isLastSetOfExercise" class="pt-0" cols="6">
                         <RestPeriodTimer
                             :session-set-uuid="sessionSetUuid"
