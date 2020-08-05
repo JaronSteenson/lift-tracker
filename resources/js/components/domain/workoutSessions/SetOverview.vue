@@ -4,7 +4,6 @@
         :is="this.$vuetify.breakpoint.smAndDown ? 'div' : 'VCard'"
         class="js-workout-drag-handle workout-builder-card"
         max-width="960"
-        v-touch:swipe="handleSwipe"
         width="100%"
     >
         <VToolbar>
@@ -93,6 +92,7 @@
         </VAlert>
 
         <VStepper
+            v-touch:swipe="handleSwipe"
             :value="set.position + 1"
             :vertical="false"
         >
@@ -112,7 +112,7 @@
             </VStepperHeader>
         </VStepper>
 
-        <VCardText class="py-0">
+        <VCardText class="py-0" v-touch:swipe="handleSwipe">
             <VContainer class="py-0">
                 <VRow>
                     <VCol class="pt-0" cols="6" md="6" sm="6">

@@ -10,9 +10,11 @@ Object.keys(filters).forEach((name) => Vue.filter(name, filters[name]));
 import Vue2Touch from 'vue2-touch'
 Vue.use(Vue2Touch, {
     gestures: ['swipe'],
+    swipeTolerance: 30,
+    disableClick: true,
     directions: {
         swipe: ['swipeleft', 'swipeight'],
-    }
+    },
 })
 
 new Vue({
