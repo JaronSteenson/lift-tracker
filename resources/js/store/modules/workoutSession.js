@@ -33,7 +33,7 @@ function defaultState() {
 
 const state = defaultState();
 
-const getters = {
+export const getters = {
     ...savingStatusGetters,
 
     hasLoadedInProgressWorkouts(state, getters) {
@@ -170,10 +170,6 @@ const getters = {
         return null;
     },
 
-    inProgressSet: (state, getters) => (uuid) => {
-
-    },
-
     nextSet: (state, getters) => (uuid) => {
         const currentSetsExercise = getters.exerciseBySet(uuid);
 
@@ -259,6 +255,14 @@ const getters = {
         const lastSet = lastExercise.sessionSets[lastExercise.sessionSets.length - 1];
 
         return actualSet.uuid === lastSet.uuid;
+    },
+
+    isLastSetOfExercise: (state, getters) => (setUuid) => {
+        const exercise = getters.exerciseBySet(setUuid);
+
+        const lastExerciseOfSet = exercise.sessionSets[exercise.sessionSets.length - 1];
+
+        return setUuid === lastExerciseOfSet.uuid;
     },
 
     restPeriodNotStarted: (state, getters) => (uuid) => {

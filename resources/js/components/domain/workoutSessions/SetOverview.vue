@@ -363,6 +363,9 @@ export default {
         isLastSetOfWorkout() {
             return this.$store.getters['workoutSession/isLastSetOfWorkout'](this.sessionSetUuid);
         },
+        isLastSetOfExercise() {
+            return this.$store.getters['workoutSession/isLastSetOfExercise'](this.sessionSetUuid);
+        },
         lastTimeExercise() {
             return this.$store.getters['workoutSession/lastTimeExercise'](this.exercise.uuid);
         },
