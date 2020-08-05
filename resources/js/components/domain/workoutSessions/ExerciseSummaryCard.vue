@@ -90,12 +90,17 @@ export default {
             });
         },
         averageRestPeriod() {
-            const totalRest = this.exercise.sessionSets.reduce(
+            const setsWithoutLast = [...this.exercise.sessionSets];
+
+            // We don't record the rest period on the last set.
+            setsWithoutLast.pop();
+
+            const totalRest = setsWithoutLast.reduce(
                 (runningTotal, set) => set.restPeriodDuration + runningTotal,
                 0
             )
 
-            const average = totalRest / this.exercise.sessionSets.length;
+            const average = totalRest / setsWithoutLast.length;
 
             if (average === 0) {
                 return 'No rest';

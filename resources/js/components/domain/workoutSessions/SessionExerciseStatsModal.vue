@@ -65,8 +65,8 @@
                 </div>
 
                 <div class="graph">
-                    <h3 class="mb-2 mt-8"> {{ isSingleSet ? 'Rest period' : 'Rest periods' }}</h3>
-                    <h2 v-if="isSingleSet">{{ singleSetRest }}</h2>
+                    <h3 class="mb-2 mt-8"> {{ isSingleRestPeriod ? 'Rest period' : 'Rest periods' }}</h3>
+                    <h2 v-if="isSingleRestPeriod">{{ singleSetRest }}</h2>
                     <VSparkline
                         v-else
                         :gradient="['purple', 'violet']"
@@ -111,6 +111,9 @@
             },
             isSingleSet() {
                 return this.sessionExercise.sessionSets.length === 1
+            },
+            isSingleRestPeriod() {
+                return this.setsForRest.length === 1
             },
             singleSetWeight() {
                 const weight = this.sessionExercise.sessionSets[0].weight;
@@ -170,7 +173,7 @@
                 return `${minsSecDuration(this.sessionExercise.sessionSets[0].restPeriodDuration)}`;
             },
             rest() {
-                return this.sessionExercise.sessionSets.map(set => {
+                return this.setsForRest.map(set => {
                     if (set.restPeriodDuration === null) {
                         return 0;
                     }
@@ -179,7 +182,7 @@
                 });
             },
             restLabels() {
-                return this.sessionExercise.sessionSets.map(set => {
+                return this.setsForRest.map(set => {
                     if (set.restPeriodDuration === null) {
                         return 'n/a';
                     }
@@ -187,6 +190,14 @@
                     return minsSecDuration(set.restPeriodDuration, true);
                 });
             },
+            setsForRest() {
+                const sets = [...this.sessionExercise.sessionSets];
+
+                // Remove the last set as we don't have a rest period for it.
+                sets.pop();
+
+                return sets;
+            }
         },
         methods: {
             updateDialogValue(value) {

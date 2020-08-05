@@ -134,16 +134,18 @@
                     </VCol>
                 </VRow>
                 <VRow>
-                    <VCol class="pt-0" cols="12" md="6" sm="6" xs="6">
-                        <RestPeriodSlider
-                            v-if="restPeriodNotStarted && !workoutIsFinished"
-                            v-model="restPeriod"
-                        />
-                        <RestPeriodInput
-                            v-else
-                            v-model="restPeriod"
-                            :disabled="!isOpenForEdits"
-                        />
+                    <VCol v-if="!isLastSetOfExercise" class="pt-0" cols="12" md="6" sm="6" xs="6">
+                        <template>
+                            <RestPeriodSlider
+                                v-if="restPeriodNotStarted && !workoutIsFinished"
+                                v-model="restPeriod"
+                            />
+                            <RestPeriodInput
+                                v-else
+                                v-model="restPeriod"
+                                :disabled="!isOpenForEdits"
+                            />
+                        </template>
                     </VCol>
                 </VRow>
                 <VRow class="pt-0 mt-0">
@@ -164,7 +166,7 @@
                                     v-model="showLastTimeStats"
                                 />
                             </template>
-                            <span v-else>This is the first time you are doing this exercise.</span>
+                            <span v-else>This is the first time you are doing this exercise. Last time recaps will appear here next time.</span>
                         </template>
                     </VCol>
                 </VRow>
@@ -179,7 +181,7 @@
                         />
                     </VCol>
                 </VRow>
-                <VRow justify="space-between" v-if="isInProgressSet && isDuringRestPeriod">
+                <VRow justify="space-between" v-if="isInProgressSet && isDuringRestPeriod && !isLastSetOfExercise">
                     <VCol class="pt-0" cols="6">
                         <RestPeriodTimer
                             :session-set-uuid="sessionSetUuid"
@@ -202,46 +204,54 @@
                         </VBtn>
                     </VCol>
                 </VRow>
-                <VRow justify="space-between" v-else-if="(isInProgressSet && restPeriodIsFinished) || isEndingWorkout">
-                    <VCol class="pt-0" cols="6">
+                <VRow justify="space-between" v-else-if="(isInProgressSet && restPeriodIsFinished) || isEndingWorkout || isLastSetOfExercise">
+                    <VCol v-if="!isLastSetOfExercise" class="pt-0" cols="6">
                         <RestPeriodTimer
                             :session-set-uuid="sessionSetUuid"
                             label="Rest period finished"
                         />
                     </VCol>
 
-                    <VCol class="pt-0 text-right" cols="6" v-if="isInProgressSet || isEndingWorkout">
-                        <VBtn
-                            :height="'75%'"
-                            :loading="isChangingSet"
-                            :width="$vuetify.breakpoint.xsOnly ?  '100%' : null"
-                            @click="endWorkout"
-                            class="mt-2"
-                            color="success"
-                            small
-                            v-if="isLastSetOfWorkout"
-                        >
-                            <VIcon left>mdi-check</VIcon>
-                            Finish <br v-if="$vuetify.breakpoint.xsOnly"/> workout
-                        </VBtn>
-                        <VBtn
-                            :height="'75%'"
-                            :loading="isChangingSet"
-                            :width="$vuetify.breakpoint.xsOnly ?  '100%' : null"
-                            @click="startNextSet"
-                            class="mt-2"
-                            color="success"
-                            small
-                            v-else
-                        >
-                            <VIcon left>mdi-play</VIcon>
-                            Next set
-                        </VBtn>
-                    </VCol>
+                    <template v-if="isInProgressSet || isEndingWorkout || isLastSetOfExercise">
+                        <VCol v-if="isLastSetOfExercise" class="pt-0" cols="6">
+                            <div>
+                                <p v-if="isLastSetOfWorkout">There is no rest period because this is the last set for this workout.</p>
+                                <p v-else>There is no rest period because this is the last set for this exercise.</p>
+                            </div>
+                        </VCol>
+                        <VCol class="pt-0 text-right" cols="6">
+                            <VBtn
+                                v-if="isLastSetOfWorkout"
+                                height="3rem"
+                                :loading="isChangingSet"
+                                :width="$vuetify.breakpoint.xsOnly ?  '100%' : null"
+                                @click="endWorkout"
+                                class="mt-2"
+                                color="success"
+                                small
+                            >
+                                <VIcon left>mdi-check</VIcon>
+                                Finish <br v-if="$vuetify.breakpoint.xsOnly"/> workout
+                            </VBtn>
+                            <VBtn
+                                v-else
+                                height="3rem"
+                                :loading="isChangingSet"
+                                :width="$vuetify.breakpoint.xsOnly ?  '100%' : null"
+                                @click="startNextSet"
+                                class="mt-2"
+                                color="success"
+                                small
+                            >
+                                <VIcon left>mdi-play</VIcon>
+                                Next set
+                            </VBtn>
+                        </VCol>
+                    </template>
                 </VRow>
             </VContainer>
 
-            <VCardActions class="justify-center" v-if="isInProgressSet && restPeriodNotStarted" width="100%">
+            <VCardActions class="justify-center" v-if="isInProgressSet && restPeriodNotStarted && !isLastSetOfExercise" width="100%">
                 <VBtn @click="startRestPeriod" class="start-rest-button" color="primary" x-large>
                     <VIcon left>mdi-clock-start</VIcon>
                     Start rest period
