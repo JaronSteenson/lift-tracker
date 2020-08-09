@@ -136,7 +136,7 @@
 </script>
 
 <style scoped lang="scss">
-    .theme--light.v-card.v-card--outlined.exercise-card {
+    .exercise-card.theme--light.v-sheet--outlined {
         border: solid 1px var(--v-primary-base);
 
         &.sortable-chosen {
