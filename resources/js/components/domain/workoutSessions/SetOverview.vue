@@ -24,7 +24,7 @@
                 </template>
 
                 <VList>
-                    <VListItem :disabled="isFirstSetOfWorkout" @click="lookBehind">
+                    <VListItem :disabled="isFirstSetOfWorkout" @click="lookBack">
                         <VListItemTitle>View previous</VListItemTitle>
                     </VListItem>
                     <VListItem :disabled="isLastSetOfWorkout" @click="lookAhead">
@@ -95,12 +95,19 @@
         </VAlert>
 
         <VStepper
-            v-touch:swipe="handleSwipe"
             :value="set.position + 1"
             :vertical="false"
             @change="changeSetFromStepper($event)"
         >
             <VStepperHeader>
+                <VIcon
+                    v-if="canLookBack"
+                    @click="lookBack"
+                    class="set-navigation set-navigation--left"
+                >
+                    mdi-chevron-left
+                </VIcon>
+
                 <template v-for="otherSet in exercise.sessionSets">
                     <VStepperStep
                         :key="otherSet.position"
@@ -118,10 +125,18 @@
                         :key="otherSet.position + '-divider'"
                     />
                 </template>
+
+                <VIcon
+                    v-if="canLookAhead"
+                    @click="lookAhead"
+                    class="set-navigation set-navigation--right"
+                >
+                    mdi-chevron-right
+                </VIcon>
             </VStepperHeader>
         </VStepper>
 
-        <VCardText class="py-0" v-touch:swipe="handleSwipe">
+        <VCardText class="py-0">
             <VContainer class="py-0">
                 <VRow>
                     <VCol class="pt-0" cols="6" md="6" sm="6">
@@ -340,6 +355,12 @@ export default {
         allowEndWorkout() {
             return this.isInProgressSet && this.isLastSetOfWorkout;
         },
+        canLookAhead() {
+            return !this.isLastSetOfWorkout;
+        },
+        canLookBack() {
+            return !this.isFirstSetOfWorkout;
+        },
         isLookingBack() {
             if (this.workoutIsFinished) {
                 return false;
@@ -464,24 +485,10 @@ export default {
 
             this.$router.push({name: 'setOverview', params: {sessionSetUuid: setToChangeTo.uuid}});
         },
-        handleSwipe(eventName) {
-            if (eventName === 'swiperight' && !this.isFirstSetOfWorkout) {
-                this.lookBehind();
-                return;
-            }
-
-            if (eventName === 'swipeleft' && !this.isLastSetOfWorkout) {
-                this.lookAhead();
-                return;
-            }
-        },
-        canLookAhead() {
-            return this.isLastSetOfWorkout;
-        },
         async lookAhead() {
             await this.$router.push({name: 'setOverview', params: {sessionSetUuid: this.nextSet.uuid}});
         },
-        async lookBehind() {
+        async lookBack() {
             await this.$router.push({name: 'setOverview', params: {sessionSetUuid: this.previousSet.uuid}});
         },
         async fetchLastTimeExercise() {
@@ -568,5 +575,20 @@ export default {
 
 .start-rest-button {
     margin-bottom: 15px;
+}
+
+.set-navigation {
+    // Prevent focus/loss of focus background.
+    &:after  {
+        background: none !important;
+    }
+
+    &--left {
+        margin-left: 15px;
+    }
+
+    &--right {
+        margin-right: 15px;
+    }
 }
 </style>

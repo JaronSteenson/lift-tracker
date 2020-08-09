@@ -37,7 +37,6 @@
         "uuid": "^7.0.3",
         "vue": "^2.6.10",
         "vue-router": "^3.4.0",
-        "vue2-touch": "^1.0.8",
         "vuedraggable": "^2.24.0",
         "vuetify": "^2.3.7",
         "vuex": "^3.5.1"
