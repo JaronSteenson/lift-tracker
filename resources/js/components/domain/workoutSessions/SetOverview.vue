@@ -214,7 +214,7 @@
                         />
                     </VCol>
 
-                    <template v-if="isInProgressSet || isEndingWorkout || isLastSetOfExercise">
+                    <template v-if="shouldShowFinishActions">
                         <VCol v-if="isLastSetOfExercise" class="pt-0" cols="6">
                             <div>
                                 <p v-if="isLastSetOfWorkout">There is no rest period because this is the last set for this workout.</p>
@@ -322,6 +322,9 @@ export default {
         workoutIsFinished() {
             return this.workoutSession.endedAt !== null;
         },
+        shouldShowFinishActions() {
+            return this.isInProgressSet || this.isEndingWorkout || this.isLastSetOfExercise;
+        },
         isLookingBack() {
             if (this.workoutIsFinished) {
                 return false;
@@ -367,6 +370,10 @@ export default {
             return this.$store.getters['workoutSession/isDuringRestPeriod'](this.sessionSetUuid);
         },
         restPeriodIsFinished() {
+            if (this.isLastSetOfExercise) {
+                return true;
+            }
+
             return this.$store.getters['workoutSession/restPeriodIsFinished'](this.sessionSetUuid);
         },
         isFirstSetOfWorkout() {

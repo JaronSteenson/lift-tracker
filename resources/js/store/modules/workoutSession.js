@@ -555,7 +555,6 @@ const actions = {
         const lastExercise = state.workoutSession.sessionExercises[state.workoutSession.sessionExercises.length - 1];
         const lastSet = lastExercise.sessionSets[lastExercise.sessionSets.length - 1];
 
-        debugger
         if (lastSet.endedAt === null) {
             dispatch('endSet', { uuid: lastSet.uuid, endedAt });
         }
