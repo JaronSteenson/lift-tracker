@@ -108,6 +108,7 @@
                         :color="getStepColor(otherSet)"
                         :step="otherSet.position + 1"
                         :editable="set.uuid !== otherSet.uuid"
+                        edit-icon="mdi-check"
                     >
                        Set {{ otherSet.position + 1 }}
                     </VStepperStep>
@@ -229,7 +230,7 @@
                                 <p v-else>There is no rest period because this is the last set for this exercise.</p>
                             </div>
                         </VCol>
-                        <VCol class="pt-0 text-right" cols="6">
+                        <VCol v-if="isInProgressSet" class="pt-0 text-right" cols="6">
                             <VBtn
                                 v-if="isLastSetOfWorkout"
                                 height="3rem"
@@ -452,7 +453,7 @@ export default {
     },
     methods: {
         getStepColor(otherSet) {
-            if (otherSet.uuid === this.inProgressSet.uuid) {
+            if (otherSet.uuid === this.inProgressSet?.uuid) {
                 return 'success';
             }
 
