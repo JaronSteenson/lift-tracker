@@ -30,8 +30,11 @@
                     <VListItem :disabled="isLastSetOfWorkout" @click="lookAhead">
                         <VListItemTitle>View next</VListItemTitle>
                     </VListItem>
-                    <VListItem :disabled="!isInProgressSet" @click="skipSet">
+                    <VListItem :disabled="!isInProgressSet || isLastSetOfWorkout" @click="skipSet">
                         <VListItemTitle>Skip set</VListItemTitle>
+                    </VListItem>
+                    <VListItem :disabled="!allowEndWorkout" @click="endWorkout">
+                        <VListItemTitle>Finish workout</VListItemTitle>
                     </VListItem>
                 </VList>
             </VMenu>
@@ -327,6 +330,10 @@ export default {
         },
         shouldShowRestPeriodActions() {
             return this.isInProgressSet && this.isDuringRestPeriod && !this.isLastSetOfExercise;
+        },
+        allowEndWorkout() {
+            debugger
+            return this.isInProgressSet && this.isLastSetOfWorkout;
         },
         isLookingBack() {
             if (this.workoutIsFinished) {
