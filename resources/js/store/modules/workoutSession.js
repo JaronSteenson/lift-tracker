@@ -272,7 +272,6 @@ export const getters = {
 
     isDuringRestPeriod: (state, getters) => (uuid) => {
         const set = getters.set(uuid);
-
         return set.restPeriodStartedAt !== null && set.restPeriodEndedAt === null;
     },
 
@@ -380,7 +379,7 @@ const actions = {
         commit('updateSet', { uuid, restPeriodStartedAt, restPeriodEndedAt: null });
 
         dispatch('startRestPeriodTimeout', { uuid });
-        dispatch('saveSet', uuid);
+        dispatch('saveSetNoDebounce', uuid);
     },
 
     startRestPeriodTimeout({ commit, dispatch, getters  }, { uuid }) {

@@ -183,7 +183,7 @@
                         />
                     </VCol>
                 </VRow>
-                <VRow justify="space-between" v-if="isInProgressSet && isDuringRestPeriod && !isLastSetOfExercise">
+                <VRow justify="space-between" v-if="shouldShowRestPeriodActions">
                     <VCol class="pt-0" cols="6">
                         <RestPeriodTimer
                             :session-set-uuid="sessionSetUuid"
@@ -324,6 +324,9 @@ export default {
         },
         shouldShowFinishActions() {
             return this.isInProgressSet || this.isEndingWorkout || this.isLastSetOfExercise;
+        },
+        shouldShowRestPeriodActions() {
+            return this.isInProgressSet && this.isDuringRestPeriod && !this.isLastSetOfExercise;
         },
         isLookingBack() {
             if (this.workoutIsFinished) {
