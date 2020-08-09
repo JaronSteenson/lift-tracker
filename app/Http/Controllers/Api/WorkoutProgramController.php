@@ -1,7 +1,6 @@
 <?php
 /** @noinspection ReturnTypeCanBeDeclaredInspection */
 /** @noinspection PhpVoidFunctionResultUsedInspection */
-/** @noinspection PhpInconsistentReturnPointsInspection */
 
 namespace LiftTracker\Http\Controllers\Api;
 

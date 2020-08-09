@@ -6,6 +6,7 @@ use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasOneThrough;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use LiftTracker\Domain\AbstractModel;
 use LiftTracker\Domain\Users\CanBeOwnedByUserTrait;
 use LiftTracker\Domain\Workouts\Exercises\Exercise;
@@ -39,6 +40,7 @@ class SessionSet extends AbstractModel
 {
     use HasUuidTrait;
     use CanBeOwnedByUserTrait;
+    use SoftDeletes;
 
     /**
      * The attributes that are mass assignable.

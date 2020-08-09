@@ -25,6 +25,7 @@ function defaultState() {
             createdAt: null,
             updatedAt: null,
         },
+        workoutSessions: [],
         lastTimeExercises: {}, // A map of sessionExercises Keyed by the exercise uuid.
         inProgressWorkouts: null, // An array of workouts.
         restPeriodTimout: null,
@@ -404,6 +405,16 @@ const actions = {
     },
 
     /**
+     * @param commit
+     * @param uuid The uuid of the workout session to be archived.
+     */
+    async archive({ commit }, uuid) {
+        await WorkoutSessionService.delete(uuid);
+
+        commit('removeWorkoutSession', uuid);
+    },
+
+    /**
      * Save a set without the debounce, required for ending one set then starting the next,
      * or for quickly ending the rest period then the exercise.
      *
@@ -505,6 +516,13 @@ const actions = {
     async fetch({ commit, dispatch }, uuid) {
         const response = await WorkoutSessionService.get(uuid);
         commit('reset', { workoutSession: response.data });
+
+        return response;
+    },
+
+    async fetchAll({ commit }) {
+        const response = await WorkoutSessionService.getAll();
+        commit('reset', { workoutSessions: response.data });
 
         return response;
     },
@@ -659,6 +677,15 @@ const mutations = {
     endWorkout(state, { endedAt }) {
         state.workoutSession.endedAt = endedAt;
     },
+
+    removeWorkoutSession(state, uuid) {
+        UuidHelper.removeFrom(state.inProgressWorkouts, uuid);
+        UuidHelper.removeFrom(state.workoutSessions, uuid);
+
+        if (state.workoutSession.uuid === uuid) {
+            state.workoutSession = defaultState().workoutSession;
+        }
+    }
 
 };
 

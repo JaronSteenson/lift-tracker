@@ -79,6 +79,7 @@
     import NewSessionModal from './workoutSessions/NewSessionModal';
     import {dateDescription} from '../../dates';
     import UuidHelper from "../../UuidHelper";
+    import {mapState} from "vuex";
 
     export default {
         components: { NewSessionModal },
@@ -91,12 +92,12 @@
         },
         data() {
             return {
-                workoutSessions: [],
                 loading: true,
                 newSessionModalProgramUuid: null,
             }
         },
         computed: {
+            ...mapState('workoutSession', ['workoutSessions']),
             hasNoWorkoutProgram() {
                 return this.workoutSessions.length === 0;
             },
@@ -158,9 +159,7 @@
         methods: {
             async fetchWorkoutSessions() {
                 this.loading = true;
-                const response = await WorkoutSessionService.getAll();
-
-                this.workoutSessions = response.data;
+                await this.$store.dispatch('workoutSession/fetchAll');
                 this.loading = false;
             },
             repeatWorkoutNow(sessionUuid) {

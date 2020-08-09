@@ -6,6 +6,7 @@ use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use LiftTracker\Domain\AbstractModel;
@@ -31,6 +32,7 @@ class WorkoutProgramRoutine extends AbstractModel implements UserOwnershipInterf
 {
     use HasUuidTrait;
     use CanBeOwnedByUserTrait;
+    use SoftDeletes;
 
     /**
      * The attributes that are mass assignable.
@@ -87,7 +89,7 @@ class WorkoutProgramRoutine extends AbstractModel implements UserOwnershipInterf
 
     public function routineExercises(): HasMany
     {
-        return $this->hasMany(RoutineExercise::class);
+        return $this->hasMany(RoutineExercise::class)->orderBy('position');
     }
 
     public function setRoutineExercises(Collection $exercises): self
@@ -114,7 +116,23 @@ class WorkoutProgramRoutine extends AbstractModel implements UserOwnershipInterf
         });
 
         $this->deleteRemovedChildren('routineExercises');
-        $this->routineExercises()->saveMany($this->routineExercises);
+
+        foreach ($this->routineExercises as $routineExercise) {
+            /** @var RoutineExercise $movedFromDifferentParent */
+            $movedFromDifferentParent = RoutineExercise::withTrashed()
+                ->where('uuid', $routineExercise->uuid)
+                ->where($this->getForeignKey(), '!=', $this->id)
+                ->first();
+
+            if ($movedFromDifferentParent !== null) {
+                $movedFromDifferentParent->workoutProgramRoutineId = $this->id;
+                $movedFromDifferentParent->fill($routineExercise->toArray());
+                $movedFromDifferentParent->deletedAt = null;
+                $movedFromDifferentParent->save();
+            } else {
+                $routineExercise->save();
+            }
+        }
 
         return $this;
     }

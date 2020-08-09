@@ -270,12 +270,12 @@ const actions = {
         dispatch('save')
     },
 
-    async delete({ state, dispatch }) {
+    async archive({ state, dispatch }) {
         try {
             await WorkoutProgramService.delete(state.uuid);
         } catch (error) {
             console.error(error);
-            dispatch('finishSavingError');  // TODO it's own status.
+            dispatch('finishSavingError');
         }
     },
 

@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\DB;
 use LiftTracker\Domain\AbstractModel;
 use LiftTracker\Domain\Users\CanBeOwnedByUserTrait;
@@ -42,6 +43,7 @@ class WorkoutSession extends AbstractModel
 {
     use HasUuidTrait;
     use CanBeOwnedByUserTrait;
+    use SoftDeletes;
 
     /**
      * The attributes that are mass assignable.

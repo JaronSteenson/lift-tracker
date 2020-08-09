@@ -5,6 +5,7 @@ namespace LiftTracker\Domain\Workouts\Programs;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use LiftTracker\Domain\AbstractModel;
@@ -28,6 +29,7 @@ class WorkoutProgram extends AbstractModel implements UserOwnershipInterface
 {
     use HasUuidTrait;
     use CanBeOwnedByUserTrait;
+    use SoftDeletes;
 
     /**
      * The attributes that are mass assignable.

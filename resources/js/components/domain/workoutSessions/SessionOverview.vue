@@ -1,13 +1,34 @@
 <template>
-    <component :elevation="this.$vuetify.breakpoint.smAndDown ? 0 : 5"
-               :is="this.$vuetify.breakpoint.smAndDown ? 'div' : 'VCard'"
-               max-width="960"
-               width="100%"
+    <VCard v-if="isArchiving" loading>
+        <VCardText>
+            Archiving workout...
+        </VCardText>
+    </VCard>
+    <component
+        v-else
+        :elevation="this.$vuetify.breakpoint.smAndDown ? 0 : 5"
+        :is="this.$vuetify.breakpoint.smAndDown ? 'div' : 'VCard'"
+        max-width="960"
+        width="100%"
     >
         <VToolbar flat>
             <VToolbarTitle>{{ workoutName }}</VToolbarTitle>
 
             <VSpacer/>
+
+            <VMenu bottom left>
+                <template v-slot:activator="{ on }">
+                    <VBtn icon v-on="on">
+                        <VIcon>mdi-dots-vertical</VIcon>
+                    </VBtn>
+                </template>
+
+                <VList>
+                    <VListItem :disabled="workoutSession.startedAt === null" @click="showArchiveConfirmation">
+                        <VListItemTitle>Archive</VListItemTitle>
+                    </VListItem>
+                </VList>
+            </VMenu>
         </VToolbar>
 
         <VCardText class="pt-0">
@@ -64,6 +85,11 @@
             originRoutineUuid: String,
             workoutSessionUuid: String,
         },
+        data() {
+            return {
+                isArchiving: false,
+            }
+        },
         computed: {
             ...mapGetters('workoutSession', ['workoutName', 'workoutSession', 'sessionExercises']),
             isInProgress() {
@@ -73,6 +99,21 @@
                 return this.$store.getters['workoutSession/currentSetForInProgressWorkout'](this.workoutSession.uuid);
             },
         },
+        methods: {
+            showArchiveConfirmation() {
+                const archiveConfirmed = window.confirm('Are you sure you want to archive this workout?');
+
+                if (archiveConfirmed) {
+                    this.archive();
+                }
+            },
+            async archive() {
+                this.isArchiving = true;
+                await this.$store.dispatch('workoutSession/archive', this.workoutSession.uuid);
+                await this.$router.replace({ name: 'home' });
+                this.isArchiving = false
+            }
+        }
     }
 </script>
 

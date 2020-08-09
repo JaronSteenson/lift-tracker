@@ -3,7 +3,7 @@
 namespace LiftTracker\Domain;
 
 use Carbon\Carbon;
-use DateTimeInterface;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Collection;
@@ -13,12 +13,15 @@ use Illuminate\Support\Str;
 /**
  * The snake_case field names really irked me so I have made this to mostly use camelCase fields in both the code
  * and database.
+ *
+ * @mixin Builder
  */
 abstract class AbstractModel extends Model
 {
 
     public const CREATED_AT = 'createdAt';
     public const UPDATED_AT = 'updatedAt';
+    public const DELETED_AT = 'deletedAt';
 
     public static $snakeAttributes = false;
 

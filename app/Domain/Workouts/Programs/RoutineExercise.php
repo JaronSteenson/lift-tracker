@@ -5,6 +5,7 @@ namespace LiftTracker\Domain\Workouts\Programs;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use LiftTracker\Domain\AbstractModel;
 use LiftTracker\Domain\Workouts\Exercises\Exercise;
 use LiftTracker\Traits\HasUuidTrait;
@@ -27,11 +28,13 @@ use LiftTracker\Traits\HasUuidTrait;
  * @property int weight in kg
  * @property int restPeriod in seconds
  * @property int position
+ * @property carbon|null deletedAt
  *
  */
 class RoutineExercise extends AbstractModel
 {
     use HasUuidTrait;
+    use SoftDeletes;
 
     /**
      * The attributes that are mass assignable.

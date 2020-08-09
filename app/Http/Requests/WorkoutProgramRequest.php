@@ -84,7 +84,7 @@ class WorkoutProgramRequest extends ApiRequest
             }
 
             // Apply the same again for this records children.
-            $newAndExistingExercises = $this->mergeExistingAndNewExercises($requestWorkoutRoutine);
+            $newAndExistingExercises = $this->mergeExistingAndNewExercises($requestWorkoutRoutine, $existingRoutines);
             $updatedRoutine->setRoutineExercises($newAndExistingExercises);
         }
 
@@ -104,7 +104,7 @@ class WorkoutProgramRequest extends ApiRequest
         return $existingWorkoutPrograms;
     }
 
-    public function mergeExistingAndNewExercises(WorkoutProgramRoutine $requestRoutine): Collection
+    public function mergeExistingAndNewExercises(WorkoutProgramRoutine $requestRoutine, Collection $existingRoutines): Collection
     {
         $existingExercises = $this->getExistingExercisesForRoutine($requestRoutine);
         $newAndExisting = new Collection();
