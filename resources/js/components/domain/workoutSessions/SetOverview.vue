@@ -1,7 +1,7 @@
 <template>
     <component
-        :elevation="this.$vuetify.breakpoint.smAndDown ? 0 : 5"
-        :is="this.$vuetify.breakpoint.smAndDown ? 'div' : 'VCard'"
+        :elevation="$vuetify.breakpoint.smAndDown ? 0 : 5"
+        :is="$vuetify.breakpoint.smAndDown ? 'div' : 'VCard'"
         class="js-workout-drag-handle workout-builder-card"
         max-width="960"
         width="100%"
@@ -50,7 +50,7 @@
             <template v-else-if="isLookingAhead">This is an upcoming set.</template>
             <br/>
             <RouterLink
-                :to="{ name: 'setOverview', params: { sessionSetUuid: this.inProgressSet.uuid }}"
+                :to="{ name: 'setOverview', params: { sessionSetUuid: inProgressSet.uuid }}"
             >
                 Jump to current set
             </RouterLink>
@@ -86,7 +86,7 @@
                 </a>
                 <br/>
                 <RouterLink
-                    :to="{ name: 'sessionOverview', params: {workoutSessionUuid: this.uuid}}"
+                    :to="{ name: 'sessionOverview', params: {workoutSessionUuid: uuid}}"
                     v-if="!isOpenForEdits"
                 >
                     Go back to session overview
@@ -98,19 +98,24 @@
             v-touch:swipe="handleSwipe"
             :value="set.position + 1"
             :vertical="false"
+            @change="changeSetFromStepper($event)"
         >
             <VStepperHeader>
                 <template v-for="otherSet in exercise.sessionSets">
                     <VStepperStep
+                        :key="otherSet.position"
                         :complete="otherSet.endedAt !== null"
-                        :color="otherSet.position !== set.position ? 'grey' : 'primary'"
-                        :key="otherSet.uuid"
+                        :color="getStepColor(otherSet)"
                         :step="otherSet.position + 1"
+                        :editable="set.uuid !== otherSet.uuid"
                     >
-                        Set {{ otherSet.position + 1 }}
+                       Set {{ otherSet.position + 1 }}
                     </VStepperStep>
 
-                    <VDivider v-if="otherSet.position + 1 < exercise.sessionSets.length"/>
+                    <VDivider
+                        v-if="otherSet.position + 1 < exercise.sessionSets.length"
+                        :key="otherSet.position + '-divider'"
+                    />
                 </template>
             </VStepperHeader>
         </VStepper>
@@ -332,7 +337,6 @@ export default {
             return this.isInProgressSet && this.isDuringRestPeriod && !this.isLastSetOfExercise;
         },
         allowEndWorkout() {
-            debugger
             return this.isInProgressSet && this.isLastSetOfWorkout;
         },
         isLookingBack() {
@@ -447,6 +451,18 @@ export default {
         },
     },
     methods: {
+        getStepColor(otherSet) {
+            if (otherSet.uuid === this.inProgressSet.uuid) {
+                return 'success';
+            }
+
+            return otherSet.uuid !== this.set.uuid ? 'grey' : 'primary';
+        },
+        changeSetFromStepper(requestedSet) {
+            const setToChangeTo = this.exercise.sessionSets[requestedSet - 1];
+
+            this.$router.push({name: 'setOverview', params: {sessionSetUuid: setToChangeTo.uuid}});
+        },
         handleSwipe(eventName) {
             if (eventName === 'swiperight' && !this.isFirstSetOfWorkout) {
                 this.lookBehind();
