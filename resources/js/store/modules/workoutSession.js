@@ -1,6 +1,5 @@
 import WorkoutSessionService from '../../api/WorkoutSessionService'
 import UuidHelper from '../../UuidHelper'
-import {debounce} from "lodash";
 import {differenceInSeconds, isAfter} from 'date-fns';
 import {utcNow} from '../../dates';
 import {
@@ -9,6 +8,7 @@ import {
     state as saveStatusState,
     getters as savingStatusGetters,
 } from './saveStatusMixin';
+import {memoizeDebounceAction} from "../../util";
 
 const SAVE_DEBOUNCE_WAIT = 1000;
 
@@ -355,7 +355,7 @@ const actions = {
         commit('startSet', { uuid, startedAt });
         commit('updateSet', { uuid, updatedAt: utcNow() });
 
-        dispatch('saveSetNoDebounce', uuid);
+        dispatch('saveSet', uuid);
     },
 
     endSet({ commit, dispatch, getters  }, { uuid, endedAt }) {
@@ -371,7 +371,7 @@ const actions = {
 
         commit('endSet', { uuid, endedAt });
 
-        dispatch('saveSetNoDebounce', uuid);
+        dispatch('saveSet', uuid);
     },
 
     startRestPeriod({ commit, dispatch, getters  }, { uuid }) {
@@ -380,7 +380,7 @@ const actions = {
         commit('updateSet', { uuid, restPeriodStartedAt, restPeriodEndedAt: null });
 
         dispatch('startRestPeriodTimeout', { uuid });
-        dispatch('saveSetNoDebounce', uuid);
+        dispatch('saveSet', uuid);
     },
 
     startRestPeriodTimeout({ commit, dispatch, getters  }, { uuid }) {
@@ -401,7 +401,7 @@ const actions = {
         const restPeriodDuration = differenceInSeconds(new Date(restPeriodEndedAt), new Date(set.restPeriodStartedAt));
         commit('endRestPeriod', { uuid, restPeriodEndedAt, restPeriodDuration });
 
-        dispatch('saveSetNoDebounce', uuid);
+        dispatch('saveSet', uuid);
     },
 
     /**
@@ -415,8 +415,7 @@ const actions = {
     },
 
     /**
-     * Save a set without the debounce, required for ending one set then starting the next,
-     * or for quickly ending the rest period then the exercise.
+     * Save a set debounced per unique uuid.
      *
      * @param commit
      * @param getters
@@ -424,7 +423,7 @@ const actions = {
      * @param uuid The sets uuid
      * @return {Promise<void>}
      */
-    async saveSetNoDebounce({ commit, getters, dispatch }, uuid) {
+    saveSet: memoizeDebounceAction(async ({ commit, getters, dispatch }, uuid) => {
         try {
             dispatch('startSaving');
 
@@ -452,13 +451,9 @@ const actions = {
             dispatch('finishSavingError');
             console.error(error);
         }
-    },
-
-    saveSet: debounce(async ({ dispatch }, uuid) => {
-        dispatch('saveSet', uuid);
     }, SAVE_DEBOUNCE_WAIT),
 
-    saveExercise: debounce(async ({ commit, getters, dispatch }, uuid) => {
+    saveExercise: memoizeDebounceAction(async ({ commit, getters, dispatch }, uuid) => {
         try {
             dispatch('startSaving');
 
