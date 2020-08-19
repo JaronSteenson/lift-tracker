@@ -379,19 +379,7 @@ const actions = {
 
         commit('updateSet', { uuid, restPeriodStartedAt, restPeriodEndedAt: null });
 
-        dispatch('startRestPeriodTimeout', { uuid });
         dispatch('saveSet', uuid);
-    },
-
-    startRestPeriodTimeout({ commit, dispatch, getters  }, { uuid }) {
-        const timeRemaining = getters.restPeriodTimeRemaining(uuid);
-
-        const restPeriodTimeout = setTimeout(() => {
-            dispatch('endRestPeriod', { uuid });
-            dispatch('saveSet', uuid);
-        }, timeRemaining * 1000)
-
-        commit('setRestPeriodTimeout', restPeriodTimeout);
     },
 
     endRestPeriod({ commit, dispatch, getters  }, { uuid }) {

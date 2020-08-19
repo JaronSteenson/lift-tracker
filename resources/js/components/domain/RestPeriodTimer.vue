@@ -1,6 +1,6 @@
 <template>
     <div :class="timerClass">
-        <VMessages v-if="label" :value="[label]"/>
+        <VMessages v-if="_label" :value="[_label]"/>
         <div class="timer__time-parts">
             <span class="timer__time-part">{{ min }}</span><span class="timer__time-part">:</span><span class="timer__time-part">{{ sec }}</span>
         </div>
@@ -27,7 +27,11 @@
             label: {
                 type: String,
                 required: false,
-            }
+            },
+            overdueLabel: {
+                type: String,
+                required: false,
+            },
         },
         data() {
             return {
@@ -36,9 +40,7 @@
             }
         },
         created() {
-            if (!this.isFinished) {
-                this.startRefreshInterval();
-            }
+            this.startRefreshInterval();
         },
         destroyed() {
             this.clearRefreshInterval();
@@ -51,7 +53,6 @@
             },
             isFinished(value) {
                 if (value === true) {
-                    this.clearRefreshInterval();
                     window.navigator.vibrate(200);
                 } else {
                     this.startRefreshInterval()
@@ -59,10 +60,18 @@
             }
         },
         computed: {
+            _label() {
+                if (this.overdue) {
+                    return this.overdueLabel;
+                }
+
+                return this.label;
+            },
             timerClass() {
                 return {
                     'timer': true,
                     'timer--almost-finished': this.almostFinished,
+                    'timer--overdue': this.overdue,
                 }
             },
             timeRemaining() {
@@ -79,12 +88,12 @@
 
                 return this.timeRemaining < 30;
             },
+            overdue() {
+                debugger
+                return this.timeRemaining < 0;
+            },
             min() {
-                if (this.isFinished) {
-                    return '00';
-                }
-
-                const min = Math.floor(this.timeRemaining / 60);
+                const min = Math.floor(Math.abs(this.timeRemaining) / 60);
 
                 if (min < 10) {
                     return `0${min}`;
@@ -93,11 +102,7 @@
                 return min;
             },
             sec() {
-                if (this.isFinished) {
-                    return '00';
-                }
-
-                const sec = this.timeRemaining - this.min * 60;
+                const sec = Math.abs(this.timeRemaining) - (this.min * 60);
 
                 if (sec < 10) {
                     return `0${sec}`;
@@ -132,6 +137,10 @@
     .timer {
         &--almost-finished {
             color: var(--v-warning-base);
+        }
+
+        &--overdue {
+            color: var(--v-warning-darken3);
         }
 
         &__time-parts {

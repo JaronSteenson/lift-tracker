@@ -162,14 +162,9 @@
                 <VRow>
                     <VCol v-if="!isLastSetOfExercise" class="pt-0" cols="12" md="6" sm="6" xs="6">
                         <template>
-                            <RestPeriodSlider
-                                v-if="restPeriodNotStarted && !workoutIsFinished"
-                                v-model="restPeriod"
-                            />
                             <RestPeriodInput
-                                v-else
                                 v-model="restPeriod"
-                                :disabled="!isOpenForEdits"
+                                :disabled="!isOpenForEdits || isDuringRestPeriod"
                             />
                         </template>
                     </VCol>
@@ -212,6 +207,7 @@
                         <RestPeriodTimer
                             :session-set-uuid="sessionSetUuid"
                             label="Rest period remaining"
+                            overdue-label="Rest period overdue"
                         />
                     </VCol>
 
@@ -289,7 +285,6 @@
 
 <script>
 import {mapGetters} from 'vuex';
-import RestPeriodSlider from '../RestPeriodSlider';
 import RestPeriodInput from '../RestPeriodInput';
 import RestPeriodTimer from '../RestPeriodTimer';
 import {minsSecDuration} from '../../../dates';
@@ -300,7 +295,6 @@ export default {
     components: {
         ServerSyncInfo,
         SessionStatsModal,
-        RestPeriodSlider,
         RestPeriodInput,
         RestPeriodTimer,
     },
@@ -311,10 +305,6 @@ export default {
         },
     },
     created() {
-        if (this.isDuringRestPeriod) {
-            this.resumeRestPeriod();
-        }
-
         this.isOpenForEdits = this.workoutSession.endedAt === null;
 
         this.ensureLastTimeStatsAreLoaded();
@@ -523,11 +513,6 @@ export default {
             });
 
             this.isChangingSet = false;
-        },
-        resumeRestPeriod() {
-            this.$store.dispatch('workoutSession/startRestPeriodTimeout', {
-                uuid: this.sessionSetUuid,
-            })
         },
         startRestPeriod() {
             this.$store.dispatch('workoutSession/startRestPeriod', {
