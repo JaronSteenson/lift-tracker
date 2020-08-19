@@ -245,7 +245,7 @@
                                 <p v-else>There is no rest period because this is the last set for this exercise.</p>
                             </div>
                         </VCol>
-                        <VCol v-if="isInProgressSet" class="pt-0 text-right" cols="6">
+                        <VCol v-if="isInProgressSet || isEndingWorkout" class="pt-0 text-right" cols="6">
                             <VBtn
                                 v-if="isLastSetOfWorkout"
                                 height="3rem"
