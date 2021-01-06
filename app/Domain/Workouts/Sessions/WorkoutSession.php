@@ -182,4 +182,17 @@ class WorkoutSession extends AbstractModel
         return $this->BelongsTo(WorkoutProgramRoutine::class, 'workoutProgramRoutineId');
     }
 
+    public function deleteWithChildren(): ?bool
+    {
+        return DB::transaction(function(): bool {
+            $children = $this->sessionExercises();
+
+            $children->each(function (SessionExercise $child) {
+                $child->deleteWithChildren();
+            });
+
+            return parent::delete();
+        });
+    }
+
 }

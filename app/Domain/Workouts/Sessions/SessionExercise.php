@@ -156,4 +156,17 @@ class SessionExercise extends AbstractModel implements UserOwnershipInterface
         return $this->hasMany(SessionSet::class, 'sessionExerciseId');
     }
 
+    public function deleteWithChildren(): ?bool
+    {
+        return DB::transaction(function(): bool {
+            $children = $this->sessionSets();
+
+            $children->each(function (SessionSet $child) {
+                $child->delete();
+            });
+
+            return parent::delete();
+        });
+    }
+
 }

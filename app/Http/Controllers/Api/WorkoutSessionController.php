@@ -124,7 +124,10 @@ class WorkoutSessionController extends Controller
      */
     public function destroy(WorkoutSessionRequest $request)
     {
-        $request->getModelOr404()->delete();
+        /** @var WorkoutSession $model */
+        $model = $request->getModelOr404();
+
+        $model->deleteWithChildren();
     }
 
 }
