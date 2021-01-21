@@ -1,24 +1,11 @@
-import { createLocalVue, mount, RouterLinkStub } from '@vue/test-utils';
+import { mount, RouterLinkStub } from '@vue/test-utils';
 import Vuex from 'vuex';
 import App from '../../components/App';
 import appModule from '../../store/modules/app';
 import workoutSessionModule from '../../store/modules/workoutSession';
-import Vuetify from 'vuetify';
-import Vue from 'vue';
+import { createLocalVueMountOptions } from "../vueHelpers";
 
-const localVue = createLocalVue();
-
-
-const vuetify = new Vuetify;
-
-Vue.use(Vuetify)
-
-localVue.use(Vuex);
-localVue.use(vuetify);
-
-Vue.config.productionTip = false
-
-let store, wrapper;
+const mountOptions = createLocalVueMountOptions();
 
 const workoutSession = {
     namespaced: true,
@@ -36,27 +23,24 @@ const app = {
 
 describe('App.vue', () => {
 
-    test('should match unloaded snapshot', () => {
-        store = new Vuex.Store({
+    test('should not show the nav drawer and avatar menu when not logged in', () => {
+        const store = new Vuex.Store({
             modules: {
                 app,
                 workoutSession,
             }
         });
 
-        wrapper = mount(App, {
+        const wrapper = mount(App, {
             store,
-            localVue,
-            vuetify,
-            mocks: {
-                $vuetify: { breakpoint: {} }
-            }
+            ...mountOptions,
         });
 
-        expect(wrapper.element).toMatchSnapshot();
-    })
+        expect(wrapper.findComponent({ name: 'VAvatar' }).exists()).toBeFalsy();
+        expect(wrapper.findComponent({ name: 'VNavigationDrawer' }).exists()).toBeFalsy();
+    });
 
-    test('should match logged in snapshot', () => {
+    test('should show the nav drawer and avatar menu when not logged in', () => {
         const app = {
             namespaced: true,
             state: appModule.state,
@@ -68,24 +52,21 @@ describe('App.vue', () => {
             mutations: appModule.mutations,
         };
 
-        store = new Vuex.Store({
+        const store = new Vuex.Store({
             modules: {
                 app,
                 workoutSession,
             }
         });
 
-        wrapper = mount(App, {
+        const wrapper = mount(App, {
             store,
-            localVue,
-            vuetify,
-            mocks: {
-                $vuetify: { breakpoint: {} }
-            },
-            stubs: { 'router-link': RouterLinkStub }
+            ...mountOptions,
+            stubs: { 'router-link': RouterLinkStub },
         });
 
-        expect(wrapper.element).toMatchSnapshot();
-    })
+        expect(wrapper.findComponent({ name: 'VAvatar' }).exists()).toBeTruthy();
+        expect(wrapper.findComponent({ name: 'VNavigationDrawer' }).exists()).toBeTruthy();
+    });
 
-})
+});
