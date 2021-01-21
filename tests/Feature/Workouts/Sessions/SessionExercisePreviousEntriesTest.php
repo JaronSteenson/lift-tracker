@@ -3,21 +3,15 @@
 namespace Tests\Feature\Workouts\Sessions;
 
 use Carbon\Carbon;
-use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
-use Illuminate\Support\Str;
-use LiftTracker\Domain\Workouts\Programs\RoutineExercise;
-use LiftTracker\Domain\Workouts\Programs\WorkoutProgram;
-use LiftTracker\Domain\Workouts\Programs\WorkoutProgramRoutine;
 use LiftTracker\Domain\Workouts\Sessions\SessionExercise;
 use LiftTracker\Domain\Workouts\Sessions\WorkoutSession;
-use LiftTracker\Http\Controllers\Api\LastTimeSessionExercise;
+use LiftTracker\Http\Controllers\Api\SessionExercisePreviousEntries;
 use LiftTracker\Http\Middleware\VerifyCsrfToken;
 use LiftTracker\User;
-use mysql_xdevapi\Session;
 use Tests\TestCase;
 
-class LastTimeSessionExerciseTest extends TestCase
+class SessionExercisePreviousEntriesTest extends TestCase
 {
     use DatabaseTransactions;
 
@@ -32,10 +26,10 @@ class LastTimeSessionExerciseTest extends TestCase
         $user = factory(User::class)->create();
 
         /**
-         * @see LastTimeSessionExercise
+         * @see SessionExercisePreviousEntries
          */
         $this->actingAs($user)
-            ->call('GET', 'api/last-time-session-exercise/fake-uuid')
+            ->call('GET', 'api/session-exercise-previous-entries/fake-uuid')
             ->assertStatus(404);
     }
 
@@ -54,14 +48,14 @@ class LastTimeSessionExerciseTest extends TestCase
         $sessionExercise->save();
 
         /**
-         * @see LastTimeSessionExercise
+         * @see SessionExercisePreviousEntries
          */
         $this->actingAs($user)
-            ->call('GET', 'api/last-time-session-exercise/' . $sessionExercise->uuid)
+            ->call('GET', 'api/session-exercise-previous-entries/' . $sessionExercise->uuid)
             ->assertStatus(404);
     }
 
-    public function testOriginSessionExerciseHasNoLastTime(): void
+    public function testOriginSessionExerciseHasNoPreviousEntry(): void
     {
         /** @var User $user */
         $user = factory(User::class)->create();
@@ -78,15 +72,15 @@ class LastTimeSessionExerciseTest extends TestCase
         $sessionExercise->save();
 
         /**
-         * @see LastTimeSessionExercise
+         * @see SessionExercisePreviousEntries
          */
         $this->actingAs($user)
-            ->call('GET', 'api/last-time-session-exercise/' . $sessionExercise->uuid)
+            ->call('GET', 'api/session-exercise-previous-entries/' . $sessionExercise->uuid)
             ->assertStatus(200)
-            ->assertDontSeeText('uuid');
+            ->assertJson([]);
     }
 
-    public function testOriginSessionExerciseHasLastTime(): void
+    public function testOriginSessionExerciseHasPreviousEntries(): void
     {
         /** @var User $user */
         $user = factory(User::class)->create();
@@ -118,15 +112,15 @@ class LastTimeSessionExerciseTest extends TestCase
         $sessionExercise->save();
 
         /**
-         * @see LastTimeSessionExercise
+         * @see SessionExercisePreviousEntries
          */
         $this->actingAs($user)
-            ->call('GET', 'api/last-time-session-exercise/' . $sessionExercise->uuid)
+            ->call('GET', 'api/session-exercise-previous-entries/' . $sessionExercise->uuid)
             ->assertStatus(200)
-            ->assertJson($previousSessionExercise->toArray());
+            ->assertJson([$previousSessionExercise->toArray()]);
     }
 
-    public function testOriginSessionExerciseHasLastTimeAndTimeBefore(): void
+    public function testOriginSessionExerciseHasMultiplePreviousEntries(): void
     {
         /** @var User $user */
         $user = factory(User::class)->create();
@@ -171,12 +165,12 @@ class LastTimeSessionExerciseTest extends TestCase
         $sessionExercise->save();
 
         /**
-         * @see LastTimeSessionExercise
+         * @see SessionExercisePreviousEntries
          */
         $this->actingAs($user)
-            ->call('GET', 'api/last-time-session-exercise/' . $sessionExercise->uuid)
+            ->call('GET', 'api/session-exercise-previous-entries/' . $sessionExercise->uuid)
             ->assertStatus(200)
-            ->assertJson($previousSessionExercise->toArray());
+            ->assertJson([$timeBeforeLastSessionExercise->toArray(), $previousSessionExercise->toArray()]);
     }
 
 }

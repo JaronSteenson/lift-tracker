@@ -89,7 +89,6 @@
                 return this.timeRemaining < 30;
             },
             overdue() {
-                debugger
                 return this.timeRemaining < 0;
             },
             min() {

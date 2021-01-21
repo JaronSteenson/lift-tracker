@@ -2,20 +2,21 @@
 
 namespace LiftTracker\Http\Controllers\Api;
 
+use Illuminate\Support\Collection;
 use LiftTracker\Domain\Workouts\Sessions\SessionExercise;
 use LiftTracker\Http\Controllers\Controller;
 use LiftTracker\User;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
-class LastTimeSessionExercise extends Controller
+class SessionExercisePreviousEntries extends Controller
 {
     /**
-     * Show the profile for the given user.
+     * Return all previous entries of the given session exercise.
      *
      * @param string $sessionExerciseUuid
-     * @return SessionExercise
+     * @return Collection
      */
-    public function __invoke(string $sessionExerciseUuid): ?SessionExercise
+    public function __invoke(string $sessionExerciseUuid): Collection
     {
         $sessionExercise = (new SessionExercise())->findByUuid($sessionExerciseUuid);
 
@@ -26,12 +27,6 @@ class LastTimeSessionExercise extends Controller
             throw new NotFoundHttpException('Session exercise not found');
         }
 
-        $lastTime =  $sessionExercise->findLastTime();
-
-        if ($lastTime === null) {
-            return null;
-        }
-
-        return $lastTime;
+        return $sessionExercise->findPreviousEntries();
     }
 }

@@ -87,12 +87,12 @@
             </VMenu>
         </VAppBar>
 
-        <VContent>
+        <VMain>
             <VFadeTransition v-if="hasLoaded" leave-absolute>
                 <RouterView/>
             </VFadeTransition>
             <AppSplashScreen v-else-if="slowLoading"/>
-        </VContent>
+        </VMain>
     </VApp>
 </template>
 
@@ -148,13 +148,12 @@
             },
             async logout() {
                 if (!this.userIsAuthenticated) {
-                    this.$router.push({ name: 'login' });
+                    await this.$router.push({ name: 'login' });
                     return;
                 }
 
                 await this.$store.dispatch('app/logout');
-
-                this.$router.push({ name: 'login' });
+                await this.$router.push({ name: 'login' });
             },
             getCurrentSet(workoutSessionUuid) {
                 return this.$store.getters['workoutSession/currentSetForInProgressWorkout'](workoutSessionUuid);

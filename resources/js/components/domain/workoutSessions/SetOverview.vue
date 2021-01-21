@@ -171,20 +171,20 @@
                 </VRow>
                 <VRow class="pt-0 mt-0">
                     <VCol class="pt-0 mt-0" cols="12">
-                        <span v-if="!hasLoadedLastTimeExercise">
-                            Loading last times stats...
+                        <span v-if="!hasLoadedExercisePreviousEntries">
+                            Loading previous entry overviews...
                             <VProgressLinear indeterminate/>
                         </span>
                         <template v-else>
-                            <template v-if="lastTimeExercise">
-                                <a @click="openLastTimeStats" href="#">
-                                    View last time's stats
+                            <template v-if="exercisePreviousEntries.length > 0">
+                                <a @click="openPreviousEntryOverviews" href="#">
+                                    Previous entry overviews
                                 </a>
 
-                                <SessionStatsModal
-                                    :session-exercise="lastTimeExercise"
-                                    v-if="showLastTimeStats"
-                                    v-model="showLastTimeStats"
+                                <SessionExerciseStatsModal
+                                    v-if="showPreviousEntryOverviews"
+                                    v-model="showPreviousEntryOverviews"
+                                    :session-exercises="exercisePreviousEntries"
                                 />
                             </template>
                             <span v-else>This is the first time you are doing this exercise. Last time recaps will appear here next time.</span>
@@ -288,13 +288,13 @@ import {mapGetters} from 'vuex';
 import RestPeriodInput from '../RestPeriodInput';
 import RestPeriodTimer from '../RestPeriodTimer';
 import {minsSecDuration} from '../../../dates';
-import SessionStatsModal from './SessionExerciseStatsModal';
+import SessionExerciseStatsModal from './SessionExerciseStatsModal';
 import ServerSyncInfo from './../../ServerSyncInfo';
 
 export default {
     components: {
         ServerSyncInfo,
-        SessionStatsModal,
+        SessionExerciseStatsModal,
         RestPeriodInput,
         RestPeriodTimer,
     },
@@ -307,12 +307,12 @@ export default {
     created() {
         this.isOpenForEdits = this.workoutSession.endedAt === null;
 
-        this.ensureLastTimeStatsAreLoaded();
+        this.ensureExercisePreviousEntriesAreLoaded();
     },
     data() {
         return {
-            hasLoadedLastTimeExercise: false,
-            showLastTimeStats: false,
+            hasLoadedExercisePreviousEntries: false,
+            showPreviousEntryOverviews: false,
             isChangingSet: false,
             isEndingWorkout: false,
             isOpenForEdits: true,
@@ -323,7 +323,6 @@ export default {
             'workoutName',
             'workoutSession',
             'uuid',
-            'lastTimeExercise',
             'saveStatusMessage',
             'updatedAt'
         ]),
@@ -411,8 +410,8 @@ export default {
         isLastSetOfExercise() {
             return this.$store.getters['workoutSession/isLastSetOfExercise'](this.sessionSetUuid);
         },
-        lastTimeExercise() {
-            return this.$store.getters['workoutSession/lastTimeExercise'](this.exercise.uuid);
+        exercisePreviousEntries() {
+            return this.$store.getters['workoutSession/exercisePreviousEntries'](this.exercise.uuid);
         },
         restPeriodDisplay() {
             return minsSecDuration(this.restPeriod);
@@ -481,8 +480,8 @@ export default {
         async lookBack() {
             await this.$router.push({name: 'setOverview', params: {sessionSetUuid: this.previousSet.uuid}});
         },
-        async fetchLastTimeExercise() {
-            return this.$store.dispatch('workoutSession/fetchLastTimeExercise', this.exercise.uuid);
+        async fetchExercisePreviousEntries() {
+            return this.$store.dispatch('workoutSession/fetchExercisePreviousEntries', this.exercise.uuid);
         },
         async endWorkout() {
             this.isEndingWorkout = true;
@@ -529,20 +528,20 @@ export default {
                 uuid: this.sessionSetUuid,
             })
         },
-        async ensureLastTimeStatsAreLoaded() {
-            this.hasLoadedLastTimeExercise = this.$store.getters['workoutSession/hasLoadedLastTimeExercise'](this.exercise.uuid);
-            if (!this.hasLoadedLastTimeExercise) {
-                await this.fetchLastTimeExercise();
-                this.hasLoadedLastTimeExercise = true;
+        async ensureExercisePreviousEntriesAreLoaded() {
+            this.hasLoadedExercisePreviousEntries = this.$store.getters['workoutSession/hasLoadedExercisePreviousEntries'](this.exercise.uuid);
+            if (!this.hasLoadedExercisePreviousEntries) {
+                await this.fetchExercisePreviousEntries();
+                this.hasLoadedExercisePreviousEntries = true;
             }
         },
-        openLastTimeStats() {
-            this.showLastTimeStats = true;
+        openPreviousEntryOverviews() {
+            this.showPreviousEntryOverviews = true;
         },
     },
     watch: {
         sessionSetUuid() {
-            this.ensureLastTimeStatsAreLoaded();
+            this.ensureExercisePreviousEntriesAreLoaded();
         }
     }
 }

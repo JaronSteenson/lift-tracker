@@ -26,7 +26,7 @@ function defaultState() {
             updatedAt: null,
         },
         workoutSessions: [],
-        lastTimeExercises: {}, // A map of sessionExercises Keyed by the exercise uuid.
+        exercisesPreviousEntries: {}, // Previous entries of exercises keyed by exercise uuid.
         inProgressWorkouts: null, // An array of workouts.
         restPeriodTimout: null,
     }
@@ -308,12 +308,12 @@ export const getters = {
         return finishInSeconds - now;
     },
 
-    hasLoadedLastTimeExercise: (state) => (exerciseUuid) => {
-        return typeof state.lastTimeExercises[exerciseUuid] !== 'undefined';
+    hasLoadedExercisePreviousEntries: (state) => (exerciseUuid) => {
+        return typeof state.exercisesPreviousEntries[exerciseUuid] !== 'undefined';
     },
 
-    lastTimeExercise: (state) => (exerciseUuid) => {
-        return state.lastTimeExercises[exerciseUuid];
+    exercisePreviousEntries: (state) => (exerciseUuid) => {
+        return state.exercisesPreviousEntries[exerciseUuid] || [];
     },
 
     updatedAt(state) {
@@ -529,14 +529,14 @@ const actions = {
         return response;
     },
 
-    async fetchLastTimeExercise({ commit, dispatch }, exerciseUuid) {
-        const response = await WorkoutSessionService.getLastTimeSessionExercise(exerciseUuid);
+    async fetchExercisePreviousEntries({ commit, dispatch }, exerciseUuid) {
+        const response = await WorkoutSessionService.getExercisePreviousEntries(exerciseUuid);
 
         if (response.data === '') {
-            response.data = null;
+            response.data = [];
         }
 
-        commit('updateLastTimeExercise', { exerciseUuid, lastTimeExercise: response.data });
+        commit('updateExercisePreviousEntries', { exerciseUuid, previousEntries: response.data });
 
         return response;
     },
@@ -624,8 +624,8 @@ const mutations = {
         })
     },
 
-    updateLastTimeExercise(state, {exerciseUuid, lastTimeExercise}) {
-        state.lastTimeExercises[exerciseUuid] = lastTimeExercise;
+    updateExercisePreviousEntries(state, { exerciseUuid, previousEntries }) {
+        state.exercisesPreviousEntries[exerciseUuid] = previousEntries;
     },
 
     startSet(state, { uuid, startedAt }) {

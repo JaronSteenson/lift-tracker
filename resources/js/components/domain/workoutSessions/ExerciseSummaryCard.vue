@@ -25,7 +25,7 @@
                     <VCol class="px-0 pt-1 pb-0">
                         <VIcon size="small">mdi-chart-line-variant</VIcon>
                         <a @click.prevent="openStatsModal" href="#">View details</a>
-                        <SessionExerciseStatsModal :session-exercise="exercise" v-model="showStatsModal"/>
+                        <SessionExerciseStatsModal :session-exercises="[exercise]" v-model="showStatsModal"/>
                     </VCol>
                 </VRow>
             </VContainer>

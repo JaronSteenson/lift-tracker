@@ -10,11 +10,9 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\DB;
 use LiftTracker\Domain\AbstractModel;
-use LiftTracker\Domain\Users\CanBeOwnedByUserTrait;
 use LiftTracker\Domain\Users\UserOwnershipInterface;
 use LiftTracker\Domain\Workouts\Exercises\Exercise;
 use LiftTracker\Domain\Workouts\Programs\RoutineExercise;
-use LiftTracker\Http\Requests\WorkoutSessionRequest;
 use LiftTracker\Traits\HasUuidTrait;
 use LiftTracker\User;
 
@@ -130,9 +128,10 @@ class SessionExercise extends AbstractModel implements UserOwnershipInterface
         return !$this->userOwnsThis($user);
     }
 
-    public function findLastTime(): ?self {
+    public function findPreviousEntries(): Collection
+    {
         if ($this->routineExerciseId === null) {
-            return null;
+            return new Collection;
         }
 
         $userId = $this->workoutSession->userId;
@@ -142,8 +141,8 @@ class SessionExercise extends AbstractModel implements UserOwnershipInterface
             ->join('WorkoutSessions','WorkoutSessions.id','=','workoutSessionId')
             ->where('WorkoutSessions.userId', $userId)
             ->where('SessionExercises.id', '!=', $this->id)
-            ->orderBy('WorkoutSessions.startedAt', 'desc')
-            ->first();
+            ->orderBy('WorkoutSessions.startedAt')
+            ->get();
     }
 
     public function workoutSession(): BelongsTo

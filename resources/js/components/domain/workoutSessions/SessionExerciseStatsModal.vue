@@ -1,34 +1,49 @@
 <template>
-    <VDialog :value="value"
-             @input="updateDialogValue"
-             :fullscreen="$vuetify.breakpoint.xsOnly"
+    <VDialog :fullscreen="$vuetify.breakpoint.xsOnly"
              :max-width="$vuetify.breakpoint.xsOnly ? null : '400px'"
+             :value="value"
              hide-overlay
              transition="dialog-bottom-transition"
+             @input="updateDialogValue"
     >
-        <VCard>
-            <VToolbar flat>
+        <VCard class="d-flex flex-column">
+            <VCardTitle class="justify-center">
                 <VBtn
-                    @click="close"
+                    v-if="hasManyExercises"
+                    class="show-previous"
+                    :disabled="!hasPrevious"
                     icon
+                    @click="showPrevious"
                 >
-                    <VIcon>mdi-close</VIcon>
+                    <VIcon>mdi-chevron-left</VIcon>
                 </VBtn>
-                <VToolbarTitle>{{ title }}</VToolbarTitle>
-            </VToolbar>
+                {{ title }}
+                <VBtn
+                    v-if="hasManyExercises"
+                    class="show-next"
+                    :disabled="!hasNext"
+                    icon
+                    @click="showNext"
+                >
+                    <VIcon>mdi-chevron-right</VIcon>
+                </VBtn>
+            </VCardTitle>
+
+            <VDivider/>
 
             <VCardText>
-                <h3>Notes</h3>
+                <h3 class="mt-4">Notes</h3>
                 <p v-if="sessionExercise.notes">
                     {{ sessionExercise.notes }}
                 </p>
                 <p v-else>
-                    No notes.
+                    No notes
                 </p>
+                <hr class="mt-2">
 
                 <div class="graph">
                     <h3 class="mb-2 mt-8">Weight</h3>
-                    <h2 v-if="isSingleSet">{{ singleSetWeight }} {{ singleSetReps }}</h2>
+                    <div v-if="isSingleSet">{{ singleSetWeight }} {{ singleSetReps }}</div>
                     <VSparkline
                         v-else
                         :gradient="['purple', 'violet']"
@@ -38,10 +53,10 @@
                         :radius="10"
                         :value="weights"
                         auto-draw
-                        stroke-linecap="round"
                         show-labels
-                        type="bar"
                         smooth="radius"
+                        stroke-linecap="round"
+                        type="bar"
                     />
                     <hr class="mt-2">
                 </div>
@@ -56,17 +71,17 @@
                         :radius="10"
                         :value="reps"
                         auto-draw
-                        stroke-linecap="round"
                         show-labels
-                        type="bar"
                         smooth="radius"
+                        stroke-linecap="round"
+                        type="bar"
                     />
                     <hr class="mt-2">
                 </div>
 
-                <div class="graph">
+                <div class="graph" v-if="setsForRest.length > 0">
                     <h3 class="mb-2 mt-8"> {{ isSingleRestPeriod ? 'Rest period' : 'Rest periods' }}</h3>
-                    <h2 v-if="isSingleRestPeriod">{{ singleSetRest }}</h2>
+                    <div v-if="isSingleRestPeriod">{{ singleSetRest }}</div>
                     <VSparkline
                         v-else
                         :gradient="['purple', 'violet']"
@@ -77,138 +92,184 @@
                         :radius="5"
                         :value="rest"
                         auto-draw
-                        stroke-linecap="round"
                         show-labels
+                        stroke-linecap="round"
                         type="trend"
                     />
                     <hr class="mt-2">
                 </div>
             </VCardText>
+
+            <VSpacer/>
+            <VDivider/>
+            <VCardActions class="justify-center">
+                <VBtn
+                    text
+                    @click="close"
+                >
+                    Close
+                </VBtn>
+            </VCardActions>
         </VCard>
     </VDialog>
 </template>
 
 <script>
-    import { dateDescription, minsSecDuration } from "../../../dates";
+import {dateDescription, minsSecDuration} from "../../../dates";
 
-    export default {
-        props: {
-            sessionExercise: {
-                type: Object,
-                required: true,
-            },
-            value: {
-                type: Boolean,
-                required: true,
+export default {
+    props: {
+        sessionExercises: {
+            type: Array,
+            required: true,
+        },
+        value: {
+            type: Boolean,
+            required: true,
+        }
+    },
+    data() {
+        return {
+            currentIndex: this.sessionExercises.length - 1,
+        }
+    },
+    computed: {
+        sessionExercise() {
+            return this.sessionExercises[this.currentIndex];
+        },
+        hasManyExercises() {
+            return this.sessionExercises.length > 1;s
+        },
+        hasPrevious() {
+            return this.currentIndex !== 0;
+        },
+        hasNext() {
+            return this.currentIndex !== this.sessionExercises.length - 1;
+        },
+        title() {
+            return `${this.sessionExercise.name} - ${dateDescription(this.sessionExercise.createdAt, true)}`;
+        },
+        isSingleSet() {
+            return this.sessionExercise.sessionSets.length === 1
+        },
+        isSingleRestPeriod() {
+            return this.setsForRest.length === 1
+        },
+        singleSetWeight() {
+            const weight = this.sessionExercise.sessionSets[0].weight;
+
+            if (weight === null) {
+                return 'Unknown weight';
             }
-        },
-        data() {
-            return {}
-        },
-        computed: {
-            title() {
-                return `${this.sessionExercise.name} - ${dateDescription(this.sessionExercise.createdAt, true)}`;
-            },
-            isSingleSet() {
-                return this.sessionExercise.sessionSets.length === 1
-            },
-            isSingleRestPeriod() {
-                return this.setsForRest.length === 1
-            },
-            singleSetWeight() {
-                const weight = this.sessionExercise.sessionSets[0].weight;
 
-                if (weight === null) {
-                    return 'Unknown weight';
+            return `${weight}kg`;
+        },
+        weights() {
+            return this.sessionExercise.sessionSets.map(set => {
+                if (set.weight === null) {
+                    return 0;
                 }
 
-                return `${weight}kg`;
-            },
-            weights() {
-                return this.sessionExercise.sessionSets.map(set => {
-                    if (set.weight === null) {
-                        return 0;
-                    }
-
-                    return set.weight;
-                });
-            },
-            weightLabels() {
-                return this.sessionExercise.sessionSets.map(set => {
-                    if (set.weight === null) {
-                        return 'n/a';
-                    }
-
-                    return `${set.weight}kg`;
-                });
-            },
-            singleSetReps() {
-                const reps = this.sessionExercise.sessionSets[0].reps;
-
-                if (reps === null) {
-                    return '';
+                return set.weight;
+            });
+        },
+        weightLabels() {
+            return this.sessionExercise.sessionSets.map(set => {
+                if (set.weight === null) {
+                    return 'n/a';
                 }
 
-                return `x ${reps} reps`;
-            },
-            reps() {
-                return this.sessionExercise.sessionSets.map(set => {
-                    if (set.reps === null) {
-                        return 0;
-                    }
+                return `${set.weight}kg`;
+            });
+        },
+        singleSetReps() {
+            const reps = this.sessionExercise.sessionSets[0].reps;
 
-                    return set.reps;
-                });
-            },
-            repLabels() {
-                return this.sessionExercise.sessionSets.map(set => {
-                    if (set.reps === null) {
-                        return 'n/a';
-                    }
+            if (reps === null) {
+                return '';
+            }
 
-                    return set.reps;
-                });
-            },
-            singleSetRest() {
-                return `${minsSecDuration(this.sessionExercise.sessionSets[0].restPeriodDuration)}`;
-            },
-            rest() {
-                return this.setsForRest.map(set => {
-                    if (set.restPeriodDuration === null) {
-                        return 0;
-                    }
+            return `x ${reps} reps`;
+        },
+        reps() {
+            return this.sessionExercise.sessionSets.map(set => {
+                if (set.reps === null) {
+                    return 0;
+                }
 
-                    return set.restPeriodDuration;
-                });
-            },
-            restLabels() {
-                return this.setsForRest.map(set => {
-                    if (set.restPeriodDuration === null) {
-                        return 'n/a';
-                    }
+                return set.reps;
+            });
+        },
+        repLabels() {
+            return this.sessionExercise.sessionSets.map(set => {
+                if (set.reps === null) {
+                    return 'n/a';
+                }
 
-                    return minsSecDuration(set.restPeriodDuration, true);
-                });
-            },
-            setsForRest() {
-                const sets = [...this.sessionExercise.sessionSets];
+                return set.reps;
+            });
+        },
+        singleSetRest() {
+            return `${minsSecDuration(this.sessionExercise.sessionSets[0].restPeriodDuration)}`;
+        },
+        rest() {
+            return this.setsForRest.map(set => {
+                if (set.restPeriodDuration === null) {
+                    return 0;
+                }
 
-                // Remove the last set as we don't have a rest period for it.
-                sets.pop();
+                return set.restPeriodDuration;
+            });
+        },
+        restLabels() {
+            return this.setsForRest.map(set => {
+                if (set.restPeriodDuration === null) {
+                    return 'n/a';
+                }
 
-                return sets;
+                return minsSecDuration(set.restPeriodDuration, true);
+            });
+        },
+        setsForRest() {
+            const sets = [...this.sessionExercise.sessionSets];
+
+            // Remove the last set as we don't have a rest period for it.
+            sets.pop();
+
+            return sets;
+        }
+    },
+    methods: {
+        showPrevious() {
+            if (this.hasPrevious) {
+                this.currentIndex--;
             }
         },
-        methods: {
-            updateDialogValue(value) {
-                if (value === false) {
-                    this.close();
-                }
-            },
-            close() {
-                this.$emit('input', false)
+        showNext() {
+            if (this.hasNext) {
+                this.currentIndex++;
             }
+        },
+        updateDialogValue(value) {
+            if (value === false) {
+                this.close();
+            }
+        },
+        close() {
+            this.$emit('input', false)
         }
     }
+}
 </script>
 
+<style lang="scss" scoped>
+.show-previous {
+    position: absolute;
+    left: 10px;
+}
+
+.show-next {
+    position: absolute;
+    right: 10px;
+}
+</style>

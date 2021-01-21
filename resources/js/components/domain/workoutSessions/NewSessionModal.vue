@@ -4,7 +4,7 @@
             <VCardTitle>
                 New workout session
             </VCardTitle>
-            <VDivider></VDivider>
+            <VDivider/>
             <VCardText>
                 <template v-if="loading">
                     <VSkeletonLoader type="text@4" class="mt-1"></VSkeletonLoader>

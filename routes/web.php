@@ -68,9 +68,9 @@ Route::apiResource('api/sessions-sets', 'Api\SessionSetController')
     ->middleware('auth');
 
 /**
- * @see \LiftTracker\Http\Controllers\Api\LastTimeSessionExercise
+ * @see \LiftTracker\Http\Controllers\Api\SessionExercisePreviousEntries
  */
-Route::get('api/last-time-session-exercise/{sessionExerciseUuid}', 'Api\LastTimeSessionExercise')
+Route::get('api/session-exercise-previous-entries/{sessionExerciseUuid}', 'Api\SessionExercisePreviousEntries')
     ->middleware('auth');
 
 /**

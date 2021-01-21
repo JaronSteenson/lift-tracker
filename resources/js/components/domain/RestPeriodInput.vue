@@ -44,7 +44,6 @@ export default {
                 return Math.floor(this.value / 60);
             },
             set(value) {
-                debugger
                 this.$emit('input', this.secs + (value * 60));
             },
         },
