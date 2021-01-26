@@ -6,7 +6,20 @@
              transition="dialog-bottom-transition"
              @input="updateDialogValue"
     >
-        <VCard class="d-flex flex-column">
+        <VCard>
+            <VToolbar
+                dark
+                color="primary"
+            >
+                <VBtn
+                    icon
+                    dark
+                    @click="close"
+                >
+                    <VIcon>mdi-close</VIcon>
+                </VBtn>
+                <VToolbarTitle>{{ title }}</VToolbarTitle>
+            </VToolbar>
             <VCardTitle class="justify-center">
                 <VBtn
                     v-if="hasManyExercises"
@@ -17,7 +30,7 @@
                 >
                     <VIcon>mdi-chevron-left</VIcon>
                 </VBtn>
-                {{ title }}
+                {{ dateDescription }}
                 <VBtn
                     v-if="hasManyExercises"
                     class="show-next"
@@ -99,17 +112,6 @@
                     <hr class="mt-2">
                 </div>
             </VCardText>
-
-            <VSpacer/>
-            <VDivider/>
-            <VCardActions class="justify-center">
-                <VBtn
-                    text
-                    @click="close"
-                >
-                    Close
-                </VBtn>
-            </VCardActions>
         </VCard>
     </VDialog>
 </template>
@@ -147,7 +149,10 @@ export default {
             return this.currentIndex !== this.sessionExercises.length - 1;
         },
         title() {
-            return `${this.sessionExercise.name} - ${dateDescription(this.sessionExercise.createdAt, true)}`;
+            return this.sessionExercise.name;
+        },
+        dateDescription() {
+            return dateDescription(this.sessionExercise.createdAt, true);
         },
         isSingleSet() {
             return this.sessionExercise.sessionSets.length === 1
