@@ -1,6 +1,7 @@
 import SessionExerciseStatsModal from '../../../../components/domain/workoutSessions/SessionExerciseStatsModal';
+import BackForwardToolbar from '../../../../components/BackForwardToolbar';
 import { createLocalVueMountOptions } from '../../../vueHelpers';
-import {shallowMount} from "@vue/test-utils";
+import { shallowMount, mount } from '@vue/test-utils';
 
 
 const mountOptions = createLocalVueMountOptions();
@@ -127,12 +128,12 @@ describe('SessionExerciseStatsModal.vue', () => {
             ...mountOptions,
         });
 
-        expect(wrapper.find('.show-previous').exists()).toBeFalsy();
-        expect(wrapper.find('.show-next').exists()).toBeFalsy();
+        const backForwardToolbar = wrapper.findComponent(BackForwardToolbar);
+        expect(backForwardToolbar.exists()).toBeFalsy();
     });
 
     test('should have exercise navigation when there is multiple exercises', async () => {
-        const wrapper = shallowMount(SessionExerciseStatsModal, {
+        const wrapper = mount(SessionExerciseStatsModal, {
             propsData: {
                 value: true,
                 sessionExercises: [
@@ -143,28 +144,25 @@ describe('SessionExerciseStatsModal.vue', () => {
             ...mountOptions,
         });
 
-        const showPreviousButton = wrapper.find('.show-previous');
-        const showNextButton = wrapper.find('.show-next');
-
-        expect(showPreviousButton.exists()).toBeTruthy();
-        expect(showNextButton.exists()).toBeTruthy();
+        const backForwardToolbar = wrapper.findComponent(BackForwardToolbar);
+        expect(backForwardToolbar.exists()).toBeTruthy();
 
         expect(wrapper.text()).toContain('BB bench')
         expect(wrapper.text()).toContain('This exercise did not go very well.')
-        expect(showNextButton.props('disabled')).toEqual(true);
-        expect(showPreviousButton.props('disabled')).toEqual(false);
+        expect(backForwardToolbar.vm.enableForward).toEqual(false);
+        expect(backForwardToolbar.vm.enableBack).toEqual(true);
 
-        await showPreviousButton.vm.$emit('click')
+        await backForwardToolbar.vm.$emit('back')
         expect(wrapper.text()).toContain('DB rows')
         expect(wrapper.text()).toContain('This exercise went very well.')
-        expect(showNextButton.props('disabled')).toEqual(false);
-        expect(showPreviousButton.props('disabled')).toEqual(true);
+        expect(backForwardToolbar.vm.enableForward).toEqual(true);
+        expect(backForwardToolbar.vm.enableBack).toEqual(false);
 
-        await showNextButton.vm.$emit('click')
+        await backForwardToolbar.vm.$emit('forward')
         expect(wrapper.text()).toContain('BB bench')
         expect(wrapper.text()).toContain('This exercise did not go very well.')
-        expect(showNextButton.props('disabled')).toEqual(true);
-        expect(showPreviousButton.props('disabled')).toEqual(false);
+        expect(backForwardToolbar.vm.enableForward).toEqual(false);
+        expect(backForwardToolbar.vm.enableBack).toEqual(true);
     });
 
 

@@ -1,48 +1,28 @@
 <template>
-    <VDialog :fullscreen="$vuetify.breakpoint.xsOnly"
-             :max-width="$vuetify.breakpoint.xsOnly ? null : '400px'"
-             :value="value"
-             hide-overlay
-             transition="dialog-bottom-transition"
-             @input="updateDialogValue"
+    <VDialog
+        :fullscreen="$vuetify.breakpoint.xsOnly"
+        :max-width="$vuetify.breakpoint.xsOnly ? null : '400px'"
+        :value="value"
+        hide-overlay
+        transition="dialog-bottom-transition"
+        @input="updateDialogValue"
     >
         <VCard>
-            <VToolbar
-                dark
-                color="primary"
-            >
-                <VBtn
-                    icon
-                    dark
-                    @click="close"
-                >
+            <VToolbar dark color="primary">
+                <VBtn icon dark @click="close">
                     <VIcon>mdi-close</VIcon>
                 </VBtn>
                 <VToolbarTitle>{{ title }}</VToolbarTitle>
             </VToolbar>
-            <VCardTitle class="justify-center">
-                <VBtn
-                    v-if="hasManyExercises"
-                    class="show-previous"
-                    :disabled="!hasPrevious"
-                    icon
-                    @click="showPrevious"
-                >
-                    <VIcon>mdi-chevron-left</VIcon>
-                </VBtn>
+            <BackForwardToolbar
+                v-if="hasManyExercises"
+                :enable-back="hasPrevious"
+                :enable-forward="hasNext"
+                @back="showPrevious"
+                @forward="showNext"
+            >
                 {{ dateDescription }}
-                <VBtn
-                    v-if="hasManyExercises"
-                    class="show-next"
-                    :disabled="!hasNext"
-                    icon
-                    @click="showNext"
-                >
-                    <VIcon>mdi-chevron-right</VIcon>
-                </VBtn>
-            </VCardTitle>
-
-            <VDivider/>
+            </BackForwardToolbar>
 
             <VCardText>
                 <h3 class="mt-4">Notes</h3>
@@ -52,11 +32,13 @@
                 <p v-else>
                     No notes
                 </p>
-                <hr class="mt-2">
+                <hr class="mt-2" />
 
                 <div class="graph">
                     <h3 class="mb-2 mt-8">Weight</h3>
-                    <div v-if="isSingleSet">{{ singleSetWeight }} {{ singleSetReps }}</div>
+                    <div v-if="isSingleSet">
+                        {{ singleSetWeight }} {{ singleSetReps }}
+                    </div>
                     <VSparkline
                         v-else
                         :gradient="['purple', 'violet']"
@@ -71,7 +53,7 @@
                         stroke-linecap="round"
                         type="bar"
                     />
-                    <hr class="mt-2">
+                    <hr class="mt-2" />
                 </div>
 
                 <div v-if="!isSingleSet" class="graph">
@@ -89,11 +71,15 @@
                         stroke-linecap="round"
                         type="bar"
                     />
-                    <hr class="mt-2">
+                    <hr class="mt-2" />
                 </div>
 
                 <div class="graph" v-if="setsForRest.length > 0">
-                    <h3 class="mb-2 mt-8"> {{ isSingleRestPeriod ? 'Rest period' : 'Rest periods' }}</h3>
+                    <h3 class="mb-2 mt-8">
+                        {{
+                            isSingleRestPeriod ? "Rest period" : "Rest periods"
+                        }}
+                    </h3>
                     <div v-if="isSingleRestPeriod">{{ singleSetRest }}</div>
                     <VSparkline
                         v-else
@@ -109,7 +95,7 @@
                         stroke-linecap="round"
                         type="trend"
                     />
-                    <hr class="mt-2">
+                    <hr class="mt-2" />
                 </div>
             </VCardText>
         </VCard>
@@ -117,30 +103,33 @@
 </template>
 
 <script>
-import {dateDescription, minsSecDuration} from "../../../dates";
+import { dateDescription, minsSecDuration } from '../../../dates';
+import BackForwardToolbar from './../../BackForwardToolbar.vue';
 
 export default {
+    components: { BackForwardToolbar },
     props: {
         sessionExercises: {
             type: Array,
-            required: true,
+            required: true
         },
         value: {
             type: Boolean,
-            required: true,
+            required: true
         }
     },
     data() {
         return {
-            currentIndex: this.sessionExercises.length - 1,
-        }
+            currentIndex: this.sessionExercises.length - 1
+        };
     },
     computed: {
         sessionExercise() {
             return this.sessionExercises[this.currentIndex];
         },
         hasManyExercises() {
-            return this.sessionExercises.length > 1;s
+            return this.sessionExercises.length > 1;
+            s;
         },
         hasPrevious() {
             return this.currentIndex !== 0;
@@ -155,16 +144,16 @@ export default {
             return dateDescription(this.sessionExercise.createdAt, true);
         },
         isSingleSet() {
-            return this.sessionExercise.sessionSets.length === 1
+            return this.sessionExercise.sessionSets.length === 1;
         },
         isSingleRestPeriod() {
-            return this.setsForRest.length === 1
+            return this.setsForRest.length === 1;
         },
         singleSetWeight() {
             const weight = this.sessionExercise.sessionSets[0].weight;
 
             if (weight === null) {
-                return 'Unknown weight';
+                return "Unknown weight";
             }
 
             return `${weight}kg`;
@@ -181,7 +170,7 @@ export default {
         weightLabels() {
             return this.sessionExercise.sessionSets.map(set => {
                 if (set.weight === null) {
-                    return 'n/a';
+                    return "n/a";
                 }
 
                 return `${set.weight}kg`;
@@ -191,7 +180,7 @@ export default {
             const reps = this.sessionExercise.sessionSets[0].reps;
 
             if (reps === null) {
-                return '';
+                return "";
             }
 
             return `x ${reps} reps`;
@@ -208,14 +197,16 @@ export default {
         repLabels() {
             return this.sessionExercise.sessionSets.map(set => {
                 if (set.reps === null) {
-                    return 'n/a';
+                    return "n/a";
                 }
 
                 return set.reps;
             });
         },
         singleSetRest() {
-            return `${minsSecDuration(this.sessionExercise.sessionSets[0].restPeriodDuration)}`;
+            return `${minsSecDuration(
+                this.sessionExercise.sessionSets[0].restPeriodDuration
+            )}`;
         },
         rest() {
             return this.setsForRest.map(set => {
@@ -229,7 +220,7 @@ export default {
         restLabels() {
             return this.setsForRest.map(set => {
                 if (set.restPeriodDuration === null) {
-                    return 'n/a';
+                    return "n/a";
                 }
 
                 return minsSecDuration(set.restPeriodDuration, true);
@@ -261,20 +252,8 @@ export default {
             }
         },
         close() {
-            this.$emit('input', false)
+            this.$emit("input", false);
         }
     }
-}
+};
 </script>
-
-<style lang="scss" scoped>
-.show-previous {
-    position: absolute;
-    left: 10px;
-}
-
-.show-next {
-    position: absolute;
-    right: 10px;
-}
-</style>
