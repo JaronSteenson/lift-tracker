@@ -1,10 +1,10 @@
 import SessionExerciseStatsModal from '../../../../components/domain/workoutSessions/SessionExerciseStatsModal';
 import BackForwardToolbar from '../../../../components/BackForwardToolbar';
-import { createLocalVueMountOptions } from '../../../vueHelpers';
+import { prepareForLocalVueMount } from '../../../vueHelpers';
 import { shallowMount, mount } from '@vue/test-utils';
 
 
-const mountOptions = createLocalVueMountOptions();
+const mountOptions = prepareForLocalVueMount();
 
 const set = {
     weight: 50,
@@ -133,7 +133,7 @@ describe('SessionExerciseStatsModal.vue', () => {
     });
 
     test('should have exercise navigation when there is multiple exercises', async () => {
-        const wrapper = mount(SessionExerciseStatsModal, {
+        const wrapper = shallowMount(SessionExerciseStatsModal, {
             propsData: {
                 value: true,
                 sessionExercises: [

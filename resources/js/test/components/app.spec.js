@@ -3,9 +3,9 @@ import Vuex from 'vuex';
 import App from '../../components/App';
 import appModule from '../../store/modules/app';
 import workoutSessionModule from '../../store/modules/workoutSession';
-import { createLocalVueMountOptions } from "../vueHelpers";
+import { prepareForLocalVueMount } from '../vueHelpers';
 
-const mountOptions = createLocalVueMountOptions();
+const mountOptions = prepareForLocalVueMount();
 
 const workoutSession = {
     namespaced: true,
