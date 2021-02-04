@@ -1,5 +1,5 @@
 <template>
-    <VApp>
+    <VApp :class="{ 'prevent-text-select': preventTextSelect }">
         <VNavigationDrawer
             v-if="userIsAuthenticated"
             v-model="drawer"
@@ -108,16 +108,23 @@
         data() {
             return {
                 drawer: null,
+                preventTextSelect: false,
             }
         },
         mounted() {
             const supportsTouch = 'ontouchstart' in window || navigator.msMaxTouchPoints;
 
+            // Prevent context menu and text select on touch devices to give a real app like feel,
+            // and to prevent visual interference when dragging elements.
             if (supportsTouch) {
                 this.$el.oncontextmenu = (e) => {
                     e.preventDefault();
                     return false;
                 }
+            }
+
+            if (supportsTouch && this.$vuetify.breakpoint.smAndDown) {
+                this.preventTextSelect = true;
             }
         },
         computed: {
@@ -180,5 +187,13 @@
 
     .theme--light.v-icon {
         color: var(--v-primary-base);
+    }
+
+    .prevent-text-select {
+        -webkit-touch-callout: none;
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        user-select: none
     }
 </style>
