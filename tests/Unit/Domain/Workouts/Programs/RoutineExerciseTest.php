@@ -1,6 +1,6 @@
 <?php
 
-namespace LiftTracker\Tests\Unit\Domain\Workouts\Programs;
+namespace Tests\Unit\Domain\Workouts\Programs;
 
 use Illuminate\Database\QueryException;
 use Exception;
@@ -24,13 +24,12 @@ class RoutineExerciseTest extends TestCase
 
     /**
      * @param int $attachedUserId
-     * @param int $otherUserId
+     * @param int|null $otherUserId
      * @param Constraint $assertion
      * @dataProvider isOwnedByProvider
      */
     public function testIsOwnedBy(int $attachedUserId, ?int $otherUserId, Constraint $assertion): void
     {
-        $this->markTestIncomplete('Need to sort out ownership in a generic way');
         $workoutProgram = new WorkoutProgram();
         $workoutProgram->userId = $attachedUserId;
 

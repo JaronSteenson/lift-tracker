@@ -1,6 +1,6 @@
 <?php
 
-namespace LiftTracker\Tests\Unit\Domain\Workouts\Programs;
+namespace Tests\Unit\Domain\Workouts\Programs;
 
 use LiftTracker\Domain\Workouts\Programs\WorkoutProgram;
 use LiftTracker\User;
@@ -12,7 +12,7 @@ class WorkoutProgramTest extends TestCase
 
     /**
      * @param int $attachedUserId
-     * @param int $otherUserId
+     * @param int|null $otherUserId
      * @param Constraint $assertion
      * @dataProvider isOwnedByProvider
      */

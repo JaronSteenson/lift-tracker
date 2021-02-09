@@ -10,7 +10,7 @@ class AppBootstrapData implements \JsonSerializable
     /**
      * @inheritDoc
      */
-    public function jsonSerialize()
+    public function jsonSerialize(): array
     {
         return [
             'authenticatedUser' => Auth::user(),

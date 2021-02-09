@@ -34,6 +34,7 @@ use LiftTracker\User;
  * @property string position
  * @property SessionSet[]|Collection sessionSets
  * @property WorkoutSession workoutSession
+ * @property RoutineExercise routineExercise
  * @property Carbon createdAt
  * @property Carbon updatedAt
  *
@@ -148,6 +149,11 @@ class SessionExercise extends AbstractModel implements UserOwnershipInterface
     public function workoutSession(): BelongsTo
     {
         return $this->belongsTo(WorkoutSession::class, 'workoutSessionId');
+    }
+
+    public function routineExercise(): BelongsTo
+    {
+        return $this->belongsTo(RoutineExercise::class, 'routineExerciseId');
     }
 
     public function sessionSets(): HasMany

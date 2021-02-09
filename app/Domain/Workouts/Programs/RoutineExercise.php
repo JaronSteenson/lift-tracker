@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use LiftTracker\Domain\AbstractModel;
 use LiftTracker\Domain\Workouts\Exercises\Exercise;
+use LiftTracker\Domain\Workouts\Sessions\SessionSet;
 use LiftTracker\Traits\HasUuidTrait;
 
 /**
@@ -74,6 +75,14 @@ class RoutineExercise extends AbstractModel
     public function routine(): BelongsTo
     {
         return $this->belongsTo(WorkoutProgramRoutine::class, 'workoutProgramRoutineId');
+    }
+
+    public function syncWeightFromSessionSet(SessionSet $sessionSet): self
+    {
+        $this->weight = $sessionSet->weight;
+        $this->save();
+
+        return $this;
     }
 
 }

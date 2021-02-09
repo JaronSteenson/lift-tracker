@@ -1,6 +1,6 @@
 <?php
 
-namespace LiftTracker\Tests\Unit\Domain\Workouts\Programs;
+namespace Tests\Unit\Domain\Workouts\Programs;
 
 use Exception;
 use Illuminate\Support\Collection;

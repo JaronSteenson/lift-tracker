@@ -16,7 +16,6 @@ trait CanBeOwnedByUserTrait
      */
     public function userOwnsThis(User $user): bool
     {
-        /** @noinspection PhpUndefinedFieldInspection */
         return $this->userId === $user->id;
     }
 

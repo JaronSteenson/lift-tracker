@@ -8,6 +8,7 @@ namespace LiftTracker\Http\Controllers\Api;
 use Exception;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\DB;
 use LiftTracker\Domain\Workouts\Sessions\SessionSet;
 use LiftTracker\Http\Controllers\Controller;
 use LiftTracker\Http\Requests\SessionSetRequest;
@@ -59,13 +60,16 @@ class SessionSetController extends Controller
      * @param SessionSetRequest $request
      * @return SessionSet
      */
-    public function update(SessionSetRequest $request)
+    public function update(SessionSetRequest $request): SessionSet
     {
         /** @var SessionSet $sessionSet */
         $sessionSet = $request->getModelOr404()->fill($request->all());
 
-        $sessionSet->save();
-        $sessionSet->touchOwners();
+        DB::transaction(function () use ($sessionSet): void {
+            $sessionSet->save();
+            $sessionSet->syncWeightToRoutine();
+            $sessionSet->touchOwners();
+        });
 
         return $sessionSet;
     }

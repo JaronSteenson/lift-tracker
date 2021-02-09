@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\Feature;
+namespace Tests\Feature\Workouts\Programs;
 
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Collection;
@@ -28,7 +28,7 @@ class WorkoutProgramFeatureTest extends TestCase
         $user = factory(User::class)->create();
 
         $this->actingAs($user)
-            ->get(route('workout-programs.index'))
+            ->get(route('workout-programs.store'))
             ->assertStatus(200)
             ->assertExactJson([]);
     }

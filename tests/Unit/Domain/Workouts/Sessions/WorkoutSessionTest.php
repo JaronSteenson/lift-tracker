@@ -1,6 +1,6 @@
 <?php
 
-namespace LiftTracker\Tests\Unit\Domain\Workouts\Programs;
+namespace Tests\Unit\Domain\Workouts\Sessions;
 
 use Carbon\Carbon;
 use LiftTracker\Domain\Workouts\Sessions\SessionExercise;
