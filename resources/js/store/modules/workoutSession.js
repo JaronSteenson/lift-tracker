@@ -26,6 +26,8 @@ function defaultState() {
             updatedAt: null,
         },
         workoutSessions: [],
+        workoutSessionsPagesLoaded: 0,
+        workoutSessionsPagesAllLoaded: false,
         exercisesPreviousEntries: {}, // Previous entries of exercises keyed by exercise uuid.
         inProgressWorkouts: null, // An array of workouts.
         restPeriodTimout: null,
@@ -516,9 +518,36 @@ export const actions = {
         return response;
     },
 
-    async fetchAll({ commit }) {
-        const response = await WorkoutSessionService.getAll();
-        commit('reset', { workoutSessions: response.data });
+    /**
+     * @param commit
+     * @param state
+     * @return {Promise<*>}
+     */
+    async fetchNextPage({ commit, state }) {
+        const nextPage = state.workoutSessionsPagesLoaded + 1;
+        const response = await WorkoutSessionService.index(nextPage);
+
+        commit('reset', {
+            workoutSessions: [...state.workoutSessions, ...response.data],
+            workoutSessionsPagesLoaded: nextPage,
+            workoutSessionsPagesAllLoaded: response.data.length < WorkoutSessionService.getPageSize(),
+        });
+
+        return response;
+    },
+
+    /**
+     * @param commit
+     * @param page
+     * @return {Promise<*>}
+     */
+    async loadFirstPage({ commit }) {
+        const response = await WorkoutSessionService.index(1);
+
+        commit('reset', {
+            workoutSessions: response.data,
+            workoutSessionsPagesLoaded: 1,
+        });
 
         return response;
     },

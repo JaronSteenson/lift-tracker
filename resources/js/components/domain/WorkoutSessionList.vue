@@ -14,7 +14,13 @@
         </VToolbar>
 
         <VSkeletonLoader class="ma-5" type="table-heading, table-row@3" v-if="loading"/>
-        <VDataTable v-else :headers="headers" :items="workoutSessionsForDisplay">
+        <VDataTable
+            v-else
+            :headers="headers"
+            :items="workoutSessionsForDisplay"
+            :items-per-page="workoutSessionsForDisplay.length"
+            hide-default-footer
+        >
             <template v-slot:item.icon="{ item: session }">
                 <VIcon v-if="isInProgress(session.uuid)" color="success">mdi-play</VIcon>
                 <VIcon v-else>mdi-dumbbell</VIcon>
@@ -70,12 +76,25 @@
             </template>
         </VDataTable>
 
+        <VCardActions class="justify-center">
+            <VBtn
+                v-if="!workoutSessionsPagesAllLoaded"
+                depressed
+                small
+                block
+                :disabled="loading"
+                :loading="loadingPage"
+                @click="loadNextPage"
+            >
+                Load more
+            </VBtn>
+        </VCardActions>
+
         <NewSessionModal :program-uuid.sync="newSessionModalProgramUuid"></NewSessionModal>
     </VCard>
 </template>
 
 <script>
-    import WorkoutSessionService from '../../api/WorkoutSessionService';
     import NewSessionModal from './workoutSessions/NewSessionModal';
     import {dateDescription} from '../../dates';
     import UuidHelper from "../../UuidHelper";
@@ -93,11 +112,12 @@
         data() {
             return {
                 loading: true,
+                loadingPage: false,
                 newSessionModalProgramUuid: null,
             }
         },
         computed: {
-            ...mapState('workoutSession', ['workoutSessions']),
+            ...mapState('workoutSession', ['workoutSessions', 'workoutSessionsPagesAllLoaded']),
             hasNoWorkoutProgram() {
                 return this.workoutSessions.length === 0;
             },
@@ -159,8 +179,13 @@
         methods: {
             async fetchWorkoutSessions() {
                 this.loading = true;
-                await this.$store.dispatch('workoutSession/fetchAll');
+                await this.$store.dispatch('workoutSession/loadFirstPage');
                 this.loading = false;
+            },
+            async loadNextPage() {
+                this.loadingPage = true;
+                await this.$store.dispatch('workoutSession/fetchNextPage');
+                this.loadingPage = false;
             },
             repeatWorkoutNow(sessionUuid) {
                 const workoutSession = UuidHelper.findIn(this.workoutSessions, sessionUuid);

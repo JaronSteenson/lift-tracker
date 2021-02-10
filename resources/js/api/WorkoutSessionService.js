@@ -16,8 +16,16 @@ const WorkoutProgramService = {
         return ApiService.get(RESOURCE_NAME, uuid)
     },
 
-    getAll() {
-        return ApiService.get(RESOURCE_NAME);
+    /**
+     * @param page {Number}
+     * @return {AxiosPromise<any>}
+     */
+    index(page) {
+        return ApiService.get(`${RESOURCE_NAME}?page=${page}`);
+    },
+
+    getPageSize() {
+        return 15;
     },
 
     getBySet(sessionSetUuid) {

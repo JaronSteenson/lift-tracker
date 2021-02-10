@@ -6,6 +6,7 @@
 namespace LiftTracker\Http\Controllers\Api;
 
 use Exception;
+use Illuminate\Contracts\Pagination\Paginator;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use LiftTracker\Domain\Workouts\Programs\WorkoutProgram;
@@ -24,7 +25,7 @@ class WorkoutSessionController extends Controller
      * Display a listing of the resource.
      *
      * @param WorkoutSessionRequest $request
-     * @return Collection | WorkoutProgram[] | WorkoutSession
+     * @return Paginator|WorkoutSession[]|WorkoutSession
      */
     public function index(WorkoutSessionRequest $request)
     {
@@ -39,7 +40,8 @@ class WorkoutSessionController extends Controller
             ->with('workoutProgramRoutine.workoutProgram')
             ->without('sessionExercises', 'sessionExercises.sessionSets')
             ->orderBy('createdAt', 'desc')
-            ->get();
+            ->simplePaginate()
+            ->items();
     }
 
     /**
