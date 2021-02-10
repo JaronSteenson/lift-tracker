@@ -322,13 +322,26 @@ export const getters = {
 
 };
 
-const actions = {
+export const actions = {
     ...saveStatusActions,
 
-    updateSetWeight({ commit, dispatch }, { uuid, weight }) {
+    updateSetWeight({ commit, dispatch, getters }, { uuid, weight }) {
         commit('updateSet', { uuid, weight });
 
-        dispatch('saveSet', uuid);
+        // If we are in progress, update the upcoming sets as well.
+        if (getters.isInProgressWorkout) {
+            const exercise = getters.exerciseBySet(uuid);
+
+            exercise.sessionSets.forEach(set => {
+                if (set.uuid !== uuid && set.startedAt === null) {
+                    commit('updateSet', { uuid: set.uuid, weight });
+                }
+            });
+
+            dispatch('saveExercise', exercise.uuid);
+        } else {
+            dispatch('saveSet', uuid);
+        }
     },
 
     updateSetRestPeriodDuration({ commit, dispatch  }, { uuid, restPeriodDuration }) {
