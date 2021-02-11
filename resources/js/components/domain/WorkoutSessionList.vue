@@ -78,11 +78,10 @@
 
         <VCardActions class="justify-center">
             <VBtn
-                v-if="!workoutSessionsPagesAllLoaded"
+                v-if="!workoutSessionsPagesAllLoaded && !loading"
                 depressed
                 small
                 block
-                :disabled="loading"
                 :loading="loadingPage"
                 @click="loadNextPage"
             >
@@ -179,7 +178,7 @@
         methods: {
             async fetchWorkoutSessions() {
                 this.loading = true;
-                await this.$store.dispatch('workoutSession/loadFirstPage');
+                await this.$store.dispatch('workoutSession/fetchFirstPage');
                 this.loading = false;
             },
             async loadNextPage() {

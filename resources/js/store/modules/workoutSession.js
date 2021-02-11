@@ -541,12 +541,13 @@ export const actions = {
      * @param page
      * @return {Promise<*>}
      */
-    async loadFirstPage({ commit }) {
+    async fetchFirstPage({ commit }) {
         const response = await WorkoutSessionService.index(1);
 
         commit('reset', {
             workoutSessions: response.data,
             workoutSessionsPagesLoaded: 1,
+            workoutSessionsPagesAllLoaded: response.data.length < WorkoutSessionService.getPageSize(),
         });
 
         return response;
