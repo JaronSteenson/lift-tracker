@@ -32,7 +32,7 @@
                         :to="{ name: 'sessionOverview', params: { workoutSessionUuid: workout.uuid } }"
                     >
                         <VListItemAction>
-                            <VIcon color="success">mdi-play</VIcon>
+                            <VIcon color="success">mdi-format-list-bulleted-triangle</VIcon>
                         </VListItemAction>
                         <VListItemContent>
                             <VListItemTitle v-if="workoutIsInFocus(workout.uuid)">In progress workout</VListItemTitle>
@@ -45,6 +45,7 @@
                         :key="getCurrentSet(workout.uuid).uuid"
                         link
                         :to="{ name: 'setOverview', params: { sessionSetUuid: getCurrentSet(workout.uuid).uuid }}"
+                        class="menu-sub-item"
                     >
                         <VListItemAction>
                             <VIcon color="success">mdi-play</VIcon>
@@ -195,5 +196,9 @@
         -moz-user-select: none;
         -ms-user-select: none;
         user-select: none
+    }
+
+    .menu-sub-item {
+        padding-left: 25px;
     }
 </style>
