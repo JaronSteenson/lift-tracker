@@ -4,11 +4,15 @@ import {
     differenceInHours,
     differenceInDays,
     differenceInMinutes,
-    isYesterday,
-    isToday,
-    isThisYear,
+    isSameDay,
+    isSameYear,
+    isSameWeek,
+    subDays,
+    subWeeks,
     format,
 } from 'date-fns'
+
+const isSameWeekOptions = { weekStartsOn: 1 }; // Monday.
 
 export default {
     minsSecDuration,
@@ -91,12 +95,10 @@ export function hoursMinutesDuration(seconds) {
 }
 
 export function dateTimeDescription(utcDate, noRecent) {
-    const resent = resentDescription(utcDate);
+    const recent = noRecent ? null : recentDescription(utcDate);
 
-    if (!noRecent) {
-        if (resent) {
-            return resent;
-        }
+    if (recent) {
+        return recent;
     }
 
     return `${dateDescription(utcDate)}, ${timeDescription(utcDate)}`;
@@ -107,16 +109,12 @@ export function timeDescription(utcDate, noRecent) {
         return 'unfinished';
     }
 
-    const date = new Date(utcDate);
-
-    if (!noRecent) {
-        const resent = resentDescription(date);
-
-        if (resent) {
-            return resent;
-        }
+    const recent = noRecent ? null : recentDescription(utcDate);
+    if (recent) {
+        return recent;
     }
 
+    const date = new Date(utcDate);
     return format(date, 'p');
 }
 
@@ -142,38 +140,76 @@ export function updatedAtMicro(utcDate, now) {
     return minsSecDuration(differenceInSeconds(now, date), true, true)
 }
 
-export function dateDescription(utcDate, noRecent) {
-    const date = new Date(utcDate);
-    const resent = resentDescription(date);
+/**
+ * Get a date description ready for the ui.
+ * Does not support future dates with the noRecent flag set to true.
+ *
+ * @param {string} utcDate
+ * @param {boolean} [noRecent=false] Don't return phrases like "A moment ago"
+ * @param {string|Date} [now]
+ * @return {string} Formatted date amd or description
+ */
+export function dateDescription(utcDate, noRecent, now) {
+    now = now ? new Date(now) : new Date();
+    const recent = noRecent ? null : recentDescription(utcDate, now);
 
-    if (!noRecent) {
-        if (resent) {
-            return resent;
-        }
+    if (recent) {
+        return recent;
     }
 
-    if (isToday(date)) {
+    const date = new Date(utcDate);
+
+    if (isSameDay(date, now)) {
         return 'Today';
     }
 
-    if (isYesterday(date)) {
+    const yesterday = subDays(now, 1);
+    if (isSameDay(date, yesterday)) {
         return 'Yesterday';
     }
 
-    if (isThisYear(date)) {
-        return format(date, 'd MMM');
+    if (isSameYear(date, now)) {
+        return addWeekDescription(date, now);
     }
 
     return format(date, 'd MMM u');
 }
 
-function resentDescription(utcDate) {
+/**
+ *
+ * @param {Date} date
+ * @param {Date} now
+ * @return {string}
+ */
+function addWeekDescription(date, now) {
+    const dateWithoutYear = format(date, 'd MMM');
+    const dayOfWeek = format(date, 'eeee');
+
+    if (isSameWeek(now, date, isSameWeekOptions)) {
+        return `${dateWithoutYear} (this ${dayOfWeek})`;
+    }
+
+    const lastWeek = subWeeks(now, 1);
+    if (isSameWeek(lastWeek, date,  isSameWeekOptions)) {
+        return `${dateWithoutYear} (last ${dayOfWeek})`;
+    }
+
+    return dateWithoutYear;
+}
+
+/**
+ *
+ * @param {string} utcDate
+ * @param {Date} [now]
+ * @return {string|null}
+ */
+function recentDescription(utcDate, now) {
     const date = new Date(utcDate);
-    const now = new Date();
+    now = now ? new Date(now) : new Date();
 
     const secondsAgo = differenceInSeconds(now, date);
-    if (secondsAgo < 10) {
-        return 'A few seconds ago'
+    if (secondsAgo <= 10) {
+        return 'A moment ago';
     }
 
     if (secondsAgo < 60) {
@@ -181,6 +217,11 @@ function resentDescription(utcDate) {
     }
 
     const minutesAgo = differenceInMinutes(now, date);
+
+    if (minutesAgo === 1) {
+        return `1 minute ago`;
+    }
+
     if (minutesAgo < 60) {
         return `${minutesAgo} minutes ago`;
     }
