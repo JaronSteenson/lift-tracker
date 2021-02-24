@@ -14,7 +14,7 @@
 </template>
 
 <script>
-    import {dateDescription, hoursMinutesFromStartEnd, timeDescription} from "../../../dates";
+    import {dateDescription, hoursMinutesSecondsFromStartEnd, timeDescription} from "../../../dates";
 
     export default {
         props: {
@@ -32,7 +32,7 @@
                     },
                     {
                         icon: 'mdi-clock-outline',
-                        value: hoursMinutesFromStartEnd(
+                        value: hoursMinutesSecondsFromStartEnd(
                             this.workoutSession.startedAt,
                             this.workoutSession.endedAt
                         ),

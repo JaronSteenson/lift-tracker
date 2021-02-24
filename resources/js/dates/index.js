@@ -73,25 +73,30 @@ export function minsSecDuration(valueInSeconds, noZeroTreatment, roundOffSeconds
     return `${minutes}m ${seconds}s`;
 }
 
-export function hoursMinutesFromStartEnd(start, end) {
+export function hoursMinutesSecondsFromStartEnd(start, end) {
     if (end === null) {
         end = new Date(utcNow());
     }
 
     const seconds = differenceInSeconds(new Date(end), new Date(start));
 
-    return hoursMinutesDuration(seconds);
+    return hoursMinutesSecondsDuration(seconds);
 }
 
-export function hoursMinutesDuration(seconds) {
-    const hours = Math.floor(seconds / 3600);
-    const minutes = Math.floor((seconds / 60) - (hours * 60));
+export function hoursMinutesSecondsDuration(totalSeconds) {
+    const hours = Math.floor(totalSeconds / 3600);
+    const minutes = Math.floor((totalSeconds / 60) % 60);
+    const seconds = Math.floor((totalSeconds % 60));
 
-    if (hours === 0) {
-        return `${minutes}m`;
+    if (hours === 0 && minutes === 0) {
+        return `${seconds}s`;
     }
 
-    return `${hours}h ${minutes}m`;
+    if (hours === 0) {
+        return `${minutes}m ${seconds}s`;
+    }
+
+    return `${hours}h ${minutes}m ${seconds}s`;
 }
 
 export function dateTimeDescription(utcDate, noRecent) {

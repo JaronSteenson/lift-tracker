@@ -1,4 +1,4 @@
-import {dateDescription, hoursMinutesFromStartEnd, timeDescription, updatedAtMicro, utcNow} from '../../dates';
+import {dateDescription, hoursMinutesSecondsFromStartEnd, timeDescription, updatedAtMicro, utcNow} from '../../dates';
 import { subHours, subMinutes } from 'date-fns';
 import each from 'jest-each';
 
@@ -10,14 +10,14 @@ describe('dates', () => {
     describe('Hours minutes from start end', () => {
 
         each([
-            ['2019-01-01 12:00:00', '2019-01-01 12:00:00', '0m'],
-            ['2019-01-01 12:00:00', '2019-01-01 12:35:00', '35m'],
-            ['2019-01-01 12:00:00', '2019-01-01 13:00:00', '1h 0m'],
-            ['2019-01-01 12:00:00', '2019-01-01 13:35:00', '1h 35m'],
-            [oneHour35MinsAgo, null, '1h 35m'],
-            [thirty5MinsAgo, null, '35m'],
+            ['2019-01-01 12:00:00', '2019-01-01 12:00:00', '0s'],
+            ['2019-01-01 12:00:00', '2019-01-01 12:00:59', '59s'],
+            ['2019-01-01 12:00:00', '2019-01-01 12:30:01', '30m 1s'],
+            ['2019-01-01 12:00:00', '2019-01-01 12:35:00', '35m 0s'],
+            ['2019-01-01 12:00:00', '2019-01-01 13:35:00', '1h 35m 0s'],
+            ['2019-01-01 12:00:00', '2019-01-01 13:35:01', '1h 35m 1s'],
         ]).test('It should return the correct duration between "%s" and "%s"', (start, end, expected) => {
-            expect(hoursMinutesFromStartEnd(start, end)).toBe(expected);
+            expect(hoursMinutesSecondsFromStartEnd(start, end)).toBe(expected);
         });
 
     });

@@ -160,17 +160,15 @@
                     </VCol>
                 </VRow>
                 <VRow>
-                    <VCol v-if="!isLastSetOfExercise" class="pt-0" cols="6">
+                    <VCol v-if="isInProgressWorkout" class="pt-0" cols="6">
+                        <LabeledWorkoutDuration :workoutSession="workoutSession"/>
+                    </VCol>
+                    <VCol class="pt-0" cols="6">
                         <RestPeriodInput
+                            v-if="!isLastSetOfExercise"
                             v-model="restPeriod"
                             :disabled="!isOpenForEdits || isDuringRestPeriod"
                         />
-                    </VCol>
-                    <VCol v-if="isInProgressWorkout" class="pt-0" cols="6">
-                        <VMessages :value="['Workout duration']" class="mt-1" />
-                        <div class="mt-2 workout-duration">
-                            {{ workoutDurationDisplay }}
-                        </div>
                     </VCol>
                 </VRow>
                 <VRow class="pt-0 mt-0">
@@ -291,12 +289,14 @@
 import {mapGetters} from 'vuex';
 import RestPeriodInput from '../RestPeriodInput';
 import RestPeriodTimer from '../RestPeriodTimer';
-import {hoursMinutesFromStartEnd, minsSecDuration} from '../../../dates';
+import { minsSecDuration } from '../../../dates';
 import SessionExerciseStatsModal from './SessionExerciseStatsModal';
 import ServerSyncInfo from './../../ServerSyncInfo';
+import LabeledWorkoutDuration from "../LabeledWorkoutDuration";
 
 export default {
     components: {
+        LabeledWorkoutDuration,
         ServerSyncInfo,
         SessionExerciseStatsModal,
         RestPeriodInput,
@@ -422,12 +422,6 @@ export default {
         },
         restPeriodDisplay() {
             return minsSecDuration(this.restPeriod);
-        },
-        workoutDurationDisplay() {
-            return hoursMinutesFromStartEnd(
-                this.workoutSession.startedAt,
-                this.workoutSession.endedAt
-            );
         },
         weight: {
             get() {
@@ -587,9 +581,5 @@ export default {
     &--right {
         margin-right: 15px;
     }
-}
-
-.workout-duration {
-    font-size: 2rem;
 }
 </style>
