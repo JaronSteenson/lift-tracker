@@ -60,7 +60,7 @@ export function minsSecDuration(valueInSeconds, noZeroTreatment, roundOffSeconds
     }
 
     const minutes = Math.floor(valueInSeconds / 60);
-    let seconds = Math.round(valueInSeconds - minutes * 60);
+    const seconds = Math.round(valueInSeconds - minutes * 60);
 
     if (minutes === 0) {
         return `${seconds}s`;

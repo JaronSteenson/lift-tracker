@@ -160,17 +160,21 @@
                     </VCol>
                 </VRow>
                 <VRow>
-                    <VCol v-if="!isLastSetOfExercise" class="pt-0" cols="12" md="6" sm="6" xs="6">
-                        <template>
-                            <RestPeriodInput
-                                v-model="restPeriod"
-                                :disabled="!isOpenForEdits || isDuringRestPeriod"
-                            />
-                        </template>
+                    <VCol v-if="!isLastSetOfExercise" class="pt-0" cols="6">
+                        <RestPeriodInput
+                            v-model="restPeriod"
+                            :disabled="!isOpenForEdits || isDuringRestPeriod"
+                        />
+                    </VCol>
+                    <VCol v-if="isInProgressWorkout" class="pt-0" cols="6">
+                        <VMessages :value="['Workout duration']" class="mt-1" />
+                        <div class="mt-2 workout-duration">
+                            {{ workoutDurationDisplay }}
+                        </div>
                     </VCol>
                 </VRow>
                 <VRow class="pt-0 mt-0">
-                    <VCol class="pt-0 mt-0" cols="12">
+                    <VCol class="pt-0 mt-0" cols="8">
                         <span v-if="!hasLoadedExercisePreviousEntries">
                             Loading previous entry overviews...
                             <VProgressLinear indeterminate/>
@@ -287,7 +291,7 @@
 import {mapGetters} from 'vuex';
 import RestPeriodInput from '../RestPeriodInput';
 import RestPeriodTimer from '../RestPeriodTimer';
-import {minsSecDuration} from '../../../dates';
+import {hoursMinutesFromStartEnd, minsSecDuration} from '../../../dates';
 import SessionExerciseStatsModal from './SessionExerciseStatsModal';
 import ServerSyncInfo from './../../ServerSyncInfo';
 
@@ -331,6 +335,9 @@ export default {
         },
         isInProgressSet() {
             return this.set.uuid === this.inProgressSet?.uuid;
+        },
+        isInProgressWorkout() {
+            return this.$store.getters['workoutSession/isInProgressWorkout'](this.workoutSession.uuid);
         },
         workoutIsFinished() {
             return this.workoutSession.endedAt !== null;
@@ -415,6 +422,12 @@ export default {
         },
         restPeriodDisplay() {
             return minsSecDuration(this.restPeriod);
+        },
+        workoutDurationDisplay() {
+            return hoursMinutesFromStartEnd(
+                this.workoutSession.startedAt,
+                this.workoutSession.endedAt
+            );
         },
         weight: {
             get() {
@@ -574,5 +587,9 @@ export default {
     &--right {
         margin-right: 15px;
     }
+}
+
+.workout-duration {
+    font-size: 2rem;
 }
 </style>

@@ -10,19 +10,35 @@
         <div class="rest-period-input__container" v-else>
             <VTextField
                 class="rest-period-input__input rest-period-input__input--mins"
+                :class="{ 'rest-period-input__input--small': this.$vuetify.breakpoint.xsOnly }"
                 label="Rest period"
                 type="number"
                 min="0"
                 v-model.number="mins"
             />
-            <span class="pr-3 rest-period-input__label">mins</span>
+            <span
+                :class="{
+                    'rest-period-input__label--small': this.$vuetify.breakpoint.xsOnly,
+                    'pr-1': this.$vuetify.breakpoint.xsOnly,
+                    'pr-3': this.$vuetify.breakpoint.smAndUp,
+                }"
+                class="rest-period-input__label"
+            >
+                mins
+            </span>
             <VTextField
                 class="rest-period-input__input rest-period-input__input--secs"
+                :class="{ 'rest-period-input__input--small': this.$vuetify.breakpoint.xsOnly }"
                 type="number"
                 min="0"
                 v-model.number="secs"
             />
-            <span class="rest-period-input__label">secs</span>
+            <span
+                class="rest-period-input__label"
+                :class="{ 'rest-period-input__label--small': this.$vuetify.breakpoint.xsOnly }"
+            >
+                secs
+            </span>
         </div>
     </div>
 </template>
@@ -69,6 +85,10 @@ export default {
         display: inline-block !important;
         width: 2.5rem;
 
+        &--small {
+            width: 2rem;
+        }
+
         .v-text-field input {
             width: 2.5rem !important;
         }
@@ -81,6 +101,10 @@ export default {
     &__label {
         top: 12px;
         position: relative;
+
+        &--small {
+            font-size: 0.8em;
+        }
     }
 
 }
