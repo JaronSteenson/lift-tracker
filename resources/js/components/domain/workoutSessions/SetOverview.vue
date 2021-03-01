@@ -186,7 +186,8 @@
                                 <SessionExerciseStatsModal
                                     v-if="showPreviousEntryOverviews"
                                     v-model="showPreviousEntryOverviews"
-                                    :session-exercises="exercisePreviousEntries"
+                                    :session-exercises="[...exercisePreviousEntries, exercise]"
+                                    :start-index="1"
                                 />
                             </template>
                             <span v-else>This is the first time you are doing this exercise. Last time recaps will appear here next time.</span>

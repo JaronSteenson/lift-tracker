@@ -116,11 +116,16 @@ export default {
         value: {
             type: Boolean,
             required: true
-        }
+        },
+        startIndex: {
+            type: Number,
+            required: false,
+            default: 0,
+        },
     },
     data() {
         return {
-            currentIndex: this.sessionExercises.length - 1
+            currentIndex: (this.sessionExercises.length - 1) - this.startIndex,
         };
     },
     computed: {

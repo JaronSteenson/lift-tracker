@@ -4,7 +4,6 @@ import each from 'jest-each';
 
 describe('dates', () => {
 
-    const oneHour35MinsAgo = subMinutes(subHours(new Date(utcNow()), 1), 35);
     const thirty5MinsAgo = subMinutes(new Date(utcNow()), 35);
 
     describe('Hours minutes from start end', () => {
