@@ -68,7 +68,7 @@ const routes = [
         component: HomePage
     },
     {
-        name: 'home',
+        name: 'pwaStart',
         path: '/pwa-start',
         component: HomePage
     },

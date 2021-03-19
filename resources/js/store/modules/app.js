@@ -41,11 +41,18 @@ const getters = {
 };
 
 const actions = {
-    async fetchAppBootstrapData({state, commit, dispatch}, id) {
+    directlyLoadAppBoostrap({state, commit, dispatch}, data) {
+        const newState = { ...state, ...data, hasLoaded: true };
+
+        commit('reset', newState);
+
+        return data;
+    },
+
+    async fetchAppBootstrapData({state, commit, dispatch}) {
         dispatch('startSlowLoadingTimeout');
 
-        const response = await AppService.getBootstrapData(id);
-
+        const response = await AppService.getBootstrapData();
         const newState = { ...state, ...response.data, hasLoaded: true };
 
         dispatch('clearSlowLoadingTimeout');

@@ -92,20 +92,15 @@
             <VFadeTransition v-if="hasLoaded" leave-absolute>
                 <RouterView/>
             </VFadeTransition>
-            <AppSplashScreen v-else-if="slowLoading"/>
         </VMain>
     </VApp>
 </template>
 
 
 <script>
-    import AppSplashScreen from './AppSplashScreen.vue';
     import { mapState, mapGetters } from 'vuex';
 
     export default {
-        components: {
-            AppSplashScreen
-        },
         data() {
             return {
                 drawer: null,

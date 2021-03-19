@@ -39,6 +39,7 @@
                                 autofocus
                                 label="Email"
                                 name="email"
+                                autocomplete="username"
                                 prepend-icon="mdi-account-outline"
                                 type="text"
                                 v-model.lazy="email"
@@ -48,6 +49,7 @@
                                 :rules="leaving || passwordRules"
                                 label="Password"
                                 name="password"
+                                autocomplete="current-password"
                                 prepend-icon="mdi-lock"
                                 type="password"
                                 v-model="password"

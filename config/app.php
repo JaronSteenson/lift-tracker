@@ -113,10 +113,10 @@ return [
     |--------------------------------------------------------------------------
     | Brand color
     |--------------------------------------------------------------------------
-    | Brand color for things outside of css such as app them color meta tag.
+    | Brand color for things outside of css such as app theme color meta tag.
     |
     */
-    'brand_color_dark' => '#524f52',
+    'brand_color_dark' => '#9c27b0',
 
     /*
     |--------------------------------------------------------------------------

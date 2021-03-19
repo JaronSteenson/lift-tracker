@@ -3,6 +3,7 @@
 namespace LiftTracker\Http\Controllers;
 
 use Illuminate\View\View;
+use LiftTracker\Domain\AppBootstrapData;
 
 class VueAppController extends Controller
 {
@@ -14,6 +15,8 @@ class VueAppController extends Controller
      */
     public function index(): View
     {
-        return view('vue-app');
+        return view('vue-app', [
+            'appBootstrapData' => new AppBootstrapData(),
+        ]);
     }
 }
