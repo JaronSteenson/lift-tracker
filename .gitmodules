@@ -1,0 +1,3 @@
+[submodule "lift-tracker-laradoc"]
+	path = lift-tracker-laradoc
+	url = git@bitbucket.org:jaronsteenson/lift-tracker-laradoc.git
