@@ -25,6 +25,10 @@ php -dxdebug.remote_enable=1 -dxdebug.remote_mode=req -dxdebug.remote_port=9000 
 
 ## Inital setup gotchas
 
+### Local host might not connect
+
+Go to http://127.0.0.1/ instead.
+
 ### 1. Create the databases and users
 
 ```
