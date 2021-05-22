@@ -1,7 +1,7 @@
 ## Starting laradoc
 
 ```
-cd ~/code/lift-tracker/laradock && docker-compose up -d nginx mysql && cd ..;
+cd ~/code/lift-tracker/lift-tracker-laradock && docker-compose up -d nginx mysql && cd ..;
 ```
 
 ## Migrating the test database
