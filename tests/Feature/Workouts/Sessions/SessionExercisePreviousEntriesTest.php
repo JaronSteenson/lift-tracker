@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\Feature\Workouts\Programs\Workouts\Sessions;
+namespace Tests\Feature\Workouts\Sessions;
 
 use Carbon\Carbon;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
