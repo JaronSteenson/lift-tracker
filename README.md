@@ -35,10 +35,10 @@ Go to http://127.0.0.1/ instead.
 CREATE DATABASE lift_tracker;
 CREATE DATABASE lift_tracker_test;
 
-CREATE USER 'lift_tracker'@'localhost' IDENTIFIED WITH mysql_native_password BY '';
+CREATE USER 'lift_tracker' IDENTIFIED WITH mysql_native_password BY '';
 GRANT ALL PRIVILEGES ON *.* TO 'lift_tracker'@'localhost' WITH GRANT OPTION;
 
-CREATE USER 'lift_tracker_test'@'localhost' IDENTIFIED WITH mysql_native_password BY '';
+CREATE USER 'lift_tracker_test' IDENTIFIED WITH mysql_native_password BY '';
 GRANT ALL PRIVILEGES ON *.* TO 'lift_tracker_test'@'localhost' WITH GRANT OPTION;
 ```
 
