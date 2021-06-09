@@ -14,8 +14,9 @@ class AppBootstrapData implements \JsonSerializable
     {
         return [
             'authenticatedUser' => Auth::user(),
+            'appName' => config('app.name'),
             'csrfToken' => csrf_token(),
-            'appName' => config('app.name', 'Lift Tracker'),
+            'facebookAppId' => config('app.facebook_app_id'),
         ];
     }
 }

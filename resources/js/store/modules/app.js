@@ -9,7 +9,8 @@ const state = {
     appName: null,
     authenticatedUser: null,
     csrfToken: null,
-    afterLoginRoute: null,
+    facebookAppId: null,
+    afterLoginUrl: null,
 };
 
 const getters = {
@@ -23,19 +24,20 @@ const getters = {
     },
 
     getUserAvatarInitial(state) {
-        const name = state?.authenticatedUser?.name;
+        const user = state?.authenticatedUser;
 
-        if (name) {
-            return name.charAt(0)
-        }
+        const f = user.firstName?.charAt(0) || '';
+        const l = user.lastName?.charAt(0) || '';
+
+        return `${f}${l}`.trim();
     },
 
-    afterLoginRoute(state) {
-        if (state?.afterLoginRoute?.name === 'logout') {
+    afterLoginUrl(state) {
+        if (state?.afterLoginUrl?.name === 'logout') {
             return { name: 'home' };
         }
 
-        return state.afterLoginRoute ?? { name: 'home' };
+        return state.afterLoginUrl ?? { name: 'home' };
     },
 
 };
@@ -73,8 +75,8 @@ const actions = {
         clearTimeout(state.slowLoadingTimeout);
     },
 
-    setAfterLoginRoute({ commit }, to) {
-        commit('setAfterLoginRoute', to);
+    setAfterLoginUrl({ commit }, to) {
+        commit('setAfterLoginUrl', to);
     },
 
     async login({ commit }, { email, password }) {
@@ -130,8 +132,8 @@ const mutations = {
         });
     },
 
-    setAfterLoginRoute(state, to) {
-        state.afterLoginRoute = to
+    setAfterLoginUrl(state, to) {
+        state.afterLoginUrl = to
     },
 };
 

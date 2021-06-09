@@ -6,12 +6,13 @@
     "type": "project",
     "require": {
         "php": "^7.1.3",
-        "fideloper/proxy": "^4.0",
-        "laravel/framework": "5.8.*",
-        "laravel/tinker": "^1.0",
+        "ext-json": "*",
         "alsofronie/eloquent-uuid": "*",
         "doctrine/dbal": "2.9",
-        "ext-json": "*"
+        "facebook/graph-sdk": "^5.7",
+        "fideloper/proxy": "^4.0",
+        "laravel/framework": "5.8.*",
+        "laravel/tinker": "^1.0"
     },
     "require-dev": {
         "beyondcode/laravel-dump-server": "^1.0",

@@ -32,7 +32,7 @@ abstract class AbstractModel extends Model
      */
     public function getTable(): string
     {
-        if (! isset($this->table)) {
+        if (!isset($this->table)) {
             return Str::plural(class_basename($this));
         }
 

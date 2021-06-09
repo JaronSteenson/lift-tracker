@@ -108,6 +108,10 @@
     </style>
 </head>
 <body data-app-bootstrap="{{ json_encode($appBootstrapData) }}">
+<div id="fb-root"></div>
+<script async defer crossorigin="anonymous"
+        src="https://connect.facebook.net/en_GB/sdk.js#xfbml=1&version=v10.0&appId=472774107285817&autoLogAppEvents=1"
+        nonce="toPhUntS"></script>
 <main id="app">
     <div class="initial-loading">
         <div>{{ config('app.name') }}</div>

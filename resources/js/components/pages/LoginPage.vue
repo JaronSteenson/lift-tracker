@@ -1,6 +1,7 @@
 <template>
     <VContainer
-        class="fill-height"
+        class="page-container fill-height"
+        :class="!this.$vuetify.breakpoint.xs ? 'page-container--fake-overlay' : ''"
         fluid
     >
         <VRow
@@ -12,55 +13,17 @@
                 md="4"
                 sm="8"
             >
-                <VCard :class="$vuetify.breakpoint.xs ? 'elevation-0 login-card--flat' : 'elevation-12 login-card--flip'"
-                       :loading="!$vuetify.breakpoint.xs && loading">
-                    <VCardText :class="{ 'pa-0': this.$vuetify.breakpoint.xs }">
-                        <VCardTitle>
-                            Please login to continue
-                            <VSpacer/>
-                            <VSubheader>
-                                <RouterLink
-                                    :to="{ name: 'sign-up', params: { initialEmail: email, initialPassword: password } }"
-                                >
-                                    Sign up instead.
-                                </RouterLink>
-                            </VSubheader>
-                        </VCardTitle>
-
-                        <VAlert type="error" v-if="failedLogin">
-                            Your email and/or password do not match.
-                        </VAlert>
-
-                        <VForm
-                            v-model="valid"
-                        >
-                            <VTextField
-                                :rules="leaving || emailRules"
-                                autofocus
-                                label="Email"
-                                name="email"
-                                autocomplete="username"
-                                prepend-icon="mdi-account-outline"
-                                type="text"
-                                v-model.lazy="email"
-                                @keydown.enter="login"
-                            />
-                            <VTextField
-                                :rules="leaving || passwordRules"
-                                label="Password"
-                                name="password"
-                                autocomplete="current-password"
-                                prepend-icon="mdi-lock"
-                                type="password"
-                                v-model="password"
-                                @keydown.enter="login"
-                            />
-                        </VForm>
+                <VCard
+                    class="login-card"
+                    :class="$vuetify.breakpoint.xs ? 'elevation-0' : 'elevation-20'"
+                    :loading="!$vuetify.breakpoint.xs && loading"
+                >
+                    <VCardTitle class="justify-center">
+                        Please login to continue
+                    </VCardTitle>
+                    <VCardText class="login-card__body" :class="{ 'pa-0': this.$vuetify.breakpoint.xs }" text-alight="center">
+                        <FacebookLoginButton @click="loading = true" :loading="loading"/>
                     </VCardText>
-                    <VCard-actions>
-                        <VSpacer/>
-                        <v-btn :disabled="!valid" :loading="loading" @click="login" color="primary">Login</v-btn>
-                    </VCard-actions>
                 </VCard>
             </VCol>
         </VRow>
@@ -68,11 +31,11 @@
 </template>
 
 <script>
-    import WorkoutProgramList from "../domain/WorkoutProgramList";
+    import FacebookLoginButton from "../formFields/FacebookLoginButton";
 
     export default {
         components: {
-            WorkoutProgramList
+            FacebookLoginButton,
         },
         props: {
             initialEmail: String,
@@ -80,48 +43,34 @@
         },
         data() {
             return {
-                leaving: false,
                 loading: false,
-                email: this.initialEmail,
-                password: this.initialPassword,
-                emailRules: [
-                    v => !!v || 'E-mail is required',
-                    v => /.+@.+\..+/.test(v) || 'E-mail must be valid',
-                ],
-                passwordRules: [
-                    v => !!v || 'Password is required',
-                ],
-                valid: false,
-                failedLogin: false,
             }
         },
-        methods: {
-            async login() {
-                if (!this.valid) {
-                    return;
-                }
-
-                this.loading = true;
-                const success = await this.$store.dispatch('app/login', {
-                    email: this.email,
-                    password: this.password
-                })
-
-                if (success) {
-                    const afterLoginRoute = this.$store.getters['app/afterLoginRoute'];
-                    this.$router.replace(afterLoginRoute);
-                    return;
-                }
-
-                this.failedLogin = true;
-                this.loading = false;
-            }
-        }
     }
 </script>
 
 <style lang="scss" scoped>
-    .login-card--flat {
-        border: none !important
+    $animation-time: 0.75s;
+
+    .page-container {
+        transition: background-color $animation-time;
+
+        &--fake-overlay {
+            transition: background-color $animation-time;
+            // Copied from the vuetify modal overlay (computed from color and opacity, not actual css value).
+            background-color: rgb(153 153 153);
+        }
+    }
+
+    .login-card {
+        // Controlled by elevation-0 and elevation-20.
+        transition: box-shadow $animation-time;
+
+        &__body {
+            display: flex;
+            min-height: 150px;
+            align-items: center;
+            justify-content: center;
+        }
     }
 </style>

@@ -2,23 +2,30 @@
 
 namespace LiftTracker;
 
+use Illuminate\Auth\Authenticatable;
+use Illuminate\Contracts\Auth\Authenticatable as AuthenticatableContract;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Notifications\Notifiable;
-use Illuminate\Foundation\Auth\User as Authenticatable;
+use LiftTracker\Domain\AbstractModel;
 use LiftTracker\Domain\Workouts\Programs\WorkoutProgram;
 use LiftTracker\Domain\Workouts\Sessions\WorkoutSession;
 
 /**
  * Class User
- * @property int id
  * @package LiftTracker
+ *
+ * @property int id
+ * @property int|null $facebookId The app scoped facebook user id.
+ * @property string|null $firstName
+ * @property string|null $lastName
+ * @property string|null $email
+ * @property string|null $facebookAccessToken Long lived facebook access token, used to request data on behalf of the user.
  * @mixin Builder
  */
-class User extends Authenticatable
+class User extends AbstractModel implements AuthenticatableContract
 {
-    use Notifiable;
+    use Authenticatable;
 
     /**
      * The attributes that are mass assignable.
@@ -26,7 +33,9 @@ class User extends Authenticatable
      * @var array
      */
     protected $fillable = [
-        'name', 'email', 'password',
+        'firstName',
+        'lastName',
+        'email',
     ];
 
     /**
@@ -35,7 +44,9 @@ class User extends Authenticatable
      * @var array
      */
     protected $visible = [
-        'name', 'email',
+        'firstName',
+        'lastName',
+        'email',
     ];
 
     /**
@@ -56,4 +67,78 @@ class User extends Authenticatable
     {
         return $this->workoutPrograms()->orderBy('name')->get();
     }
+
+    public function findByFacebookId(int $facebookId): ?self
+    {
+        return $this->where('facebookId', $facebookId)->first();
+    }
+
+    public function isLinkedToFacebook(): bool
+    {
+        return $this->facebookId !== null;
+    }
+
+    public function isLoggedInWithWithFacebook(): bool
+    {
+        return $this->facebookAccessToken !== null;
+    }
+
+    public function setNewFacebookLink(
+        int $facebookId,
+        ?string $firstName,
+        ?string $lastName,
+        ?string $email,
+        string $facebookAccessToken
+    ): self {
+        $this->ensureEligibleForNewFacebookLink();
+
+        $this->facebookId = $facebookId;
+        $this->firstName = $firstName;
+        $this->lastName = $lastName;
+        $this->email = $email;
+        $this->facebookAccessToken = $facebookAccessToken;
+
+        return $this;
+    }
+
+    public function updateFacebookLink(
+        ?string $firstName,
+        ?string $lastName,
+        ?string $email,
+        string $facebookAccessToken
+    ): self {
+        $this->ensureEligibleForFacebookLinkUpdate();
+
+        $this->firstName = $firstName;
+        $this->lastName = $lastName;
+        $this->email = $email;
+        $this->facebookAccessToken = $facebookAccessToken;
+
+        return $this;
+    }
+
+    private function ensureEligibleForNewFacebookLink(): void
+    {
+        if ($this->exists) {
+            throw new \InvalidArgumentException(
+                'Only new users can have a new Facebook link'
+            );
+        }
+    }
+
+    private function ensureEligibleForFacebookLinkUpdate(): void
+    {
+        if (!$this->exists()) {
+            throw new \InvalidArgumentException(
+                'Only existing users can have their Facebook link updated'
+            );
+        }
+
+        if (!$this->isLinkedToFacebook()) {
+            throw new \InvalidArgumentException(
+                'Only users already linked to Facebook can have their facebook link updated'
+            );
+        }
+    }
+
 }

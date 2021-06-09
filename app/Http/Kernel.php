@@ -3,6 +3,8 @@
 namespace LiftTracker\Http;
 
 use Illuminate\Foundation\Http\Kernel as HttpKernel;
+use LiftTracker\Http\Middleware\FacebookAuthParseState;
+use LiftTracker\Http\Middleware\FacebookAuthVerifyCsrfToken;
 
 class Kernel extends HttpKernel
 {
@@ -35,6 +37,11 @@ class Kernel extends HttpKernel
             \Illuminate\View\Middleware\ShareErrorsFromSession::class,
             \LiftTracker\Http\Middleware\VerifyCsrfToken::class,
             \Illuminate\Routing\Middleware\SubstituteBindings::class,
+        ],
+
+        'facebook-login' => [
+            FacebookAuthParseState::class,
+            FacebookAuthVerifyCsrfToken::class,
         ],
 
         'api' => [

@@ -1,7 +1,6 @@
 import Vue from 'vue'
 import HomePage from "../components/pages/HomePage";
 import LoginPage from "../components/pages/LoginPage";
-import SignUpPage from "../components/pages/SignUpPage";
 import ProgramBuilderPage from "../components/pages/ProgramBuilderPage";
 import NewSessionOverviewPage from "../components/pages/NewSessionOverviewPage";
 import SessionOverviewPage from "../components/pages/SessionOverviewPage";
@@ -22,7 +21,7 @@ function forceLogin(to, from, next) {
     }
 
     if (!isAuthed && !toLogin) {
-        store.dispatch('app/setAfterLoginRoute', to);
+        store.dispatch('app/setAfterLoginUrl', window.location.href);
         next({ name: 'login' });
         return;
     }
@@ -76,12 +75,6 @@ const routes = [
         name: 'login',
         path: '/login',
         component: LoginPage,
-        props: true,
-    },
-    {
-        name: 'sign-up',
-        path: '/sign-up',
-        component: SignUpPage,
         props: true,
     },
     {

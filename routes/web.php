@@ -13,20 +13,6 @@
 
 use Illuminate\Support\Facades\Route;
 
-
-/**
- * Auth logout.
- * @see \LiftTracker\Http\Controllers\Auth\LoginController
- */
-Route::post('api/login', 'Auth\LoginController@login');
-
-
-/**
- * Auth sign-up.
- * @see \LiftTracker\Http\Controllers\Auth\RegisterController
- */
-Route::post('api/sign-up', 'Auth\RegisterController@register');
-
 /**
  * Auth logout.
  * @see \LiftTracker\Http\Controllers\Auth\LoginController
@@ -80,7 +66,15 @@ Route::get('api/in-progress-workouts', 'Api\InProgressWorkoutSessions')
     ->middleware('auth');
 
 /**
- *  Catch all route.
+ *  Authenticates the request from facebook's redirect.
+ * @see \LiftTracker\Http\Controllers\Auth\FacebookLoginController
+ */
+Route::any('/facebook-login', 'Auth\FacebookLoginController@index')
+    ->name('facebook-login')
+    ->middleware('facebook-login');
+
+/**
+ * Catch all route.
  * @see \LiftTracker\Http\Controllers\VueAppController
  */
 Route::get('/{any}', 'VueAppController@index')->where('any','.*');

@@ -1,6 +1,7 @@
 <?php
 
 use Faker\Generator as Faker;
+use Illuminate\Support\Str;
 
 /*
 |--------------------------------------------------------------------------
@@ -15,9 +16,10 @@ use Faker\Generator as Faker;
 
 $factory->define(LiftTracker\User::class, static function (Faker $faker) {
     return [
-        'name' => $faker->name,
+        'firstName' => $faker->firstName,
+        'lastName' => $faker->lastName,
         'email' => $faker->unique()->safeEmail,
-        'password' => '$2y$10$TKh8H1.PfQx37YgCzwiKb.KjNyWgaHb9cbcoQgdIVFlYg7B77UdFm', // secret
-        'remember_token' => str_random(10),
+        'facebookId' => $faker->unique()->numberBetween(1200000000000000, 1210000000000000),
+        'facebookAccessToken' => '$2y$10$TKh8H1.PfQx37YgCzwiKb.KjNyWgaHb9cbcoQgdIVFlYg7B77UdFm', // secret
     ];
 });

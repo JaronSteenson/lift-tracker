@@ -129,8 +129,8 @@
                 })
 
                 if (success) {
-                    const afterLoginRoute = this.$store.getters['app/afterLoginRoute'];
-                    this.$router.replace(afterLoginRoute);
+                    const afterLoginUrl = this.$store.getters['app/afterLoginUrl'];
+                    this.$router.replace(afterLoginUrl);
                     return;
                 }
 
