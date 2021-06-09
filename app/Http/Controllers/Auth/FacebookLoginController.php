@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Auth;
 use LiftTracker\Auth\FacebookAuthManager;
 use LiftTracker\Http\Controllers\Controller;
 use Symfony\Component\HttpFoundation\Request;
+use Illuminate\Config\Repository as Config;
 
 class FacebookLoginController extends Controller
 {
@@ -20,10 +21,16 @@ class FacebookLoginController extends Controller
      */
     private $facebookAuthService;
 
-    public function __construct(FacebookAuthManager $facebookAuthService)
+    /**
+     * @var Config
+     */
+    private $config;
+
+    public function __construct(FacebookAuthManager $facebookAuthService, Config $config)
     {
         parent::__construct();
         $this->facebookAuthService = $facebookAuthService;
+        $this->config = $config;
     }
 
     /**
@@ -38,7 +45,14 @@ class FacebookLoginController extends Controller
             throw new AuthenticationException('User is already logged in');
         }
 
-        $this->facebookAuthService->registerOrLoginUser($request->get('code'), $request->url());
+        // Pull an url from config explicitly rather than trying to determine it from the request.
+        // The app server url may not match the reverse proxy/public facing (Cloudflare) url due to http vs https.
+        $redirectUrl = $this->config->get('app.facebook_app_redirect_url');
+
+        $this->facebookAuthService->registerOrLoginUser(
+            $request->get('code'),
+            $redirectUrl
+        );
 
         $redirectTo = $request->get('after-login-url') ?: $request->root();
 
