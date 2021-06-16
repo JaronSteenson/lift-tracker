@@ -1,6 +1,6 @@
 import WorkoutProgramService from '../../api/WorkoutProgramService'
 import UuidHelper from '../../UuidHelper'
-import { debounce, pick } from 'lodash';
+import { debounce, pick } from '../../util';
 import {
     mutations as saveStatusMutations,
     actions as saveStatusActions,
@@ -16,7 +16,7 @@ function localStorageKey(uuid) {
 }
 
 function sortByPosition(a, b) {
-    return a < b ? 1 : 0;
+    return a.position < b.position ? 1 : 0;
 }
 
 function defaultState() {

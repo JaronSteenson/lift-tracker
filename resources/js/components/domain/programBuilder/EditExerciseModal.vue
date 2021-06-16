@@ -12,7 +12,7 @@
                     />
                     <EditableTitle @click="isEditingTitle = true" v-else>{{ nameDisplay }}</EditableTitle>
                     <V-btn @click="close" icon>
-                        <v-icon>mdi-close</v-icon>
+                        <v-icon>{{ $svgIcons.mdiClose }}</v-icon>
                     </V-btn>
                 </v-card-title>
                 <v-card-text>

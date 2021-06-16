@@ -19,7 +19,7 @@
             <VMenu bottom left>
                 <template v-slot:activator="{ on }">
                     <VBtn icon v-on="on">
-                        <VIcon>mdi-dots-vertical</VIcon>
+                        <VIcon>{{ $svgIcons.mdiDotsVertical }}</VIcon>
                     </VBtn>
                 </template>
 
@@ -55,7 +55,7 @@
                 <VRow justify="center">
                     <VCol cols="12">
                         <VBtn :to="{ name: 'home' }" class="home-button">
-                            <VIcon>mdi-home</VIcon>
+                            <VIcon>{{ $svgIcons.mdiHome }}</VIcon>
                             Go to home page
                         </VBtn>
                     </VCol>

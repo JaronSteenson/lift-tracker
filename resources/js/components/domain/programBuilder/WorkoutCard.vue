@@ -20,7 +20,7 @@
             >
                 <template v-slot:append-outer>
                     <VBtn class="workout-title-edit__abort" @click="abortEditingTitle" icon ref="abortEditingTitleButton">
-                        <VIcon>mdi-close</VIcon>
+                        <VIcon>{{ $svgIcons.mdiClose }}</VIcon>
                     </VBtn>
                 </template>
             </VTextField>
@@ -36,7 +36,7 @@
             >
                 <template v-slot:append-outer>
                     <VBtn @click="abortAddingNew" icon ref="abortAddNewButton">
-                        <VIcon>mdi-close</VIcon>
+                        <VIcon>{{ $svgIcons.mdiClose }}</VIcon>
                     </VBtn>
                 </template>
             </VTextField>
@@ -45,7 +45,7 @@
             <v-menu bottom left v-if="!isSessionOverview && !isAddingNew && !isEditingTitle">
                 <template v-slot:activator="{ on }">
                     <VBtn icon v-on="on">
-                        <VIcon>mdi-dots-vertical</VIcon>
+                        <VIcon>{{ $svgIcons.mdiDotsVertical }}</VIcon>
                     </VBtn>
                 </template>
 
@@ -58,7 +58,7 @@
             <v-menu bottom left v-if="isSessionOverview">
                 <template v-slot:activator="{ on }">
                     <VBtn icon v-on="on">
-                        <VIcon>mdi-dots-vertical</VIcon>
+                        <VIcon>{{ $svgIcons.mdiDotsVertical }}</VIcon>
                     </VBtn>
                 </template>
 
@@ -92,11 +92,11 @@
             </component>
         <VCardActions class="justify-center" width="100%">
                 <VBtn v-if="isSessionOverview" :loading="starting" @click="startWorkout" color="success" x-large width="80%" class="my-5">
-                    <VIcon left>mdi-clock-start</VIcon>
+                    <VIcon left>{{ $svgIcons.mdiClockStart }}</VIcon>
                     Start workout
                 </VBtn>
                 <VBtn v-else @click="addExercise" width="100%">
-                    <VIcon left>mdi-plus</VIcon>
+                    <VIcon left>{{ $svgIcons.mdiPlus }}</VIcon>
                     Add exercise
                 </VBtn>
         </VcardActions>
@@ -235,7 +235,7 @@
         }
 
 
-        &__abort.v-btn {
+        &__abort.VBtn {
             margin-top: -15px;
         }
     }

@@ -12,7 +12,7 @@
                     :to="{ path: '/'}"
                  >
                     <VListItemIcon>
-                        <VIcon>mdi-home</VIcon>
+                        <VIcon>{{ $svgIcons.mdiHome }}</VIcon>
                     </VListItemIcon>
 
                     <VListItemContent>
@@ -32,7 +32,7 @@
                         :to="{ name: 'sessionOverview', params: { workoutSessionUuid: workout.uuid } }"
                     >
                         <VListItemAction>
-                            <VIcon color="success">mdi-format-list-bulleted-triangle</VIcon>
+                            <VIcon color="success">{{ $svgIcons.mdiFormatListBulletedTriangle }}</VIcon>
                         </VListItemAction>
                         <VListItemContent>
                             <VListItemTitle v-if="workoutIsInFocus(workout.uuid)">In progress workout</VListItemTitle>
@@ -48,7 +48,7 @@
                         class="menu-sub-item"
                     >
                         <VListItemAction>
-                            <VIcon color="success">mdi-play</VIcon>
+                            <VIcon color="success">{{ $svgIcons.mdiPlay }}</VIcon>
                         </VListItemAction>
                         <VListItemContent>
                             <VListItemTitle v-if="setIsInFocus(getCurrentSet(workout.uuid))">In progress set</VListItemTitle>
@@ -181,7 +181,24 @@
         }
     }
 
-    .theme--light.v-icon {
+    // The small attribute does not work with svg path based icons,
+    // as it only sets a font size small, rather than adjust the height and width.
+    .v-icon--small {
+        height: 1rem;
+        width: 1rem;
+    }
+
+    // Another manual fixup of svg icon sizes.
+    .v-btn__content {
+        .v-icon {
+            &.v-icon--left, &.v-icon--right {
+                height: 2rem;
+                width: 2rem;
+            }
+        }
+    }
+
+        .theme--light.v-icon {
         color: var(--v-primary-base);
     }
 
@@ -195,5 +212,12 @@
 
     .menu-sub-item {
         padding-left: 25px;
+    }
+
+    // This is a manual fix up for switching rom Vuetify loader to manual imports,
+    // for some reason the import order of the scss switched resulting in this rule needing ot be added.
+    .row {
+        margin-top: 0;
+        margin-bottom: 0;
     }
 </style>

@@ -19,7 +19,7 @@
             <VMenu bottom left>
                 <template v-slot:activator="{ on }">
                     <VBtn icon v-on="on">
-                        <VIcon>mdi-dots-vertical</VIcon>
+                        <VIcon>{{ $svgIcons.mdiDotsVertical }}</VIcon>
                     </VBtn>
                 </template>
 
@@ -96,6 +96,7 @@
 
         <VStepper
             :value="set.position + 1"
+            flat
             :vertical="false"
             @change="changeSetFromStepper($event)"
         >
@@ -105,7 +106,7 @@
                     @click="lookBack"
                     class="set-navigation set-navigation--left"
                 >
-                    mdi-chevron-left
+                    {{ $svgIcons.mdiChevronLeft }}
                 </VIcon>
 
                 <template v-for="otherSet in exercise.sessionSets">
@@ -115,7 +116,7 @@
                         :color="getStepColor(otherSet)"
                         :step="otherSet.position + 1"
                         :editable="set.uuid !== otherSet.uuid"
-                        edit-icon="mdi-check"
+                        :edit-icon="$svgIcons.mdiCheck"
                     >
                        Set {{ otherSet.position + 1 }}
                     </VStepperStep>
@@ -131,7 +132,7 @@
                     @click="lookAhead"
                     class="set-navigation set-navigation--right"
                 >
-                    mdi-chevron-right
+                    {{ $svgIcons.mdiChevronRight }}
                 </VIcon>
             </VStepperHeader>
         </VStepper>
@@ -224,7 +225,7 @@
                             color="warning"
                             small
                         >
-                            <VIcon left>mdi-stop</VIcon>
+                            <VIcon left>{{ $svgIcons.mdiStop }}</VIcon>
                             End rest
                         </VBtn>
                     </VCol>
@@ -255,7 +256,7 @@
                                 color="success"
                                 small
                             >
-                                <VIcon left>mdi-check</VIcon>
+                                <VIcon left>{{ $svgIcons.mdiCheck }}</VIcon>
                                 Finish <br v-if="$vuetify.breakpoint.xsOnly"/> workout
                             </VBtn>
                             <VBtn
@@ -268,7 +269,7 @@
                                 color="success"
                                 small
                             >
-                                <VIcon left>mdi-play</VIcon>
+                                <VIcon left>{{ $svgIcons.mdiPlay }}</VIcon>
                                 Next set
                             </VBtn>
                         </VCol>
@@ -278,7 +279,7 @@
 
             <VCardActions class="justify-center" v-if="isInProgressSet && restPeriodNotStarted && !isLastSetOfExercise" width="100%">
                 <VBtn @click="startRestPeriod" class="start-rest-button" color="primary" x-large>
-                    <VIcon left>mdi-clock-start</VIcon>
+                    <VIcon left>{{ $svgIcons.mdiClockStart }}</VIcon>
                     Start rest period
                 </VBtn>
             </VcardActions>
@@ -420,9 +421,6 @@ export default {
         },
         exercisePreviousEntries() {
             return this.$store.getters['workoutSession/exercisePreviousEntries'](this.exercise.uuid);
-        },
-        restPeriodDisplay() {
-            return minsSecDuration(this.restPeriod);
         },
         weight: {
             get() {

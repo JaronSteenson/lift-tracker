@@ -27,22 +27,22 @@
             stats() {
                 return [
                     {
-                        icon: 'mdi-calendar',
+                        icon: this.$svgIcons.mdiCalendar,
                         value: dateDescription(this.workoutSession.startedAt)
                     },
                     {
-                        icon: 'mdi-clock-outline',
+                        icon: this.$svgIcons.mdiClockOutline,
                         value: hoursMinutesSecondsFromStartEnd(
                             this.workoutSession.startedAt,
                             this.workoutSession.endedAt
                         ),
                     },
                     {
-                        icon: 'mdi-play',
+                        icon: this.$svgIcons.mdiPlay,
                         value: timeDescription(this.workoutSession.startedAt, true)
                     },
                     {
-                        icon: 'mdi-stop',
+                        icon: this.$svgIcons.mdiStop,
                         value: timeDescription(this.workoutSession.endedAt, true)
                     },
                 ]

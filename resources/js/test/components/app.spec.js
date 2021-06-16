@@ -40,7 +40,7 @@ describe('App.vue', () => {
         expect(wrapper.findComponent({ name: 'VNavigationDrawer' }).exists()).toBeFalsy();
     });
 
-    test('should show the nav drawer and avatar menu when not logged in', () => {
+    test('should show the nav drawer and avatar menu when logged in', () => {
         const app = {
             namespaced: true,
             state: appModule.state,

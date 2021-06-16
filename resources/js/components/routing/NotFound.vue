@@ -15,7 +15,7 @@
         border: 1px solid var(--v-primary-base) !important;
 
 
-        &.v-btn:before {
+        &.VBtn:before {
             opacity: 0 !important;
         }
     }

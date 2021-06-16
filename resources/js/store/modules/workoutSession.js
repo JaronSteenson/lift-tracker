@@ -330,7 +330,7 @@ export const actions = {
     updateSetWeight({ commit, dispatch, getters }, { uuid, weight }) {
         commit('updateSet', { uuid, weight });
 
-        // If we are in progress, update the upcoming sets as well.
+        // If we are in progress, update the upcoming sets as well as this set.
         if (getters.isInProgressWorkout) {
             const exercise = getters.exerciseBySet(uuid);
 

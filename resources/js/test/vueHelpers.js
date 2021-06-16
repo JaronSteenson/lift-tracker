@@ -1,7 +1,8 @@
-import { createLocalVue } from "@vue/test-utils";
-import Vuetify from "vuetify";
-import Vue from "vue";
-import Vuex from "vuex";
+import { createLocalVue } from '@vue/test-utils';
+import Vuetify from 'vuetify';
+import Vue from 'vue';
+import Vuex from 'vuex';
+import svgIcons from '../vuetify/svgIcons';
 
 export function prepareForLocalVueMount() {
     ensureVuetifyAppDivExists();
@@ -23,9 +24,7 @@ function localMountOptions() {
     const vuetify = new Vuetify;
 
     Vue.use(Vuetify)
-
-    localVue.use(Vuex);
-    localVue.use(vuetify);
+    Vue.use(Vuex);
 
     Vue.config.productionTip = false
 
@@ -33,7 +32,8 @@ function localMountOptions() {
         localVue,
         vuetify,
         mocks: {
-            $vuetify: { breakpoint: {} }
+            // $vuetify: { breakpoint: {} },
+            $svgIcons: svgIcons,
         }
     };
 }

@@ -1,26 +1,14 @@
 const mix = require('laravel-mix');
+const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
 
-const VuetifyLoaderPlugin = require('vuetify-loader/lib/plugin');
+let plugins = [new BundleAnalyzerPlugin()];
 
-/*
- |--------------------------------------------------------------------------
- | Mix Asset Management
- |--------------------------------------------------------------------------
- |
- | Mix provides a clean, fluent API for defining some Webpack build steps
- | for your Laravel application. By default, we are compiling the Sass
- | file for the application as well as bundling up all the JS files.
- |
- */
+if (mix.inProduction()) {
+    //
+} else {
+    mix.sourceMaps();
+}
 
 mix.js('resources/js/app.js', 'public/js')
-    // .sass('resources/sass/app.scss', 'public/css')
-    .webpackConfig({
-        plugins: [
-            new VuetifyLoaderPlugin({
-                options: {}
-            }),
-        ]
-    })
-    .version()
-    .sourceMaps();
+    .webpackConfig({ plugins })
+    .version();

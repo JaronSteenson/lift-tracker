@@ -31,7 +31,7 @@
                     <VMenu bottom left>
                         <template v-slot:activator="{ on }">
                             <VBtn icon v-on="on">
-                                <VIcon>mdi-dots-vertical</VIcon>
+                                <VIcon>{{ $svgIcons.mdiDotsVertical }}</VIcon>
                             </VBtn>
                         </template>
 
@@ -59,7 +59,7 @@
                         </VCol>
                         <VCol cols="12" lg="3" md="4" slot="footer" sm="6">
                             <VBtn @click="addWorkoutToProgram(null)" draggable="false" width="100%">
-                                <VIcon left>mdi-plus</VIcon>
+                                <VIcon left>{{ $svgIcons.mdiPlus }}</VIcon>
                                 Add workout
                             </VBtn>
                         </VCol>
@@ -77,7 +77,6 @@
     import Draggable from 'vuedraggable';
     import EditableTitle from "../../formFields/EditableTitle";
     import ProgramBuilderLoadingSkeleton from "./ProgramBuilderLoadingSkeleton";
-    import {dateTimeDescription} from "../../../dates";
     import ServerSyncInfo from "../../ServerSyncInfo";
 
     export default {
@@ -138,8 +137,11 @@
             notFound() {
                 return !this.loading && this.fetchError;
             },
-            ...mapState('programBuilder', ['updatedAt']),
-            ...mapGetters('programBuilder', ['hasMadeSignificantChangesFromNew', 'saveStatusMessage']),
+            ...mapState('programBuilder', ['updatedAt', 'uuid']),
+            ...mapGetters('programBuilder', [
+                'hasMadeSignificantChangesFromNew',
+                'saveStatusMessage'
+            ]),
             orderedWorkouts: {
                 get() {
                     return this.$store.getters['programBuilder/getOrderedWorkouts'];

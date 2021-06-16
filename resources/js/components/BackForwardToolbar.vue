@@ -1,11 +1,11 @@
 <template>
     <VCardTitle class="back-forward-toolbar">
         <VBtn :disabled="!enableBack" icon @click="$emit('back')">
-            <VIcon>mdi-chevron-left</VIcon>
+            <VIcon>{{ $svgIcons.mdiChevronLeft }}</VIcon>
         </VBtn>
         <slot />
         <VBtn :disabled="!enableForward" icon @click="$emit('forward')">
-            <VIcon>mdi-chevron-right</VIcon>
+            <VIcon>{{ $svgIcons.mdiChevronRight }}</VIcon>
         </VBtn>
     </VCardTitle>
 </template>

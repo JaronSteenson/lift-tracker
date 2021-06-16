@@ -1,16 +1,22 @@
-import Vue from "vue";
-import Vuetify from "vuetify";
+import Vue from 'vue';
+import Vuetify from 'vuetify/lib';
+import svgIcons from './svgIcons';
+import * as components from './components';
+import colors from 'vuetify/lib/util/colors';
 
-import 'vuetify/dist/vuetify.min.css';
-import '@mdi/font/css/materialdesignicons.css';
+/**
+ * Make all svg icon paths globally accessible.
+ * @global
+ */
+Vue.prototype.$svgIcons = svgIcons;
 
-Vue.use(Vuetify);
-
-import colors from 'vuetify/lib/util/colors'
+Vue.use(Vuetify, {
+    components,
+});
 
 export default new Vuetify({
     icons: {
-        iconfont: 'mdi'
+        iconfont: 'mdiSvg'
     },
     theme: {
         options: {
@@ -23,10 +29,11 @@ export default new Vuetify({
                 anchor: colors.blue.base,
                 secondary: colors.purple.lighten2,
                 info: colors.blue.lighten1,
-                warning: colors.deepOrange,
+                warning: colors.deepOrange.base,
                 error: colors.red.lighten2,
-                success: '#4caf50',
+                success: colors.green.base,
             },
         },
-    }
+    },
 });
+

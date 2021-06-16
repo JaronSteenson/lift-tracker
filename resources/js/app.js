@@ -2,10 +2,7 @@ import Vue from 'vue';
 import store from './store';
 import router from './router';
 import vuetify from './vuetify';
-import filters from './dates';
 import App from './components/App.vue';
-
-Object.keys(filters).forEach((name) => Vue.filter(name, filters[name]));
 
 (async function () {
     const bodyDataset = document.querySelector('body').dataset;
@@ -15,7 +12,7 @@ Object.keys(filters).forEach((name) => Vue.filter(name, filters[name]));
 
     await store.dispatch('app/directlyLoadAppBoostrap', appBoostrap);
 
-    new Vue({
+    const v = new Vue({
         store,
         router,
         vuetify,

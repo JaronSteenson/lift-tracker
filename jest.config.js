@@ -1,3 +1,5 @@
+const esModules = ['vuetify'].join('|');
+
 module.exports = {
     testRegex: 'resources/js/test/.*.spec.js$',
     moduleFileExtensions: [
@@ -10,4 +12,5 @@ module.exports = {
         '.*\\.(js)$': '<rootDir>/node_modules/babel-jest',
         '.*\\.(vue)$': '<rootDir>/node_modules/vue-jest'
     },
+    transformIgnorePatterns: [`/node_modules/(?!${esModules})`],
 }

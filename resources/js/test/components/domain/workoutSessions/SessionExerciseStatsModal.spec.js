@@ -1,7 +1,7 @@
 import SessionExerciseStatsModal from '../../../../components/domain/workoutSessions/SessionExerciseStatsModal';
 import BackForwardToolbar from '../../../../components/BackForwardToolbar';
 import { prepareForLocalVueMount } from '../../../vueHelpers';
-import { shallowMount, mount } from '@vue/test-utils';
+import { shallowMount } from '@vue/test-utils';
 
 
 const mountOptions = prepareForLocalVueMount();

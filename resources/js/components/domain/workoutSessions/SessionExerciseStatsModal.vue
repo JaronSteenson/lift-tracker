@@ -10,7 +10,7 @@
         <VCard>
             <VToolbar dark color="primary">
                 <VBtn icon dark @click="close">
-                    <VIcon>mdi-close</VIcon>
+                    <VIcon>{{ $svgIcons.mdiClose }}</VIcon>
                 </VBtn>
                 <VToolbarTitle>{{ title }}</VToolbarTitle>
             </VToolbar>

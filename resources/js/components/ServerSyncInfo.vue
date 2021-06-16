@@ -3,7 +3,7 @@
         <VIcon
             :size="$vuetify.breakpoint.xsOnly ? 'small' : null"
         >
-            mdi-cloud-sync
+            {{ $svgIcons.mdiCloudSync }}
         </VIcon>
         <span
             class="updated-at"
@@ -14,9 +14,13 @@
     </VSubheader>
 </template>
 <script>
-    import {dateTimeDescription, updatedAtMicro} from "../dates";
+    import {dateTimeDescription, updatedAtMicro} from '../dates';
+    import VSubheader from 'vuetify/lib/components/VSubheader';
 
     export default {
+        components: {
+            VSubheader
+        },
         props: {
             updatedAt: {
                 type: String,

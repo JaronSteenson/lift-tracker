@@ -29,7 +29,7 @@ describe('workout session store', () => {
 
     describe('actions', () => {
 
-        describe('updateSetWeight in progress session', () => {
+        describe('updateSetWeight in-progress session', () => {
             const commit = jest.fn();
             const dispatch = jest.fn();
 

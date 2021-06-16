@@ -6,7 +6,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <!-- JS app bundle -->
+    <!-- JS app bundle, includes css. -->
     <script src="{{ asset('js/app.js') }}" defer></script>
 
     <!-- App icons -->

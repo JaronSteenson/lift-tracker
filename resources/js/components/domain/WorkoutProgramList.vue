@@ -9,14 +9,14 @@
             <VSpacer/>
 
             <VBtn :to="{ name: 'newProgramBuilder' }" icon>
-                <VIcon>mdi-plus</VIcon>
+                <VIcon>{{ $svgIcons.mdiPlus }}</VIcon>
             </VBtn>
         </VToolbar>
 
         <VSkeletonLoader class="ma-5" type="table-heading, table-row@3" v-if="loading"/>
         <VDataTable v-else :headers="headers" :items="workoutProgramsForDisplay">
             <template v-slot:item.icon="{ item: program }">
-                <VIcon>mdi-table</VIcon>
+                <VIcon>{{ $svgIcons.mdiTable }}</VIcon>
             </template>
             <template v-slot:item.name="{ item: program }">
                 <RouterLink class="program-name" :to="{ name: 'programBuilder', params: { workoutProgramUuid: program.uuid } }">
@@ -25,7 +25,7 @@
                 <VMenu v-if="$vuetify.breakpoint.xsOnly" bottom left>
                     <template v-slot:activator="{ on }">
                         <VBtn icon v-on="on">
-                            <VIcon>mdi-dots-vertical</VIcon>
+                            <VIcon>{{ $svgIcons.mdiDotsVertical }}</VIcon>
                         </VBtn>
                     </template>
 
@@ -44,7 +44,7 @@
                 <VMenu bottom left>
                     <template v-slot:activator="{ on }">
                         <VBtn icon v-on="on">
-                            <VIcon>mdi-dots-vertical</VIcon>
+                            <VIcon>{{ $svgIcons.mdiDotsVertical }}</VIcon>
                         </VBtn>
                     </template>
 

@@ -24,10 +24,8 @@ const getters = {
     },
 
     getUserAvatarInitial(state) {
-        const user = state?.authenticatedUser;
-
-        const f = user.firstName?.charAt(0) || '';
-        const l = user.lastName?.charAt(0) || '';
+        const f = state?.authenticatedUser?.firstName?.charAt(0) ?? '';
+        const l = state?.authenticatedUser?.lastName?.charAt(0) ?? '';
 
         return `${f}${l}`.trim();
     },
@@ -86,23 +84,6 @@ const actions = {
             response = await AppService.login({ email, password });
         } catch (e) {
             console.warn('Login failure');
-            return false;
-        }
-
-        const newState = { ...response.data, hasLoaded: true };
-
-        commit('reset', newState);
-
-        return response;
-    },
-
-    async signUp({ commit }, { name, email, password }) {
-        let response = null;
-
-        try {
-            response = await AppService.signUp({ name, email, password });
-        } catch (e) {
-            console.warn('Sign up failure');
             return false;
         }
 

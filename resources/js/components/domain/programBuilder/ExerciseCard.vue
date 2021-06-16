@@ -16,7 +16,7 @@
             >
                 <template v-slot:append-outer>
                     <VBtn icon @click="abortAddingNew" ref="abortAddNewButton">
-                        <VIcon>mdi-close</VIcon>
+                        <VIcon>{{ $svgIcons.mdiClose }}</VIcon>
                     </VBtn>
                 </template>
             </VTextField>
@@ -27,7 +27,7 @@
                 <VMenu bottom left>
                     <template v-slot:activator="{ on }">
                         <VBtn icon v-on="on">
-                            <VIcon>mdi-dots-vertical</VIcon>
+                            <VIcon>{{ $svgIcons.mdiDotsVertical }}</VIcon>
                         </VBtn>
                     </template>
 
@@ -46,8 +46,8 @@
                     <VRow justify="space-between">
                         <VCol class="px-0 py-0">{{ setsAndRepsBlurb }}</VCol>
                         <VCol v-if="exercise.restPeriod" class="px-4 py-0" style="text-align: right;">
-                            <VIcon size="small">mdi-clock</VIcon>
-                            {{ exercise.restPeriod | minsSecDuration  }} rest
+                            <VIcon class="v-icon--small">{{ $svgIcons.mdiClock }}</VIcon>
+                            {{ restPeriod }} rest
                         </VCol>
                     </VRow>
                 </VContainer>
@@ -65,6 +65,7 @@
     import EditableTitle from "../../formFields/EditableTitle";
     import EditExerciseModal from "./EditExerciseModal";
     import exerciseMixin from "./mixins/exerciseMixin";
+    import { minsSecDuration } from '../../../dates';
 
     export default {
         mixins: [exerciseMixin],
@@ -91,6 +92,9 @@
             }
         },
         computed: {
+            restPeriod() {
+                return minsSecDuration(this.exercise.restPeriod);
+            },
             setsAndRepsBlurb() {
                 let blurb = '';
 
@@ -136,6 +140,10 @@
 </script>
 
 <style scoped lang="scss">
+    .exercise-card {
+        padding-bottom: 10px;
+    }
+
     .exercise-card.theme--light.v-sheet--outlined {
         border: solid 1px var(--v-primary-base);
 

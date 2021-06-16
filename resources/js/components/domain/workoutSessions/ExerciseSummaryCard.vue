@@ -5,7 +5,7 @@
             <VContainer>
                 <VRow :key="index" v-for="(weightGroup, index) in weightGroups">
                     <VCol class="px-0 pt-1 pb-0">
-                        <VIcon size="small">mdi-dumbbell</VIcon>
+                        <VIcon class="v-icon--small">{{ $svgIcons.mdiDumbbell }}</VIcon>
                         {{ weightGroup.weight }}:
                         <template v-for="(repBreakDown, index) in weightGroup.repBreakDown">
                             <RouterLink
@@ -17,13 +17,13 @@
                 </VRow>
                 <VRow>
                     <VCol class="px-0 pt-1 pb-0">
-                        <VIcon size="small">mdi-clock</VIcon>
+                        <VIcon class="v-icon--small">{{ $svgIcons.mdiClock }}</VIcon>
                         {{ averageRestPeriod }}
                     </VCol>
                 </VRow>
                 <VRow>
                     <VCol class="px-0 pt-1 pb-0">
-                        <VIcon size="small">mdi-chart-line-variant</VIcon>
+                        <VIcon class="v-icon--small">{{ $svgIcons.mdiChartLineVariant }}</VIcon>
                         <a @click.prevent="openStatsModal" href="#">View details</a>
                         <SessionExerciseStatsModal :session-exercises="[exercise]" v-model="showStatsModal"/>
                     </VCol>
@@ -118,9 +118,9 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.date-time-stat {
-    @media (max-width: 600px) {
-        max-width: 50%;
+    .date-time-stat {
+        @media (max-width: 600px) {
+            max-width: 50%;
+        }
     }
-}
 </style>

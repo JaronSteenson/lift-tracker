@@ -7,10 +7,6 @@
             <VToolbarTitle>Your workout sessions</VToolbarTitle>
 
             <VSpacer/>
-
-<!--            <VBtn @click="showNewSessionModal" icon>-->
-<!--                <VIcon>mdi-plus</VIcon>-->
-<!--            </VBtn>-->
         </VToolbar>
 
         <VSkeletonLoader class="ma-5" type="table-heading, table-row@3" v-if="loading"/>
@@ -22,8 +18,8 @@
             hide-default-footer
         >
             <template v-slot:item.icon="{ item: session }">
-                <VIcon v-if="isInProgress(session.uuid)" color="success">mdi-play</VIcon>
-                <VIcon v-else>mdi-dumbbell</VIcon>
+                <VIcon v-if="isInProgress(session.uuid)" color="success">{{ $svgIcons.mdiPlay }}</VIcon>
+                <VIcon v-else>{{ $svgIcons.mdiDumbbell }}</VIcon>
             </template>
             <template v-slot:item.name="{ item: session }">
                 <RouterLink class="workout-name" :to="{ name: 'sessionOverview', params: { workoutSessionUuid: session.uuid } }">
@@ -32,7 +28,7 @@
                 <VMenu v-if="$vuetify.breakpoint.xsOnly" bottom left>
                     <template v-slot:activator="{ on }">
                         <VBtn icon v-on="on">
-                            <VIcon>mdi-dots-vertical</VIcon>
+                            <VIcon>{{ $svgIcons.mdiDotsVertical }}</VIcon>
                         </VBtn>
                     </template>
 
@@ -59,7 +55,7 @@
                 <VMenu bottom left>
                     <template v-slot:activator="{ on }">
                         <VBtn icon v-on="on">
-                            <VIcon>mdi-dots-vertical</VIcon>
+                            <VIcon>{{ $svgIcons.mdiDotsVertical }}</VIcon>
                         </VBtn>
                     </template>
 
