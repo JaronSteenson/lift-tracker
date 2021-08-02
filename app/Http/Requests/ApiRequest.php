@@ -39,13 +39,13 @@ abstract class ApiRequest extends FormRequest
         return true;
     }
 
-    protected function checkModelOwnership(Model $model)
+    protected function checkModelOwnership(Model $model): bool
     {
         if ($model instanceof UserOwnershipInterface) {
-            return $model->userOwnsThis($this->user());
+            return $model->isOwnedBy($this->user());
         }
 
-        // No ownership checks are rehired.
+        // No ownership checks are required.
         return true;
     }
 

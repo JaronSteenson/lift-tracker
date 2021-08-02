@@ -18,7 +18,7 @@ const WorkoutProgramService = {
 
     /**
      * @param page {Number}
-     * @return {AxiosPromise<any>}
+     * @return {Promise<any>}
      */
     index(page) {
         return ApiService.get(`${RESOURCE_NAME}?page=${page}`);

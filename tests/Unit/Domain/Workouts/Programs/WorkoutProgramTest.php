@@ -24,7 +24,7 @@ class WorkoutProgramTest extends TestCase
         $otherUser = new User();
         $otherUser->id  = $otherUserId;
 
-        $isOwnedBy = $workoutProgram->userOwnsThis($otherUser);
+        $isOwnedBy = $workoutProgram->isOwnedBy($otherUser);
 
         static::assertThat($isOwnedBy, $assertion);
     }

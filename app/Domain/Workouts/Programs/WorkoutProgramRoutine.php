@@ -80,12 +80,9 @@ class WorkoutProgramRoutine extends AbstractModel implements UserOwnershipInterf
         return $this->belongsTo(WorkoutProgram::class, 'workoutProgramId');
     }
 
-    public function userOwnsThis(User $user): bool
+    public function isOwnedBy(User $user): bool
     {
-        /** @var WorkoutProgram $parentWorkoutProgram */
-        $parentWorkoutProgram = $this->workoutProgram()->get()->first();
-
-        return $parentWorkoutProgram && $parentWorkoutProgram->userId === $user->id;
+        return $this->workoutProgram !== null && $this->workoutProgram->userId === $user->id;
     }
 
     public function routineExercises(): HasMany

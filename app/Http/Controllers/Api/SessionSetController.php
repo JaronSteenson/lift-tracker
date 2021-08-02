@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\DB;
 use LiftTracker\Domain\Workouts\Sessions\SessionSet;
 use LiftTracker\Http\Controllers\Controller;
 use LiftTracker\Http\Requests\SessionSetRequest;
+use LiftTracker\Traits\SyncsWeightToRoutineTrait;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class SessionSetController extends Controller
@@ -66,8 +67,8 @@ class SessionSetController extends Controller
         $sessionSet = $request->getModelOr404()->fill($request->all());
 
         DB::transaction(function () use ($sessionSet): void {
-            $sessionSet->save();
-            $sessionSet->syncWeightToRoutine();
+            /* @see SyncsWeightToRoutineTrait */
+            $sessionSet->save(); // This will sync the weight back to the routine exercise.
             $sessionSet->touchOwners();
         });
 

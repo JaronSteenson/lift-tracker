@@ -19,7 +19,7 @@ class SessionSetTest extends TestCase
 
     public function testSyncWeightToRoutine(): void
     {
-        [$routineExercise, , $sessionSet] = (new WorkoutSessionFactory())->createSessionSetWithParents();
+        [$routineExercise, , $sessionSet] = (new WorkoutSessionFactory())->createSessionSetsWithParents();
 
         $sessionSet->syncWeightToRoutine();
         self::assertNull($routineExercise->refresh()->weight);

@@ -7,6 +7,6 @@ use LiftTracker\User;
 
 interface UserOwnershipInterface
 {
-    public function userOwnsThis(User $user): bool;
+    public function isOwnedBy(User $user): bool;
     public function isNotOwnedBy(User $user): bool;
 }

@@ -48,7 +48,8 @@ class SessionExerciseController extends Controller
     {
         $sessionExercise = new SessionExercise($request->all());
 
-        $sessionExercise->save();
+        $sessionExercise->setSessionSetsFromRequest($request->get('sessionSets'));
+        $sessionExercise->saveWithChildren();
 
         return $sessionExercise;
     }
@@ -59,13 +60,13 @@ class SessionExerciseController extends Controller
      * @param SessionExerciseRequest $request
      * @return SessionExercise
      */
-    public function update(SessionExerciseRequest $request)
+    public function update(SessionExerciseRequest $request): SessionExercise
     {
         /** @var SessionExercise $sessionExercise */
         $sessionExercise = $request->getModelOr404()->fill($request->all());
 
-        $sessionExercise->save();
-        $sessionExercise->touchOwners();
+        $sessionExercise->setSessionSetsFromRequest($request->get('sessionSets'));
+        $sessionExercise->saveWithChildren();
 
         return $sessionExercise;
     }

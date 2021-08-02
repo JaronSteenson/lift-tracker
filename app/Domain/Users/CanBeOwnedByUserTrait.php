@@ -14,14 +14,14 @@ trait CanBeOwnedByUserTrait
      * @param User $user
      * @return bool
      */
-    public function userOwnsThis(User $user): bool
+    public function isOwnedBy(User $user): bool
     {
         return $this->userId === $user->id;
     }
 
     public function isNotOwnedBy(User $user): bool
     {
-        return !$this->userOwnsThis($user);
+        return !$this->isOwnedBy($user);
     }
 
     /**

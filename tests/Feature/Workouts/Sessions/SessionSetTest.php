@@ -18,10 +18,10 @@ class SessionSetTest extends TestCase
         $this->withoutMiddleware([VerifyCsrfToken::class]);
     }
 
-    public function testIndexWithoutAnyWorkouts(): void
+    public function testUpdate(): void
     {
         $user = factory(User::class)->create();
-        [$routineExercise, , $sessionSet] = (new WorkoutSessionFactory())->createSessionSetWithParents();
+        [$routineExercise, , $sessionSet] = (new WorkoutSessionFactory())->createSessionSetsWithParents($user, 1);
 
         $uri = route('sessions-sets.store') . '/' . $sessionSet->uuid;
 
@@ -49,7 +49,11 @@ class SessionSetTest extends TestCase
                 'weight' => 200,
             ]);
 
-        self::assertEquals(200, $routineExercise->refresh()->weight);
+        self::assertEquals(
+            200,
+            $routineExercise->refresh()->weight,
+            'The routine exercise weight should be synced for the updated set weight'
+        );
     }
 
 }

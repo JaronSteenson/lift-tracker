@@ -7,9 +7,11 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use LiftTracker\Domain\AbstractModel;
+use LiftTracker\Domain\Users\UserOwnershipInterface;
 use LiftTracker\Domain\Workouts\Exercises\Exercise;
 use LiftTracker\Domain\Workouts\Sessions\SessionSet;
 use LiftTracker\Traits\HasUuidTrait;
+use LiftTracker\User;
 
 /**
  * This class/table doesn't link to exercise instead when adding an exercise to a routine
@@ -30,9 +32,10 @@ use LiftTracker\Traits\HasUuidTrait;
  * @property int restPeriod in seconds
  * @property int position
  * @property carbon|null deletedAt
+ * @property WorkoutProgramRoutine routine
  *
  */
-class RoutineExercise extends AbstractModel
+class RoutineExercise extends AbstractModel implements UserOwnershipInterface
 {
     use HasUuidTrait;
     use SoftDeletes;
@@ -85,4 +88,13 @@ class RoutineExercise extends AbstractModel
         return $this;
     }
 
+    public function isOwnedBy(User $user): bool
+    {
+        return $this->routine->isOwnedBy($user);
+    }
+
+    public function isNotOwnedBy(User $user): bool
+    {
+        return !$this->isOwnedBy($user);
+    }
 }

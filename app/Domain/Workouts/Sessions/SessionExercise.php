@@ -119,14 +119,14 @@ class SessionExercise extends AbstractModel implements UserOwnershipInterface
         });
     }
 
-    public function userOwnsThis(User $user): bool
+    public function isOwnedBy(User $user): bool
     {
         return $this->workoutSession->userId === $user->id;
     }
 
     public function isNotOwnedBy(User $user): bool
     {
-        return !$this->userOwnsThis($user);
+        return !$this->isOwnedBy($user);
     }
 
     public function findPreviousEntries(): Collection
@@ -171,6 +171,54 @@ class SessionExercise extends AbstractModel implements UserOwnershipInterface
             });
 
             return parent::delete();
+        });
+    }
+
+    public function setSessionSetsFromRequest(array $setsAttributesArray): self
+    {
+        $existingSets = $this->sessionSets()->get()->keyBy('uuid');
+
+        // Merge new and existing.
+        $mergedSessionSets = collect($setsAttributesArray)->map(function (array $sessionSetFromRequest) use ($existingSets) {
+            if ($existingSets->has($sessionSetFromRequest['uuid'])) {
+                /** @var SessionSet $existingSet */
+                $existingSet = $existingSets->get($sessionSetFromRequest['uuid']);
+                $existingSet->fill($sessionSetFromRequest);
+
+                return $existingSet;
+            }
+
+            $newSessionSet = new SessionSet($sessionSetFromRequest);
+            $newSessionSet->uuid = $sessionSetFromRequest['uuid'];
+            return $newSessionSet;
+        });
+
+        $this->setRelation('sessionSets', $mergedSessionSets);
+
+        return $this;
+    }
+
+    public function saveWithChildren(): self
+    {
+        return DB::transaction(function(): self {
+            $this->save();
+            $this->touchOwners();
+
+            $this->saveSets();
+
+            return $this;
+        });
+    }
+
+    private function saveSets(): self
+    {
+        return DB::transaction(function() {
+            $this->deleteRemovedChildren('sessionSets');
+            $this->sessionSets()->saveMany($this->sessionSets);
+
+            $this->refresh();
+
+            return $this;
         });
     }
 

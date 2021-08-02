@@ -56,16 +56,18 @@ abstract class AbstractModel extends Model
     {
         /** @var Collection $toBeSaved */
         $toBeSaved = $this->$relationName;
+        $toBeSavedUuids = $toBeSaved->pluck('uuid');
 
         /** @var HasMany $relation */
         $relation = $this->$relationName();
 
-        /** @var Collection $alreadyPersisted */
         $alreadyPersisted = $relation->get();
+        $alreadyPersistedUuids = $alreadyPersisted->pluck('uuid');
 
-        $toBeDeleted = $alreadyPersisted->diff($toBeSaved);
-
-        $idsToDelete = $toBeDeleted->pluck('id')->toArray();
+        $toBeDeletedUuids = $alreadyPersistedUuids->diff($toBeSavedUuids);
+        $idsToDelete = $alreadyPersisted->filter(static function (self $model) use ($toBeDeletedUuids) {
+            return $toBeDeletedUuids->contains($model->uuid);
+        })->pluck('id')->toArray();
 
         $relation->getRelated()::destroy($idsToDelete);
     }

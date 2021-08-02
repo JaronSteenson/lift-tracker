@@ -1,12 +1,14 @@
 <?php
 namespace Tests\Helpers;
 
+use Illuminate\Database\Eloquent\Model;
 use LiftTracker\Domain\Workouts\Programs\RoutineExercise;
 use LiftTracker\Domain\Workouts\Programs\WorkoutProgram;
 use LiftTracker\Domain\Workouts\Programs\WorkoutProgramRoutine;
 use LiftTracker\Domain\Workouts\Sessions\SessionExercise;
 use LiftTracker\Domain\Workouts\Sessions\SessionSet;
 use LiftTracker\Domain\Workouts\Sessions\WorkoutSession;
+use LiftTracker\User;
 
 class WorkoutSessionFactory
 {
@@ -14,10 +16,11 @@ class WorkoutSessionFactory
     /**
      * @return RoutineExercise[]|SessionExercise[]
      */
-    public function createSessionExerciseWithParents(): array
+    public function createSessionExerciseWithParents(User $owner = null): array
     {
         $workoutProgram = new WorkoutProgram();
         $workoutProgram->name = 'PPL';
+        $workoutProgram->userId = $owner !== null ? $owner->id : null;
         $workoutProgram->save();
 
         $routine = new WorkoutProgramRoutine();
@@ -35,6 +38,7 @@ class WorkoutSessionFactory
 
         $workoutSession = new WorkoutSession();
         $workoutSession->workoutProgramRoutineId = $routine->id;
+        $workoutSession->userId = $owner !== null ? $owner->id : null;
         $workoutSession->save();
 
         $sessionExercise = new SessionExercise();
@@ -50,15 +54,22 @@ class WorkoutSessionFactory
     /**
      * @return RoutineExercise[]|SessionExercise[]|SessionSet[]
      */
-    public function createSessionSetWithParents(): array {
-        [$routineExercise, $sessionExercise] = $this->createSessionExerciseWithParents();
+    public function createSessionSetsWithParents(User $owner = null, int $numberOfSets = 1): array {
+        [$routineExercise, $sessionExercise] = $this->createSessionExerciseWithParents($owner);
 
-        $sessionSet = new SessionSet();
-        $sessionSet->position = 0;
-        $sessionSet->sessionExerciseId = $sessionExercise->id;
-        $sessionSet->save();
+        $sessionSets = [];
+        for ($i = 0; $i <= $numberOfSets - 1; $i++) {
+            $sessionSet = new SessionSet();
+            $sessionSet->position = $i;
+            $sessionSet->sessionExerciseId = $sessionExercise->id;
+            $sessionSet->save();
 
-        return [$routineExercise, $sessionExercise, $sessionSet];
+            $sessionSets[] = $sessionSet;
+        }
+
+        $parents = [$routineExercise, $sessionExercise];
+
+        return array_merge($parents, $sessionSets);
     }
 
 }

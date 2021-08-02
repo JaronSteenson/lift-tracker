@@ -5,15 +5,12 @@ namespace LiftTracker\Domain\Workouts\Sessions;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasOneThrough;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use LiftTracker\Domain\AbstractModel;
 use LiftTracker\Domain\Users\CanBeOwnedByUserTrait;
 use LiftTracker\Domain\Workouts\Exercises\Exercise;
-use LiftTracker\Domain\Workouts\Programs\RoutineExercise;
-use LiftTracker\Http\Requests\WorkoutSessionRequest;
 use LiftTracker\Traits\HasUuidTrait;
-use RuntimeException;
+use LiftTracker\Traits\SyncsWeightToRoutineTrait;
 
 /**
  * This class/table doesn't link to exercise instead when adding an exercise to a routine
@@ -43,6 +40,7 @@ class SessionSet extends AbstractModel
     use HasUuidTrait;
     use CanBeOwnedByUserTrait;
     use SoftDeletes;
+    use SyncsWeightToRoutineTrait;
 
     /**
      * The attributes that are mass assignable.
@@ -104,23 +102,6 @@ class SessionSet extends AbstractModel
     public function sessionExercise(): BelongsTo
     {
         return $this->belongsTo(SessionExercise::class, 'sessionExerciseId');
-    }
-
-    public function syncWeightToRoutine(): self
-    {
-        $sessionExercise = $this->sessionExercise;
-
-        if ($sessionExercise === null) {
-            throw new RuntimeException('Session set did not have a parent Session exercise');
-        }
-
-        $routineExercise = $sessionExercise->routineExercise;
-
-        if ($routineExercise !== null) {
-            $routineExercise->syncWeightFromSessionSet($this);
-        }
-
-        return $this;
     }
 
 }
