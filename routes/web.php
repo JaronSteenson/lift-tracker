@@ -74,6 +74,12 @@ Route::any('/facebook-login', 'Auth\FacebookLoginController@index')
     ->middleware('facebook-login');
 
 /**
+ * @see \LiftTracker\Http\Controllers\StaticLegalPagesController
+ */
+Route::get('privacy-policy', 'StaticLegalPagesController@privacyPolicy')
+    ->name('privacy-policy');
+
+/**
  * Catch all route.
  * @see \LiftTracker\Http\Controllers\VueAppController
  */
