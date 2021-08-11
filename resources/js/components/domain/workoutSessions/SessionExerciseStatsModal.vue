@@ -47,7 +47,6 @@
                         :line-width="15"
                         :radius="10"
                         :value="weights"
-                        auto-draw
                         show-labels
                         smooth="radius"
                         stroke-linecap="round"
@@ -65,7 +64,6 @@
                         :line-width="15"
                         :radius="10"
                         :value="reps"
-                        auto-draw
                         show-labels
                         smooth="radius"
                         stroke-linecap="round"
@@ -90,7 +88,6 @@
                         :padding="20"
                         :radius="5"
                         :value="rest"
-                        auto-draw
                         show-labels
                         stroke-linecap="round"
                         type="trend"
