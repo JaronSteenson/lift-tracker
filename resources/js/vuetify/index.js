@@ -30,7 +30,7 @@ export default new Vuetify({
                 secondary: colors.purple.lighten2,
                 info: colors.blue.lighten1,
                 warning: colors.deepOrange.base,
-                error: colors.red.lighten2,
+                error: colors.red.base,
                 success: colors.green.base,
             },
         },

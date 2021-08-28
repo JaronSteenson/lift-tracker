@@ -37,21 +37,29 @@
             return {
                 refreshForce: null,
                 refreshInterval: null,
+                delayedAudioTimeout1: null,
+                delayedAutoTimeout2: null,
             }
         },
         created() {
             this.startRefreshInterval();
         },
-        destroyed() {
-            this.clearRefreshInterval();
-        },
         watch: {
-            timeRemaining(value) {
-                if (value === 3) {
-                    this.playCountdown();
+            restPeriodIsFinished(value, oldValue) {
+                // Stop the audio if the rest period has stopped by the user.
+                if (value && !oldValue) {
+                    this.stopAudio();
                 }
             },
-            isFinished(value) {
+            timeRemaining(value) {
+                if (value === 10) {
+                    this.playWarning();
+                }
+                if (value === 3) {
+                    this.playTimeUpCountdown();
+                }
+            },
+            timesUp(value) {
                 if (value === true) {
                     window.navigator.vibrate(200);
                 } else {
@@ -78,11 +86,14 @@
                 this.refreshForce;
                 return this.$store.getters['workoutSession/restPeriodTimeRemaining'](this.sessionSetUuid);
             },
-            isFinished() {
+            restPeriodIsFinished() {
+                return this.$store.getters['workoutSession/restPeriodIsFinished'](this.sessionSetUuid);
+            },
+            timesUp() {
                 return this.timeRemaining <= 0;
             },
             almostFinished() {
-                if (this.isFinished) {
+                if (this.timesUp) {
                     return false;
                 }
 
@@ -116,17 +127,30 @@
                     this.refreshForce =  Date.now();
                 }, 1000);
             },
+            playWarning() {
+                this.playAlarm(1);
+            },
+            playTimeUpCountdown() {
+                this.playAlarm(1);
+                this.delayedAudioTimeout1 = setTimeout(() => { this.playAlarm(2) }, 1000)
+                this.delayedAudioTimeout2 = setTimeout(() => { this.playAlarm(3) }, 2000)
+            },
+            playAlarm(i) {
+                /** @type HTMLAudioElement */
+                const audio = this.$refs['alarm-audio-' + i];
+                audio.volume = 0.3; // Set a hard volume or else android will default to max volume sometimes.
+                audio.play();
+            },
+            stopAudio() {
+                this.clearRefreshInterval();
+                this.clearDelayedAudioTimeouts();
+            },
             clearRefreshInterval() {
                 clearInterval(this.interval);
             },
-            playCountdown() {
-                this.playAlarm(1);
-                setTimeout(() => { this.playAlarm(2) }, 1000)
-                setTimeout(() => { this.playAlarm(3) }, 2000)
-            },
-            playAlarm(i) {
-                const audio = this.$refs['alarm-audio-' + i];
-                audio.play();
+            clearDelayedAudioTimeouts() {
+                clearTimeout(this.delayedAudioTimeout1);
+                clearTimeout(this.delayedAudioTimeout2);
             },
         }
     }
@@ -139,7 +163,7 @@
         }
 
         &--overdue {
-            color: var(--v-warning-darken3);
+            color: var(--v-error-base);
         }
 
         &__time-parts {
