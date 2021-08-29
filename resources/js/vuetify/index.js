@@ -29,7 +29,7 @@ export default new Vuetify({
                 anchor: colors.blue.base,
                 secondary: colors.purple.lighten2,
                 info: colors.blue.lighten1,
-                warning: colors.deepOrange.base,
+                warning: colors.orange.darken2,
                 error: colors.red.base,
                 success: colors.green.base,
             },

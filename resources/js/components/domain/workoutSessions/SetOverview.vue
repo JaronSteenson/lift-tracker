@@ -222,7 +222,7 @@
                             :width="$vuetify.breakpoint.xsOnly ?  '100%' : null"
                             @click="endRestPeriod"
                             class="mt-2"
-                            color="warning"
+                            color="error"
                             small
                         >
                             <VIcon left>{{ $svgIcons.mdiStop }}</VIcon>
