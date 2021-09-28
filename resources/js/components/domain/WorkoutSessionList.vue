@@ -1,15 +1,6 @@
 <template>
-    <VCard>
-        <VToolbar
-            color="primary"
-            dark
-        >
-            <VToolbarTitle>Your workout sessions</VToolbarTitle>
-
-            <VSpacer/>
-        </VToolbar>
-
-        <VSkeletonLoader class="ma-5" type="table-heading, table-row@3" v-if="loading"/>
+    <div>
+        <VSkeletonLoader v-if="!hasLoadedFirstPage" class="ma-5" type="table-row@10"/>
         <VDataTable
             v-else
             :headers="headers"
@@ -17,41 +8,22 @@
             :items-per-page="workoutSessionsForDisplay.length"
             hide-default-footer
         >
-            <template v-slot:item.icon="{ item: session }">
-                <VIcon v-if="isInProgress(session.uuid)" color="success">{{ $svgIcons.mdiPlay }}</VIcon>
-                <VIcon v-else>{{ $svgIcons.mdiDumbbell }}</VIcon>
-            </template>
-            <template v-slot:item.name="{ item: session }">
-                <RouterLink class="workout-name" :to="{ name: 'sessionOverview', params: { workoutSessionUuid: session.uuid } }">
-                    {{ session.name }}
+            <template v-slot:item.startedAt="{ item: session }">
+                <RouterLink :to="{ name: 'sessionOverview', params: { workoutSessionUuid: session.uuid } }">
+                    {{ session.startedAt }}
                 </RouterLink>
-                <VMenu v-if="$vuetify.breakpoint.xsOnly" bottom left>
-                    <template v-slot:activator="{ on }">
-                        <VBtn icon v-on="on">
-                            <VIcon>{{ $svgIcons.mdiDotsVertical }}</VIcon>
-                        </VBtn>
-                    </template>
-
-                    <VList>
-                        <VListItem
-                            :to="{ name: 'sessionOverview', params: { workoutSessionUuid: session.uuid } }">
-                            <VListItemTitle>View summary</VListItemTitle>
-                        </VListItem>
-                        <VListItem @click="repeatWorkoutNow(session.uuid)">
-                            <VListItemTitle>Repeat this workout now</VListItemTitle>
-                        </VListItem>
-                    </VList>
-                </VMenu>
             </template>
             <template v-slot:item.programName="{ item: session }">
                 <RouterLink
-                    :to="{ name: 'programBuilder', params: { workoutProgramUuid: getOriginProgramId(session) } }"
-                    class="workout-name"
+                    v-if="session.originProgramUuid"
+                    :to="{ name: 'programBuilder', params: { workoutProgramUuid: session.originProgramUuid } }"
                 >
-                    {{ session.workoutProgramRoutine.workoutProgram.name }}
+                    {{ session.programName }}
                 </RouterLink>
+                <!--  Archived -->
+                <MissingValue v-else>{{ session.programName }}</MissingValue>
             </template>
-            <template v-if="$vuetify.breakpoint.smAndUp" v-slot:item.menu="{ item: session }">
+            <template v-slot:item.menu="{ item: session }">
                 <VMenu bottom left>
                     <template v-slot:activator="{ on }">
                         <VBtn icon v-on="on">
@@ -61,11 +33,12 @@
 
                     <VList>
                         <VListItem
-                            :to="{ name: 'sessionOverview', params: { workoutSessionUuid: session.uuid } }">
+                            :to="{ name: 'sessionOverview', params: { workoutSessionUuid: session.uuid } }"
+                        >
                             <VListItemTitle>View summary</VListItemTitle>
                         </VListItem>
-                        <VListItem @click="repeatWorkoutNow(session.uuid)">
-                            <VListItemTitle>Repeat this workout now</VListItemTitle>
+                        <VListItem v-if="session.originProgramUuid" :to="{ name: 'newSessionOverview', params: { originRoutineUuid: session.originProgramUuid } }">
+                            <VListItemTitle>Repeat now</VListItemTitle>
                         </VListItem>
                     </VList>
                 </VMenu>
@@ -74,29 +47,31 @@
 
         <VCardActions class="justify-center">
             <VBtn
-                v-if="!workoutSessionsPagesAllLoaded && !loading"
+                v-if="!workoutSessionsPagesAllLoaded && hasLoadedFirstPage"
+                class="mt-5"
                 depressed
                 small
                 block
-                :loading="loadingPage"
+                :loading="loadingSubsequentPage"
                 @click="loadNextPage"
             >
                 Load more
             </VBtn>
         </VCardActions>
-
-        <NewSessionModal :program-uuid.sync="newSessionModalProgramUuid"></NewSessionModal>
-    </VCard>
+    </div>
 </template>
 
 <script>
+    import MissingValue from './../util/MissingValue';
     import NewSessionModal from './workoutSessions/NewSessionModal';
-    import {dateDescription} from '../../dates';
-    import UuidHelper from "../../UuidHelper";
-    import {mapState} from "vuex";
+    import { dateDescription } from '../../dates';
+    import { mapState, mapGetters } from 'vuex';
 
     export default {
-        components: { NewSessionModal },
+        components: {
+            NewSessionModal,
+            MissingValue,
+        },
         created() {
             this.fetchWorkoutSessions();
         },
@@ -106,13 +81,13 @@
         },
         data() {
             return {
-                loading: true,
-                loadingPage: false,
+                loadingSubsequentPage: false,
                 newSessionModalProgramUuid: null,
             }
         },
         computed: {
             ...mapState('workoutSession', ['workoutSessions', 'workoutSessionsPagesAllLoaded']),
+            ...mapGetters('workoutSession', ['hasLoadedFirstPage']),
             hasNoWorkoutProgram() {
                 return this.workoutSessions.length === 0;
             },
@@ -124,76 +99,57 @@
                         startedAt = `${startedAt} (in progress)`;
                     }
 
+                    const workoutProgram = workoutSession?.workoutProgramRoutine?.workoutProgram;
+                    const programName = workoutProgram ? workoutProgram.name : '(Archived program)'
+                    const originProgramUuid = workoutProgram ? workoutProgram.uuid : null;
+
                     return { ...workoutSession, ...{
                         startedAt,
-                        programName: workoutSession.workoutProgramRoutine.workoutProgram.name,
+                        programName,
+                        originProgramUuid,
                     } };
                 })
             },
             headers() {
-                if (this.$vuetify.breakpoint.xsOnly) {
-                    return [
-                        {
-                            text: 'Routine name',
-                            value: 'name',
-                        },
-                        {
-                            text: 'Date',
-                            value: 'startedAt',
-                        },
-                    ]
-                }
-
                 return [
-                    {
-                        sortable: false,
-                        value: 'icon',
-                        width: '40',
-                    },
-                    {
-                        text: 'Routine name',
-                        value: 'name',
-                    },
-                    {
-                        text: 'Program name',
-                        value: 'programName',
-                    },
                     {
                         text: 'Date',
                         value: 'startedAt',
-                        align: 'end',
+                        width: '20%',
+                        sortable: false,
                     },
                     {
+                        text: 'Routine',
+                        value: 'name',
+                        width: '40%',
                         sortable: false,
+                    },
+                    {
+                        text: 'Program',
+                        value: 'programName',
+                        width: '40%',
+                        sortable: false,
+                    },
+                    {
+                        text: 'Actions',
                         value: 'menu',
-                        width: '40',
+                        align: 'end',
+                        sortable: false,
                     }
                 ];
             }
         },
         methods: {
             async fetchWorkoutSessions() {
-                this.loading = true;
                 await this.$store.dispatch('workoutSession/fetchFirstPage');
-                this.loading = false;
             },
             async loadNextPage() {
-                this.loadingPage = true;
+                this.loadingSubsequentPage = true;
                 await this.$store.dispatch('workoutSession/fetchNextPage');
-                this.loadingPage = false;
+                this.loadingSubsequentPage = false;
             },
-            repeatWorkoutNow(sessionUuid) {
-                const workoutSession = UuidHelper.findIn(this.workoutSessions, sessionUuid);
-
-                const originRoutineUuid = workoutSession.workoutProgramRoutine.uuid;
-
-                this.$router.push({ name: 'newSessionOverview', params: { originRoutineUuid } });
-            },
-            // showNewSessionModal() {
-            //     this.newSessionModalProgramUuid = programUuid;
-            // },
-            getOriginProgramId(session) {
-                return session?.workoutProgramRoutine?.workoutProgram.uuid
+            getOriginRoutineUuid(sessionUuid) {
+                return this.$store.getters['workoutSession/originRoutineUuid'](sessionUuid);
             },
             isInProgress(workoutSessionUuid) {
                 return this.$store.getters['workoutSession/isInProgressWorkout'](workoutSessionUuid);
@@ -201,10 +157,3 @@
         },
     }
 </script>
-
-<style lang="scss" scoped>
-    .workout-name {
-        color: var(--v-anchor-base);
-        font-size: 1.15em;
-    }
-</style>

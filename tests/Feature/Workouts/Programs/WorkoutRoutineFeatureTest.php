@@ -9,11 +9,12 @@ use Illuminate\Support\Str;
 use LiftTracker\Domain\Workouts\Programs\RoutineExercise;
 use LiftTracker\Domain\Workouts\Programs\WorkoutProgram;
 use LiftTracker\Domain\Workouts\Programs\WorkoutProgramRoutine;
+use LiftTracker\Domain\Workouts\Sessions\WorkoutSession;
 use LiftTracker\Http\Middleware\VerifyCsrfToken;
 use LiftTracker\User;
 use Tests\TestCase;
 
-class WorkoutProgramFeatureTest extends TestCase
+class WorkoutRoutineFeatureTest extends TestCase
 {
     use DatabaseTransactions;
 
@@ -23,12 +24,12 @@ class WorkoutProgramFeatureTest extends TestCase
         $this->withoutMiddleware([VerifyCsrfToken::class]);
     }
 
-    public function testIndexWithoutAnyWorkouts(): void
+    public function testIndexWithoutAnyRoutines(): void
     {
         $user = factory(User::class)->create();
 
         $this->actingAs($user)
-            ->get(route('workout-programs.store'))
+            ->get(route('workout-routines.index'))
             ->assertStatus(200)
             ->assertExactJson([]);
     }
@@ -37,22 +38,49 @@ class WorkoutProgramFeatureTest extends TestCase
     {
         $user = factory(User::class)->create();
 
-        /** @var WorkoutProgram $first */
-        $first = factory(WorkoutProgram::class)->create(['name' => 'AAA', 'userId' => $user->id, 'createdAt' => Carbon::yesterday()]);
+        /** @var WorkoutProgram $workout_program */
+        $workout_program = factory(WorkoutProgram::class)->create([
+            'name' => 'Workout program', 'userId' => $user->id, 'createdAt' => Carbon::yesterday()
+        ]);
 
-        /** @var WorkoutProgram $second */
-        $third = factory(WorkoutProgram::class)->create(['name' => 'BBB', 'userId' => $user->id, 'createdAt' => Carbon::today()]);
+        /** @var WorkoutProgramRoutine $most_recent_used */
+        $most_recent_used = factory(WorkoutProgramRoutine::class)->create([
+            'workoutProgramId' => $workout_program->id, 'position' => 0, 'name' => 'most recent used', 'updatedAt' => Carbon::yesterday(),
+        ]);
+        /** @var WorkoutSession $most_recent_used */
+        $most_recent_used_session = factory(WorkoutSession::class)->create([
+            'workoutProgramRoutineId' => $most_recent_used->id, 'userId' => $user->id,  'name' => 'most recent used', 'startedAt' => Carbon::today(),
+        ]);
+        $most_recent_used->latestSession = $most_recent_used_session->toArray();
 
-        /** @var WorkoutProgram $third */
-        $second = factory(WorkoutProgram::class)->create(['name' => 'BBB', 'userId' => $user->id, 'createdAt' => Carbon::tomorrow()]);
+        /** @var WorkoutProgramRoutine $second_most_recent_used */
+        $second_most_recent_used = factory(WorkoutProgramRoutine::class)->create([
+            'workoutProgramId' => $workout_program->id, 'position' => 1, 'name' => 'second most recent used', 'updatedAt' => Carbon::today()
+        ]);
+        /** @var WorkoutSession $most_recent_used */
+        $second_most_recent_used_session = factory(WorkoutSession::class)->create([
+            'workoutProgramRoutineId' => $second_most_recent_used->id, 'userId' => $user->id,  'name' => 'second most recent used', 'startedAt' => Carbon::yesterday(),
+        ]);
+        $second_most_recent_used->latestSession = $second_most_recent_used_session->toArray();
+
+        /** @var WorkoutProgramRoutine $unused_latest_edited */
+        $unused_latest_edited = factory(WorkoutProgramRoutine::class)->create([
+            'workoutProgramId' => $workout_program->id, 'position' => 2, 'name' => 'unused latest edited', 'updatedAt' => Carbon::today()
+        ]);
+
+        /** @var WorkoutProgramRoutine $unused_second_latest_edited */
+        $unused_second_latest_edited = factory(WorkoutProgramRoutine::class)->create([
+            'workoutProgramId' => $workout_program->id, 'position' => 3, 'name' => 'unused second latest edited', 'updatedAt' => Carbon::yesterday()
+        ]);
 
         $this->actingAs($user)
-            ->get(route('workout-programs.index'))
+            ->get(route('workout-routines.index'))
             ->assertStatus(200)
             ->assertJson([
-                $first->toArray(),
-                $second->toArray(),
-                $third->toArray(),
+                $most_recent_used->toArray(),
+                $second_most_recent_used->toArray(),
+                $unused_latest_edited->toArray(),
+                $unused_second_latest_edited->toArray(),
             ]);
     }
 
@@ -393,19 +421,16 @@ class WorkoutProgramFeatureTest extends TestCase
         $usersProgram = new WorkoutProgram(['name' => 'Program 1']);
         $usersProgram->user()->associate($user);
         $usersProgram->save();
-        $usersProgram->refresh();
 
         $routine = new WorkoutProgramRoutine(['name' => 'Routine 1']);
         $routine->workoutProgramId = $usersProgram->id;
         $routine->position = 0;
         $routine->save();
-        $routine->refresh();
 
         $exercise = new RoutineExercise(['name' => 'Push ups']);
         $exercise->workoutProgramRoutineId = $routine->id;
         $exercise->position = 0;
         $exercise->save();
-        $exercise->refresh();
 
         // model::exists() is looking at all rows for some reason, hence manual re-find.
         self::assertNotNull($usersProgram->find($usersProgram->id));

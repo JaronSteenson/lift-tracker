@@ -95,22 +95,9 @@
             }
         },
         async created() {
-            if (!this.$route.params.workoutProgramUuid) {
-                this.$store.dispatch('programBuilder/startNew')
-                return;
-            }
-
-            this.loading = true;
-            try {
-                await this.$store.dispatch('programBuilder/fetch', this.workoutProgramUuid)
-            } catch (e) {
-                this.fetchError = true;
-            }
-
-            this.resetLocalState();
-            this.loading = false;
+            await this.loadProgram();
         },
-        data() {
+      data() {
             return {
                 loading: false,
                 fetchError: false,
@@ -119,21 +106,19 @@
             }
         },
         watch: {
-            // Change the route to id once a new program has been assigned a uuid.
+            workoutProgramUuid() {
+              if (this.workoutProgramUuid !== this.uuid) {
+                this.loadProgram();
+              }
+            },
             uuid(newUuid) {
-                if (!newUuid) {
-                    return;
-                }
-
-                if (this.$route.params.workoutProgramUuid !== newUuid) {
-                    this.$router.replace({name: 'programBuilder', params: {workoutProgramUuid: newUuid}});
-                }
-            },
-        },
+              // Started as a new builder (workoutProgramUuid prop), but has now bee assigned a uuid and saved (val).
+              if (!this.workoutProgramUuid && newUuid) {
+                this.$router.replace({ name: 'programBuilder', params: { workoutProgramUuid: newUuid }});
+              }
+            }
+          },
         computed: {
-            autofocus() {
-                return !this.hasMadeSignificantChangesFromNew;
-            },
             notFound() {
                 return !this.loading && this.fetchError;
             },
@@ -164,12 +149,28 @@
         },
         methods: {
             ...mapActions('programBuilder', ['addWorkoutToProgram', 'archive']),
+          async loadProgram() {
+              if (!this.workoutProgramUuid) {
+                await this.$store.dispatch('programBuilder/startNew')
+                this.resetLocalState();
+                return;
+              }
+
+              this.loading = true;
+              try {
+                await this.$store.dispatch('programBuilder/fetch', this.workoutProgramUuid)
+                this.resetLocalState();
+              } catch (e) {
+                this.fetchError = true;
+              }
+              this.loading = false;
+            },
             async showArchiveConfirmation() {
                 const archiveConfirmed = window.confirm('Are you sure you want to archive this program?');
 
                 if (archiveConfirmed) {
                     await this.archive();
-                    await this.$router.replace({ name: 'home' });
+                    await this.$router.push({ name: 'programList' });
                 }
             },
             finishEditingName() {
@@ -184,7 +185,7 @@
                 this.editingName = false;
             },
             resetLocalState() {
-                this.localState = {name: this.$store.state.programBuilder.name};
+                this.localState = { name: this.$store.state.programBuilder.name };
             },
         }
     }

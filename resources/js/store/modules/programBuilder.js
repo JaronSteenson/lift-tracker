@@ -64,11 +64,11 @@ const getters = {
     ...savingStatusGetters,
 
     hasMadeSignificantChangesFromNew(state) {
-        return state.uuid || // Has somehow forced a save or uuid assignment.
+        return Boolean(state.uuid || // Has somehow forced a save or uuid assignment.
             state.name.trim() !== '' || // Has added a name.
             state.workoutProgramRoutines.length > 1 || // Has added a workout.
             state.workoutProgramRoutines[0]?.name || // Has a name for the first routine.
-            state.workoutProgramRoutines[0]?.routineExercises.length > 0; // Has added an exercise to the first routine.
+            state.workoutProgramRoutines[0]?.routineExercises.length > 0); // Has added an exercise to the first routine.
     },
 
     fromLocalStorage(state) {
@@ -270,9 +270,9 @@ const actions = {
         dispatch('save')
     },
 
-    async archive({ state, dispatch }) {
+    async archive({ state, dispatch }, uuid) {
         try {
-            await WorkoutProgramService.delete(state.uuid);
+            await WorkoutProgramService.delete(uuid || state.uuid);
         } catch (error) {
             console.error(error);
             dispatch('finishSavingError');
@@ -293,8 +293,6 @@ const actions = {
             commit('assignTopLevelUuid');
         }
 
-        dispatch('saveToLocalStorage');
-
         if (state.delayedSavingToServer) {
             return;
         }
@@ -309,10 +307,6 @@ const actions = {
         }
 
     }, SAVE_DEBOUNCE_WAIT),
-
-    saveToLocalStorage({ state }) {
-        localStorage.setItem(localStorageKey(state.uuid), JSON.stringify(state));
-    },
 
     async fetch({ commit, dispatch }, uuid) {
         const response = await WorkoutProgramService.get(uuid);

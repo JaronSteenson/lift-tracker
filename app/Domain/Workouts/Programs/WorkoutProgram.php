@@ -64,10 +64,29 @@ class WorkoutProgram extends AbstractModel implements UserOwnershipInterface
         'updatedAt' => 'datetime:c',
     ];
 
+    public static function boot(): void
+    {
+        parent::boot();
+
+        static::deleting(static function(WorkoutProgram $self) {
+            // Child deleting hook is not called if not deleted individually.
+            $self->workoutProgramRoutines()->each(function (WorkoutProgramRoutine $child) {
+                $child->delete();
+            });
+        });
+    }
+
     public static function createFromRequest(WorkoutProgramRequest $request): self
     {
+        /** @var WorkoutPRogram $workoutProgram */
+        $workoutProgram = $request->getExistingModel();
+
+        if ($workoutProgram === null) {
+            $workoutProgram = new static();
+            $workoutProgram->uuid = $request->get('uuid');
+        }
+
         // Populate the top level fields.
-        $workoutProgram = $request->getExistingModel() ?? new static();
         $workoutProgram->fill($request->getWorkoutProgramFields());
 
         // Associate the user with the top level entity.

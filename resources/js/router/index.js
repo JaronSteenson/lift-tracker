@@ -1,13 +1,15 @@
 import Vue from 'vue'
-import HomePage from "../components/pages/HomePage";
-import LoginPage from "../components/pages/LoginPage";
-import ProgramBuilderPage from "../components/pages/ProgramBuilderPage";
-import NewSessionOverviewPage from "../components/pages/NewSessionOverviewPage";
-import SessionOverviewPage from "../components/pages/SessionOverviewPage";
-import NotFoundPage from "../components/pages/NotFoundPage";
-import VueRouter from "vue-router";
+import LoginPage from '../components/pages/LoginPage';
+import ProgramBuilderPage from '../components/pages/ProgramBuilderPage';
+import WorkoutProgramsPage from '../components/pages/WorkoutProgramsPage';
+import WorkoutSessionsPage from '../components/pages/WorkoutSessionsPage';
+import NewSessionOverviewPage from '../components/pages/NewSessionOverviewPage';
+import NewSessionRoutineSelectPage from '../components/pages/NewSessionRoutineSelectPage';
+import SessionOverviewPage from '../components/pages/SessionOverviewPage';
+import NotFoundPage from '../components/pages/NotFoundPage';
+import VueRouter from 'vue-router';
 import store from './../store';
-import SetOverviewPage from "../components/pages/SetOverviewPage";
+import SetOverviewPage from '../components/pages/SetOverviewPage';
 
 Vue.use(VueRouter);
 
@@ -64,12 +66,11 @@ const routes = [
     {
         name: 'home',
         path: '/',
-        component: HomePage
+        redirect: '/workout-sessions',
     },
     {
         name: 'pwaStart',
         path: '/pwa-start',
-        component: HomePage
     },
     {
         name: 'login',
@@ -88,6 +89,21 @@ const routes = [
         path: '/program-builder/:workoutProgramUuid',
         component: ProgramBuilderPage,
         props: true
+    },
+    {
+        name: 'programList',
+        path: '/workout-programs',
+        component: WorkoutProgramsPage,
+    },
+    {
+        name: 'sessionList',
+        path: '/workout-sessions',
+        component: WorkoutSessionsPage,
+    },
+    {
+        name: 'newSessionRoutineSelect',
+        path: '/new-session',
+        component: NewSessionRoutineSelectPage,
     },
     {
         name: 'newSessionOverview',

@@ -102,11 +102,26 @@ class WorkoutSession extends AbstractModel
 
             $workoutSession->save();
 
-            $originRoutine->routineExercises->each(
+            if (count($originRoutine->routineExercises) === 0) {
+                // Add a blank single set exercise.
+                $routineExercise = new RoutineExercise();
+                $routineExercise->name = $workoutSession->name;
+                $routineExercise->position = 0;
+
+                $sessionExercise = SessionExercise::createFromRoutineExercise($routineExercise, $workoutSession->id);
+
+                $sessionSet = new SessionSet();
+                $sessionSet->sessionExerciseId = $sessionExercise->id;
+                $sessionSet->position = 0;
+
+                $sessionSet->save();
+            } else {
+                $originRoutine->routineExercises->each(
                     static function (RoutineExercise $routineExercise) use ($workoutSession) {
                         SessionExercise::createFromRoutineExercise($routineExercise, $workoutSession->id);
-                }
-            );
+                    }
+                );
+            }
 
             if ($startedAt) {
                 /** @var SessionExercise $firstExercise */

@@ -27,7 +27,7 @@
             stats() {
                 return [
                     {
-                        icon: this.$svgIcons.mdiCalendar,
+                        icon: this.$svgIcons.sessionDate,
                         value: dateDescription(this.workoutSession.startedAt)
                     },
                     {

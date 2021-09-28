@@ -43,8 +43,18 @@ export const getters = {
         return getters.inProgressWorkouts !== null;
     },
 
+    hasLoadedFirstPage(state) {
+        return state.workoutSessionsPagesLoaded > 0;
+    },
+
     isInProgressWorkout: (state, getters) => (uuid) => {
         return UuidHelper.findIn(getters.inProgressWorkouts, uuid);
+    },
+
+    originRoutineUuid:  (state, getters) => (sessionUuid) => {
+        const workoutSession = UuidHelper.findIn(state.workoutSessions, sessionUuid);
+
+        return workoutSession.workoutProgramRoutine.uuid;
     },
 
     currentSetForInProgressWorkout: (state, getters) => (uuid) => {

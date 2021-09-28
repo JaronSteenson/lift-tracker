@@ -172,7 +172,7 @@
                         />
                     </VCol>
                 </VRow>
-                <VRow class="pt-0 mt-0">
+                <VRow v-if="!wasAddedOnTheFly" class="pt-0 mt-0">
                     <VCol class="pt-0 mt-0" cols="8">
                         <span v-if="!hasLoadedExercisePreviousEntries">
                             Loading previous entry overviews...
@@ -466,6 +466,9 @@ export default {
                 })
             },
         },
+        wasAddedOnTheFly() {
+            return this.exercise?.wasAddedOnTheFly;
+        },
     },
     methods: {
         getStepColor(otherSet) {
@@ -535,6 +538,11 @@ export default {
             })
         },
         async ensureExercisePreviousEntriesAreLoaded() {
+            if (this.wasAddedOnTheFly) {
+                this.hasLoadedExercisePreviousEntries = true;
+                return;
+            }
+
             this.hasLoadedExercisePreviousEntries = this.$store.getters['workoutSession/hasLoadedExercisePreviousEntries'](this.exercise.uuid);
             if (!this.hasLoadedExercisePreviousEntries) {
                 await this.fetchExercisePreviousEntries();

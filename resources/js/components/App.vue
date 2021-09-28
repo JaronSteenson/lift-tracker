@@ -7,21 +7,6 @@
             :clipped="$vuetify.breakpoint.lgAndUp"
         >
             <VList dense>
-                <VListItem
-                    link
-                    :to="{ path: '/'}"
-                 >
-                    <VListItemIcon>
-                        <VIcon>{{ $svgIcons.mdiHome }}</VIcon>
-                    </VListItemIcon>
-
-                    <VListItemContent>
-                        <VListItemTitle>Home</VListItemTitle>
-                    </VListItemContent>
-                </VListItem>
-
-                <VDivider/>
-
                 <div
                     :key="workout.uuid"
                     v-for="workout in inProgressWorkouts"
@@ -32,7 +17,7 @@
                         :to="{ name: 'sessionOverview', params: { workoutSessionUuid: workout.uuid } }"
                     >
                         <VListItemAction>
-                            <VIcon color="success">{{ $svgIcons.mdiFormatListBulletedTriangle }}</VIcon>
+                            <VIcon color="success">{{ $svgIcons.workoutSessionnInProgress }}</VIcon>
                         </VListItemAction>
                         <VListItemContent>
                             <VListItemTitle v-if="workoutIsInFocus(workout.uuid)">In progress workout</VListItemTitle>
@@ -45,7 +30,6 @@
                         :key="getCurrentSet(workout.uuid).uuid"
                         link
                         :to="{ name: 'setOverview', params: { sessionSetUuid: getCurrentSet(workout.uuid).uuid }}"
-                        class="menu-sub-item"
                     >
                         <VListItemAction>
                             <VIcon color="success">{{ $svgIcons.mdiPlay }}</VIcon>
@@ -56,12 +40,59 @@
                             <VListItemSubtitle> {{ getCurrentSet(workout.uuid).exercise.name }} - set {{ getCurrentSet(workout.uuid).position + 1 }} </VListItemSubtitle>
                         </VListItemContent>
                     </VListItem>
-
                 </div>
+
+                <VDivider v-if="inProgressWorkouts && inProgressWorkouts.length > 0"/>
+
+                <VListItem
+                    link
+                    :to="{ name: 'sessionList', }"
+                >
+                    <VListItemAction>
+                        <VIcon color="primary" >{{ $svgIcons.workoutSession }}</VIcon>
+                    </VListItemAction>
+                    <VListItemContent>
+                        <VListItemTitle>My workout sessions</VListItemTitle>
+                    </VListItemContent>
+                </VListItem>
+                <VListItem
+                    v-if="!inProgressWorkouts || inProgressWorkouts.length === 0"
+                    link
+                    :to="{ name: 'newSessionRoutineSelect', }"
+                >
+                    <VListItemAction>
+                        <VIcon color="primary" >{{ $svgIcons.mdiPlay }}</VIcon>
+                    </VListItemAction>
+                    <VListItemContent>
+                        <VListItemTitle>Start new session</VListItemTitle>
+                    </VListItemContent>
+                </VListItem>
+                <VListItem
+                    link
+                    :to="{ name: 'programList' }"
+                >
+                    <VListItemAction>
+                        <VIcon color="primary">{{ $svgIcons.workoutProgram }}</VIcon>
+                    </VListItemAction>
+                    <VListItemContent>
+                        <VListItemTitle>My workout programs</VListItemTitle>
+                    </VListItemContent>
+                </VListItem>
+                <VListItem
+                    link
+                    :to="{ name: 'newProgramBuilder' }"
+                >
+                    <VListItemAction>
+                        <VIcon color="primary">{{ $svgIcons.mdiPlus }}</VIcon>
+                    </VListItemAction>
+                    <VListItemContent>
+                        <VListItemTitle>Build workout program</VListItemTitle>
+                    </VListItemContent>
+                </VListItem>
             </VList>
         </VNavigationDrawer>
 
-        <VAppBar app title color="primary" dark :clipped-left="$vuetify.breakpoint.lgAndUp">
+        <VAppBar app color="primary" dark :clipped-left="$vuetify.breakpoint.lgAndUp">
             <VAppBarNavIcon v-if="userIsAuthenticated" @click.stop="drawer = !drawer" />
             <VToolbarTitle>{{ appName }}</VToolbarTitle>
 
@@ -210,14 +241,17 @@
         user-select: none
     }
 
-    .menu-sub-item {
-        padding-left: 25px;
-    }
-
     // This is a manual fix up for switching rom Vuetify loader to manual imports,
     // for some reason the import order of the scss switched resulting in this rule needing ot be added.
     .row {
         margin-top: 0;
         margin-bottom: 0;
+    }
+
+    @media screen and (max-width: 600px) {
+        .page-title {
+            padding-top: 0;
+            padding-bottom: 0;
+        }
     }
 </style>

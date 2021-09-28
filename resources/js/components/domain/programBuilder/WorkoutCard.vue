@@ -70,7 +70,13 @@
             </v-menu>
         </VToolbar>
 
-            <VSubheader v-if="isSessionOverview">Today's session overview</VSubheader>
+            <template v-if="isSessionOverview">
+                <VSubheader>Today's session overview</VSubheader>
+
+                <VCardText v-if="hasNoExercises">
+                    <MissingValue class="d-flex justify-center">No exercises</MissingValue>
+                </VCardText>
+            </template>
 
             <component :is="isSessionOverview ? 'div' : 'VRow'" class="mt-0">
                 <component :is="isSessionOverview ? 'div' : 'VCol'">
@@ -92,7 +98,7 @@
             </component>
         <VCardActions class="justify-center" width="100%">
                 <VBtn v-if="isSessionOverview" :loading="starting" @click="startWorkout" color="success" x-large width="80%" class="my-5">
-                    <VIcon left>{{ $svgIcons.mdiClockStart }}</VIcon>
+                    <VIcon left>{{ $svgIcons.mdiPlay }}</VIcon>
                     Start workout
                 </VBtn>
                 <VBtn v-else @click="addExercise" width="100%">
@@ -107,9 +113,11 @@
     import ExerciseCard from "./ExerciseCard";
     import Draggable from 'vuedraggable';
     import EditableTitle from "../../formFields/EditableTitle";
+    import MissingValue from "../../util/MissingValue";
 
     export default {
         components: {
+            MissingValue,
             EditableTitle,
             ExerciseCard,
             Draggable,
@@ -162,7 +170,10 @@
             },
             useInlineMobileView() {
                 return this.isSessionOverview && this.$vuetify.breakpoint.smAndDown;
-            }
+            },
+            hasNoExercises() {
+                return this.orderedExercises.length === 0;
+            },
         },
         methods: {
             editTitle() {

@@ -57,6 +57,10 @@ class SessionExercise extends AbstractModel implements UserOwnershipInterface
         'position',
     ];
 
+    protected $appends = [
+        'wasAddedOnTheFly',
+    ];
+
     /**
      * The attributes that should be visible in arrays.
      *
@@ -72,6 +76,7 @@ class SessionExercise extends AbstractModel implements UserOwnershipInterface
         'sessionSets',
         'createdAt',
         'updatedAt',
+        'wasAddedOnTheFly',
     ];
 
     protected $with = [
@@ -117,6 +122,11 @@ class SessionExercise extends AbstractModel implements UserOwnershipInterface
 
             return $sessionExercise->fresh();
         });
+    }
+
+    public function getWasAddedOnTheFlyAttribute(): bool
+    {
+        return $this->routineExerciseId === null;
     }
 
     public function isOwnedBy(User $user): bool

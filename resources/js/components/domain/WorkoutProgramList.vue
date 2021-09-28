@@ -1,46 +1,25 @@
 <template>
-    <VCard>
-        <VToolbar
-            color="primary"
-            dark
+    <div>
+        <VCard v-if="isArchiving" loading>
+            <VCardText>
+                Archiving workout...
+            </VCardText>
+        </VCard>
+        <VSkeletonLoader v-if="loading" class="ma-5" type="table-row@10"/>
+        <VDataTable
+            v-else
+            :headers="headers"
+            :items="workoutProgramsForDisplay"
+            :items-per-page="workoutProgramsForDisplay.length"
+            hide-default-footer
         >
-            <VToolbarTitle>Your workout programs</VToolbarTitle>
-
-            <VSpacer/>
-
-            <VBtn :to="{ name: 'newProgramBuilder' }" icon>
-                <VIcon>{{ $svgIcons.mdiPlus }}</VIcon>
-            </VBtn>
-        </VToolbar>
-
-        <VSkeletonLoader class="ma-5" type="table-heading, table-row@3" v-if="loading"/>
-        <VDataTable v-else :headers="headers" :items="workoutProgramsForDisplay">
-            <template v-slot:item.icon="{ item: program }">
-                <VIcon>{{ $svgIcons.mdiTable }}</VIcon>
-            </template>
             <template v-slot:item.name="{ item: program }">
-                <RouterLink class="program-name" :to="{ name: 'programBuilder', params: { workoutProgramUuid: program.uuid } }">
-                    {{ program.name }}
+                <RouterLink :to="{ name: 'programBuilder', params: { workoutProgramUuid: program.uuid } }">
+                    <template v-if="program.name">{{ program.name }}</template>
+                    <MissingValue v-else>Unnamed program</MissingValue>
                 </RouterLink>
-                <VMenu v-if="$vuetify.breakpoint.xsOnly" bottom left>
-                    <template v-slot:activator="{ on }">
-                        <VBtn icon v-on="on">
-                            <VIcon>{{ $svgIcons.mdiDotsVertical }}</VIcon>
-                        </VBtn>
-                    </template>
-
-                    <VList>
-                        <VListItem
-                            :to="{ name: 'programBuilder', params: { workoutProgramUuid: program.uuid } }">
-                            <VListItemTitle>Edit</VListItemTitle>
-                        </VListItem>
-                        <VListItem @click="showNewSessionModal(program.uuid)">
-                            <VListItemTitle>New session</VListItemTitle>
-                        </VListItem>
-                    </VList>
-                </VMenu>
             </template>
-            <template v-if="$vuetify.breakpoint.smAndUp" v-slot:item.menu="{ item: program }">
+            <template v-slot:item.menu="{ item: program }">
                 <VMenu bottom left>
                     <template v-slot:activator="{ on }">
                         <VBtn icon v-on="on">
@@ -54,24 +33,32 @@
                             <VListItemTitle>Edit</VListItemTitle>
                         </VListItem>
                         <VListItem @click="showNewSessionModal(program.uuid)">
-                            <VListItemTitle>New session</VListItemTitle>
+                            <VListItemTitle>New session from this program</VListItemTitle>
+                        </VListItem>
+                        <VListItem @click="showArchiveConfirmation(program.uuid)">
+                            <VListItemTitle>Archive</VListItemTitle>
                         </VListItem>
                     </VList>
                 </VMenu>
             </template>
         </VDataTable>
 
-        <NewSessionModal :program-uuid.sync="newSessionModalProgramUuid"></NewSessionModal>
-    </VCard>
+        <NewSessionModal :program-uuid.sync="newSessionModalProgramUuid"/>
+    </div>
 </template>
 
 <script>
     import WorkoutProgramService from '../../api/WorkoutProgramService';
-    import NewSessionModal from "./workoutSessions/NewSessionModal";
+    import NewSessionModal from './workoutSessions/NewSessionModal';
     import { dateTimeDescription } from "../../dates";
+    import {mapActions} from "vuex";
+    import MissingValue from "../util/MissingValue";
 
     export default {
-        components: {NewSessionModal},
+        components: {
+            MissingValue,
+            NewSessionModal,
+        },
         created() {
             this.fetchWorkoutPrograms();
         },
@@ -84,6 +71,7 @@
                 workoutPrograms: [],
                 loading: true,
                 newSessionModalProgramUuid: null,
+                isArchiving: false,
             }
         },
         computed: {
@@ -96,43 +84,31 @@
                 })
             },
             headers() {
-                if (this.$vuetify.breakpoint.xsOnly) {
-                    return [
-                        {
-                            text: 'Name',
-                            value: 'name',
-                        },
-                        {
-                            text: 'Last edited',
-                            value: 'updatedAt',
-                        },
-                    ]
-                }
-
                 return [
                     {
-                        sortable: false,
-                        value: 'icon',
-                        width: '40',
-                    },
-                    {
-                        text: 'Program name',
+                        text: 'Name',
                         value: 'name',
+                        width: '70%',
+                        sortable: false,
                     },
                     {
                         text: 'Last edited',
                         value: 'updatedAt',
                         align: 'end',
+                        width: '30%',
+                        sortable: false,
                     },
                     {
-                        sortable: false,
+                        text: 'Actions',
                         value: 'menu',
-                        width: '40',
+                        align: 'end',
+                        sortable: false,
                     }
                 ];
             }
         },
         methods: {
+            ...mapActions('programBuilder', ['archive']),
             async fetchWorkoutPrograms() {
                 this.loading = true;
                 const response = await WorkoutProgramService.getAll();
@@ -142,14 +118,19 @@
             },
             showNewSessionModal(programUuid) {
                 this.newSessionModalProgramUuid = programUuid;
-            }
+            },
+            async showArchiveConfirmation(programUuid) {
+                const archiveConfirmed = window.confirm('Are you sure you want to archive this program?');
+
+                if (archiveConfirmed) {
+                    this.loading = true;
+                    this.isArchiving = true;
+                    await this.archive(programUuid);
+                    this.isArchiving = false;
+                    await this.fetchWorkoutPrograms();
+                    this.loading = false;
+                }
+            },
         },
     }
 </script>
-
-<style lang="scss" scoped>
-    .program-name {
-        color: var(--v-anchor-base);
-        font-size: 1.15em;
-    }
-</style>

@@ -6,12 +6,14 @@ use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use LiftTracker\Domain\AbstractModel;
 use LiftTracker\Domain\Users\CanBeOwnedByUserTrait;
 use LiftTracker\Domain\Users\UserOwnershipInterface;
+use LiftTracker\Domain\Workouts\Sessions\WorkoutSession;
 use LiftTracker\Traits\HasUuidTrait;
 use LiftTracker\User;
 
@@ -27,6 +29,7 @@ use LiftTracker\User;
  * @property Carbon createdAt
  * @property Carbon updatedAt
  * @property Collection|RoutineExercise[] $routineExercises
+ * @property WorkoutSession $latestSession A manually set "relationship"
  *
  */
 class WorkoutProgramRoutine extends AbstractModel implements UserOwnershipInterface
@@ -58,6 +61,8 @@ class WorkoutProgramRoutine extends AbstractModel implements UserOwnershipInterf
         'routineExercises',
         'position',
         'workoutProgram',
+        'workoutSessions',
+        'latestSession',
     ];
 
     protected $casts = [
@@ -69,15 +74,19 @@ class WorkoutProgramRoutine extends AbstractModel implements UserOwnershipInterf
     {
         parent::boot();
 
-        static::deleting(static function(WorkoutProgramRoutine $routine) {
-            // Delete exercises also on delete.
-            $routine->routineExercises()->delete();
+        static::deleting(static function(WorkoutProgramRoutine $self) {
+            $self->routineExercises()->delete();
         });
     }
 
     public function workoutProgram(): BelongsTo
     {
         return $this->belongsTo(WorkoutProgram::class, 'workoutProgramId');
+    }
+
+    public function workoutSessions(): HasMany
+    {
+        return $this->hasMany(WorkoutSession::class, 'workoutProgramRoutineId');
     }
 
     public function isOwnedBy(User $user): bool

@@ -42,15 +42,15 @@ class WorkoutSessionTest extends TestCase
         /** @var SessionSet $sessionSet */
         $sessionSet = $exercise->sessionSets->first();
 
-        self::assertTrue($session->exists());
-        self::assertTrue($exercise->exists());
-        self::assertTrue($sessionSet->exists());
+        self::assertNotNull($session->find($session->id));
+        self::assertNotNull($exercise->find($exercise->id));
+        self::assertNotNull($sessionSet->find($sessionSet->id));
 
         $session->deleteWithChildren();
 
-        self::assertFalse($session->exists());
-        self::assertFalse($exercise->exists());
-        self::assertFalse($sessionSet->exists());
+        self::assertNull($session->find($session->id));
+        self::assertNull($exercise->find($exercise->id));
+        self::assertNull($sessionSet->find($sessionSet->id));
     }
 
 }

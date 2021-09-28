@@ -33,6 +33,13 @@ Route::apiResource('api/workout-programs', 'Api\WorkoutProgramController')
     ->middleware('auth');
 
 /**
+ * Program builder endpoints.
+ * @see \LiftTracker\Http\Controllers\Api\WorkoutRoutineController
+ */
+Route::apiResource('api/workout-routines', 'Api\WorkoutRoutineController')
+    ->middleware('auth');
+
+/**
  * Workout session endpoints.
  * @see \LiftTracker\Http\Controllers\Api\WorkoutSessionController
  */
