@@ -37,7 +37,10 @@
                         >
                             <VListItemTitle>View summary</VListItemTitle>
                         </VListItem>
-                        <VListItem v-if="session.originProgramUuid" :to="{ name: 'newSessionOverview', params: { originRoutineUuid: session.originProgramUuid } }">
+                        <VListItem
+                            v-if="session.originProgramUuid"
+                            :to="{ name: 'newSessionOverview', params: { originRoutineUuid: session.workoutProgramRoutine.uuid } }"
+                        >
                             <VListItemTitle>Repeat now</VListItemTitle>
                         </VListItem>
                     </VList>
