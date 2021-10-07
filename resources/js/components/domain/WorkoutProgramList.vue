@@ -15,7 +15,7 @@
             <template v-slot:item.name="{ item: program }">
                 <RouterLink :to="{ name: 'programBuilder', params: { workoutProgramUuid: program.uuid } }">
                     <template v-if="program.name">{{ program.name }}</template>
-                    <MissingValue v-else>Unnamed program</MissingValue>
+                    <MissingValue v-else full-opacity>Unnamed program</MissingValue>
                 </RouterLink>
             </template>
             <template v-slot:item.menu="{ item: program }">

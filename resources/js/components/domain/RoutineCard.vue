@@ -14,9 +14,14 @@
             </div>
             <div class="mt-2">
                 <VIcon color="primary">{{ $svgIcons.workoutProgram }}</VIcon>
-                <RouterLink :to="{ name: 'programBuilder', params: { workoutProgramUuid: routine.workoutProgram.uuid }  }">
-                    {{ routine.workoutProgram.name }}
+                <RouterLink
+                    v-if="routine.workoutProgram"
+                    :to="{ name: 'programBuilder', params: { workoutProgramUuid: routine.workoutProgram.uuid } }"
+                >
+                    <template v-if="routine.workoutProgram.name">{{ routine.workoutProgram.name }}</template>
+                    <MissingValue v-else full-opacity>Unnamed program</MissingValue>
                 </RouterLink>
+                <MissingValue v-else>Deleted program</MissingValue>
             </div>
         </VCardText>
         <div class="d-flex">
