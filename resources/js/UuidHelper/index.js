@@ -46,6 +46,23 @@ export default {
     },
 
     /**
+     * Find and replace an object in an array where it has the specified uuid.
+     * The look up is not deep.
+     * @param array
+     * @param replaceWith
+     * @returns {*}
+     */
+    replaceInCopy(array, replaceWith) {
+        const copy = [...array];
+
+        const index = copy.findIndex(object => object.uuid === replaceWith.uuid);
+
+        copy.splice(index, 1, replaceWith);
+
+        return copy;
+    },
+
+    /**
      * Find an object by uuid recursively in an array or object.
      * @param subject {Array | object}
      * @param uuid {string}

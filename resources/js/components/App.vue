@@ -58,7 +58,7 @@
                 <VListItem
                     v-if="!inProgressWorkouts || inProgressWorkouts.length === 0"
                     link
-                    :to="{ name: 'newSessionRoutineSelect', }"
+                    :to="{ name: 'newSessionRoutineSelect' }"
                 >
                     <VListItemAction>
                         <VIcon color="primary" >{{ $svgIcons.mdiPlay }}</VIcon>
@@ -120,7 +120,7 @@
         </VAppBar>
 
         <VMain>
-            <VFadeTransition v-if="hasLoaded" leave-absolute>
+            <VFadeTransition leave-absolute>
                 <RouterView/>
             </VFadeTransition>
         </VMain>
@@ -156,8 +156,6 @@
         },
         computed: {
             ...mapState('app', [
-                'hasLoaded',
-                'slowLoading',
                 'appName',
                 'authenticatedUser'
             ]),
@@ -165,6 +163,7 @@
                 avatarInitial: 'getUserAvatarInitial',
                 userIsAuthenticated: 'userIsAuthenticated',
             }),
+            ...mapGetters('programBuilder', ['myWorkoutPrograms']),
             ...mapGetters('workoutSession',
                 ['hasLoadedInProgressWorkouts', 'inProgressWorkouts']
             ),

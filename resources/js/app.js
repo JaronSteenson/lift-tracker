@@ -19,5 +19,3 @@ import App from './components/App.vue';
         render: h => h(App),
     }).$mount('#app');
 })();
-
-

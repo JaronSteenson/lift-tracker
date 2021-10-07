@@ -31,10 +31,7 @@ class WorkoutProgramController extends Controller
         /** @var User $loggedInUser */
         $loggedInUser = $request->user();
 
-        return $loggedInUser->workoutPrograms()
-            ->orderBy('name')
-            ->orderBy('createdAt', 'desc')
-            ->get();
+        return $loggedInUser->getWorkoutPrograms();
     }
 
     /**

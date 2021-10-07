@@ -1,9 +1,4 @@
 <template>
-    <VCard v-if="isArchiving" loading>
-        <VCardText>
-            Archiving workout...
-        </VCardText>
-    </VCard>
     <component
         v-else
         :elevation="this.$vuetify.breakpoint.smAndDown ? 0 : 5"
@@ -85,11 +80,6 @@
             originRoutineUuid: String,
             workoutSessionUuid: String,
         },
-        data() {
-            return {
-                isArchiving: false,
-            }
-        },
         computed: {
             ...mapGetters('workoutSession', ['workoutName', 'workoutSession', 'sessionExercises']),
             isInProgress() {
@@ -104,15 +94,10 @@
                 const archiveConfirmed = window.confirm('Are you sure you want to archive this workout?');
 
                 if (archiveConfirmed) {
-                    this.archive();
+                    this.$store.dispatch('workoutSession/archive', this.workoutSession.uuid);
+                    this.$router.replace({ name: 'home' });
                 }
             },
-            async archive() {
-                this.isArchiving = true;
-                await this.$store.dispatch('workoutSession/archive', this.workoutSession.uuid);
-                await this.$router.replace({ name: 'home' });
-                this.isArchiving = false
-            }
         }
     }
 </script>

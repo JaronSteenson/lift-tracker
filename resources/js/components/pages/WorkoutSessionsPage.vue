@@ -1,9 +1,18 @@
 <template>
-    <ListPage title="My workout sessions">
+    <NoProgramsWelcomeHint
+        v-if="shouldShowNoProgramsWelcomeHint"
+    />
+    <NoSessionsHint
+        v-else-if="shouldShowNoSessionsHint"
+    />
+    <ListPage
+        v-else
+        title="My workout sessions"
+    >
         <slot>
             <WorkoutSessionList/>
         </slot>
-        <template v-if="hasLoadedInProgressWorkouts"  v-slot:fab>
+        <template v-slot:fab>
             <VBtn
                 v-if="inProgressSet"
                 :to="{ name: 'setOverview', params: { sessionSetUuid: inProgressSet.uuid }}"
@@ -31,24 +40,23 @@
 <script>
 import ListPage from '../layouts/ListPage';
 import WorkoutSessionList from '../domain/WorkoutSessionList';
-import { mapGetters } from 'vuex';
+import {mapActions, mapGetters, mapState} from 'vuex';
+import NoProgramsWelcomeHint from "../domain/userHints/NoProgramsWelcomeHint";
+import NoSessionsHint from "../domain/userHints/NoSessionsHint";
 
 export default {
     components: {
+        NoSessionsHint,
+        NoProgramsWelcomeHint,
         ListPage,
-        WorkoutSessionList ,
+        WorkoutSessionList,
     },
     computed: {
+        ...mapGetters('app',
+            ['shouldShowNoProgramsWelcomeHint', 'shouldShowNoSessionsHint']),
         ...mapGetters('workoutSession',
-            ['hasLoadedInProgressWorkouts', 'inProgressWorkouts']
+            ['inProgressSet']
         ),
-        inProgressSet() {
-            if (this.inProgressWorkouts.length === 0) {
-                return null;
-            }
-
-            return this.$store.getters['workoutSession/currentSetForInProgressWorkout'](this.inProgressWorkouts[0].uuid);
-        },
     },
 }
 </script>

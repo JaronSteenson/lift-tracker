@@ -30,8 +30,6 @@
                 loading: true,
             }
         },
-        computed: {
-        },
         methods: {
             async fetchRoutines() {
                 this.loading = true;

@@ -63,6 +63,31 @@ class User extends AbstractModel implements AuthenticatableContract
         return $this->hasMany(WorkoutSession::class, 'userId');
     }
 
+    /**
+     * @param int|null $page
+     * @return WorkoutSession[]
+     */
+    public function getWorkoutSessionsPaginated(int $page = null): array
+    {
+        return $this->workoutSessions()
+            ->with('workoutProgramRoutine.workoutProgram')
+            ->without('sessionExercises', 'sessionExercises.sessionSets')
+            ->orderBy('createdAt', 'desc')
+            ->simplePaginate(null, ['*'], 'page', $page)
+            ->items();
+    }
+
+    /**
+     * @return Collection|WorkoutProgram[]
+     */
+    public function getWorkoutPrograms(): Collection
+    {
+        return $this->workoutPrograms()
+        ->orderBy('name')
+        ->orderBy('createdAt', 'desc')
+        ->get();
+    }
+
     public function findWorkoutPrograms(): Collection
     {
         return $this->workoutPrograms()->orderBy('name')->get();

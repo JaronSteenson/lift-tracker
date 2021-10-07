@@ -13,7 +13,7 @@ import SetOverviewPage from '../components/pages/SetOverviewPage';
 
 Vue.use(VueRouter);
 
-function forceLogin(to, from, next) {
+async function forceLogin(to, from, next) {
     const isAuthed = store.getters['app/userIsAuthenticated'];
     const toLogin = to.name === 'login' || to.name === 'sign-up';
 
@@ -23,7 +23,7 @@ function forceLogin(to, from, next) {
     }
 
     if (!isAuthed && !toLogin) {
-        store.dispatch('app/setAfterLoginUrl', window.location.href);
+        await store.dispatch('app/setAfterLoginUrl', window.location.href);
         next({ name: 'login' });
         return;
     }
@@ -48,18 +48,6 @@ function checkPwaStart(to, from, next) {
 
     const inProgressSet = store.getters['workoutSession/currentSetForInProgressWorkout'](inProgressWorkouts[0].uuid);
     next({ name: 'setOverview', params: { sessionSetUuid: inProgressSet.uuid }});
-}
-
-async function waitForAppBootstrap(to, from, next) {
-    if (!store.getters['app/isBootstraped']) {
-        await store.dispatch('app/fetchAppBootstrapData');
-    }
-
-    if (store.getters['app/userIsAuthenticated']) {
-        await store.dispatch('workoutSession/fetchInProgressWorkouts');
-    }
-
-    next();
 }
 
 const routes = [
@@ -135,7 +123,6 @@ const router =  new VueRouter({
     mode: 'history',
 });
 
-router.beforeEach(waitForAppBootstrap);
 router.beforeEach(forceLogin);
 router.beforeEach(checkPwaStart);
 

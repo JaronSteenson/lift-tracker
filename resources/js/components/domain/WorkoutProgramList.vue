@@ -1,16 +1,15 @@
 <template>
     <div>
-        <VCard v-if="isArchiving" loading>
-            <VCardText>
-                Archiving workout...
-            </VCardText>
+        <VCard
+            v-if="myWorkoutPrograms.length === 0"
+        >
+            To get started build a program.
         </VCard>
-        <VSkeletonLoader v-if="loading" class="ma-5" type="table-row@10"/>
         <VDataTable
             v-else
             :headers="headers"
-            :items="workoutProgramsForDisplay"
-            :items-per-page="workoutProgramsForDisplay.length"
+            :items="myWorkoutPrograms"
+            :items-per-page="myWorkoutPrograms.length"
             hide-default-footer
         >
             <template v-slot:item.name="{ item: program }">
@@ -51,7 +50,7 @@
     import WorkoutProgramService from '../../api/WorkoutProgramService';
     import NewSessionModal from './workoutSessions/NewSessionModal';
     import { dateTimeDescription } from "../../dates";
-    import {mapActions} from "vuex";
+    import { mapActions, mapGetters } from "vuex";
     import MissingValue from "../util/MissingValue";
 
     export default {
@@ -59,30 +58,13 @@
             MissingValue,
             NewSessionModal,
         },
-        created() {
-            this.fetchWorkoutPrograms();
-        },
-        watch: {
-            // call again the method if the route changes
-            $route: 'fetchWorkoutPrograms'
-        },
         data() {
             return {
-                workoutPrograms: [],
-                loading: true,
                 newSessionModalProgramUuid: null,
-                isArchiving: false,
             }
         },
         computed: {
-            hasNoWorkoutProgram() {
-                return this.workoutPrograms.length === 0;
-            },
-            workoutProgramsForDisplay() {
-                return this.workoutPrograms.map(workoutProgram => {
-                    return { ...workoutProgram, ...{ updatedAt: dateTimeDescription(workoutProgram.updatedAt) } };
-                })
-            },
+            ...mapGetters('programBuilder', ['myWorkoutPrograms']),
             headers() {
                 return [
                     {
@@ -93,7 +75,7 @@
                     },
                     {
                         text: 'Last edited',
-                        value: 'updatedAt',
+                        value: 'updatedAtDescription',
                         align: 'end',
                         width: '30%',
                         sortable: false,
@@ -109,13 +91,6 @@
         },
         methods: {
             ...mapActions('programBuilder', ['archive']),
-            async fetchWorkoutPrograms() {
-                this.loading = true;
-                const response = await WorkoutProgramService.getAll();
-
-                this.workoutPrograms = response.data;
-                this.loading = false;
-            },
             showNewSessionModal(programUuid) {
                 this.newSessionModalProgramUuid = programUuid;
             },
@@ -123,12 +98,7 @@
                 const archiveConfirmed = window.confirm('Are you sure you want to archive this program?');
 
                 if (archiveConfirmed) {
-                    this.loading = true;
-                    this.isArchiving = true;
                     await this.archive(programUuid);
-                    this.isArchiving = false;
-                    await this.fetchWorkoutPrograms();
-                    this.loading = false;
                 }
             },
         },

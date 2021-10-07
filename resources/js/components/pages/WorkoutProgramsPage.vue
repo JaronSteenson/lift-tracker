@@ -1,5 +1,6 @@
 <template>
-    <ListPage title="My workout programs">
+    <NoProgramsHint v-if="myWorkoutPrograms.length === 0"/>
+    <ListPage v-else title="My workout programs">
         <slot>
             <WorkoutProgramList/>
         </slot>
@@ -20,11 +21,17 @@
 <script>
 import WorkoutProgramList from '../domain/WorkoutProgramList';
 import ListPage from '../layouts/ListPage';
+import {mapGetters} from "vuex";
+import NoProgramsHint from "../domain/userHints/NoProgramsHint";
 
 export default {
     components: {
+        NoProgramsHint,
         ListPage,
         WorkoutProgramList,
+    },
+    computed: {
+        ...mapGetters('programBuilder', ['myWorkoutPrograms']),
     },
 }
 </script>

@@ -3,7 +3,8 @@ import AppService from "../../api/AppService";
 const SLOW_BOOTSTRAP_LOAD_TIME = 1000;
 
 const state = {
-    hasLoaded: false,
+    isBaseBootstraped: false,
+    isBootstrapedForAuthedUser: false,
     slowLoading: false,
     slowLoadingTimeout: null,
     appName: null,
@@ -15,8 +16,8 @@ const state = {
 
 const getters = {
 
-    isBootstraped(state) {
-        return state.hasLoaded;
+    isBaseBootstraped(state) {
+        return state.isBaseBootstraped;
     },
 
     userIsAuthenticated(state) {
@@ -38,26 +39,54 @@ const getters = {
         return state.afterLoginUrl ?? { name: 'home' };
     },
 
+    shouldShowNoProgramsWelcomeHint(state, getters, rootState, rootGetters) {
+        if (!getters.userIsAuthenticated) {
+            return false;
+        }
+
+        return rootGetters['workoutSession/myWorkoutSessions'].length === 0
+            && rootGetters['programBuilder/myWorkoutPrograms'].length === 0
+    },
+
+    shouldShowNoProgramsHintStartNewSession(state, getters, rootState, rootGetters) {
+        if (!getters.userIsAuthenticated) {
+            return false;
+        }
+
+        return rootGetters['programBuilder/myWorkoutPrograms'].length === 0
+    },
+
+    shouldShowNoSessionsHint(state, getters, rootState, rootGetters) {
+        if (!getters.userIsAuthenticated) {
+            return false;
+        }
+
+        return rootGetters['workoutSession/myWorkoutSessions'].length === 0
+            && rootGetters['programBuilder/myWorkoutPrograms'].length > 0
+    },
+
 };
 
 const actions = {
-    directlyLoadAppBoostrap({state, commit, dispatch}, data) {
-        const newState = { ...state, ...data, hasLoaded: true };
+    directlyLoadAppBoostrap({ state, commit, dispatch }, data) {
+        commit('reset', { ...data.app, isBaseBootstraped: true });
 
-        commit('reset', newState);
+        if (data.app.authenticatedUser !== null) {
+            commit('workoutSession/reset', data.workoutSession, { root: true });
+            commit('programBuilder/reset', data.programBuilder, { root: true });
+        }
 
         return data;
     },
 
-    async fetchAppBootstrapData({state, commit, dispatch}) {
+    async fetchAppBaseBootstrapData({ dispatch }) {
         dispatch('startSlowLoadingTimeout');
 
         const response = await AppService.getBootstrapData();
-        const newState = { ...state, ...response.data, hasLoaded: true };
+
+        dispatch('directlyLoadAppBoostrap', response.data);
 
         dispatch('clearSlowLoadingTimeout');
-        commit('reset', newState);
-
         return response.data;
     },
 
@@ -87,7 +116,7 @@ const actions = {
             return false;
         }
 
-        const newState = { ...response.data, hasLoaded: true };
+        const newState = { ...response.data, isBaseBootstraped: true };
 
         commit('reset', newState);
 
@@ -97,9 +126,10 @@ const actions = {
     async logout({ commit }) {
         const response = await AppService.logout();
 
-        const newState = { ...response.data, hasLoaded: true };
+        commit('reset', { ...response.data.app, isBaseBootstraped: true });
 
-        commit('reset', newState);
+        commit('workoutSession/restoreDefault', undefined, { root: true });
+        commit('programBuilder/restoreDefault', undefined, { root: true });
 
         return response;
     }

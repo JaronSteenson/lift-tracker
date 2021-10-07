@@ -1,11 +1,9 @@
 <template>
     <div>
-        <VSkeletonLoader v-if="!hasLoadedFirstPage" class="ma-5" type="table-row@10"/>
         <VDataTable
-            v-else
             :headers="headers"
-            :items="workoutSessionsForDisplay"
-            :items-per-page="workoutSessionsForDisplay.length"
+            :items="myWorkoutSessions"
+            :items-per-page="myWorkoutSessions.length"
             hide-default-footer
         >
             <template v-slot:item.startedAt="{ item: session }">
@@ -43,31 +41,31 @@
                         >
                             <VListItemTitle>Repeat now</VListItemTitle>
                         </VListItem>
+                        <VListItem @click="showArchiveConfirmation(session.uuid)">
+                            <VListItemTitle>Archive</VListItemTitle>
+                        </VListItem>
                     </VList>
                 </VMenu>
             </template>
         </VDataTable>
 
-        <VCardActions class="justify-center">
+        <div class="text-center mt-5">
             <VBtn
-                v-if="!workoutSessionsPagesAllLoaded && hasLoadedFirstPage"
-                class="mt-5"
+                v-if="!myWorkoutSessionsPagesAllLoaded"
                 depressed
                 small
-                block
-                :loading="loadingSubsequentPage"
+                :loading="loadingNextPage"
                 @click="loadNextPage"
             >
                 Load more
             </VBtn>
-        </VCardActions>
+        </div>
     </div>
 </template>
 
 <script>
     import MissingValue from './../util/MissingValue';
     import NewSessionModal from './workoutSessions/NewSessionModal';
-    import { dateDescription } from '../../dates';
     import { mapState, mapGetters } from 'vuex';
 
     export default {
@@ -75,44 +73,15 @@
             NewSessionModal,
             MissingValue,
         },
-        created() {
-            this.fetchWorkoutSessions();
-        },
-        watch: {
-            // call again the method if the route changes
-            $route: 'fetchWorkoutSessions'
-        },
         data() {
             return {
-                loadingSubsequentPage: false,
+                loadingNextPage: false,
                 newSessionModalProgramUuid: null,
             }
         },
         computed: {
-            ...mapState('workoutSession', ['workoutSessions', 'workoutSessionsPagesAllLoaded']),
-            ...mapGetters('workoutSession', ['hasLoadedFirstPage']),
-            hasNoWorkoutProgram() {
-                return this.workoutSessions.length === 0;
-            },
-            workoutSessionsForDisplay() {
-                return this.workoutSessions.map(workoutSession => {
-                    let startedAt = dateDescription(workoutSession.startedAt);
-
-                    if (this.isInProgress(workoutSession.uuid)) {
-                        startedAt = `${startedAt} (in progress)`;
-                    }
-
-                    const workoutProgram = workoutSession?.workoutProgramRoutine?.workoutProgram;
-                    const programName = workoutProgram ? workoutProgram.name : '(Archived program)'
-                    const originProgramUuid = workoutProgram ? workoutProgram.uuid : null;
-
-                    return { ...workoutSession, ...{
-                        startedAt,
-                        programName,
-                        originProgramUuid,
-                    } };
-                })
-            },
+            ...mapState('workoutSession', ['myWorkoutSessionsPagesAllLoaded']),
+            ...mapGetters('workoutSession', ['myWorkoutSessions']),
             headers() {
                 return [
                     {
@@ -143,19 +112,17 @@
             }
         },
         methods: {
-            async fetchWorkoutSessions() {
-                await this.$store.dispatch('workoutSession/fetchFirstPage');
-            },
             async loadNextPage() {
-                this.loadingSubsequentPage = true;
+                this.loadingNextPage = true;
                 await this.$store.dispatch('workoutSession/fetchNextPage');
-                this.loadingSubsequentPage = false;
+                this.loadingNextPage = false;
             },
-            getOriginRoutineUuid(sessionUuid) {
-                return this.$store.getters['workoutSession/originRoutineUuid'](sessionUuid);
-            },
-            isInProgress(workoutSessionUuid) {
-                return this.$store.getters['workoutSession/isInProgressWorkout'](workoutSessionUuid);
+            showArchiveConfirmation(workoutSessionUuid) {
+                const archiveConfirmed = window.confirm('Are you sure you want to archive this workout?');
+
+                if (archiveConfirmed) {
+                    this.$store.dispatch('workoutSession/archive', workoutSessionUuid);
+                }
             },
         },
     }

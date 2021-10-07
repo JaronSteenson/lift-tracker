@@ -25,7 +25,7 @@
 
                     <ServerSyncInfo
                         :status-message="saveStatusMessage"
-                        :updatedAt="updatedAt"
+                        :updatedAt="inFocusProgram.updatedAt"
                     />
 
                     <VMenu bottom left>
@@ -102,7 +102,7 @@
                 loading: false,
                 fetchError: false,
                 editingName: false,
-                localState: { name: this.$store.state.programBuilder.name },
+                localState: { name: this.$store.state.programBuilder.inFocusProgram.name },
             }
         },
         watch: {
@@ -122,11 +122,14 @@
             notFound() {
                 return !this.loading && this.fetchError;
             },
-            ...mapState('programBuilder', ['updatedAt', 'uuid']),
+            ...mapState('programBuilder', ['inFocusProgram']),
             ...mapGetters('programBuilder', [
                 'hasMadeSignificantChangesFromNew',
                 'saveStatusMessage'
             ]),
+            uuid() {
+                return this.inFocusProgram.uuid;
+            },
             orderedWorkouts: {
                 get() {
                     return this.$store.getters['programBuilder/getOrderedWorkouts'];
@@ -140,7 +143,7 @@
             },
             name: {
                 get() {
-                    return this.$store.state.programBuilder.name;
+                    return this.$store.state.programBuilder.inFocusProgram.name;
                 },
                 set(name) {
                     this.$store.dispatch('programBuilder/updateName', name);
@@ -185,7 +188,7 @@
                 this.editingName = false;
             },
             resetLocalState() {
-                this.localState = { name: this.$store.state.programBuilder.name };
+                this.localState = { name: this.$store.state.programBuilder.inFocusProgram.name };
             },
         }
     }

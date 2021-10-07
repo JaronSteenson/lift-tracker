@@ -1,7 +1,7 @@
 import WorkoutSessionService from '../../api/WorkoutSessionService'
 import UuidHelper from '../../UuidHelper'
 import {differenceInSeconds, isAfter} from 'date-fns';
-import {utcNow} from '../../dates';
+import {dateDescription, utcNow} from '../../dates';
 import {
     mutations as saveStatusMutations,
     actions as saveStatusActions,
@@ -9,6 +9,7 @@ import {
     getters as savingStatusGetters,
 } from './saveStatusMixin';
 import {memoizeDebounceAction} from "../../util";
+import WorkoutProgramService from "../../api/WorkoutProgramService";
 
 const SAVE_DEBOUNCE_WAIT = 1000;
 
@@ -25,9 +26,9 @@ function defaultState() {
             createdAt: null,
             updatedAt: null,
         },
-        workoutSessions: [],
-        workoutSessionsPagesLoaded: 0,
-        workoutSessionsPagesAllLoaded: false,
+        myWorkoutSessions: [],
+        myWorkoutSessionsPagesLoaded: 0,
+        myWorkoutSessionsPagesAllLoaded: false,
         exercisesPreviousEntries: {}, // Previous entries of exercises keyed by exercise uuid.
         inProgressWorkouts: null, // An array of workouts.
         restPeriodTimout: null,
@@ -44,15 +45,50 @@ export const getters = {
     },
 
     hasLoadedFirstPage(state) {
-        return state.workoutSessionsPagesLoaded > 0;
+        return state.myWorkoutSessionsPagesLoaded > 0;
+    },
+
+    myWorkoutSessions(state, getters) {
+        if (state.myWorkoutSessions === null) {
+            return null;
+        }
+
+        return state.myWorkoutSessions.map(workoutSession => {
+            let startedAt = dateDescription(workoutSession.startedAt);
+
+            if (getters.isInProgressWorkout(workoutSession.uuid)) {
+                startedAt = `${startedAt} (in progress)`;
+            }
+
+            const workoutProgram = workoutSession?.workoutProgramRoutine?.workoutProgram;
+            const programName = workoutProgram ? workoutProgram.name : '(Archived program)'
+            const originProgramUuid = workoutProgram ? workoutProgram.uuid : null;
+
+            return {
+                ...workoutSession,
+                ...{
+                    startedAt,
+                    programName,
+                    originProgramUuid,
+                },
+            };
+        })
     },
 
     isInProgressWorkout: (state, getters) => (uuid) => {
         return UuidHelper.findIn(getters.inProgressWorkouts, uuid);
     },
 
-    originRoutineUuid:  (state, getters) => (sessionUuid) => {
-        const workoutSession = UuidHelper.findIn(state.workoutSessions, sessionUuid);
+    inProgressSet(state, getters) {
+        if (getters.inProgressWorkouts.length === 0) {
+            return null;
+        }
+
+        return getters.currentSetForInProgressWorkout(getters.inProgressWorkouts[0].uuid);
+    },
+
+    originRoutineUuid:  (state) => (sessionUuid) => {
+        const workoutSession = UuidHelper.findIn(state.myWorkoutSessions, sessionUuid);
 
         return workoutSession.workoutProgramRoutine.uuid;
     },
@@ -417,14 +453,28 @@ export const actions = {
         dispatch('saveSet', uuid);
     },
 
-    /**
-     * @param commit
-     * @param uuid The uuid of the workout session to be archived.
-     */
-    async archive({ commit }, uuid) {
-        await WorkoutSessionService.delete(uuid);
+    async archive({ state, commit, dispatch }, uuidToDelete) {
+        try {
+            const updatedWorkoutSessions = UuidHelper.removeFromCopy(state.myWorkoutSessions, uuidToDelete)
+            const updatedInProgressWorkouts = UuidHelper.removeFromCopy(state.inProgressWorkouts, uuidToDelete)
 
-        commit('removeWorkoutSession', uuid);
+            // Optimistically remove from the state.
+            commit('reset', {
+                myWorkoutSessions: updatedWorkoutSessions,
+                inProgressWorkouts: updatedInProgressWorkouts,
+            });
+
+            await WorkoutSessionService.delete(uuidToDelete);
+        } catch (error) {
+            console.error(error);
+            dispatch('finishSavingError');
+
+            // Rollback the remove from the state.
+            commit('reset', {
+                myWorkoutSessions: state.myWorkoutSessions,
+                inProgressWorkouts: state.inProgressWorkouts,
+            });
+        }
     },
 
     /**
@@ -534,13 +584,13 @@ export const actions = {
      * @return {Promise<*>}
      */
     async fetchNextPage({ commit, state }) {
-        const nextPage = state.workoutSessionsPagesLoaded + 1;
+        const nextPage = state.myWorkoutSessionsPagesLoaded + 1;
         const response = await WorkoutSessionService.index(nextPage);
 
         commit('reset', {
-            workoutSessions: [...state.workoutSessions, ...response.data],
-            workoutSessionsPagesLoaded: nextPage,
-            workoutSessionsPagesAllLoaded: response.data.length < WorkoutSessionService.getPageSize(),
+            myWorkoutSessions: [...state.myWorkoutSessions, ...response.data],
+            myWorkoutSessionsPagesLoaded: nextPage,
+            myWorkoutSessionsPagesAllLoaded: response.data.length < WorkoutSessionService.getPageSize(),
         });
 
         return response;
@@ -555,9 +605,9 @@ export const actions = {
         const response = await WorkoutSessionService.index(1);
 
         commit('reset', {
-            workoutSessions: response.data,
-            workoutSessionsPagesLoaded: 1,
-            workoutSessionsPagesAllLoaded: response.data.length < WorkoutSessionService.getPageSize(),
+            myWorkoutSessions: response.data,
+            myWorkoutSessionsPagesLoaded: 1,
+            myWorkoutSessionsPagesAllLoaded: response.data.length < WorkoutSessionService.getPageSize(),
         });
 
         return response;
@@ -595,11 +645,20 @@ export const actions = {
     },
 
     async startWorkout({ commit, dispatch, state }, { originWorkoutUuid }) {
-        commit('reset', defaultState());
-
+        const originalState = defaultState();
         const response = await WorkoutSessionService.startNew(originWorkoutUuid);
 
-        commit('reset', { workoutSession: response.data });
+        const update = {
+            workoutSession: response.data,
+            exercisesPreviousEntries: originalState.exercisesPreviousEntries,
+            inProgressWorkouts: [...state.inProgressWorkouts, response.data]
+        };
+
+        if (state.myWorkoutSessionsPagesAllLoaded) {
+            update.myWorkoutSessions = [...state.myWorkoutSessions, response.data];
+        }
+
+        commit('reset', update);
     },
 
     async endWorkout({ commit, dispatch, getters }) {
@@ -630,6 +689,14 @@ export const actions = {
 
 const mutations = {
     ...saveStatusMutations,
+
+    restoreDefault(state) {
+        const originalState = defaultState();
+
+        Object.keys(originalState).forEach(key => {
+            state[key] = originalState[key];
+        });
+    },
 
     reset(state, newState) {
         Object.keys(newState).forEach(key => {
@@ -713,15 +780,6 @@ const mutations = {
     endWorkout(state, { endedAt }) {
         state.workoutSession.endedAt = endedAt;
     },
-
-    removeWorkoutSession(state, uuid) {
-        UuidHelper.removeFrom(state.inProgressWorkouts, uuid);
-        UuidHelper.removeFrom(state.workoutSessions, uuid);
-
-        if (state.workoutSession.uuid === uuid) {
-            state.workoutSession = defaultState().workoutSession;
-        }
-    }
 
 };
 

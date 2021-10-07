@@ -4,7 +4,7 @@
             <VCardTitle>
                 <VSkeletonLoader v-if="loading" type="heading" class="mt-2" style="width: 50%"/>
                 <template v-else>
-                    {{ workoutProgram.name }}
+                    {{ workoutProgram.name || 'Unnamed program' }}
                 </template>
             </VCardTitle>
             <VDivider/>

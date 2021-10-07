@@ -36,12 +36,7 @@ class WorkoutSessionController extends Controller
         /** @var User $loggedInUser */
         $loggedInUser = $request->user();
 
-        return $loggedInUser->workoutSessions()
-            ->with('workoutProgramRoutine.workoutProgram')
-            ->without('sessionExercises', 'sessionExercises.sessionSets')
-            ->orderBy('createdAt', 'desc')
-            ->simplePaginate()
-            ->items();
+        return $loggedInUser->getWorkoutSessionsPaginated();
     }
 
     /**

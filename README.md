@@ -20,6 +20,8 @@ docker-compose exec workspace bash; # get into the workspace container
 php -dxdebug.remote_enable=1 -dxdebug.remote_mode=req -dxdebug.remote_port=9000 -dxdebug.remote_host=172.17.0.1 ./vendor/phpunit/phpunit/phpunit --configuration ./phpunit.xml --filter "/(::testDeleteRemovesExercises)( .*)?$/"
 
 php -dxdebug.remote_enable=1 -dxdebug.remote_mode=req -dxdebug.remote_port=9000 -dxdebug.remote_host=172.17.0.1 ./vendor/phpunit/phpunit/phpunit --configuration ./phpunit.xml --filter RoutineExerciseTest
+
+php ./vendor/phpunit/phpunit/phpunit --configuration ./phpunit.xml
 ```
 
 <hr>
