@@ -12,7 +12,6 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\DB;
 use LiftTracker\Domain\AbstractModel;
 use LiftTracker\Domain\Users\CanBeOwnedByUserTrait;
-use LiftTracker\Domain\Workouts\Exercises\Exercise;
 use LiftTracker\Domain\Workouts\Programs\RoutineExercise;
 use LiftTracker\Domain\Workouts\Programs\WorkoutProgram;
 use LiftTracker\Domain\Workouts\Programs\WorkoutProgramRoutine;
@@ -22,8 +21,6 @@ use LiftTracker\Traits\HasUuidTrait;
 /**
  * This class/table doesn't link to exercise instead when adding an exercise to a routine
  * it will copy and extend an Exercise.
- *
- * @see Exercise
  *
  * @mixin Builder
  * @property string id

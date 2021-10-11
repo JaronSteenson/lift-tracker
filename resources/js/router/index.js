@@ -1,5 +1,6 @@
 import Vue from 'vue'
 import LoginPage from '../components/pages/LoginPage';
+import SettingsPage from '../components/pages/SettingsPage';
 import ProgramBuilderPage from '../components/pages/ProgramBuilderPage';
 import WorkoutProgramsPage from '../components/pages/WorkoutProgramsPage';
 import WorkoutSessionsPage from '../components/pages/WorkoutSessionsPage';
@@ -65,6 +66,11 @@ const routes = [
         path: '/login',
         component: LoginPage,
         props: true,
+    },
+    {
+        name: 'settings',
+        path: '/settings',
+        component: SettingsPage,
     },
     {
         name: 'newProgramBuilder',

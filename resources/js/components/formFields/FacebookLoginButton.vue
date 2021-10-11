@@ -21,8 +21,8 @@ export default {
         href() {
             const baseUrl = 'https://www.facebook.com/v10.0/dialog/oauth';
             const redirectUrl = `${location.protocol}//${location.host}/facebook-login`;
-
-            return `${baseUrl}?scope=email&client_id=${this.facebookAppId}&redirect_uri=${redirectUrl}&state=csrf-token=${this.csrfToken},after-login-url=${this.afterLoginUrl}`;
+// auth_type=reauthenticate
+            return `${baseUrl}?&scope=email&client_id=${this.facebookAppId}&redirect_uri=${redirectUrl}&state=csrf-token=${this.csrfToken},after-login-url=${this.afterLoginUrl}`;
         }
     }
 }

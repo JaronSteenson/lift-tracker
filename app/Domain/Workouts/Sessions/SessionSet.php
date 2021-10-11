@@ -8,15 +8,12 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use LiftTracker\Domain\AbstractModel;
 use LiftTracker\Domain\Users\CanBeOwnedByUserTrait;
-use LiftTracker\Domain\Workouts\Exercises\Exercise;
 use LiftTracker\Traits\HasUuidTrait;
 use LiftTracker\Traits\SyncsWeightToRoutineTrait;
 
 /**
  * This class/table doesn't link to exercise instead when adding an exercise to a routine
  * it will copy and extend an Exercise.
- *
- * @see Exercise
  *
  * @mixin Builder
  * @property string id

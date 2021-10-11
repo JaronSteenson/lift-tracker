@@ -7,54 +7,40 @@ use Illuminate\Auth\AuthenticationException;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
 use Illuminate\Support\Facades\Auth;
 use LiftTracker\Auth\FacebookAuthManager;
+use LiftTracker\Domain\Users\AccountPurger;
 use LiftTracker\Http\Controllers\Controller;
 use Symfony\Component\HttpFoundation\Request;
 use Illuminate\Config\Repository as Config;
 
-class FacebookLoginController extends Controller
+class FacebookLoginDeleteAccountController extends FacebookLoginController
 {
-
-    use AuthenticatesUsers;
-
-    /**
-     * @var FacebookAuthManager
-     */
-    protected $facebookAuthService;
-
-    /**
-     * @var Config
-     */
-    protected $config;
-
-    public function __construct(FacebookAuthManager $facebookAuthService, Config $config)
-    {
-        parent::__construct();
-        $this->facebookAuthService = $facebookAuthService;
-        $this->config = $config;
-    }
 
     /**
      * Authenticate from facebook.
      *
      * @throws FacebookSDKException
-     * @throws AuthenticationException
      */
     public function index(Request $request)
     {
-        if (Auth::check()) {
-            throw new AuthenticationException('User is already logged in');
-        }
+        $user = $request->user();
 
         // Pull an url from config explicitly rather than trying to determine it from the request.
         // The app server url may not match the reverse proxy/public facing (Cloudflare) url due to http vs https.
-        $redirectUrl = $this->config->get('app.facebook_app_redirect_url');
+        $redirectUrl = $this->config->get('app.facebook_app_delete_account_redirect_url');
 
-        $this->facebookAuthService->registerOrLoginUser(
+        $this->facebookAuthService->revokeLogin(
+            $user,
             $request->get('code'),
             $redirectUrl
         );
 
-        $redirectTo = $request->get('after-login-url') ?: $request->root();
+        (new AccountPurger())->purge($user);
+
+        $this->guard()->logout();
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+
+        $redirectTo = $request->root();
 
         // Empty hash fragment is added to remove Facebook's ugly one.
         // https://stackoverflow.com/questions/7131909/facebook-callback-appends-to-return-url

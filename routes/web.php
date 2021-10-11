@@ -81,6 +81,14 @@ Route::any('/facebook-login', 'Auth\FacebookLoginController@index')
     ->middleware('facebook-login');
 
 /**
+ *  Authenticates the request from facebook's forced re-auth redirect, then delete the users account.
+ * @see \LiftTracker\Http\Controllers\Auth\FacebookLoginDeleteAccountController
+ */
+Route::any('/facebook-login-delete-account', 'Auth\FacebookLoginDeleteAccountController@index')
+    ->name('facebook-login-delete-account')
+    ->middleware('facebook-login');
+
+/**
  * @see \LiftTracker\Http\Controllers\StaticLegalPagesController
  */
 Route::get('privacy-policy', 'StaticLegalPagesController@privacyPolicy')

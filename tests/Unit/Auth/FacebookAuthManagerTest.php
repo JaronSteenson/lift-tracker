@@ -11,6 +11,7 @@ use Facebook\Exceptions\FacebookSDKException;
 use Facebook\Facebook;
 use Facebook\FacebookResponse;
 use Facebook\GraphNodes\GraphUser;
+use RuntimeException;
 use Illuminate\Auth\AuthManager;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use LiftTracker\Auth\FacebookAuthManager;
@@ -167,6 +168,77 @@ class FacebookAuthManagerTest extends TestCase
             'Invalid app id' => [false, true],
             'Expired token' => [true, false],
         ];
+    }
+
+    /**
+     * @throws FacebookSDKException
+     * @doesNotPerformAssertions
+     */
+    public function testConfirmReAuth(): void
+    {
+        $user = (new User)->whereNotNull('facebookId')->first();
+        $facebookUserId = $user->facebookId;
+
+        $facebookUser = new GraphUser([
+            'id' => $facebookUserId,
+            'first_name' => 'NewFirstNameFromFacebook',
+            'last_name' => 'NewLastNameFromFacebook',
+            'email' => 'newEmailFromFacebook@example.com',
+        ]);
+
+        [$facebook, $authManager] = $this->buildMockDependencies($facebookUser);
+        $facebookAuthManager = new FacebookAuthManager($facebook, $authManager);
+
+        $facebookAuthManager->confirmReAuth($user,'', '');
+    }
+
+    /**
+     * @throws FacebookSDKException
+     */
+    public function testConfirmReAuthFailsWhenAnotherUserIsLoggedIn(): void
+    {
+        $user = (new User)->whereNotNull('facebookId')->first();
+        $facebookUserId = $user->facebookId;
+
+        $facebookUser = new GraphUser([
+            'id' => $facebookUserId,
+            'first_name' => 'NewFirstNameFromFacebook',
+            'last_name' => 'NewLastNameFromFacebook',
+            'email' => 'newEmailFromFacebook@example.com',
+        ]);
+
+        [$facebook, $authManager] = $this->buildMockDependencies($facebookUser);
+        $facebookAuthManager = new FacebookAuthManager($facebook, $authManager);
+
+        $loggedInUser = new User();
+        $loggedInUser->id = -1;
+
+        $this->expectException(RuntimeException::class);
+        $this->expectExceptionMessage('Re-auth failed');
+        $facebookAuthManager->confirmReAuth($loggedInUser,'', '');
+    }
+
+    /**
+     * @throws FacebookSDKException
+     */
+    public function testConfirmReAuthFailsWhenFacebookUserIsNotInDatabase(): void
+    {
+        $user = (new User)->whereNotNull('facebookId')->first();
+        $facebookUserId = $user->facebookId;
+
+        $facebookUser = new GraphUser([
+            'id' => -1,
+            'first_name' => 'NewFirstNameFromFacebook',
+            'last_name' => 'NewLastNameFromFacebook',
+            'email' => 'newEmailFromFacebook@example.com',
+        ]);
+
+        [$facebook, $authManager] = $this->buildMockDependencies($facebookUser);
+        $facebookAuthManager = new FacebookAuthManager($facebook, $authManager);
+
+        $this->expectException(RuntimeException::class);
+        $this->expectExceptionMessage('Re-auth failed');
+        $facebookAuthManager->confirmReAuth($user,'', '');
     }
 
     /**

@@ -17,10 +17,17 @@ export default {
 }
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
 .list-page {
     .v-data-table > .v-data-table__wrapper > table > thead > tr > th {
         height: 2px;
+    }
+}
+
+@media screen and (max-width: 600px) {
+    .page-title {
+        padding-top: 0;
+        padding-bottom: 0;
     }
 }
 </style>

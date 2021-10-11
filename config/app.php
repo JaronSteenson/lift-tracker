@@ -105,6 +105,7 @@ return [
     'facebook_app_id' => env('FACEBOOK_APP_ID', '134752092025712'),
     'facebook_app_secret' => env('FACEBOOK_APP_SECRET', '134752092025712'),
     'facebook_app_redirect_url' => env('FACEBOOK_APP_REDIRECT_URL', 'http://localhost/facebook-login'),
+    'facebook_app_delete_account_redirect_url' => env('FACEBOOK_APP_DELETE_ACCOUNT_REDIRECT_URL', 'http://localhost/facebook-login-delete-account'),
 
     /*
     |--------------------------------------------------------------------------

@@ -112,6 +112,9 @@
                     </VBtn>
                 </template>
                 <VList>
+                    <VListItem :to="{ name: 'settings' }">
+                        <VListItemTitle>Settings</VListItemTitle>
+                    </VListItem>
                     <VListItem @click="logout">
                         <VListItemTitle>Logout</VListItemTitle>
                     </VListItem>
@@ -247,10 +250,4 @@
         margin-bottom: 0;
     }
 
-    @media screen and (max-width: 600px) {
-        .page-title {
-            padding-top: 0;
-            padding-bottom: 0;
-        }
-    }
 </style>

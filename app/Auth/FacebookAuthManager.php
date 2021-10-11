@@ -6,6 +6,7 @@ use Facebook\Authentication\AccessToken;
 use Facebook\Exceptions\FacebookSDKException;
 use Facebook\Facebook;
 use Facebook\GraphNodes\GraphUser;
+use RuntimeException;
 use Illuminate\Auth\AuthManager;
 use Illuminate\Support\Facades\DB;
 use LiftTracker\User;
@@ -68,6 +69,36 @@ class FacebookAuthManager
         });
 
         return $user;
+    }
+
+    /**
+     * @throws FacebookSDKException
+     */
+    public function confirmReAuth(User $authedUser, string $shortLivedAccessCode, string $redirectUri): AccessToken
+    {
+        $accessToken = $this->fetchAccessToken($shortLivedAccessCode, $redirectUri);
+        $this->validateAccessToken($accessToken);
+
+        $facebookUser = $this->fetchFacebookUser($accessToken);
+        $user = (new User)->findByFacebookId($facebookUser->getId());
+
+        if ($user === null || $authedUser->id !== $user->id) {
+            throw new RuntimeException('Re-auth failed');
+        }
+
+        return $accessToken;
+    }
+
+    /**
+     * @link https://developers.facebook.com/docs/facebook-login/permissions/requesting-and-revoking
+     * @throws FacebookSDKException
+     */
+    public function revokeLogin(User $authedUser, string $shortLivedAccessCode, string $redirectUri): void
+    {
+        $userId = $authedUser->facebookId;
+        $accessToken = $this->confirmReAuth($authedUser, $shortLivedAccessCode, $redirectUri);
+
+        $this->facebook->delete("{$userId}/permissions", [], $accessToken);
     }
 
     /**
