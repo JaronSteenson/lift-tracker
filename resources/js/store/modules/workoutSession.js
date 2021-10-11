@@ -655,7 +655,7 @@ export const actions = {
         };
 
         if (state.myWorkoutSessionsPagesAllLoaded) {
-            update.myWorkoutSessions = [...state.myWorkoutSessions, response.data];
+            update.myWorkoutSessions = [response.data, ...state.myWorkoutSessions];
         }
 
         commit('reset', update);

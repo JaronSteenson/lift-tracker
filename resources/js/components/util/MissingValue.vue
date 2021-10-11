@@ -1,6 +1,6 @@
 <template>
     <span
-        class="archived-value"
+        class="missing-value"
         :class="{'missing-value--full-opacity': fullOpacity}"
     >
         <slot/>

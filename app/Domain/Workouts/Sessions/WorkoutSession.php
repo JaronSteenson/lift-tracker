@@ -34,6 +34,7 @@ use LiftTracker\Traits\HasUuidTrait;
  * @property Carbon startedAt
  * @property Carbon endedAt
  * @property string notes
+ * @property WorkoutProgramRoutine workoutProgramRoutine
  * @property WorkoutSession[]|Collection sessionExercises
  * @property Carbon createdAt
  * @property Carbon updatedAt
@@ -134,7 +135,11 @@ class WorkoutSession extends AbstractModel
                 $firstSet->save();
             }
 
-            return $workoutSession->fresh();
+            $workoutSession->fresh();
+            $workoutSession->workoutProgramRoutine->fresh();
+            $workoutSession->workoutProgramRoutine->workoutProgram->fresh();
+
+            return $workoutSession;
         });
     }
 
