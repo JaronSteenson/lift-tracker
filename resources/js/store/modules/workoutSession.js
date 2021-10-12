@@ -596,23 +596,6 @@ export const actions = {
         return response;
     },
 
-    /**
-     * @param commit
-     * @param page
-     * @return {Promise<*>}
-     */
-    async fetchFirstPage({ commit }) {
-        const response = await WorkoutSessionService.index(1);
-
-        commit('reset', {
-            myWorkoutSessions: response.data,
-            myWorkoutSessionsPagesLoaded: 1,
-            myWorkoutSessionsPagesAllLoaded: response.data.length < WorkoutSessionService.getPageSize(),
-        });
-
-        return response;
-    },
-
     async fetchBySet({ commit, dispatch }, sessionSetUuid) {
         const response = await WorkoutSessionService.getBySet(sessionSetUuid);
         commit('reset', { workoutSession: response.data });

@@ -34,31 +34,39 @@
                 required: true,
             },
         },
+        created() {
+            this.ensureWorkoutSessionIsLoadedLoaded();
+        },
         data() {
             return {
                 loading: false,
                 fetchError: false,
             }
         },
-        async created() {
-            if (this.$store.getters['workoutSession/hasSetInSession'](this.sessionSetUuid)) {
-                return;
-            }
-
-            this.loading = true;
-
-            try {
-                await this.$store.dispatch('workoutSession/fetchBySet', this.sessionSetUuid);
-            } catch (e) {
-                this.fetchError = true;
-            }
-
-            this.loading = false;
-        },
         computed: {
             notFound() {
                 return !this.loading && this.fetchError;
             },
+        },
+        watch: {
+            $route: 'ensureWorkoutSessionIsLoadedLoaded',
+        },
+        methods: {
+            async ensureWorkoutSessionIsLoadedLoaded() {
+                if (this.$store.getters['workoutSession/hasSetInSession'](this.sessionSetUuid)) {
+                    return;
+                }
+
+                this.loading = true;
+
+                try {
+                    await this.$store.dispatch('workoutSession/fetchBySet', this.sessionSetUuid);
+                } catch (e) {
+                    this.fetchError = true;
+                }
+
+                this.loading = false;
+            }
         }
     }
 </script>
