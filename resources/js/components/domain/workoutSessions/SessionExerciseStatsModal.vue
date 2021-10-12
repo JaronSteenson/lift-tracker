@@ -25,20 +25,22 @@
             </BackForwardToolbar>
 
             <VCardText>
-                <h3 class="mt-4">Notes</h3>
-                <p v-if="sessionExercise.notes">
-                    {{ sessionExercise.notes }}
-                </p>
-                <p v-else>
-                    No notes
-                </p>
+                <h3 class="mb-2 mt-4">Notes</h3>
+                <p v-if="sessionExercise.notes" class="notes">{{ sessionExercise.notes }}</p>
+                <MissingValue v-else>No notes</MissingValue>
+
                 <hr class="mt-2" />
 
                 <div class="graph">
-                    <h3 class="mb-2 mt-8">Weight</h3>
-                    <div v-if="isSingleSet">
-                        {{ singleSetWeight }} {{ singleSetReps }}
-                    </div>
+                    <h3 class="mb-2 mt-4">Weight</h3>
+                    <template v-if="isSingleSet">
+                        <p v-if="singleSetWeight !== null">
+                            {{ singleSetWeight }} {{ singleSetReps }}
+                        </p>
+                        <MissingValue v-else>
+                            Weight not recorded
+                        </MissingValue>
+                    </template>
                     <VSparkline
                         v-else
                         :gradient="['purple', 'violet']"
@@ -56,7 +58,7 @@
                 </div>
 
                 <div v-if="!isSingleSet" class="graph">
-                    <h3 class="mb-2 mt-8">Reps</h3>
+                    <h3 class="mb-2 mt-4">Reps</h3>
                     <VSparkline
                         :gradient="['purple', 'violet']"
                         :label-size="10"
@@ -102,9 +104,10 @@
 <script>
 import { dateDescription, minsSecDuration } from '../../../dates';
 import BackForwardToolbar from './../../BackForwardToolbar.vue';
+import MissingValue from "../../util/MissingValue";
 
 export default {
-    components: { BackForwardToolbar },
+    components: {MissingValue, BackForwardToolbar },
     props: {
         sessionExercises: {
             type: Array,
@@ -155,7 +158,7 @@ export default {
             const weight = this.sessionExercise.sessionSets[0].weight;
 
             if (weight === null) {
-                return "Unknown weight";
+                return null;
             }
 
             return `${weight}kg`;
@@ -259,3 +262,9 @@ export default {
     }
 };
 </script>
+
+<style lang="scss" scoped>
+    .notes {
+        white-space: pre-line;
+    }
+</style>
