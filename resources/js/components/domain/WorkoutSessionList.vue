@@ -16,7 +16,8 @@
                     v-if="session.originProgramUuid"
                     :to="{ name: 'programBuilder', params: { workoutProgramUuid: session.originProgramUuid } }"
                 >
-                    {{ session.programName }}
+                    <template v-if="session.programName">{{ session.programName }}</template>
+                    <MissingValue full-opacity v-else>Unnamed program</MissingValue>
                 </RouterLink>
                 <!--  Archived -->
                 <MissingValue v-else>{{ session.programName }}</MissingValue>

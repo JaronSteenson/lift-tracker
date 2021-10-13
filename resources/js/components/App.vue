@@ -46,7 +46,7 @@
 
                 <VListItem
                     link
-                    :to="{ name: 'sessionList', }"
+                    :to="{ name: 'sessionList' }"
                 >
                     <VListItemAction>
                         <VIcon color="primary" >{{ $svgIcons.workoutSession }}</VIcon>
@@ -67,6 +67,9 @@
                         <VListItemTitle>Start new session</VListItemTitle>
                     </VListItemContent>
                 </VListItem>
+
+                <VDivider/>
+
                 <VListItem
                     link
                     :to="{ name: 'programList' }"
