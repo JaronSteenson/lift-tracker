@@ -1,17 +1,28 @@
 import AppService from "../../api/AppService";
-
-const SLOW_BOOTSTRAP_LOAD_TIME = 1000;
+import { addMinutes, isAfter } from 'date-fns'
 
 const state = {
     isBaseBootstraped: false,
-    isBootstrapedForAuthedUser: false,
-    slowLoading: false,
-    slowLoadingTimeout: null,
     appName: null,
     authenticatedUser: null,
     csrfToken: null,
     facebookAppId: null,
     afterLoginUrl: null,
+    /**
+     * Session lifetime in minutes.
+     * @type ?number
+     */
+    sessionLifetime: null,
+    /**
+     * Roughly when the session will expire.
+     * @type ?DateTime
+     */
+    sessionExpiryTime: null,
+    /**
+     * We can force the session expired modal from either a bad ajax response or from our expiry check interval.
+     * @type Boolean
+     */
+    showSessionExpiredModal: false,
 };
 
 const getters = {
@@ -65,13 +76,42 @@ const getters = {
             && rootGetters['programBuilder/myWorkoutPrograms'].length > 0
     },
 
+    sessionIsExpired: (state) => () => {
+        return isAfter(new Date(), state.sessionExpiryTime);
+    },
+
+    showSessionExpiredModal(state) {
+        return state.showSessionExpiredModal;
+    },
+
 };
 
 const actions = {
-    directlyLoadAppBoostrap({ state, commit, dispatch }, data) {
+    directlyLoadAppBoostrap({ state, commit, dispatch, getters }, data) {
+        const isAuthed = data.app.authenticatedUser !== null;
+
+        if (isAuthed) {
+            data.app.sessionExpiryTime = addMinutes(new Date(), data.app.sessionLifetime);
+
+            const sessionExpiryCheckInterval = setInterval(async () => {
+                 if (getters.sessionIsExpired()) {
+                    // We need to re-fetch the xsrf token before the user trys to re-auth.
+                    const boostrapDataResponse = await AppService.getBootstrapData();
+                    const csrfToken = boostrapDataResponse.data.app.csrfToken;
+
+                    commit('reset', {
+                        csrfToken,
+                        showSessionExpiredModal: true,
+                    });
+
+                    clearInterval(sessionExpiryCheckInterval);
+                }
+            }, 60 * 1000);
+        }
+
         commit('reset', { ...data.app, isBaseBootstraped: true });
 
-        if (data.app.authenticatedUser !== null) {
+        if (isAuthed) {
             commit('workoutSession/reset', data.workoutSession, { root: true });
             commit('programBuilder/reset', data.programBuilder, { root: true });
         }
@@ -79,48 +119,8 @@ const actions = {
         return data;
     },
 
-    async fetchAppBaseBootstrapData({ dispatch }) {
-        dispatch('startSlowLoadingTimeout');
-
-        const response = await AppService.getBootstrapData();
-
-        dispatch('directlyLoadAppBoostrap', response.data);
-
-        dispatch('clearSlowLoadingTimeout');
-        return response.data;
-    },
-
-    startSlowLoadingTimeout({ commit }) {
-        const slowLoadingTimeout = setTimeout(() => {
-            commit('reset', {slowLoading: true});
-        }, SLOW_BOOTSTRAP_LOAD_TIME)
-
-        commit('reset', { slowLoadingTimeout });
-    },
-
-    clearSlowLoadingTimeout({ state }) {
-        clearTimeout(state.slowLoadingTimeout);
-    },
-
     setAfterLoginUrl({ commit }, to) {
         commit('setAfterLoginUrl', to);
-    },
-
-    async login({ commit }, { email, password }) {
-        let response = null;
-
-        try {
-            response = await AppService.login({ email, password });
-        } catch (e) {
-            console.warn('Login failure');
-            return false;
-        }
-
-        const newState = { ...response.data, isBaseBootstraped: true };
-
-        commit('reset', newState);
-
-        return response;
     },
 
     async logout({ commit }) {
@@ -132,7 +132,26 @@ const actions = {
         commit('programBuilder/restoreDefault', undefined, { root: true });
 
         return response;
-    }
+    },
+
+    extendSessionExpiry({ state, commit }) {
+        commit('reset', {
+            sessionExpiryTime: addMinutes(new Date(), state.sessionLifetime),
+            showSessionExpiredModal: false,
+        });
+    },
+
+    async expireSession({ commit }) {
+        // We need to re-fetch the xsrf token before the user trys to re-auth.
+        const boostrapDataResponse = await AppService.getBootstrapData();
+        const csrfToken = boostrapDataResponse.data.app.csrfToken;
+
+        commit('reset', {
+            csrfToken,
+            sessionExpiryTime: new Date(),
+            showSessionExpiredModal: true,
+        });
+   },
 };
 
 const mutations = {
@@ -146,6 +165,7 @@ const mutations = {
     setAfterLoginUrl(state, to) {
         state.afterLoginUrl = to
     },
+
 };
 
 export default {

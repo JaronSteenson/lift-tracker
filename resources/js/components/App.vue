@@ -125,6 +125,8 @@
             </VMenu>
         </VAppBar>
 
+        <LoginModal v-if="showSessionExpiredModal" session-expiry-warning />
+
         <VMain>
             <VFadeTransition leave-absolute>
                 <RouterView/>
@@ -136,8 +138,10 @@
 
 <script>
     import { mapState, mapGetters } from 'vuex';
+    import LoginModal from "./LoginModal";
 
     export default {
+        components: {LoginModal},
         data() {
             return {
                 drawer: null,
@@ -163,11 +167,12 @@
         computed: {
             ...mapState('app', [
                 'appName',
-                'authenticatedUser'
+                'authenticatedUser',
             ]),
             ...mapGetters('app', {
                 avatarInitial: 'getUserAvatarInitial',
                 userIsAuthenticated: 'userIsAuthenticated',
+                showSessionExpiredModal: 'showSessionExpiredModal',
             }),
             ...mapGetters('programBuilder', ['myWorkoutPrograms']),
             ...mapGetters('workoutSession',
@@ -214,6 +219,11 @@
     .v-dialog {
         .v-card {
             border-width: 2px !important;
+        }
+
+        @media (max-width: 600px) {
+            // Half the default margin of dialogs on small devices (important for login dialog).
+            margin: 12px;
         }
     }
 

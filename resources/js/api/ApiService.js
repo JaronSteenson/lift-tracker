@@ -53,7 +53,11 @@ const ApiService = {
     setCsrfToken(csrfToken) {
         // Register the CSRF Token as a common header with Axios requests.
         axios.defaults.headers.common['X-CSRF-TOKEN'] = csrfToken;
-    }
+    },
+
+    registerResponseInterceptor(onFulfilled, onRejected) {
+        axios.interceptors.response.use(onFulfilled, onRejected);
+    },
 
 };
 

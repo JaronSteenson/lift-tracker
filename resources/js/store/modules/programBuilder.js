@@ -1,5 +1,6 @@
 import WorkoutProgramService from '../../api/WorkoutProgramService'
 import UuidHelper from '../../UuidHelper'
+import { dateTimeDescription } from "../../dates";
 import { debounce, pick } from '../../util';
 import {
     mutations as saveStatusMutations,
@@ -7,7 +8,6 @@ import {
     state as saveStatusState,
     getters as savingStatusGetters,
 } from './saveStatusMixin';
-import {dateTimeDescription} from "../../dates";
 
 const LOCAL_STORAGE_NAMESPACE = 'program-builder-state';
 const SAVE_DEBOUNCE_WAIT = 1000;
@@ -70,10 +70,6 @@ const getters = {
 
     getWorkout: (state) => (uuid) => {
         return UuidHelper.findIn(state.inFocusProgram.workoutProgramRoutines, uuid);
-    },
-
-    getWorkoutNameForDisplay: (state, getters) => (uuid) => {
-        return getters.getWorkout(uuid).name || 'Unnamed workout';
     },
 
     getOrderedWorkouts(state) {

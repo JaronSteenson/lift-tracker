@@ -16,11 +16,13 @@ describe('workout session store', () => {
                 [true, 'the supplied uuid is the last set in the exercise', [{uuid: 1}, {uuid: 2}, {uuid: 3},], 3],
                 [false, 'the supplied uuid is not the last set in the exercise', [{uuid: 1}, {uuid: 2}, {uuid: 3},], 2],
             ]).test('returns %s when %s', (expected, description, sessionSets, askingForSetUuid) => {
-                getters.exerciseBySet = () => {
-                    return { sessionSets };
+                const mockedGetters = {
+                    exerciseBySet: () => {
+                        return { sessionSets };
+                    }
                 };
 
-                expect(getters.isLastSetOfExercise(null, getters)(askingForSetUuid)).toBe(expected);
+                expect(getters.isLastSetOfExercise(null, mockedGetters)(askingForSetUuid)).toBe(expected);
             });
 
         });

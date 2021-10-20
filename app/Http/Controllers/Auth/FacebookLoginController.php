@@ -41,8 +41,16 @@ class FacebookLoginController extends Controller
      */
     public function index(Request $request)
     {
+        // Already logged in.
         if (Auth::check()) {
-            throw new AuthenticationException('User is already logged in');
+            return redirect('');
+        }
+
+        $shortLivedAccessCode = $request->get('code');
+
+        // Declined permissions or some sort of other problem.
+        if (!$shortLivedAccessCode) {
+            return redirect('');
         }
 
         // Pull an url from config explicitly rather than trying to determine it from the request.
@@ -50,7 +58,7 @@ class FacebookLoginController extends Controller
         $redirectUrl = $this->config->get('app.facebook_app_redirect_url');
 
         $this->facebookAuthService->registerOrLoginUser(
-            $request->get('code'),
+            $shortLivedAccessCode,
             $redirectUrl
         );
 

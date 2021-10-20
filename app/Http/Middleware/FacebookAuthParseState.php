@@ -15,7 +15,13 @@ class FacebookAuthParseState
      */
     public function handle(Request $request, Closure $next)
     {
-        $extractedState = $this->extractState($request->get('state'));
+        $state = $request->get('state');
+
+        if (!$state) {
+            return $next($request);
+        }
+
+        $extractedState = $this->extractState($state);
 
         return $next($this->updateRequest($request, $extractedState));
     }

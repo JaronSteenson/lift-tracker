@@ -1,8 +1,5 @@
 <template>
-    <VContainer
-        class="page-container"
-        fluid
-    >
+    <VContainer fluid>
         <VRow
             justify="center"
         >

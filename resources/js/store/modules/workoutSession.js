@@ -1,15 +1,14 @@
-import WorkoutSessionService from '../../api/WorkoutSessionService'
-import UuidHelper from '../../UuidHelper'
-import {differenceInSeconds, isAfter} from 'date-fns';
-import {dateDescription, utcNow} from '../../dates';
+import WorkoutSessionService from '../../api/WorkoutSessionService';
+import UuidHelper from '../../UuidHelper';
+import { dateDescription, utcNow } from '../../dates';
+import { memoizeDebounceAction } from "../../util";
+import { differenceInSeconds, isAfter } from 'date-fns';
 import {
     mutations as saveStatusMutations,
     actions as saveStatusActions,
     state as saveStatusState,
     getters as savingStatusGetters,
 } from './saveStatusMixin';
-import {memoizeDebounceAction} from "../../util";
-import WorkoutProgramService from "../../api/WorkoutProgramService";
 
 const SAVE_DEBOUNCE_WAIT = 1000;
 
@@ -773,3 +772,4 @@ export default {
     actions,
     mutations
 }
+

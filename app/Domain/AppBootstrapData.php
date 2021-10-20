@@ -22,6 +22,7 @@ class AppBootstrapData implements \JsonSerializable
             'appName' => config('app.name'),
             'csrfToken' => csrf_token(),
             'facebookAppId' => config('app.facebook_app_id'),
+            'sessionLifetime' => config('session.lifetime'),
         ];
 
         $baseData = ['app' => $appData];
