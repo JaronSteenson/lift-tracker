@@ -1,6 +1,6 @@
 import Vue from 'vue'
 import LoginPage from '../components/pages/LoginPage';
-import SettingsPage from '../components/pages/SettingsPage';
+import AccountPage from '../components/pages/AccountPage';
 import ProgramBuilderPage from '../components/pages/ProgramBuilderPage';
 import WorkoutProgramsPage from '../components/pages/WorkoutProgramsPage';
 import WorkoutSessionsPage from '../components/pages/WorkoutSessionsPage';
@@ -68,9 +68,9 @@ const routes = [
         props: true,
     },
     {
-        name: 'settings',
-        path: '/settings',
-        component: SettingsPage,
+        name: 'account',
+        path: '/account',
+        component: AccountPage,
     },
     {
         name: 'newProgramBuilder',

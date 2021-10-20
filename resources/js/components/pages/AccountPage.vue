@@ -9,6 +9,23 @@
                 sm="8"
             >
                 <VCardTitle class="justify-center">
+                    Privacy policy
+                </VCardTitle>
+                <p class="text-center">
+                    <a href="/privacy-policy">Read online</a>
+                </p>
+            </VCol>
+            <hr>
+        </VRow>
+        <VRow
+            justify="center"
+        >
+            <VCol
+                cols="12"
+                md="4"
+                sm="8"
+            >
+                <VCardTitle class="justify-center">
                     Permanently delete my account
                 </VCardTitle>
                 <p>

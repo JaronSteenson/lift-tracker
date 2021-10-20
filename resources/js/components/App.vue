@@ -115,8 +115,8 @@
                     </VBtn>
                 </template>
                 <VList>
-                    <VListItem :to="{ name: 'settings' }">
-                        <VListItemTitle>Settings</VListItemTitle>
+                    <VListItem :to="{ name: 'account' }">
+                        <VListItemTitle>My account</VListItemTitle>
                     </VListItem>
                     <VListItem @click="logout">
                         <VListItemTitle>Logout</VListItemTitle>

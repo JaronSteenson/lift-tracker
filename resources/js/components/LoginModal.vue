@@ -20,6 +20,9 @@
       <VCardText class="text-center pl-2 pr-2">
         <FacebookLoginButton @click="loading = true" :loading="loading"/>
       </VCardText>
+      <VCardActions class="text-center d-block">
+          <a href="/privacy-policy">Privacy policy</a>
+      </VCardActions>
     </VCard>
   </VDialog>
 </template>
