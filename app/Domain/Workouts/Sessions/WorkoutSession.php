@@ -183,7 +183,6 @@ class WorkoutSession extends AbstractModel
     public function findInProgress(int $userId)
     {
         return $this->whereNull('endedAt')
-            ->where('startedAt', '>=', Carbon::now()->modify('-24 hour'))
             ->where('userId', $userId)
             ->orderBy('createdAt', 'desc')
             ->get();
