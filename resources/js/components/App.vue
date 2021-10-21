@@ -227,6 +227,11 @@
         }
     }
 
+    // This weirdly defaults to break all.
+    .v-card__title {
+        word-break: break-word;
+    }
+
     // The small attribute does not work with svg path based icons,
     // as it only sets a font size small, rather than adjust the height and width.
     .v-icon--small {
