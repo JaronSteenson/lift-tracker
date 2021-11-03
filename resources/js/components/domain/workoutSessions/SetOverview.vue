@@ -1,290 +1,286 @@
 <template>
-    <component
-        :elevation="$vuetify.breakpoint.smAndDown ? 0 : 5"
-        :is="$vuetify.breakpoint.smAndDown ? 'div' : 'VCard'"
-        class="js-workout-drag-handle workout-builder-card"
-        max-width="960"
-        width="100%"
-    >
-        <VToolbar>
-            <VToolbarTitle>{{ exercise.name }} - set {{ set.position + 1 }}</VToolbarTitle>
+    <div>
+        <PageToolbar :title="pageTitle" :back-to="{ name: 'SessionOverviewPage', params: { workoutSessionUuid: uuid } }">
+            <template v-slot:right>
+                <ServerSyncInfo
+                    :status-message="saveStatusMessage"
+                    :updated-at="updatedAt"
+                />
 
-            <VSpacer/>
-
-            <ServerSyncInfo
-                :status-message="saveStatusMessage"
-                :updated-at="updatedAt"
-            />
-
-            <VMenu bottom left>
-                <template v-slot:activator="{ on }">
-                    <VBtn icon v-on="on">
-                        <VIcon>{{ $svgIcons.mdiDotsVertical }}</VIcon>
-                    </VBtn>
-                </template>
-
-                <VList>
-                    <VListItem :disabled="isFirstSetOfWorkout" @click="lookBack">
-                        <VListItemTitle>View previous</VListItemTitle>
-                    </VListItem>
-                    <VListItem :disabled="isLastSetOfWorkout" @click="lookAhead">
-                        <VListItemTitle>View next</VListItemTitle>
-                    </VListItem>
-                    <VListItem :disabled="!isInProgressSet || isLastSetOfWorkout" @click="skipSet">
-                        <VListItemTitle>Skip set</VListItemTitle>
-                    </VListItem>
-                    <VListItem :disabled="!allowEndWorkout" @click="endWorkout">
-                        <VListItemTitle>Finish workout</VListItemTitle>
-                    </VListItem>
-                </VList>
-            </VMenu>
-        </VToolbar>
-
-        <VAlert
-            dense
-            text
-            type="info"
-            v-if="!isChangingSet && (isLookingAhead || isLookingBack)"
-        >
-            <template v-if="isLookingBack">This is a previous set.</template>
-            <template v-else-if="isLookingAhead">This is an upcoming set.</template>
-            <br/>
-            <RouterLink
-                :to="{ name: 'setOverview', params: { sessionSetUuid: inProgressSet.uuid }}"
-            >
-                Jump to current set
-            </RouterLink>
-        </VAlert>
-
-        <VAlert
-            dense
-            text
-            type="info"
-            v-if="!isChangingSet && workoutIsFinished"
-        >
-            <template v-if="isOpenForEdits">
-                Your are making retrospective edits to a workout.
-                <br/>
-                <a
-                    @click="isOpenForEdits = false"
-                    href="#"
-                    v-if="isOpenForEdits"
-                >
-                    Stop editing
-                </a>
-            </template>
-            <template v-else>
-                You are viewing a finished workout.
-
-                <br/>
-                <a
-                    @click="isOpenForEdits = true"
-                    href="#"
-                    v-if="!isOpenForEdits"
-                >
-                    Edit this set
-                </a>
-                <br/>
-                <RouterLink
-                    :to="{ name: 'sessionOverview', params: {workoutSessionUuid: uuid}}"
-                    v-if="!isOpenForEdits"
-                >
-                    Go back to session overview
-                </RouterLink>
-            </template>
-        </VAlert>
-
-        <VStepper
-            :value="set.position + 1"
-            flat
-            :vertical="false"
-            @change="changeSetFromStepper($event)"
-        >
-            <VStepperHeader>
-                <VIcon
-                    v-if="canLookBack"
-                    @click="lookBack"
-                    class="set-navigation set-navigation--left"
-                >
-                    {{ $svgIcons.mdiChevronLeft }}
-                </VIcon>
-
-                <template v-for="otherSet in exercise.sessionSets">
-                    <VStepperStep
-                        :key="otherSet.position"
-                        :complete="otherSet.endedAt !== null"
-                        :color="getStepColor(otherSet)"
-                        :step="otherSet.position + 1"
-                        :editable="set.uuid !== otherSet.uuid"
-                        :edit-icon="$svgIcons.mdiCheck"
-                    >
-                       Set {{ otherSet.position + 1 }}
-                    </VStepperStep>
-
-                    <VDivider
-                        v-if="otherSet.position + 1 < exercise.sessionSets.length"
-                        :key="otherSet.position + '-divider'"
-                    />
-                </template>
-
-                <VIcon
-                    v-if="canLookAhead"
-                    @click="lookAhead"
-                    class="set-navigation set-navigation--right"
-                >
-                    {{ $svgIcons.mdiChevronRight }}
-                </VIcon>
-            </VStepperHeader>
-        </VStepper>
-
-        <VCardText class="py-0">
-            <VContainer class="py-0">
-                <VRow>
-                    <VCol class="pt-0" cols="6" md="6" sm="6">
-                        <VTextField
-                            :disabled="!isOpenForEdits"
-                            autofocus
-                            class="mt-0"
-                            label="Weight (kg)"
-                            type="number"
-                            v-model.number="weight"
-                        />
-                    </VCol>
-                    <VCol class="pt-0" cols="6" md="6" sm="6">
-                        <VTextField
-                            :disabled="!isOpenForEdits"
-                            class="mt-0"
-                            label="Reps"
-                            type="number"
-                            v-model.number="reps"
-                        />
-                    </VCol>
-                </VRow>
-                <VRow>
-                    <VCol v-if="isInProgressWorkout" class="pt-0" cols="6">
-                        <LabeledWorkoutDuration :workoutSession="workoutSession"/>
-                    </VCol>
-                    <VCol class="pt-0" cols="6">
-                        <RestPeriodInput
-                            v-if="!isLastSetOfExercise"
-                            v-model="restPeriod"
-                            :disabled="!isOpenForEdits || isDuringRestPeriod"
-                        />
-                    </VCol>
-                </VRow>
-                <VRow v-if="!wasAddedOnTheFly" class="pt-0 mt-0">
-                    <VCol class="pt-0 mt-0" cols="8">
-                        <span v-if="!hasLoadedExercisePreviousEntries">
-                            Loading previous entry overviews...
-                            <VProgressLinear indeterminate/>
-                        </span>
-                        <template v-else>
-                            <template v-if="exercisePreviousEntries.length > 0">
-                                <a @click="openPreviousEntryOverviews" href="#">
-                                    Previous entry overviews
-                                </a>
-
-                                <SessionExerciseStatsModal
-                                    v-if="showPreviousEntryOverviews"
-                                    v-model="showPreviousEntryOverviews"
-                                    :session-exercises="[...exercisePreviousEntries, exercise]"
-                                    :start-index="1"
-                                />
-                            </template>
-                            <span v-else>This is the first time you are doing this exercise. Last time recaps will appear here next time.</span>
-                        </template>
-                    </VCol>
-                </VRow>
-                <VRow>
-                    <VCol class="pt-0" cols="12">
-                        <VTextarea
-                            :disabled="!isOpenForEdits"
-                            auto-grow
-                            filled
-                            label="Notes"
-                            v-model="exerciseNotes"
-                        />
-                    </VCol>
-                </VRow>
-                <VRow justify="space-between" v-if="shouldShowRestPeriodActions">
-                    <VCol class="pt-0" cols="6">
-                        <RestPeriodTimer
-                            :session-set-uuid="sessionSetUuid"
-                            label="Rest period remaining"
-                            overdue-label="Rest period overdue"
-                        />
-                    </VCol>
-
-                    <VCol class="pt-0 text-right" cols="6">
-                        <VBtn
-                            :disabled="isChangingSet"
-                            :height="'75%'"
-                            :width="$vuetify.breakpoint.xsOnly ?  '100%' : null"
-                            @click="endRestPeriod"
-                            class="mt-2"
-                            color="error"
-                            small
-                        >
-                            <VIcon left>{{ $svgIcons.mdiStop }}</VIcon>
-                            End rest
+                <VMenu bottom left>
+                    <template v-slot:activator="{ on }">
+                        <VBtn icon v-on="on">
+                            <VIcon>{{ $svgIcons.mdiDotsVertical }}</VIcon>
                         </VBtn>
-                    </VCol>
-                </VRow>
-                <VRow justify="space-between" v-else-if="(isInProgressSet && restPeriodIsFinished) || (isLastSetOfWorkout && !workoutIsFinished) || isEndingWorkout">
-                    <VCol v-if="!isLastSetOfExercise" class="pt-0" cols="6">
-                        <RestPeriodTimer
-                            :session-set-uuid="sessionSetUuid"
-                            label="Rest period finished"
-                        />
-                    </VCol>
-
-                    <template v-if="shouldShowFinishActions">
-                        <VCol v-if="isLastSetOfExercise" class="pt-0" cols="6">
-                            <div>
-                                <p v-if="isLastSetOfWorkout">There is no rest period because this is the last set for this workout.</p>
-                                <p v-else>There is no rest period because this is the last set for this exercise.</p>
-                            </div>
-                        </VCol>
-                        <VCol v-if="isInProgressSet || isEndingWorkout" class="pt-0 text-right" cols="6">
-                            <VBtn
-                                v-if="isLastSetOfWorkout"
-                                height="3rem"
-                                :loading="isChangingSet"
-                                :width="$vuetify.breakpoint.xsOnly ?  '100%' : null"
-                                @click="endWorkout"
-                                class="mt-2"
-                                color="success"
-                                small
-                            >
-                                <VIcon left>{{ $svgIcons.mdiCheck }}</VIcon>
-                                Finish <br v-if="$vuetify.breakpoint.xsOnly"/> workout
-                            </VBtn>
-                            <VBtn
-                                v-else
-                                height="3rem"
-                                :loading="isChangingSet"
-                                :width="$vuetify.breakpoint.xsOnly ?  '100%' : null"
-                                @click="startNextSet"
-                                class="mt-2"
-                                color="success"
-                                small
-                            >
-                                <VIcon left>{{ $svgIcons.mdiPlay }}</VIcon>
-                                Next set
-                            </VBtn>
-                        </VCol>
                     </template>
-                </VRow>
-            </VContainer>
 
-            <VCardActions class="justify-center" v-if="isInProgressSet && restPeriodNotStarted && !isLastSetOfExercise" width="100%">
-                <VBtn @click="startRestPeriod" class="start-rest-button" color="primary" x-large>
-                    <VIcon left>{{ $svgIcons.mdiClockStart }}</VIcon>
-                    Start rest period
-                </VBtn>
-            </VcardActions>
-        </VCardText>
-    </component>
+                    <VList>
+                        <VListItem :disabled="isFirstSetOfWorkout" @click="lookBack">
+                            <VListItemTitle>View previous</VListItemTitle>
+                        </VListItem>
+                        <VListItem :disabled="isLastSetOfWorkout" @click="lookAhead">
+                            <VListItemTitle>View next</VListItemTitle>
+                        </VListItem>
+                        <VListItem :disabled="!isInProgressSet || isLastSetOfWorkout" @click="skipSet">
+                            <VListItemTitle>Skip set</VListItemTitle>
+                        </VListItem>
+                        <VListItem :disabled="!allowEndWorkout" @click="endWorkout">
+                            <VListItemTitle>Finish workout</VListItemTitle>
+                        </VListItem>
+                    </VList>
+                </VMenu>
+            </template>
+        </PageToolbar>
+
+        <NarrowContentContainer>
+            <VAlert
+                dense
+                text
+                type="info"
+                v-if="!isChangingSet && (isLookingAhead || isLookingBack)"
+            >
+                <div class="d-flex justify-space-between align-center">
+                    <span v-if="isLookingBack">This is a previous set.</span>
+                    <span v-else-if="isLookingAhead">This is an upcoming set.</span>
+                    <VBtn
+                        class="ml-5"
+                        small
+                        color="green"
+                        :to="{ name: 'SetOverviewPage', params: { sessionSetUuid: inProgressSet.uuid }}"
+                    >
+                        <VIcon>{{ $svgIcons.mdiPlay }}</VIcon>
+                        Resume
+                        <template v-if="$vuetify.breakpoint.smAndUp"> current</template>
+                    </VBtn>
+                </div>
+            </VAlert>
+
+            <VAlert
+                dense
+                text
+                type="info"
+                v-if="!isChangingSet && workoutIsFinished"
+            >
+                <div class="d-flex justify-space-between align-center">
+                    <template v-if="isOpenForEdits">
+                        <span>
+                            Your are making retrospective edits to a workout.
+                        </span>
+                        <VBtn
+                            @click="isOpenForEdits = false"
+                            color="red"
+                            v-if="isOpenForEdits"
+                        >
+                            Stop editing
+                        </VBtn>
+                    </template>
+                    <template v-else>
+                        <span>
+                            You are viewing a finished workout.
+                        </span>
+                        <VBtn
+                            @click="isOpenForEdits = true"
+                            color="primary"
+                            v-if="!isOpenForEdits"
+                        >
+                            Edit
+                        </VBtn>
+                    </template>
+                </div>
+            </VAlert>
+
+            <VStepper
+                :value="set.position + 1"
+                flat
+                :vertical="false"
+                @change="changeSetFromStepper($event)"
+            >
+                <VStepperHeader>
+                    <VIcon
+                        v-if="canLookBack"
+                        @click="lookBack"
+                        class="set-navigation set-navigation--left"
+                    >
+                        {{ $svgIcons.mdiChevronLeft }}
+                    </VIcon>
+
+                    <template v-for="otherSet in exercise.sessionSets">
+                        <VStepperStep
+                            :key="otherSet.position"
+                            :complete="otherSet.endedAt !== null"
+                            :color="getStepColor(otherSet)"
+                            :step="otherSet.position + 1"
+                            :editable="set.uuid !== otherSet.uuid"
+                            :edit-icon="$svgIcons.mdiCheck"
+                        >
+                           Set {{ otherSet.position + 1 }}
+                        </VStepperStep>
+
+                        <VDivider
+                            v-if="otherSet.position + 1 < exercise.sessionSets.length"
+                            :key="otherSet.position + '-divider'"
+                        />
+                    </template>
+
+                    <VIcon
+                        v-if="canLookAhead"
+                        @click="lookAhead"
+                        class="set-navigation set-navigation--right"
+                    >
+                        {{ $svgIcons.mdiChevronRight }}
+                    </VIcon>
+                </VStepperHeader>
+            </VStepper>
+
+            <VCardText class="py-0">
+                <VContainer class="py-0">
+                    <VRow>
+                        <VCol class="pt-0" cols="6" md="6" sm="6">
+                            <VTextField
+                                :disabled="!isOpenForEdits"
+                                autofocus
+                                class="mt-0"
+                                label="Weight (kg)"
+                                type="number"
+                                v-model.number="weight"
+                            />
+                        </VCol>
+                        <VCol class="pt-0" cols="6" md="6" sm="6">
+                            <VTextField
+                                :disabled="!isOpenForEdits"
+                                class="mt-0"
+                                label="Reps"
+                                type="number"
+                                v-model.number="reps"
+                            />
+                        </VCol>
+                    </VRow>
+                    <VRow>
+                        <VCol v-if="isInProgressWorkout" class="pt-0" cols="6">
+                            <LabeledWorkoutDuration :workoutSession="workoutSession"/>
+                        </VCol>
+                        <VCol class="pt-0" cols="6">
+                            <RestPeriodInput
+                                v-if="!isLastSetOfExercise"
+                                v-model="restPeriod"
+                                :disabled="!isOpenForEdits || isDuringRestPeriod"
+                            />
+                        </VCol>
+                    </VRow>
+                    <VRow v-if="!wasAddedOnTheFly" class="pt-0 mt-0">
+                        <VCol class="pt-0 mt-0" cols="8">
+                            <span v-if="!hasLoadedExercisePreviousEntries">
+                                Loading previous entry overviews...
+                                <VProgressLinear indeterminate/>
+                            </span>
+                            <template v-else>
+                                <template v-if="exercisePreviousEntries.length > 0">
+                                    <a @click="openPreviousEntryOverviews" href="#">
+                                        Previous entry overviews
+                                    </a>
+
+                                    <SessionExerciseStatsModal
+                                        v-if="showPreviousEntryOverviews"
+                                        v-model="showPreviousEntryOverviews"
+                                        :session-exercises="[...exercisePreviousEntries, exercise]"
+                                        :start-index="1"
+                                    />
+                                </template>
+                                <span v-else>This is the first time you are doing this exercise. Last time recaps will appear here next time.</span>
+                            </template>
+                        </VCol>
+                    </VRow>
+                    <VRow>
+                        <VCol class="pt-0" cols="12">
+                            <VTextarea
+                                :disabled="!isOpenForEdits"
+                                auto-grow
+                                filled
+                                label="Notes"
+                                v-model="exerciseNotes"
+                            />
+                        </VCol>
+                    </VRow>
+                    <VRow justify="space-between" v-if="shouldShowRestPeriodActions">
+                        <VCol class="pt-0" cols="6">
+                            <RestPeriodTimer
+                                :session-set-uuid="sessionSetUuid"
+                                label="Rest period remaining"
+                                overdue-label="Rest period overdue"
+                            />
+                        </VCol>
+
+                        <VCol class="pt-0 text-right" cols="6">
+                            <VBtn
+                                :disabled="isChangingSet"
+                                :height="'75%'"
+                                :width="$vuetify.breakpoint.xsOnly ?  '100%' : null"
+                                @click="endRestPeriod"
+                                class="mt-2"
+                                color="error"
+                                small
+                            >
+                                <VIcon left>{{ $svgIcons.mdiStop }}</VIcon>
+                                End rest
+                            </VBtn>
+                        </VCol>
+                    </VRow>
+                    <VRow justify="space-between" v-else-if="(isInProgressSet && restPeriodIsFinished) || (isLastSetOfWorkout && !workoutIsFinished) || isEndingWorkout">
+                        <VCol v-if="!isLastSetOfExercise" class="pt-0" cols="6">
+                            <RestPeriodTimer
+                                :session-set-uuid="sessionSetUuid"
+                                label="Rest period finished"
+                            />
+                        </VCol>
+
+                        <template v-if="shouldShowFinishActions">
+                            <VCol v-if="isLastSetOfExercise" class="pt-0" cols="6">
+                                <div>
+                                    <p v-if="isLastSetOfWorkout">There is no rest period because this is the last set for this workout.</p>
+                                    <p v-else>There is no rest period because this is the last set for this exercise.</p>
+                                </div>
+                            </VCol>
+                            <VCol v-if="isInProgressSet || isEndingWorkout" class="pt-0 text-right" cols="6">
+                                <VBtn
+                                    v-if="isLastSetOfWorkout"
+                                    height="3rem"
+                                    :loading="isChangingSet"
+                                    :width="$vuetify.breakpoint.xsOnly ?  '100%' : null"
+                                    @click="endWorkout"
+                                    class="mt-2"
+                                    color="success"
+                                    small
+                                >
+                                    <VIcon left>{{ $svgIcons.mdiCheck }}</VIcon>
+                                    Finish <br v-if="$vuetify.breakpoint.xsOnly"/> workout
+                                </VBtn>
+                                <VBtn
+                                    v-else
+                                    height="3rem"
+                                    :loading="isChangingSet"
+                                    :width="$vuetify.breakpoint.xsOnly ?  '100%' : null"
+                                    @click="startNextSet"
+                                    class="mt-2"
+                                    color="success"
+                                    small
+                                >
+                                    <VIcon left>{{ $svgIcons.mdiPlay }}</VIcon>
+                                    Next set
+                                </VBtn>
+                            </VCol>
+                        </template>
+                    </VRow>
+                </VContainer>
+
+                <VCardActions class="justify-center" v-if="isInProgressSet && restPeriodNotStarted && !isLastSetOfExercise" width="100%">
+                    <VBtn @click="startRestPeriod" class="start-rest-button" color="primary" x-large>
+                        <VIcon left>{{ $svgIcons.mdiClockStart }}</VIcon>
+                        Start rest period
+                    </VBtn>
+                </VcardActions>
+            </VCardText>
+        </NarrowContentContainer>
+    </div>
 </template>
 
 <script>
@@ -295,9 +291,13 @@ import { minsSecDuration } from '../../../dates';
 import SessionExerciseStatsModal from './SessionExerciseStatsModal';
 import ServerSyncInfo from './../../ServerSyncInfo';
 import LabeledWorkoutDuration from "../LabeledWorkoutDuration";
+import NarrowContentContainer from "../../layouts/NarrowContentContainer";
+import PageToolbar from "../../layouts/PageToolbar";
 
 export default {
     components: {
+        PageToolbar,
+        NarrowContentContainer,
         LabeledWorkoutDuration,
         ServerSyncInfo,
         SessionExerciseStatsModal,
@@ -311,8 +311,6 @@ export default {
         },
     },
     created() {
-        this.isOpenForEdits = this.workoutSession.endedAt === null;
-
         this.ensureExercisePreviousEntriesAreLoaded();
     },
     data() {
@@ -321,7 +319,6 @@ export default {
             showPreviousEntryOverviews: false,
             isChangingSet: false,
             isEndingWorkout: false,
-            isOpenForEdits: true,
         }
     },
     computed: {
@@ -332,6 +329,13 @@ export default {
             'saveStatusMessage',
             'updatedAt'
         ]),
+        pageTitle() {
+            if (this.$vuetify.breakpoint.xsOnly) {
+                return this.exercise.name;
+            }
+
+            return `${this.exercise.name} - set ${this.set.position + 1}`
+        },
         set() {
             return this.$store.getters['workoutSession/set'](this.sessionSetUuid);
         },
@@ -340,6 +344,17 @@ export default {
         },
         isInProgressWorkout() {
             return this.$store.getters['workoutSession/isInProgressWorkout'](this.workoutSession.uuid);
+        },
+        isOpenForEdits: {
+            get() {
+                return this.$store.getters['workoutSession/isOpenForEdits'](this.workoutSession.uuid);
+            },
+            set(value) {
+                this.$store.dispatch('workoutSession/updateOpenForEditsStatus', {
+                    workoutSessionUuid: this.workoutSession.uuid,
+                    value,
+                });
+            },
         },
         workoutIsFinished() {
             return this.workoutSession.endedAt !== null;
@@ -430,7 +445,7 @@ export default {
                 this.$store.dispatch('workoutSession/updateSetWeight', {
                     uuid: this.sessionSetUuid,
                     weight
-                })
+                });
             },
         },
         reps: {
@@ -481,13 +496,13 @@ export default {
         changeSetFromStepper(requestedSet) {
             const setToChangeTo = this.exercise.sessionSets[requestedSet - 1];
 
-            this.$router.push({name: 'setOverview', params: {sessionSetUuid: setToChangeTo.uuid}});
+            this.$router.push({name: 'SetOverviewPage', params: {sessionSetUuid: setToChangeTo.uuid}});
         },
         async lookAhead() {
-            await this.$router.push({name: 'setOverview', params: {sessionSetUuid: this.nextSet.uuid}});
+            await this.$router.push({name: 'SetOverviewPage', params: {sessionSetUuid: this.nextSet.uuid}});
         },
         async lookBack() {
-            await this.$router.push({name: 'setOverview', params: {sessionSetUuid: this.previousSet.uuid}});
+            await this.$router.push({name: 'SetOverviewPage', params: {sessionSetUuid: this.previousSet.uuid}});
         },
         async fetchExercisePreviousEntries() {
             return this.$store.dispatch('workoutSession/fetchExercisePreviousEntries', this.exercise.uuid);
@@ -497,7 +512,7 @@ export default {
             this.isChangingSet = true;
 
             await this.$store.dispatch('workoutSession/endWorkout');
-            await this.$router.push({name: 'sessionOverview', params: {workoutSessionUuid: this.uuid}});
+            await this.$router.push({name: 'SessionOverviewPage', params: {workoutSessionUuid: this.uuid}});
 
             this.isChangingSet = false;
             this.isEndingWorkout = false;
@@ -514,11 +529,11 @@ export default {
 
             const nextSetUuid = this.nextSet.uuid;
 
-            await this.$router.push({name: 'setOverview', params: {sessionSetUuid: nextSetUuid}});
-
             await this.$store.dispatch('workoutSession/startSet', {
                 uuid: nextSetUuid,
             });
+
+            await this.$router.push({name: 'SetOverviewPage', params: {sessionSetUuid: nextSetUuid}});
 
             this.isChangingSet = false;
         },

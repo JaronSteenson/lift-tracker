@@ -2,8 +2,8 @@ import Vue from 'vue'
 import LoginPage from '../components/pages/LoginPage';
 import AccountPage from '../components/pages/AccountPage';
 import ProgramBuilderPage from '../components/pages/ProgramBuilderPage';
-import WorkoutProgramsPage from '../components/pages/WorkoutProgramsPage';
-import WorkoutSessionsPage from '../components/pages/WorkoutSessionsPage';
+import MyWorkoutProgramsPage from '../components/pages/MyWorkoutProgramsPage';
+import MyWorkoutSessionsPage from '../components/pages/MyWorkoutSessionsPage';
 import NewSessionOverviewPage from '../components/pages/NewSessionOverviewPage';
 import NewSessionRoutineSelectPage from '../components/pages/NewSessionRoutineSelectPage';
 import SessionOverviewPage from '../components/pages/SessionOverviewPage';
@@ -16,16 +16,16 @@ Vue.use(VueRouter);
 
 async function forceLogin(to, from, next) {
     const isAuthed = store.getters['app/userIsAuthenticated'];
-    const toLogin = to.name === 'login' || to.name === 'sign-up';
+    const toLogin = to.name === 'LoginPage' || to.name === 'sign-up';
 
     if (isAuthed && toLogin) {
-        next({ name: 'home' });
+        next({ name: 'HomePage'});
         return;
     }
 
     if (!isAuthed && !toLogin) {
         await store.dispatch('app/setAfterLoginUrl', window.location.href);
-        next({ name: 'login' });
+        next({ name: 'LoginPage' });
         return;
     }
 
@@ -43,76 +43,76 @@ function checkPwaStart(to, from, next) {
 
     const inProgressWorkouts = store.getters['workoutSession/inProgressWorkouts'];
     if (inProgressWorkouts === null || inProgressWorkouts.length === 0) {
-        next({ name: 'home' });
+        next({ name: 'HomePage'});
         return;
     }
 
     const inProgressSet = store.getters['workoutSession/currentSetForInProgressWorkout'](inProgressWorkouts[0].uuid);
-    next({ name: 'setOverview', params: { sessionSetUuid: inProgressSet.uuid }});
+    next({ name: 'SetOverviewPage', params: { sessionSetUuid: inProgressSet.uuid }});
 }
 
 const routes = [
     {
-        name: 'home',
+        name: 'HomePage',
         path: '/',
         redirect: '/workout-sessions',
     },
     {
-        name: 'pwaStart',
+        name: 'PwaStart',
         path: '/pwa-start',
     },
     {
-        name: 'login',
+        name: 'LoginPage',
         path: '/login',
         component: LoginPage,
         props: true,
     },
     {
-        name: 'account',
+        name: 'AccountPage',
         path: '/account',
         component: AccountPage,
     },
     {
-        name: 'newProgramBuilder',
+        name: 'ProgramBuilderPageNew',
         path: '/program-builder',
         component: ProgramBuilderPage,
         props: true,
     },
     {
-        name: 'programBuilder',
+        name: 'ProgramBuilderPage',
         path: '/program-builder/:workoutProgramUuid',
         component: ProgramBuilderPage,
         props: true
     },
     {
-        name: 'programList',
+        name: 'MyWorkoutProgramsPage',
         path: '/workout-programs',
-        component: WorkoutProgramsPage,
+        component: MyWorkoutProgramsPage,
     },
     {
-        name: 'sessionList',
+        name: 'MyWorkoutSessionsPage',
         path: '/workout-sessions',
-        component: WorkoutSessionsPage,
+        component: MyWorkoutSessionsPage,
     },
     {
-        name: 'newSessionRoutineSelect',
+        name: 'NewSessionRoutineSelectPage',
         path: '/new-session',
         component: NewSessionRoutineSelectPage,
     },
     {
-        name: 'newSessionOverview',
+        name: 'NewSessionOverviewPage',
         path: '/new-session-overview/:originRoutineUuid',
         component: NewSessionOverviewPage,
         props: true
     },
     {
-        name: 'sessionOverview',
+        name: 'SessionOverviewPage',
         path: '/session-overview/:workoutSessionUuid',
         component: SessionOverviewPage,
         props: true
     },
     {
-        name: 'setOverview',
+        name: 'SetOverviewPage',
         path: '/set-overview/:sessionSetUuid',
         component: SetOverviewPage,
         props: true

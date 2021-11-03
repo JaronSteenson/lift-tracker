@@ -2,9 +2,10 @@
     <div>
         <ProgramBuilderLoadingSkeleton v-if="loading"/>
         <div v-else>
-            <NotFound v-if="notFound">Sorry we couldn't find that program.</NotFound>
+            <NotFoundPage v-if="notFound">Sorry we couldn't find that program.</NotFoundPage>
             <template v-else>
-                <VToolbar>
+                <PageToolbar :back-to="{ name: 'MyWorkoutProgramsPage' }">
+                    <template v-slot:middle>
                         <VTextField
                             class="program-builder-title"
                             :autofocus="editingName"
@@ -21,28 +22,27 @@
                         <VToolbarTitle v-else>
                             <EditableTitle @click="editingName = true">{{ nameForDisplay }}</EditableTitle>
                         </VToolbarTitle>
-                        <VSpacer></VSpacer>
+                    </template>
+                    <template v-slot:right>
+                        <ServerSyncInfo
+                            :status-message="saveStatusMessage"
+                            :updatedAt="inFocusProgram.updatedAt"
+                        />
+                        <VMenu bottom left>
+                            <template v-slot:activator="{ on }">
+                                <VBtn icon v-on="on">
+                                    <VIcon>{{ $svgIcons.mdiDotsVertical }}</VIcon>
+                                </VBtn>
+                            </template>
 
-                    <ServerSyncInfo
-                        :status-message="saveStatusMessage"
-                        :updatedAt="inFocusProgram.updatedAt"
-                    />
-
-                    <VMenu bottom left>
-                        <template v-slot:activator="{ on }">
-                            <VBtn icon v-on="on">
-                                <VIcon>{{ $svgIcons.mdiDotsVertical }}</VIcon>
-                            </VBtn>
-                        </template>
-
-                        <VList>
-                            <VList-item @click="showArchiveConfirmation">
-                                <VListItemTitle>Archive</VListItemTitle>
-                            </VList-item>
-                        </VList>
-                    </VMenu>
-                </VToolbar>
-
+                            <VList>
+                                <VList-item @click="showArchiveConfirmation">
+                                    <VListItemTitle>Archive</VListItemTitle>
+                                </VList-item>
+                            </VList>
+                        </VMenu>
+                    </template>
+                </PageToolbar>
                 <VSheet class="mx-3">
                     <Draggable
                         :forceFallback="true"
@@ -73,19 +73,21 @@
 <script>
     import {mapActions, mapGetters, mapState} from 'vuex';
     import WorkoutCard from "./WorkoutCard";
-    import NotFound from "../../routing/NotFound";
+    import NotFoundPage from "../../pages/NotFoundPage";
     import Draggable from 'vuedraggable';
     import EditableTitle from "../../formFields/EditableTitle";
     import ProgramBuilderLoadingSkeleton from "./ProgramBuilderLoadingSkeleton";
     import ServerSyncInfo from "../../ServerSyncInfo";
+    import PageToolbar from "../../layouts/PageToolbar";
 
     export default {
         components: {
             ServerSyncInfo,
             WorkoutCard,
-            NotFound,
+            NotFoundPage,
             Draggable,
             EditableTitle,
+            PageToolbar,
             ProgramBuilderLoadingSkeleton,
         },
         props: {
@@ -114,7 +116,7 @@
             uuid(newUuid) {
               // Started as a new builder (workoutProgramUuid prop), but has now bee assigned a uuid and saved (val).
               if (!this.workoutProgramUuid && newUuid) {
-                this.$router.replace({ name: 'programBuilder', params: { workoutProgramUuid: newUuid }});
+                this.$router.replace({ name: 'ProgramBuilderPage', params: { workoutProgramUuid: newUuid }});
               }
             }
           },
@@ -173,7 +175,7 @@
 
                 if (archiveConfirmed) {
                     await this.archive();
-                    await this.$router.push({ name: 'programList' });
+                    await this.$router.push({ name: 'MyWorkoutProgramsPage' });
                 }
             },
             finishEditingName() {

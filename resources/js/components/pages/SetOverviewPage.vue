@@ -4,14 +4,7 @@
         <div v-else>
             <NotFound v-if="notFound">Sorry we couldn't find that set.</NotFound>
             <template v-else>
-                <VContainer fill-height v-if="$vuetify.breakpoint.mdAndUp">
-                    <VRow align="center" justify="center">
-                        <VCol cols="12" md="6">
-                            <SetOverview :sessionSetUuid="sessionSetUuid"/>
-                        </VCol>
-                    </VRow>
-                </VContainer>
-                <SetOverview v-else :sessionSetUuid="sessionSetUuid"/>
+                <SetOverview :sessionSetUuid="sessionSetUuid"/>
             </template>
         </div>
     </div>
@@ -53,7 +46,7 @@
         },
         methods: {
             async ensureWorkoutSessionIsLoadedLoaded() {
-                if (this.$store.getters['workoutSession/hasSetInSession'](this.sessionSetUuid)) {
+                if (this.$store.getters['workoutSession/setIsInFocusedSession'](this.sessionSetUuid)) {
                     return;
                 }
 

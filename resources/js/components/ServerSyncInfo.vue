@@ -1,5 +1,5 @@
 <template>
-    <VSubheader>
+    <VSubheader class="px-0">
         <VIcon
             :size="$vuetify.breakpoint.xsOnly ? 'small' : null"
         >

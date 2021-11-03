@@ -5,6 +5,7 @@
 // the svg path string is to be used for the prop value.
 
 const icons = {
+    mdiArrowLeft: 'M20,11V13H8L13.5,18.5L12.08,19.92L4.16,12L12.08,4.08L13.5,5.5L8,11H20Z',
     mdiCalendarCheck: 'M19,19H5V8H19M19,3H18V1H16V3H8V1H6V3H5C3.89,3 3,3.9 3,5V19A2,2 0 0,0 5,21H19A2,2 0 0,0 21,19V5A2,2 0 0,0 19,3M16.53,11.06L15.47,10L10.59,14.88L8.47,12.76L7.41,13.82L10.59,17L16.53,11.06Z',
     mdiChartLineVariant: 'M3.5,18.5L9.5,12.5L13.5,16.5L22,6.92L20.59,5.5L13.5,13.5L9.5,9.5L2,17L3.5,18.5Z',
     mdiCheck: 'M21,7L9,19L3.5,13.5L4.91,12.09L9,16.17L19.59,5.59L21,7Z',
@@ -27,6 +28,7 @@ const icons = {
     mdiTable: 'M5,4H19A2,2 0 0,1 21,6V18A2,2 0 0,1 19,20H5A2,2 0 0,1 3,18V6A2,2 0 0,1 5,4M5,8V12H11V8H5M13,8V12H19V8H13M5,14V18H11V14H5M13,14V18H19V14H13Z',
 }
 
+icons.backNavigation = icons.mdiArrowLeft;
 icons.sessionDate = icons.mdiCalendarCheck;
 icons.workoutProgram = icons.mdiClipboardOutline;
 icons.workoutSession = icons.mdiClipboardTextOutline;

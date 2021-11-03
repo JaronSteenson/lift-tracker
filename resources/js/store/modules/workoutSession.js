@@ -26,11 +26,16 @@ function defaultState() {
             updatedAt: null,
         },
         myWorkoutSessions: [],
-        myWorkoutSessionsPagesLoaded: 0,
-        myWorkoutSessionsPagesAllLoaded: false,
+        myMyWorkoutSessionsPagesLoaded: 0,
+        myMyWorkoutSessionsPagesAllLoaded: false,
         exercisesPreviousEntries: {}, // Previous entries of exercises keyed by exercise uuid.
         inProgressWorkouts: null, // An array of workouts.
         restPeriodTimout: null,
+        /**
+         * A map of workout session ids to boolean, indicating if a session is open for retrospective editing.
+         * Note this is only relevant to finished workouts.
+         */
+        openForEdits: new Map(),
     }
 }
 
@@ -44,7 +49,7 @@ export const getters = {
     },
 
     hasLoadedFirstPage(state) {
-        return state.myWorkoutSessionsPagesLoaded > 0;
+        return state.myMyWorkoutSessionsPagesLoaded > 0;
     },
 
     myWorkoutSessions(state, getters) {
@@ -74,8 +79,16 @@ export const getters = {
         })
     },
 
-    isInProgressWorkout: (state, getters) => (uuid) => {
-        return UuidHelper.findIn(getters.inProgressWorkouts, uuid);
+    isOpenForEdits: (state, getters) => (workoutSessionUuid) => {
+        if (getters.isInProgressWorkout(workoutSessionUuid)) {
+            return true;
+        }
+
+        return state.openForEdits.get(workoutSessionUuid) === true;
+    },
+
+    isInProgressWorkout: (state, getters) => (workoutSessionUuid) => {
+        return UuidHelper.findIn(getters.inProgressWorkouts, workoutSessionUuid);
     },
 
     inProgressSet(state, getters) {
@@ -92,23 +105,30 @@ export const getters = {
         return workoutSession.workoutProgramRoutine.uuid;
     },
 
-    currentSetForInProgressWorkout: (state, getters) => (uuid) => {
-        const workout =  UuidHelper.findIn(getters.inProgressWorkouts, uuid);
+    /**
+     * Flatten all sets from every exercise in a single array.
+     */
+    flattenAllSets: () => workout => {
+        const setGroups = workout.sessionExercises.map(exercise => {
+            return exercise.sessionSets.map(set => {
+                return {exercise: exercise, ...set}
+            })
+        });
+
+        return setGroups.reduce((accumulator, setGroup) => {
+            accumulator.push(...setGroup);
+            return accumulator;
+        }, [])
+    },
+
+    currentSetForInProgressWorkout: (state, getters) => (workoutSessionUuid) => {
+        const workout =  UuidHelper.findIn(getters.inProgressWorkouts, workoutSessionUuid);
 
         if (!workout) {
             return null;
         }
 
-        const setGroups = workout.sessionExercises.map(exercise => {
-            return exercise.sessionSets.map(set => {
-                return { exercise: exercise, ...set }
-            })
-        });
-
-        const allSets = setGroups.reduce((accumulator, setGroup) => {
-            accumulator.push(...setGroup);
-            return accumulator;
-        }, [])
+        const allSets = getters.flattenAllSets(workout);
 
         if (allSets[0].startedAt === null) {
             return allSets[0];
@@ -159,9 +179,11 @@ export const getters = {
         return state.workoutSession.sessionExercises[0].sessionSets[0]
     },
 
-    hasSetInSession: (state) => (uuid) => {
+    setIsInFocusedSession: (state, getters) => (sessionSetUuid) => {
         if (state?.workoutSession?.sessionExercises) {
-            return UuidHelper.arrayIncludes(state.workoutSession.sessionExercises, uuid)
+            const allSets = getters.flattenAllSets(state.workoutSession);
+
+            return UuidHelper.arrayIncludes(allSets, sessionSetUuid)
         }
 
         return false;
@@ -452,6 +474,14 @@ export const actions = {
         dispatch('saveSet', uuid);
     },
 
+    updateOpenForEditsStatus({ state, commit }, { workoutSessionUuid, value }) {
+        const openForEdits = new Map(state.openForEdits);
+
+        openForEdits.set(workoutSessionUuid, value);
+
+        commit('reset', { openForEdits });
+    },
+
     async archive({ state, commit, dispatch }, uuidToDelete) {
         try {
             const updatedWorkoutSessions = UuidHelper.removeFromCopy(state.myWorkoutSessions, uuidToDelete)
@@ -583,13 +613,13 @@ export const actions = {
      * @return {Promise<*>}
      */
     async fetchNextPage({ commit, state }) {
-        const nextPage = state.myWorkoutSessionsPagesLoaded + 1;
+        const nextPage = state.myMyWorkoutSessionsPagesLoaded + 1;
         const response = await WorkoutSessionService.index(nextPage);
 
         commit('reset', {
             myWorkoutSessions: [...state.myWorkoutSessions, ...response.data],
-            myWorkoutSessionsPagesLoaded: nextPage,
-            myWorkoutSessionsPagesAllLoaded: response.data.length < WorkoutSessionService.getPageSize(),
+            myMyWorkoutSessionsPagesLoaded: nextPage,
+            myMyWorkoutSessionsPagesAllLoaded: response.data.length < WorkoutSessionService.getPageSize(),
         });
 
         return response;
@@ -636,7 +666,7 @@ export const actions = {
             inProgressWorkouts: [...state.inProgressWorkouts, response.data]
         };
 
-        if (state.myWorkoutSessionsPagesAllLoaded) {
+        if (state.myMyWorkoutSessionsPagesAllLoaded) {
             update.myWorkoutSessions = [response.data, ...state.myWorkoutSessions];
         }
 

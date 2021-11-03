@@ -6,7 +6,7 @@
                 <VIcon color="primary">{{ $svgIcons.sessionDate }}</VIcon>
                 <RouterLink
                     v-if="routine.latestSession"
-                    :to="{ name: 'sessionOverview', params: { workoutSessionUuid: routine.latestSession.uuid } }"
+                    :to="{ name: 'SessionOverviewPage', params: { workoutSessionUuid: routine.latestSession.uuid } }"
                 >
                     {{ dateDescription(routine.latestSession.startedAt) }}
                 </RouterLink>
@@ -16,7 +16,7 @@
                 <VIcon color="primary">{{ $svgIcons.workoutProgram }}</VIcon>
                 <RouterLink
                     v-if="routine.workoutProgram"
-                    :to="{ name: 'programBuilder', params: { workoutProgramUuid: routine.workoutProgram.uuid } }"
+                    :to="{ name: 'ProgramBuilderPage', params: { workoutProgramUuid: routine.workoutProgram.uuid } }"
                 >
                     <template v-if="routine.workoutProgram.name">{{ routine.workoutProgram.name }}</template>
                     <MissingValue v-else full-opacity>Unnamed program</MissingValue>
@@ -25,7 +25,7 @@
             </div>
         </VCardText>
         <div class="d-flex">
-            <VBtn width="50%" :to="{ name: 'newSessionOverview', params: { originRoutineUuid: routine.uuid } }">
+            <VBtn width="50%" :to="{ name: 'NewSessionOverviewPage', params: { originRoutineUuid: routine.uuid } }">
                 Prepare <VIcon color="primary">{{ $svgIcons.workoutProgram }}</VIcon>
             </VBtn>
             <VBtn width="50%" :loading="starting" @click="startNow">
@@ -67,7 +67,7 @@ export default {
 
             // Then go to the first set in the workout.
             const firstSet = this.$store.getters['workoutSession/firstSet'];
-            await this.$router.push({ name: 'setOverview', params: { sessionSetUuid: firstSet.uuid }});
+            await this.$router.push({ name: 'SetOverviewPage', params: { sessionSetUuid: firstSet.uuid }});
             this.starting = false;
         }
     }

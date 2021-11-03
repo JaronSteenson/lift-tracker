@@ -44,10 +44,10 @@ const getters = {
 
     afterLoginUrl(state) {
         if (state?.afterLoginUrl?.name === 'logout') {
-            return { name: 'home' };
+            return { name: 'HomePage'};
         }
 
-        return state.afterLoginUrl ?? { name: 'home' };
+        return state.afterLoginUrl ?? { name: 'HomePage'};
     },
 
     shouldShowNoProgramsWelcomeHint(state, getters, rootState, rootGetters) {

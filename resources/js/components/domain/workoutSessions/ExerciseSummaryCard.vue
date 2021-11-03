@@ -1,34 +1,31 @@
 <template>
     <VCard>
-        <VCardTitle class="pb-0">{{ exercise.name }}</VCardTitle>
-        <VCardText class="py-0">
-            <VContainer>
-                <VRow :key="index" v-for="(weightGroup, index) in weightGroups">
-                    <VCol class="px-0 pt-1 pb-0">
-                        <VIcon class="v-icon--small">{{ $svgIcons.mdiDumbbell }}</VIcon>
-                        {{ weightGroup.weight }}:
-                        <template v-for="(repBreakDown, index) in weightGroup.repBreakDown">
-                            <RouterLink
-                                :key="repBreakDown.uuid"
-                                :to="repBreakDown.to"
-                            >{{ repBreakDown.text }}</RouterLink><template v-if="index < weightGroup.repBreakDown.length - 1">, </template>
-                        </template>
-                    </VCol>
-                </VRow>
-                <VRow>
-                    <VCol class="px-0 pt-1 pb-0">
-                        <VIcon class="v-icon--small">{{ $svgIcons.mdiClock }}</VIcon>
-                        {{ averageRestPeriod }}
-                    </VCol>
-                </VRow>
-                <VRow>
-                    <VCol class="px-0 pt-1 pb-0">
-                        <VIcon class="v-icon--small">{{ $svgIcons.mdiChartLineVariant }}</VIcon>
-                        <a @click.prevent="openStatsModal" href="#">View details</a>
-                        <SessionExerciseStatsModal :session-exercises="[exercise]" v-model="showStatsModal"/>
-                    </VCol>
-                </VRow>
-            </VContainer>
+        <VCardTitle class="pb-0">
+            <RouterLink :to="{ name: 'SetOverviewPage', params: { sessionSetUuid: firstSet.uuid } }">{{ exercise.name }}</RouterLink>
+        </VCardTitle>
+        <VCardText>
+            <VRow>
+                <VCol class="py-1" cols="12" sm="6" :key="index" v-for="(weightGroup, index) in weightGroups">
+                    <VIcon class="v-icon--small">{{ $svgIcons.mdiDumbbell }}</VIcon>
+                    {{ weightGroup.weight }}:
+                    <template v-for="(repBreakDown, index) in weightGroup.repBreakDown">
+                        <RouterLink
+                            :key="repBreakDown.uuid"
+                            :to="repBreakDown.to"
+                        >
+                            {{ repBreakDown.text }}</RouterLink><template v-if="index < weightGroup.repBreakDown.length - 1">, </template>
+                    </template>
+                </VCol>
+                <VCol class="py-1" cols="12" sm="6">
+                    <VIcon class="v-icon--small">{{ $svgIcons.mdiClock }}</VIcon>
+                    {{ averageRestPeriod }}
+                </VCol>
+                <VCol class="py-1" cols="12" sm="6">
+                    <VIcon class="v-icon--small">{{ $svgIcons.mdiChartLineVariant }}</VIcon>
+                    <a @click.prevent="openStatsModal" href="#">View details</a>
+                    <SessionExerciseStatsModal :session-exercises="[exercise]" v-model="showStatsModal"/>
+                </VCol>
+            </VRow>
         </VCardText>
     </VCard>
 </template>
@@ -53,6 +50,9 @@ export default {
         }
     },
     computed: {
+        firstSet() {
+            return this.exercise.sessionSets[0];
+        },
         weightGroups() {
             let weightGroups = [];
 
@@ -79,7 +79,7 @@ export default {
                     return {
                         uuid: set.uuid,
                         text: set.reps ?? '?',
-                        to: {name: 'setOverview', params: {sessionSetUuid: set.uuid}}
+                        to: {name: 'SetOverviewPage', params: {sessionSetUuid: set.uuid}}
                     }
                 });
 
@@ -107,7 +107,7 @@ export default {
             }
 
             return `${minsSecDuration(average)} rest on average`;
-        }
+        },
     },
     methods: {
         openStatsModal() {
@@ -116,11 +116,3 @@ export default {
     }
 }
 </script>
-
-<style lang="scss" scoped>
-    .date-time-stat {
-        @media (max-width: 600px) {
-            max-width: 50%;
-        }
-    }
-</style>

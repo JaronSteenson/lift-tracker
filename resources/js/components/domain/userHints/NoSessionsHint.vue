@@ -4,7 +4,7 @@
         <p>
             Your workout sessions will appear here.
         </p>
-        <VBtn color="primary" :to="{ name: 'newSessionRoutineSelect' }">
+        <VBtn color="primary" :to="{ name: 'NewSessionRoutineSelectPage' }">
             Start a session now
         </VBtn>
     </div>

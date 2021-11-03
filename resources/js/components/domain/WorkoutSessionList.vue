@@ -7,14 +7,14 @@
             hide-default-footer
         >
             <template v-slot:item.startedAt="{ item: session }">
-                <RouterLink :to="{ name: 'sessionOverview', params: { workoutSessionUuid: session.uuid } }">
+                <RouterLink :to="{ name: 'SessionOverviewPage', params: { workoutSessionUuid: session.uuid } }">
                     {{ session.startedAt }}
                 </RouterLink>
             </template>
             <template v-slot:item.programName="{ item: session }">
                 <RouterLink
                     v-if="session.originProgramUuid"
-                    :to="{ name: 'programBuilder', params: { workoutProgramUuid: session.originProgramUuid } }"
+                    :to="{ name: 'ProgramBuilderPage', params: { workoutProgramUuid: session.originProgramUuid } }"
                 >
                     <template v-if="session.programName">{{ session.programName }}</template>
                     <MissingValue full-opacity v-else>Unnamed program</MissingValue>
@@ -32,13 +32,13 @@
 
                     <VList>
                         <VListItem
-                            :to="{ name: 'sessionOverview', params: { workoutSessionUuid: session.uuid } }"
+                            :to="{ name: 'SessionOverviewPage', params: { workoutSessionUuid: session.uuid } }"
                         >
                             <VListItemTitle>View summary</VListItemTitle>
                         </VListItem>
                         <VListItem
                             v-if="session.originProgramUuid"
-                            :to="{ name: 'newSessionOverview', params: { originRoutineUuid: session.workoutProgramRoutine.uuid } }"
+                            :to="{ name: 'NewSessionOverviewPage', params: { originRoutineUuid: session.workoutProgramRoutine.uuid } }"
                         >
                             <VListItemTitle>Repeat now</VListItemTitle>
                         </VListItem>
@@ -52,7 +52,7 @@
 
         <div class="text-center mt-5">
             <VBtn
-                v-if="!myWorkoutSessionsPagesAllLoaded"
+                v-if="!myMyWorkoutSessionsPagesAllLoaded"
                 depressed
                 small
                 :loading="loadingNextPage"
@@ -81,7 +81,7 @@
             }
         },
         computed: {
-            ...mapState('workoutSession', ['myWorkoutSessionsPagesAllLoaded']),
+            ...mapState('workoutSession', ['myMyWorkoutSessionsPagesAllLoaded']),
             ...mapGetters('workoutSession', ['myWorkoutSessions']),
             headers() {
                 return [

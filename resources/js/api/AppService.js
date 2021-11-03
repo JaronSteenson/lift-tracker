@@ -1,7 +1,7 @@
 import ApiService from './ApiService';
 
 const RESOURCE_NAME = 'app';
-const LOGIN_URI = 'login';
+const LOGIN_URI = 'LoginPage';
 const SIGN_UP_URI = 'sign-up';
 const LOGOUT_URI = 'logout';
 

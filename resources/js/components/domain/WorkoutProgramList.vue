@@ -13,7 +13,7 @@
             hide-default-footer
         >
             <template v-slot:item.name="{ item: program }">
-                <RouterLink :to="{ name: 'programBuilder', params: { workoutProgramUuid: program.uuid } }">
+                <RouterLink :to="{ name: 'ProgramBuilderPage', params: { workoutProgramUuid: program.uuid } }">
                     <template v-if="program.name">{{ program.name }}</template>
                     <MissingValue v-else full-opacity>Unnamed program</MissingValue>
                 </RouterLink>
@@ -28,7 +28,7 @@
 
                     <VList>
                         <VListItem
-                            :to="{ name: 'programBuilder', params: { workoutProgramUuid: program.uuid } }">
+                            :to="{ name: 'ProgramBuilderPage', params: { workoutProgramUuid: program.uuid } }">
                             <VListItemTitle>Edit</VListItemTitle>
                         </VListItem>
                         <VListItem @click="showNewSessionModal(program.uuid)">

@@ -1,20 +1,28 @@
 <template>
-    <VRow>
-        <VCol
-            :key="index"
-            class="date-time-stat my-0"
-            cols="12"
-            sm="3"
-            v-for="(stat, index) in stats"
-        >
-            <VIcon>{{ stat.icon }}</VIcon>
-            <span>{{ stat.value }}</span>
-        </VCol>
-    </VRow>
+    <VCard>
+        <VCardText>
+            <VRow>
+                <VCol
+                    :key="index"
+                    class="py-1"
+                    cols="12"
+                    sm="6"
+                    v-for="(stat, index) in stats"
+                >
+                    <VIcon>{{ stat.icon }}</VIcon>
+                    <span>{{ stat.value }}</span>
+                </VCol>
+            </VRow>
+        </VCardText>
+    </VCard>
 </template>
 
 <script>
-    import {dateDescription, hoursMinutesSecondsFromStartEnd, timeDescription} from "../../../dates";
+    import {
+        dateDescription,
+        hoursMinutesSecondsFromStartEnd,
+        timeDescription
+    } from "../../../dates";
 
     export default {
         props: {
@@ -50,11 +58,3 @@
         }
     }
 </script>
-
-<style lang="scss" scoped>
-    .date-time-stat {
-        @media (max-width: 600px) {
-            max-width: 50%;
-        }
-    }
-</style>

@@ -1,18 +1,17 @@
 <template>
-    <VContainer class="list-page">
-        <VCardTitle class="page-title">{{ title }}</VCardTitle>
-        <slot/>
-        <slot v-if="$vuetify.breakpoint.xsOnly" name="fab"/>
-    </VContainer>
+    <div>
+        <VContainer class="list-page">
+            <VCardTitle class="page-sub-title">{{ subTitle }}</VCardTitle>
+            <slot/>
+            <slot name="fab"/>
+        </VContainer>
+    </div>
 </template>
 
 <script>
 export default {
     props: {
-        title: {
-            type: String,
-            required: true,
-        },
+        subTitle: String,
     },
 }
 </script>
@@ -25,7 +24,7 @@ export default {
 }
 
 @media screen and (max-width: 600px) {
-    .page-title {
+    .page-sub-title {
         padding-top: 0;
         padding-bottom: 0;
     }

@@ -4,7 +4,14 @@
             <VCol cols="12">
                 <h1 class="display-2 primary--text">404</h1>
                 <p><slot></slot></p>
-                <VBtn class="home-button" :to="{ name: 'home' }" depressed large>Go to home page</VBtn>
+                <VBtn
+                    class="home-button"
+                    :to="{ name: 'HomePage'}"
+                    depressed
+                    large
+                >
+                    Back to Home
+                </VBtn>
             </VCol>
         </VRow>
     </VContainer>

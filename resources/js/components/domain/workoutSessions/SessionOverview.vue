@@ -1,42 +1,45 @@
 <template>
-    <component
-        v-else
-        :elevation="this.$vuetify.breakpoint.smAndDown ? 0 : 5"
-        :is="this.$vuetify.breakpoint.smAndDown ? 'div' : 'VCard'"
-        max-width="960"
-        width="100%"
-    >
-        <VToolbar flat>
-            <VToolbarTitle>{{ workoutName }}</VToolbarTitle>
+    <div>
+        <PageToolbar :title="workoutName" :back-to="{ name: 'HomePage' }">
+            <template  v-slot:right>
+                <VMenu bottom left>
+                    <template v-slot:activator="{ on }">
+                        <VBtn icon v-on="on">
+                            <VIcon>{{ $svgIcons.mdiDotsVertical }}</VIcon>
+                        </VBtn>
+                    </template>
 
-            <VSpacer/>
+                    <VList>
+                        <VListItem :disabled="workoutSession.startedAt === null" @click="showArchiveConfirmation">
+                            <VListItemTitle>Archive</VListItemTitle>
+                        </VListItem>
+                    </VList>
+                </VMenu>
+            </template>
+        </PageToolbar>
 
-            <VMenu bottom left>
-                <template v-slot:activator="{ on }">
-                    <VBtn icon v-on="on">
-                        <VIcon>{{ $svgIcons.mdiDotsVertical }}</VIcon>
+        <NarrowContentContainer>
+            <VAlert
+                v-if="isInProgress"
+                dense
+                text
+                type="info"
+            >
+
+                <div class="d-flex justify-space-between align-center">
+                    <span>This workout is still in progress.</span>
+                    <VBtn
+                        class="ml-5"
+                        small
+                        color="green"
+                        :to="{ name: 'SetOverviewPage', params: { sessionSetUuid: currentSet.uuid }}"
+                    >
+                        <VIcon>{{ $svgIcons.mdiPlay }}</VIcon> Resume
                     </VBtn>
-                </template>
+                </div>
+            </VAlert>
 
-                <VList>
-                    <VListItem :disabled="workoutSession.startedAt === null" @click="showArchiveConfirmation">
-                        <VListItemTitle>Archive</VListItemTitle>
-                    </VListItem>
-                </VList>
-            </VMenu>
-        </VToolbar>
-
-        <VCardText class="pt-0">
-            <hr>
-            <SessionDateTimeStats :workout-session="workoutSession"/>
-            <hr>
-
-            <p class="mt-5" v-if="isInProgress">This workout is still in progress.
-                <RouterLink
-                    :to="{ name: 'setOverview', params: { sessionSetUuid: currentSet.uuid }}"
-                >Jump to current set.
-                </RouterLink>
-            </p>
+            <SessionDateTimeStatsCard :workout-session="workoutSession"/>
 
             <ExerciseSummaryCard
                 class="mt-5"
@@ -44,36 +47,28 @@
                 :exercise="sessionExercise"
                 :key="sessionExercise.uuid"
             />
-        </VCardText>
-        <VCardActions>
-            <VContainer class="text-center" fluid>
-                <VRow justify="center">
-                    <VCol cols="12">
-                        <VBtn :to="{ name: 'home' }" class="home-button">
-                            <VIcon>{{ $svgIcons.mdiHome }}</VIcon>
-                            Go to home page
-                        </VBtn>
-                    </VCol>
-                </VRow>
-            </VContainer>
-        </VCardActions>
-    </component>
+        </NarrowContentContainer>
+    </div>
 </template>
 
 <script>
     import NotFound from '../../routing/NotFound';
     import SessionOverviewLoadingSkeleton from './SessionOverviewLoadingSkeleton';
-    import SessionDateTimeStats from './SessionDateTimeStats';
+    import SessionDateTimeStatsCard from './SessionDateTimeStatsCard';
     import WorkoutCard from './../programBuilder/WorkoutCard';
     import {mapGetters} from "vuex";
     import ExerciseSummaryCard from "./ExerciseSummaryCard";
+    import NarrowContentContainer from "../../layouts/NarrowContentContainer";
+    import PageToolbar from "../../layouts/PageToolbar";
 
     export default {
         components: {
+            NarrowContentContainer,
             NotFound,
+            PageToolbar,
             SessionOverviewLoadingSkeleton,
             WorkoutCard,
-            SessionDateTimeStats,
+            SessionDateTimeStatsCard,
             ExerciseSummaryCard,
         },
         props: {
@@ -95,13 +90,9 @@
 
                 if (archiveConfirmed) {
                     this.$store.dispatch('workoutSession/archive', this.workoutSession.uuid);
-                    this.$router.replace({ name: 'home' });
+                    this.$router.replace({ name: 'HomePage'});
                 }
             },
         }
     }
 </script>
-
-<style lang="scss">
-
-</style>

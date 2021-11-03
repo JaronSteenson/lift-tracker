@@ -4,7 +4,7 @@
         <p>
             To get started build a workout program.
         </p>
-        <VBtn color="primary" :to="{ name: 'newProgramBuilder' }">
+        <VBtn color="primary" :to="{ name: 'ProgramBuilderPageNew' }">
             Build new program
         </VBtn>
     </div>

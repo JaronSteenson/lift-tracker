@@ -224,11 +224,11 @@
                 // Replace history with the in progress overview, so that back button takes you there instead of
                 // the set up screen for a new session.
                 const workoutSessionUuid = this.$store.getters['workoutSession/uuid'];
-                await this.$router.replace({ name: 'sessionOverview', params: { workoutSessionUuid }});
+                await this.$router.replace({ name: 'SessionOverviewPage', params: { workoutSessionUuid }});
 
                 // Finally go to the first set in the workout.
                 const firstSet = this.$store.getters['workoutSession/firstSet'];
-                await this.$router.push({ name: 'setOverview', params: { sessionSetUuid: firstSet.uuid }});
+                await this.$router.push({ name: 'SetOverviewPage', params: { sessionSetUuid: firstSet.uuid }});
                 this.starting = false;
             }
         }

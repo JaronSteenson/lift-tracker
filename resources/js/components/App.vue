@@ -14,7 +14,7 @@
                     <VListItem
                         :key="workout.uuid"
                         link
-                        :to="{ name: 'sessionOverview', params: { workoutSessionUuid: workout.uuid } }"
+                        :to="{ name: 'SessionOverviewPage', params: { workoutSessionUuid: workout.uuid } }"
                     >
                         <VListItemAction>
                             <VIcon color="success">{{ $svgIcons.workoutSessionnInProgress }}</VIcon>
@@ -29,7 +29,7 @@
                     <VListItem
                         :key="getCurrentSet(workout.uuid).uuid"
                         link
-                        :to="{ name: 'setOverview', params: { sessionSetUuid: getCurrentSet(workout.uuid).uuid }}"
+                        :to="{ name: 'SetOverviewPage', params: { sessionSetUuid: getCurrentSet(workout.uuid).uuid }}"
                     >
                         <VListItemAction>
                             <VIcon color="success">{{ $svgIcons.mdiPlay }}</VIcon>
@@ -46,7 +46,7 @@
 
                 <VListItem
                     link
-                    :to="{ name: 'sessionList' }"
+                    :to="{ name: 'MyWorkoutSessionsPage' }"
                 >
                     <VListItemAction>
                         <VIcon color="primary" >{{ $svgIcons.workoutSession }}</VIcon>
@@ -58,7 +58,7 @@
                 <VListItem
                     v-if="!inProgressWorkouts || inProgressWorkouts.length === 0"
                     link
-                    :to="{ name: 'newSessionRoutineSelect' }"
+                    :to="{ name: 'NewSessionRoutineSelectPage' }"
                 >
                     <VListItemAction>
                         <VIcon color="primary" >{{ $svgIcons.mdiPlay }}</VIcon>
@@ -72,7 +72,7 @@
 
                 <VListItem
                     link
-                    :to="{ name: 'programList' }"
+                    :to="{ name: 'MyWorkoutProgramsPage' }"
                 >
                     <VListItemAction>
                         <VIcon color="primary">{{ $svgIcons.workoutProgram }}</VIcon>
@@ -83,21 +83,21 @@
                 </VListItem>
                 <VListItem
                     link
-                    :to="{ name: 'newProgramBuilder' }"
+                    :to="{ name: 'ProgramBuilderPageNew' }"
                 >
                     <VListItemAction>
                         <VIcon color="primary">{{ $svgIcons.mdiPlus }}</VIcon>
                     </VListItemAction>
                     <VListItemContent>
-                        <VListItemTitle>Build workout program</VListItemTitle>
+                        <VListItemTitle>Build new workout program</VListItemTitle>
                     </VListItemContent>
                 </VListItem>
             </VList>
         </VNavigationDrawer>
 
-        <VAppBar app color="primary" dark :clipped-left="$vuetify.breakpoint.lgAndUp">
+        <VAppBar v-if="showAppBar" app color="primary" dark :clipped-left="$vuetify.breakpoint.lgAndUp">
             <VAppBarNavIcon v-if="userIsAuthenticated" @click.stop="drawer = !drawer" />
-            <VToolbarTitle>{{ appName }}</VToolbarTitle>
+            <VToolbarTitle>{{ appBarTitle }}</VToolbarTitle>
 
             <VSpacer/>
 
@@ -115,7 +115,7 @@
                     </VBtn>
                 </template>
                 <VList>
-                    <VListItem :to="{ name: 'account' }">
+                    <VListItem :to="{ name: 'AccountPage' }">
                         <VListItemTitle>My account</VListItemTitle>
                     </VListItem>
                     <VListItem @click="logout">
@@ -141,7 +141,9 @@
     import LoginModal from "./LoginModal";
 
     export default {
-        components: {LoginModal},
+        components: {
+            LoginModal
+        },
         data() {
             return {
                 drawer: null,
@@ -178,26 +180,40 @@
             ...mapGetters('workoutSession',
                 ['hasLoadedInProgressWorkouts', 'inProgressWorkouts']
             ),
+            showAppBar() {
+                if (this.$vuetify.breakpoint.smAndUp) {
+                    return true;
+                }
+
+                return ['MyWorkoutSessionsPage', 'LoginPage'].includes(this.$route.name);
+            },
+            appBarTitle() {
+                if (this.$vuetify.breakpoint.smAndUp) {
+                    return this.appName;
+                }
+
+                return this.$route.name === 'MyWorkoutSessionsPage' ? 'Home' : this.appName;
+            },
         },
         methods: {
             workoutIsInFocus(workoutSessionUuid) {
-                if (this.$route.name !== 'setOverview' && this.$route.name !== 'sessionOverview') {
+                if (this.$route.name !== 'SetOverviewPage' && this.$route.name !== 'SessionOverviewPage') {
                     return false;
                 }
 
                 return this.$store.getters['workoutSession/workoutSession']?.uuid === workoutSessionUuid;
             },
             setIsInFocus(set) {
-                return this.$route.name === 'setOverview' && this.$route.params.sessionSetUuid === set.uuid;
+                return this.$route.name === 'SetOverviewPage' && this.$route.params.sessionSetUuid === set.uuid;
             },
             async logout() {
                 if (!this.userIsAuthenticated) {
-                    await this.$router.push({ name: 'login' });
+                    await this.$router.push({ name: 'LoginPage' });
                     return;
                 }
 
                 await this.$store.dispatch('app/logout');
-                await this.$router.push({ name: 'login' });
+                await this.$router.push({ name: 'LoginPage' });
             },
             getCurrentSet(workoutSessionUuid) {
                 return this.$store.getters['workoutSession/currentSetForInProgressWorkout'](workoutSessionUuid);
@@ -222,8 +238,10 @@
         }
 
         @media (max-width: 600px) {
-            // Half the default margin of dialogs on small devices (important for login dialog).
-            margin: 12px;
+            &:not(.v-dialog--fullscreen) {
+                // Half the default margin of dialogs on small devices (important for login dialog).
+                margin: 12px;
+            }
         }
     }
 

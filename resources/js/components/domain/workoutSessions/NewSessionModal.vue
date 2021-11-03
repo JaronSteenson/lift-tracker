@@ -37,7 +37,7 @@
                     text
                     :loading="starting"
                     :disabled="routineSelection === null"
-                    :to="{ name: 'newSessionOverview', params: { originRoutineUuid: this.routineSelection } }"
+                    :to="{ name: 'NewSessionOverviewPage', params: { originRoutineUuid: this.routineSelection } }"
                     @click="starting = true"
                  >
                     Start

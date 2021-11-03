@@ -7,7 +7,7 @@
             :label="$vuetify.breakpoint.smAndUp ? label : null"
             :max="5 * 60"
             :min="0"
-            :prepend-icon="$vuetify.breakpoint.smAndUp ? $svgIcons.mdiHome : null"
+            :prepend-icon="$vuetify.breakpoint.smAndUp ? $svgIcons.mdiClock : null"
             :value="value"
             @input="$emit('input', $event)"
             class="px-0"
