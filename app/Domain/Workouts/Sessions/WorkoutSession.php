@@ -91,6 +91,7 @@ class WorkoutSession extends AbstractModel
             $workoutSession->userId = $userId;
             $workoutSession->workoutProgramRoutineId = $originRoutine->id;
             $workoutSession->name = $originRoutine->name;
+            $workoutSession->endedAt = null;
 
             $startedAt = null;
             if ($startNow) {

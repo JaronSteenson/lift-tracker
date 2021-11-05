@@ -19,6 +19,11 @@ export default {
     timeDescription: dateTimeDescription,
 }
 
+/**
+ * Get a full iso date string with utc timezone for now.
+ *
+ * @return {string}
+ */
 export function utcNow() {
     const date = new Date();
 
@@ -73,9 +78,14 @@ export function minsSecDuration(valueInSeconds, noZeroTreatment, roundOffSeconds
     return `${minutes}m ${seconds}s`;
 }
 
+/**
+ * @param start {string}
+ * @param end {?string}
+ * @return {string}
+ */
 export function hoursMinutesSecondsFromStartEnd(start, end) {
-    if (end === null) {
-        end = new Date(utcNow());
+    if (end === null || end === undefined) {
+        end = utcNow();
     }
 
     const seconds = differenceInSeconds(new Date(end), new Date(start));

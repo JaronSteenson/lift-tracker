@@ -1,4 +1,4 @@
-<template>
+S<template>
     <component :elevation="useInlineMobileView ? 0 : 5"
                :is="useInlineMobileView ? 'div' : 'VCard'"
                class="js-workout-drag-handle workout-card"
