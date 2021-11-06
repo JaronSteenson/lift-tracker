@@ -34,7 +34,7 @@
                         <VListItem
                             :to="{ name: 'SessionOverviewPage', params: { workoutSessionUuid: session.uuid } }"
                         >
-                            <VListItemTitle>View summary</VListItemTitle>
+                            <VListItemTitle>View overview</VListItemTitle>
                         </VListItem>
                         <VListItem
                             v-if="session.originProgramUuid"

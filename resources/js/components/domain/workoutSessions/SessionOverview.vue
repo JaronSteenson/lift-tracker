@@ -1,6 +1,6 @@
 <template>
     <div>
-        <PageToolbar :title="workoutName" :back-to="{ name: 'HomePage' }">
+        <PageToolbar title="Session overview" :back-to="{ name: 'HomePage' }">
             <template  v-slot:right>
                 <VMenu bottom left>
                     <template v-slot:activator="{ on }">
@@ -39,7 +39,7 @@
                 </div>
             </VAlert>
 
-            <SessionDateTimeStatsCard :workout-session="workoutSession"/>
+            <SessionStatsCard :workout-session="workoutSession"/>
 
             <ExerciseSummaryCard
                 class="mt-5"
@@ -54,7 +54,7 @@
 <script>
     import NotFound from '../../routing/NotFound';
     import SessionOverviewLoadingSkeleton from './SessionOverviewLoadingSkeleton';
-    import SessionDateTimeStatsCard from './SessionDateTimeStatsCard';
+    import SessionStatsCard from './SessionStatsCard';
     import WorkoutCard from './../programBuilder/WorkoutCard';
     import {mapGetters} from "vuex";
     import ExerciseSummaryCard from "./ExerciseSummaryCard";
@@ -68,7 +68,7 @@
             PageToolbar,
             SessionOverviewLoadingSkeleton,
             WorkoutCard,
-            SessionDateTimeStatsCard,
+            SessionStatsCard,
             ExerciseSummaryCard,
         },
         props: {

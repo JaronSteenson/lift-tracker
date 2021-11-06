@@ -3,16 +3,9 @@
         <SessionOverviewLoadingSkeleton v-if="loading"/>
         <div v-else>
             <NotFound v-if="notFound">Sorry we couldn't find that routine.</NotFound>
-            <template v-else>
-                <VContainer v-if="$vuetify.breakpoint.mdAndUp" fill-height>
-                    <VRow justify="center" align="center">
-                        <VCol cols="12" md="6">
-                            <WorkoutCard :workoutUuid="originRoutineUuid" is-session-overview></WorkoutCard>
-                        </VCol>
-                    </VRow>
-                </VContainer>
-                <WorkoutCard v-else :workoutUuid="originRoutineUuid" is-session-overview></WorkoutCard>
-            </template>
+            <NarrowContentContainer v-else>
+                <WorkoutCard :workoutUuid="originRoutineUuid" is-session-overview/>
+            </NarrowContentContainer>
         </div>
     </div>
 </template>
@@ -21,9 +14,11 @@
     import NotFound from '../../routing/NotFound';
     import SessionOverviewLoadingSkeleton from './SessionOverviewLoadingSkeleton';
     import WorkoutCard from './../programBuilder/WorkoutCard';
+    import NarrowContentContainer from "../../layouts/NarrowContentContainer";
 
     export default {
         components: {
+            NarrowContentContainer,
             NotFound,
             SessionOverviewLoadingSkeleton,
             WorkoutCard,

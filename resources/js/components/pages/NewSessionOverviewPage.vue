@@ -1,6 +1,6 @@
 <template>
     <div>
-        <PageToolbar title="New session overview" :back-to="{ name: 'NewSessionRoutineSelectPage' }" />
+        <PageToolbar title="Session overview" :back-to="{ name: 'NewSessionRoutineSelectPage' }"/>
         <NewSessionOverview :originRoutineUuid="originRoutineUuid"></NewSessionOverview>
     </div>
 </template>

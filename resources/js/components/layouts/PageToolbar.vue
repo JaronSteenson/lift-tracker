@@ -1,18 +1,27 @@
 <template>
-    <VToolbar>
+    <component v-bind="barProps">
         <div
             class="d-flex justify-space-between align-center toolbar-content-container"
         >
             <div
                 class="text-left"
-                :class="{ 'fixed-outside-flex-basis': $vuetify.breakpoint.smAndUp }"
+                :class="{
+                    'fixed-outside-flex-basis': $vuetify.breakpoint.smAndUp,
+                    'left-align-title': $vuetify.breakpoint.xsOnly
+                }"
             >
                 <RouterLink :to="backTo">
-                    <VIcon>{{ $svgIcons.backNavigation }}</VIcon>
+                    <VIcon :color="isAppBar ? null : 'grey'">{{ $svgIcons.backNavigation }}</VIcon>
                 </RouterLink>
+
+                <slot v-if="$vuetify.breakpoint.xsOnly" name="middle">
+                    <VToolbarTitle class="ml-2">
+                        {{ title }}
+                    </VToolbarTitle>
+                </slot>
             </div>
 
-            <slot name="middle">
+            <slot v-if="$vuetify.breakpoint.smAndUp" name="middle">
                 <VToolbarTitle>
                     {{ title }}
                 </VToolbarTitle>
@@ -25,7 +34,7 @@
                 <slot name="right"/>
             </div>
         </div>
-    </VToolbar>
+    </component>
 </template>
 
 <script>
@@ -33,6 +42,25 @@ export default {
     props: {
         backTo: Object,
         title: String,
+    },
+    computed: {
+        barProps() {
+            if (this.isAppBar) {
+                return {
+                    is: 'VAppBar',
+                    app: true,
+                    color: 'primary',
+                    dark: true,
+                };
+            }
+
+            return {
+                is: 'VToolbar',
+            };
+        },
+        isAppBar() {
+            return this.$vuetify.breakpoint.smAndDown;
+        }
     },
 }
 </script>
@@ -44,5 +72,10 @@ export default {
 
     .fixed-outside-flex-basis {
         flex-basis: 30%;
+    }
+
+    .left-align-title {
+        display: flex;
+        flex-grow: 1;
     }
 </style>

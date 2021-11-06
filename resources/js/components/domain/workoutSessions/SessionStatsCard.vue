@@ -1,5 +1,8 @@
 <template>
     <VCard>
+        <VCardTitle>
+            {{ workoutSession.name }}
+        </VCardTitle>
         <VCardText>
             <VRow>
                 <VCol

@@ -4,19 +4,22 @@
         <div v-else>
             <NotFoundPage v-if="notFound">Sorry we couldn't find that program.</NotFoundPage>
             <template v-else>
-                <PageToolbar :back-to="{ name: 'MyWorkoutProgramsPage' }">
-                    <template v-slot:middle>
+                <PageToolbar
+                    :title="$vuetify.breakpoint.xsOnly ? 'Program builder' : null"
+                    :back-to="{ name: 'MyWorkoutProgramsPage' }"
+                >
+                    <template v-if="$vuetify.breakpoint.smAndUp" v-slot:middle>
                         <VTextField
+                            v-if="editingName"
                             class="program-builder-title"
+                            v-model="localState.name"
                             :autofocus="editingName"
+                            label="Program name"
+                            hide-details
                             single-line
                             @blur="finishEditingName"
                             @keydown.enter="finishEditingName"
                             @keydown.esc="abortEditingName"
-                            label="Program name"
-                            v-if="editingName"
-                            v-model="localState.name"
-                            hide-details
                         >
                         </VTextField>
                         <VToolbarTitle v-else>
@@ -43,7 +46,20 @@
                         </VMenu>
                     </template>
                 </PageToolbar>
+
                 <VSheet class="mx-3">
+                    <VTextField
+                        v-if="$vuetify.breakpoint.xsOnly"
+                        v-model="localState.name"
+                        :autofocus="editingName"
+                        single-line
+                        hide-details
+                        @blur="finishEditingName"
+                        @keydown.enter="finishEditingName"
+                        @keydown.esc="abortEditingName"
+                        label="Program name"
+                    />
+
                     <Draggable
                         :forceFallback="true"
                         :delay="250"

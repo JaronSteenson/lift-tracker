@@ -1,48 +1,63 @@
-S<template>
-    <component :elevation="useInlineMobileView ? 0 : 5"
-               :is="useInlineMobileView ? 'div' : 'VCard'"
+<template>
+    <component :elevation="isSessionOverview ? 0 : 5"
+               :is="isSessionOverview ? 'div' : 'VCard'"
                class="js-workout-drag-handle workout-card"
                max-width="960"
                width="100%"
     >
-        <VToolbar flat>
-            <VTextField
-                class="workout-title-edit"
-                :autofocus="isEditingTitle"
-                :hide-details="isSessionOverview"
-                :label="isSessionOverview ? null : 'Workout name'"
-                :single-line="isSessionOverview"
-                @blur="finishEditingTitle"
-                @keydown.enter="finishEditingTitle"
-                @keydown.esc="abortEditingTitle"
-                v-if="isEditingTitle"
-                v-model="localState.name"
-            >
-                <template v-slot:append-outer>
-                    <VBtn class="workout-title-edit__abort" @click="abortEditingTitle" icon ref="abortEditingTitleButton">
-                        <VIcon>{{ $svgIcons.mdiClose }}</VIcon>
-                    </VBtn>
-                </template>
-            </VTextField>
-            <VTextField
-                class="workout-title-edit"
-                :autofocus="isAddingNew"
-                @blur="finishAddingNew"
-                @keydown.enter="finishAddingNew"
-                @keydown.esc="abortAddingNew"
-                label="Workout name"
+        <div
+            v-if="isSessionOverview"
+            class="px-4 py-2"
+        >
+            <div v-if="isEditingTitle" class="workout-title-edit">
+                <VTextField
+                    v-model="localState.name"
+                    class="ma-0 pa-0"
+                    :autofocus="isEditingTitle"
+                    label="Workout name"
+                    hide-details
+                    @blur="finishEditingTitle"
+                    @keydown.enter="finishEditingTitle"
+                    @keydown.esc="abortEditingTitle"
+                />
+            </div>
+            <EditableTitle v-else @click="editTitle">{{ nameDisplay }}</EditableTitle>
+        </div>
+        <VToolbar v-else flat>
+            <VCardTitle v-if="isEditingTitle" class="workout-title-edit workout-title-edit--editing-card">
+                <VTextField
+                    v-model="localState.name"
+                    :autofocus="isEditingTitle"
+                    label="Workout name"
+                    hide-details
+                    @blur="finishEditingTitle"
+                    @keydown.enter="finishEditingTitle"
+                    @keydown.esc="abortEditingTitle"
+                />
+            </VCardTitle>
+            <VCardTitle
                 v-else-if="isAddingNew"
-                v-model="localState.name"
+                class="workout-title-edit workout-title-edit--editing-card"
             >
-                <template v-slot:append-outer>
-                    <VBtn @click="abortAddingNew" icon ref="abortAddNewButton">
-                        <VIcon>{{ $svgIcons.mdiClose }}</VIcon>
-                    </VBtn>
-                </template>
-            </VTextField>
+                <VTextField
+                    v-model="localState.name"
+                    :autofocus="isAddingNew"
+                    label="Workout name"
+                    hide-details
+                    @blur="finishAddingNew"
+                    @keydown.enter="finishAddingNew"
+                    @keydown.esc="abortAddingNew"
+                >
+                    <template v-slot:append-outer>
+                        <VBtn small @click="abortAddingNew" icon ref="abortAddNewButton">
+                            <VIcon>{{ $svgIcons.mdiClose }}</VIcon>
+                        </VBtn>
+                    </template>
+                </VTextField>
+            </VCardTitle>
             <EditableTitle @click="editTitle" v-else>{{ nameDisplay }}</EditableTitle>
 
-            <v-menu bottom left v-if="!isSessionOverview && !isAddingNew && !isEditingTitle">
+            <v-menu bottom left v-if="!isAddingNew && !isEditingTitle">
                 <template v-slot:activator="{ on }">
                     <VBtn icon v-on="on">
                         <VIcon>{{ $svgIcons.mdiDotsVertical }}</VIcon>
@@ -55,24 +70,9 @@ S<template>
                     </v-list-item>
                 </v-list>
             </v-menu>
-            <v-menu bottom left v-if="isSessionOverview">
-                <template v-slot:activator="{ on }">
-                    <VBtn icon v-on="on">
-                        <VIcon>{{ $svgIcons.mdiDotsVertical }}</VIcon>
-                    </VBtn>
-                </template>
-
-                <v-list>
-                    <v-list-item @click="addExercise">
-                        <v-list-item-title>Add exercise</v-list-item-title>
-                    </v-list-item>
-                </v-list>
-            </v-menu>
         </VToolbar>
 
             <template v-if="isSessionOverview">
-                <VSubheader>Today's session overview</VSubheader>
-
                 <VCardText v-if="hasNoExercises">
                     <MissingValue class="d-flex justify-center">No exercises</MissingValue>
                 </VCardText>
@@ -96,15 +96,22 @@ S<template>
                     </Draggable>
                 </component>
             </component>
-        <VCardActions class="justify-center" width="100%">
-                <VBtn v-if="isSessionOverview" :loading="starting" @click="startWorkout" color="success" x-large width="80%" class="my-5">
-                    <VIcon left>{{ $svgIcons.mdiPlay }}</VIcon>
-                    Start workout
-                </VBtn>
-                <VBtn v-else @click="addExercise" width="100%">
-                    <VIcon left>{{ $svgIcons.mdiPlus }}</VIcon>
-                    Add exercise
-                </VBtn>
+        <div v-if="isSessionOverview" class="text-center">
+            <VBtn @click="addExercise" :width="$vuetify.breakpoint.xsOnly ? '100%' : null">
+                <VIcon left>{{ $svgIcons.mdiPlus }}</VIcon>
+                Add exercise
+            </VBtn>
+            <hr class="my-10"/>
+            <VBtn v-if="isSessionOverview" :width="$vuetify.breakpoint.xsOnly ? '100%' : '75%'" :loading="starting" @click="startWorkout" color="success" x-large>
+                <VIcon left>{{ $svgIcons.mdiPlay }}</VIcon>
+                Start workout
+            </VBtn>
+        </div>
+        <VCardActions v-else  class="justify-center" width="100%">
+            <VBtn @click="addExercise" width="100%">
+                <VIcon left>{{ $svgIcons.mdiPlus }}</VIcon>
+                Add exercise
+            </VBtn>
         </VcardActions>
     </component>
 </template>
@@ -154,6 +161,15 @@ S<template>
                     this.$store.dispatch('programBuilder/updateWorkout', {uuid: this.workoutUuid, ...newState});
                 }
             },
+            name: {
+                get() {
+                    return this.localState.name;
+                },
+                set(name) {
+                    this.localState.name = name;
+                    this.finishEditingTitle();
+                }
+            },
             nameDisplay() {
                 return this.localState.name || 'Unnamed workout'
             },
@@ -168,9 +184,6 @@ S<template>
                     });
                 }
             },
-            useInlineMobileView() {
-                return this.isSessionOverview && this.$vuetify.breakpoint.smAndDown;
-            },
             hasNoExercises() {
                 return this.orderedExercises.length === 0;
             },
@@ -179,13 +192,7 @@ S<template>
             editTitle() {
                 this.isEditingTitle = true;
             },
-            finishEditingTitle(e) {
-                // Allow canceling addition of element by clicking the cancel cross.
-                if (e.relatedTarget === this.$refs.abortEditingTitleButton.$el) {
-                    this.abortEditingTitle();
-                    return;
-                }
-
+            finishEditingTitle() {
                 this.isEditingTitle = false;
                 this.workout = this.localState;
             },
@@ -241,13 +248,11 @@ S<template>
     }
 
     .workout-title-edit {
-        &.v-input {
-            margin-top: 50px;
-        }
-
-
-        &__abort.VBtn {
-            margin-top: -15px;
+        &--editing-card {
+            margin-top: 10px;
+            padding-left: 0;
+            margin-left: 0;
+            width: 100%;
         }
     }
 
