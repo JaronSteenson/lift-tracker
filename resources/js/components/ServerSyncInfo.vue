@@ -52,7 +52,7 @@
                 }
 
                 if (this.updatedAt) {
-                    if (this.$vuetify.breakpoint.xsOnly) {
+                    if (this.$vuetify.breakpoint.mdAndDown) {
                         return `${updatedAtMicro(this.updatedAt)}`;
                     }
 

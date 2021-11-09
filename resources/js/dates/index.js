@@ -90,6 +90,10 @@ export function hoursMinutesSecondsFromStartEnd(start, end) {
 
     const seconds = differenceInSeconds(new Date(end), new Date(start));
 
+    if (isNaN(seconds)) {
+        return '';
+    }
+
     return hoursMinutesSecondsDuration(seconds);
 }
 

@@ -181,11 +181,11 @@
                 ['hasLoadedInProgressWorkouts', 'inProgressWorkouts']
             ),
             showAppBar() {
-                if (this.$vuetify.breakpoint.smAndUp) {
-                    return true;
+                if (this.$vuetify.breakpoint.smAndDown) {
+                    return ['MyWorkoutSessionsPage', 'LoginPage'].includes(this.$route.name);
                 }
 
-                return ['MyWorkoutSessionsPage', 'LoginPage'].includes(this.$route.name);
+                return true;
             },
             appBarTitle() {
                 if (this.$vuetify.breakpoint.smAndUp) {

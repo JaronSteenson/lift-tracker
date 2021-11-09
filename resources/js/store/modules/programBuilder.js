@@ -275,6 +275,8 @@ const actions = {
     },
 
     save: debounce(async ({ state, commit, dispatch, getters }) => {
+        debugger;
+
         // Don't actually save anything until there is some decent changes.
         if (!getters.hasMadeSignificantChangesFromNew) {
             return;

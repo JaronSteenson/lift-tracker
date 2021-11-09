@@ -5,10 +5,10 @@
             <NotFoundPage v-if="notFound">Sorry we couldn't find that program.</NotFoundPage>
             <template v-else>
                 <PageToolbar
-                    :title="$vuetify.breakpoint.xsOnly ? 'Program builder' : null"
+                    :title="$vuetify.breakpoint.smAndDown ? 'Program builder' : null"
                     :back-to="{ name: 'MyWorkoutProgramsPage' }"
                 >
-                    <template v-if="$vuetify.breakpoint.smAndUp" v-slot:middle>
+                    <template v-if="$vuetify.breakpoint.mdAndUp" v-slot:middle>
                         <VTextField
                             v-if="editingName"
                             class="program-builder-title"
@@ -49,7 +49,7 @@
 
                 <VSheet class="mx-3">
                     <VTextField
-                        v-if="$vuetify.breakpoint.xsOnly"
+                        v-if="$vuetify.breakpoint.smAndDown"
                         v-model="localState.name"
                         :autofocus="editingName"
                         single-line

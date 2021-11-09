@@ -96,15 +96,14 @@
                     </Draggable>
                 </component>
             </component>
-        <div v-if="isSessionOverview" class="text-center">
-            <VBtn @click="addExercise" :width="$vuetify.breakpoint.xsOnly ? '100%' : null">
+        <div v-if="isSessionOverview" class="mx-3 mt-3" :class="{ 'd-flex justify-space-between': $vuetify.breakpoint.smAndUp }">
+            <VBtn @click="addExercise" :width="$vuetify.breakpoint.xsOnly ? '100%' : '40%'">
                 <VIcon left>{{ $svgIcons.mdiPlus }}</VIcon>
-                Add exercise
+                   Add exercise
             </VBtn>
-            <hr class="my-10"/>
-            <VBtn v-if="isSessionOverview" :width="$vuetify.breakpoint.xsOnly ? '100%' : '75%'" :loading="starting" @click="startWorkout" color="success" x-large>
+            <VBtn v-if="isSessionOverview" :class="{ 'mt-5': $vuetify.breakpoint.xsOnly }" :width="$vuetify.breakpoint.xsOnly ? '100%' : '40%'"  color="success" :loading="starting" @click="startWorkout">
                 <VIcon left>{{ $svgIcons.mdiPlay }}</VIcon>
-                Start workout
+                    Start workout
             </VBtn>
         </div>
         <VCardActions v-else  class="justify-center" width="100%">
@@ -274,4 +273,5 @@
             border: solid 1px var(--v-warning-base);
         }
     }
+
 </style>

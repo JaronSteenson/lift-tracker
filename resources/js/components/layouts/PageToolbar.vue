@@ -15,14 +15,14 @@
                 </RouterLink>
 
                 <slot v-if="$vuetify.breakpoint.xsOnly" name="middle">
-                    <VToolbarTitle class="ml-2">
+                    <VToolbarTitle class="mx-2">
                         {{ title }}
                     </VToolbarTitle>
                 </slot>
             </div>
 
             <slot v-if="$vuetify.breakpoint.smAndUp" name="middle">
-                <VToolbarTitle>
+                <VToolbarTitle class="mx-2">
                     {{ title }}
                 </VToolbarTitle>
             </slot>
@@ -77,5 +77,8 @@ export default {
     .left-align-title {
         display: flex;
         flex-grow: 1;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
     }
 </style>

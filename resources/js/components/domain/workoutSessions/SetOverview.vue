@@ -104,7 +104,7 @@
                         {{ $svgIcons.mdiChevronLeft }}
                     </VIcon>
 
-                    <template v-for="otherSet in exercise.sessionSets">
+                    <template v-for="otherSet in setsForStepper">
                         <VStepperStep
                             :key="otherSet.position"
                             :complete="otherSet.endedAt !== null"
@@ -132,7 +132,7 @@
                 </VStepperHeader>
             </VStepper>
 
-            <VCardText class="py-0">
+            <VCardText>
                 <VContainer class="py-0">
                     <VRow>
                         <VCol class="pt-0" cols="6" md="6" sm="6">
@@ -409,6 +409,29 @@ export default {
         inProgressSet() {
             return this.$store.getters['workoutSession/currentSetForInProgressWorkout'](this.uuid);
         },
+        /**
+         * If there are more than five sets limit to displaying five at a time (one each side of the current),
+         * two  before/after if at the start/end.
+         * @return {object}
+         */
+        setsForStepper() {
+            const length = this.exercise.sessionSets.length;
+            const position = this.set.position;
+
+            if (length <= 5) {
+                return this.exercise.sessionSets;
+            }
+
+            if (position < 3) {
+                return this.exercise.sessionSets.slice(0, 5);
+            }
+
+            if (position > length - 4) {
+                return this.exercise.sessionSets.slice(length - 5, length);
+            }
+
+            return this.exercise.sessionSets.slice(position - 2, position + 3);
+        },
         exercise() {
             return this.$store.getters['workoutSession/exerciseBySet'](this.sessionSetUuid);
         },
@@ -580,10 +603,20 @@ export default {
 .v-stepper {
     margin-top: 5px;
     box-shadow: none;
+    max-width: 100vw;
+    overflow-x: hidden;
+    overflow-y: hidden;
 }
 
 .v-stepper__header {
+    height: 40px;
     box-shadow: none;
+    flex-wrap: nowrap;
+}
+
+.v-stepper__step {
+    padding-top: 0;
+    padding-bottom: 0;
 }
 
 .start-rest-button {

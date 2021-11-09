@@ -22,7 +22,9 @@ describe('dates', () => {
         each([
             ['2019-01-01 12:00:00', null],
             ['2019-01-01 12:00:00', undefined],
-        ]).test('It should handle open ended calculations with  "%s"', (start, end) => {
+            ['2019-01-01 12:00:00', false],
+            ['2019-01-01 12:00:00', ''],
+        ]).test('It should handle open ended calculations with  "%s and %s"', (start, end) => {
             expect(hoursMinutesSecondsFromStartEnd(start, end).includes('NaN')).toBe(false);
         });
 
