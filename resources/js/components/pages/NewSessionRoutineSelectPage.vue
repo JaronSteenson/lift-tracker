@@ -1,5 +1,5 @@
 <template>
-    <div>
+    <div v-if="userIsAuthenticated">
         <PageToolbar title="Start new session" :back-to="{ name: 'MyWorkoutSessionsPage' }" />
         <NoProgramsWelcomeHint
             v-if="shouldShowNoProgramsWelcomeHint"
@@ -34,7 +34,7 @@ export default {
     },
     computed: {
         ...mapGetters('app',
-            ['shouldShowNoProgramsWelcomeHint', 'shouldShowNoProgramsHintStartNewSession']),
+            ['userIsAuthenticated', 'shouldShowNoProgramsWelcomeHint', 'shouldShowNoProgramsHintStartNewSession']),
     },
 }
 </script>

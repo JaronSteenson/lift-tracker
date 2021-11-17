@@ -1,5 +1,5 @@
 <template>
-    <div>
+    <div v-if="userIsAuthenticated">
         <PageToolbar title="My workout programs" :back-to="{ name: 'MyWorkoutSessionsPage' }" />
         <NoProgramsHint v-if="myWorkoutPrograms.length === 0"/>
         <ListPage v-else>
@@ -37,6 +37,7 @@ export default {
         WorkoutProgramList,
     },
     computed: {
+        ...mapGetters('app', ['userIsAuthenticated']),
         ...mapGetters('programBuilder', ['myWorkoutPrograms']),
     },
 }

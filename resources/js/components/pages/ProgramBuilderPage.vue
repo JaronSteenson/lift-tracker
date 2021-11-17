@@ -1,9 +1,10 @@
 <template>
-    <ProgramBuilder :workoutProgramUuid="workoutProgramUuid"></ProgramBuilder>
+    <ProgramBuilder v-if="userIsAuthenticated" :workoutProgramUuid="workoutProgramUuid"></ProgramBuilder>
 </template>
 
 <script>
     import ProgramBuilder from '../domain/programBuilder/ProgramBuilder';
+    import {mapGetters} from "vuex";
 
     export default {
         components: {
@@ -14,6 +15,9 @@
                 type: String,
                 required: false,
             }
-        }
+        },
+        computed: {
+            ...mapGetters('app', ['userIsAuthenticated']),
+        },
     }
 </script>

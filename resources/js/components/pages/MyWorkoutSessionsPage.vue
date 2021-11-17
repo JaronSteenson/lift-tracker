@@ -1,5 +1,5 @@
 <template>
-    <div>
+    <div v-if="true">
         <NoProgramsWelcomeHint
             v-if="shouldShowNoProgramsWelcomeHint"
         />
@@ -56,6 +56,7 @@ export default {
         WorkoutSessionList,
     },
     computed: {
+        ...mapGetters('app', ['userIsAuthenticated']),
         ...mapGetters('app',
             ['shouldShowNoProgramsWelcomeHint', 'shouldShowNoSessionsHint']),
         ...mapGetters('workoutSession',

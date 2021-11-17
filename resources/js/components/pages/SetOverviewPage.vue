@@ -1,5 +1,5 @@
 <template>
-    <div>
+    <div v-if="userIsAuthenticated">
         <SessionOverviewLoadingSkeleton v-if="loading"/>
         <div v-else>
             <NotFound v-if="notFound">Sorry we couldn't find that set.</NotFound>
@@ -14,6 +14,7 @@
     import NotFound from "../routing/NotFound";
     import SessionOverviewLoadingSkeleton from "../domain/workoutSessions/SessionOverviewLoadingSkeleton";
     import SetOverview from "../domain/workoutSessions/SetOverview";
+    import {mapGetters} from "vuex";
 
     export default {
         components: {
@@ -37,6 +38,7 @@
             }
         },
         computed: {
+            ...mapGetters('app', ['userIsAuthenticated']),
             notFound() {
                 return !this.loading && this.fetchError;
             },

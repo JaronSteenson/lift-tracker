@@ -1,5 +1,5 @@
 <template>
-    <VContainer fluid>
+    <VContainer fluid v-if="userIsAuthenticated">
         <VRow
             justify="center"
         >
@@ -44,10 +44,14 @@
 
 <script>
     import FacebookLoginDeleteAccountButton from "../formFields/FacebookLoginDeleteAccountButton";
+    import {mapGetters} from "vuex";
 
     export default {
         components: {
             FacebookLoginDeleteAccountButton,
+        },
+        computed: {
+            ...mapGetters('app', ['userIsAuthenticated']),
         },
     }
 </script>
