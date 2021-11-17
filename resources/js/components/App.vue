@@ -127,7 +127,7 @@
 
         <LoginModal v-if="showSessionExpiredModal" session-expiry-warning />
 
-        <VMain>
+        <VMain :class="{ 'v-main--not-logged-in': !userIsAuthenticated }">
             <VFadeTransition leave-absolute>
                 <RouterView/>
             </VFadeTransition>
@@ -142,7 +142,7 @@
 
     export default {
         components: {
-            LoginModal
+            LoginModal,
         },
         data() {
             return {
@@ -181,8 +181,12 @@
                 ['hasLoadedInProgressWorkouts', 'inProgressWorkouts']
             ),
             showAppBar() {
+                if (!this.userIsAuthenticated) {
+                    return true;
+                }
+
                 if (this.$vuetify.breakpoint.smAndDown) {
-                    return ['MyWorkoutSessionsPage', 'LoginPage'].includes(this.$route.name);
+                    return this.$route.name === 'MyWorkoutSessionsPage';
                 }
 
                 return true;
@@ -230,6 +234,10 @@
 
     .app-avatar {
         background-color: var(--v-primary-lighten2);
+    }
+
+    .v-main--not-logged-in {
+        background-color: #f0f0f0;;
     }
 
     .v-dialog {

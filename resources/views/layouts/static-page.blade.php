@@ -17,7 +17,7 @@
             max-width: 960px;
             background: white;
         }
-    </style
+    </style>
 @stop
 
 @section('body')

@@ -1,7 +1,7 @@
 <template>
     <VBtn class="facebook-login-button white--text" :href="href" color="#4267B2" @click="$emit('click', $event)" :loading="loading">
         <img class="facebook-login-button__icon" src="/app-icons/facebook-logo-transparent-small.png" alt="">
-        <span class="facebook-login-button__text">Log in with Facebook</span>
+        <span class="facebook-login-button__text">Continue with Facebook</span>
     </VBtn>
 </template>
 
@@ -30,6 +30,8 @@ export default {
 
 <style lang="scss">
     .facebook-login-button {
+        max-width: 300px;
+
         &__text {
             margin-left: 1em;
         }
