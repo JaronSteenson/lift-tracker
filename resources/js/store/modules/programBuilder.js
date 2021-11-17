@@ -275,9 +275,7 @@ const actions = {
     },
 
     save: debounce(async ({ state, commit, dispatch, getters }) => {
-        debugger;
-
-        // Don't actually save anything until there is some decent changes.
+         // Don't actually save anything until there is some decent changes.
         if (!getters.hasMadeSignificantChangesFromNew) {
             return;
         }
@@ -313,6 +311,7 @@ const actions = {
         const response = await WorkoutProgramService.get(uuid);
         commit('reset', {
             inFocusProgram: response.data,
+            delayedSavingToServer: false,
         });
     },
 
