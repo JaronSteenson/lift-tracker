@@ -45,7 +45,7 @@
 </template>
 
 <script>
-import FacebookLoginButton from "../formFields/FacebookLoginButton";
+import FacebookLoginButton from '../formFields/FacebookLoginButton';
 
 export default {
         components: {
