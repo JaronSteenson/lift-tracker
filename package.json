@@ -1,8 +1,8 @@
 {
     "private": true,
     "engines": {
-        "node": "v15.14.0",
-        "npm": "v7.7.6"
+        "node": "v13.14.0",
+        "npm": "v6.14.4"
     },
     "engineStrict": true,
     "scripts": {
