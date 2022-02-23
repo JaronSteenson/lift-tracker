@@ -3,11 +3,19 @@
         <div class="left-column d-flex flex-column justify-center align-center">
             <h1 class="heading heading--small mx-3">Super simple gym tracking</h1>
             <img
+                v-show="imageHasLoaded"
                 ref="image"
                 class="set-overview-demo set-overview-demo--small mt-5 elevation-5"
-                :class="{ 'set-overview-demo--loaded': showImage }"
+                :class="{
+                    'set-overview-demo--fade-in': fadeImageIn,
+                }"
                 src="images/set-overview.png"
                 alt="Set overview"
+            />
+            <VSkeletonLoader
+                v-if="!imageHasLoaded"
+                class="set-overview-demo-skeleton-small mt-5"
+                type="image"
             />
             <FacebookLoginButton class="mt-10"/>
             <a class="mt-3 d-block" href="/privacy-policy">Privacy policy</a>
@@ -21,11 +29,17 @@
             <a class="mt-3 d-block" href="/privacy-policy">Privacy policy</a>
         </div>
         <img
+            v-show="imageHasLoaded"
             ref="image"
-            class="set-overview-demo set-overview-demo ml-5 elevation-5"
-            :class="{ 'set-overview-demo--loaded': showImage }"
+            class="set-overview-demo ml-5 elevation-5"
+            :class="{ 'set-overview-demo--fade-in': fadeImageIn }"
             src="images/set-overview.png"
             alt="Set overview"
+        />
+        <VSkeletonLoader
+            v-if="!imageHasLoaded"
+            class="set-overview-demo-skeleton ml-5"
+            type="image"
         />
     </div>
 </template>
@@ -38,11 +52,13 @@ export default {
             FacebookLoginButton,
         },
         mounted() {
-            this.$refs.image.onload = () => this.showImage = true;
+            this.$refs.image.onload = () => this.imageHasLoaded = true;
+            setTimeout(() => this.fadeImageIn = true, 100);
         },
         data() {
             return {
-                showImage: false,
+                imageHasLoaded: false,
+                fadeImageIn: false,
             }
         }
     }
@@ -69,20 +85,29 @@ export default {
 .set-overview-demo {
     opacity: 0;
     border-radius: 5px;
-
-    $set-overview-demo-lg-scale: 0.6;
-    height: calc(628px * #{$set-overview-demo-lg-scale});
-    width: calc(374px * #{$set-overview-demo-lg-scale});
+    height: calc(315px);
+    width: calc(188px);
 
     &--small {
-        height: calc(50vh);
+        height: 50vh;
         width: unset;
     }
 
-    &--loaded {
+    &--fade-in {
         transition: opacity .5s ease-in;
         opacity: 1;
     }
 }
+</style>
 
+<style lang="scss">
+ .set-overview-demo-skeleton .v-skeleton-loader__image.v-skeleton-loader__bone {
+     height: calc(315px);
+     width: calc(188px);
+}
+
+ .set-overview-demo-skeleton-small .v-skeleton-loader__image.v-skeleton-loader__bone {
+     height: 50vh;
+     width: 30vh;
+ }
 </style>
