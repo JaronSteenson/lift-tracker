@@ -663,12 +663,9 @@ export const actions = {
         const update = {
             workoutSession: response.data,
             exercisesPreviousEntries: originalState.exercisesPreviousEntries,
-            inProgressWorkouts: [...state.inProgressWorkouts, response.data]
+            inProgressWorkouts: [...state.inProgressWorkouts, response.data],
+            myWorkoutSessions: [response.data, ...state.myWorkoutSessions],
         };
-
-        if (state.myMyWorkoutSessionsPagesAllLoaded) {
-            update.myWorkoutSessions = [response.data, ...state.myWorkoutSessions];
-        }
 
         commit('reset', update);
     },
