@@ -1,0 +1,25 @@
+image: node:14.19.1
+
+pipelines:
+  branches:
+    master:
+      - step:
+          name: Build and test
+          caches:
+            - node
+          script:
+            - npm install
+            - npm test
+            - npm run prod
+          artifacts:
+            - public/**
+#    - step:
+#        name: Deploy artifacts using SCP to PROD
+#        deployment: production
+#        script:
+#          - pipe: atlassian/scp-deploy:0.3.3
+#            variables:
+#              USER: $USER
+#              SERVER: $SERVER
+#              REMOTE_PATH: '/var/www/scp-deploy/html'
+#              LOCAL_PATH: 'public/*'

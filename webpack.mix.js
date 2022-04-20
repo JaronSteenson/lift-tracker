@@ -4,12 +4,12 @@ const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPl
 let plugins = [new BundleAnalyzerPlugin()];
 
 if (mix.inProduction()) {
-    //
+    mix.disableNotifications();
 } else {
-    mix.sourceMaps();
+    mix.sourceMaps()
+        .webpackConfig({ plugins })
 }
 
 mix.js('resources/js/app.js', 'public/js')
     .vue({ version: 2 })
-    .webpackConfig({ plugins })
     .version();
