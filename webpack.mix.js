@@ -10,5 +10,6 @@ if (mix.inProduction()) {
 }
 
 mix.js('resources/js/app.js', 'public/js')
+    .vue({ version: 2 })
     .webpackConfig({ plugins })
     .version();
