@@ -1,5 +1,5 @@
 import {dateDescription, hoursMinutesSecondsFromStartEnd, timeDescription, updatedAtMicro, utcNow} from '../../dates';
-import { subHours, subMinutes } from 'date-fns';
+import { subMinutes } from 'date-fns';
 import each from 'jest-each';
 
 describe('dates', () => {
@@ -7,15 +7,15 @@ describe('dates', () => {
     const thirty5MinsAgo = subMinutes(new Date(utcNow()), 35);
 
     describe('Hours minutes from start end', () => {
-
         each([
-            ['2019-01-01 12:00:00', '2019-01-01 12:00:00', '0s'],
-            ['2019-01-01 12:00:00', '2019-01-01 12:00:59', '59s'],
-            ['2019-01-01 12:00:00', '2019-01-01 12:30:01', '30m 1s'],
-            ['2019-01-01 12:00:00', '2019-01-01 12:35:00', '35m 0s'],
-            ['2019-01-01 12:00:00', '2019-01-01 13:35:00', '1h 35m 0s'],
-            ['2019-01-01 12:00:00', '2019-01-01 13:35:01', '1h 35m 1s'],
-        ]).test('It should return the correct duration between "%s" and "%s"', (start, end, expected) => {
+            ['2019-01-01 13:35:01', '2019-01-01 12:00:00', 'Completely backwards durations should be zero', '0s'],
+            ['2019-01-01 12:00:00', '2019-01-01 12:00:00', 'Exactly zero difference', '0s'],
+            ['2019-01-01 12:00:00', '2019-01-01 12:00:59', 'Just seconds', '59s'],
+            ['2019-01-01 12:00:00', '2019-01-01 12:30:01', 'Mins and second', '30m 1s'],
+            ['2019-01-01 12:00:00', '2019-01-01 12:35:00', 'Mins only', '35m 0s'],
+            ['2019-01-01 12:00:00', '2019-01-01 13:35:00', 'Hours and mins, no seconds', '1h 35m 0s'],
+            ['2019-01-01 12:00:00', '2019-01-01 13:35:01', 'Hours, mins, and seconds', '1h 35m 1s'],
+        ]).test('It should return the correct duration between "%s" and "%s - "%s"', (start, end, explanation, expected) => {
             expect(hoursMinutesSecondsFromStartEnd(start, end)).toBe(expected);
         });
 
@@ -31,7 +31,6 @@ describe('dates', () => {
     });
 
     describe('Time description', () => {
-
         each([
             ['2019-01-01 12:00:00', true, '12:00 PM'],
             [null, true, 'unfinished'],
@@ -41,11 +40,9 @@ describe('dates', () => {
         ]).test('It should return the time description for "%s", noRecent flag: "%s"', (time, noRecent, expected) => {
             expect(timeDescription(time, noRecent)).toBe(expected);
         });
-
     });
 
     describe('Date description', () => {
-
         test('It should return "Today" for today with the recent flag off', () => {
             expect(dateDescription('2021-02-19 12:00:00', true, '2021-02-19 12:00:00')).toBe('Today');
         });
@@ -109,11 +106,9 @@ describe('dates', () => {
             // Future does not work with the noRecent=true.
             expect(dateDescription('2022-01-01 12:00:00', true, '2021-02-18 12:00:00')).toBe('1 Jan 2022');
         });
-
     });
 
     describe('Updated At micro', () => {
-
         each([
             ['Zero seconds', '2019-01-02 12:00:00', '0s'],
             ['Some minutes', '2019-01-02 11:50:00', '10m'],
@@ -126,7 +121,5 @@ describe('dates', () => {
         ]).test('It should return the correct micro time updated at description for "%s"', (testCase, time, expected) => {
             expect(updatedAtMicro(time, '2019-01-02 12:00:00')).toBe(expected);
         });
-
     });
-
 });

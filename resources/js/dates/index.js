@@ -88,10 +88,10 @@ export function hoursMinutesSecondsFromStartEnd(start, end) {
         end = utcNow();
     }
 
-    const seconds = differenceInSeconds(new Date(end), new Date(start));
+    let seconds = differenceInSeconds(new Date(end), new Date(start));
 
-    if (isNaN(seconds)) {
-        return '';
+    if (seconds < 0 || isNaN(seconds)) {
+        seconds = 0;
     }
 
     return hoursMinutesSecondsDuration(seconds);
