@@ -15,7 +15,7 @@ pipelines:
             - public/**
       - step:
           name: Deploy frontend artifacts using SCP to PROD
-          deployment: production
+          deployment: Production
           script:
             - pipe: atlassian/scp-deploy:0.3.3
               variables:
@@ -23,3 +23,16 @@ pipelines:
                 SERVER: $PROD_IP
                 REMOTE_PATH: '/var/www/html/lift-tracker/public'
                 LOCAL_PATH: 'public/*'
+      - step:
+          name: Cloudflare cdn cache purge and pre-load
+          deployment: Cloudflare
+          script:
+            - >
+              curl \
+               -X POST "https://api.cloudflare.com/client/v4/zones/c1c95b982d4310a8f3ccd3b8483c6df7/purge_cache" \
+               -H "Authorization: Bearer $CLOUDFLARE_AUTH_TOKEN" \
+               -H "Content-Type:application/json" \
+               --data '{"purge_everything":true}'
+            - curl https://lift-tracker.io
+            - curl https://lift-tracker.io/images/set-overview.png
+            - curl https://lift-tracker.io/js/app.js
