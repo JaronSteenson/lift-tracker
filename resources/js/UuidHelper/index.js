@@ -69,36 +69,37 @@ export default {
      * @return {null | Object}
      */
     findDeep(subject, uuid) {
-        let found = null;
-        Object.values(subject).forEach((value) => {
-            if (!value) {
-                return;
+        for (const property in subject) {
+            const entry = subject[property];
+
+            if (!entry) {
+                continue;
             }
 
-            if (typeof value === 'object') {
-                if (value?.uuid === uuid) {
-                    return value;
+            if (typeof entry === 'object') {
+                if (entry?.uuid === uuid) {
+                    return entry;
                 }
 
-                let foundDeep = this.findDeep(value, uuid);
+                let foundDeep = this.findDeep(entry, uuid);
 
                 if (foundDeep) {
                     return foundDeep;
                 } else {
-                    return;
+                    continue;
                 }
             }
 
-            if (Array.isArray(value)) {
-                let foundDeep = this.findDeep(value, uuid);
+            if (Array.isArray(entry)) {
+                let foundDeep = this.findDeep(entry, uuid);
 
                 if (foundDeep) {
                     return foundDeep;
                 }
             }
-        });
+        }
 
-        return found;
+        return null;
     },
 
     /**

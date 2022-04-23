@@ -10,9 +10,9 @@
                         v-if="isEditingTitle"
                         v-model="localState.name"
                     />
-                    <EditableTitle @click="isEditingTitle = true" v-else>{{
-                        nameDisplay
-                    }}</EditableTitle>
+                    <EditableTitle @click="isEditingTitle = true" v-else>
+                        {{ nameDisplay }}
+                    </EditableTitle>
                     <V-btn @click="close" icon>
                         <v-icon>{{ $svgIcons.mdiClose }}</v-icon>
                     </V-btn>
