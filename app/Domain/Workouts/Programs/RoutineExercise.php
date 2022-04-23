@@ -66,7 +66,7 @@ class RoutineExercise extends AbstractModel implements UserOwnershipInterface
 
     protected $casts = [
         'numberOfSets' => 'integer',
-        'weight' => 'integer',
+        'weight' => 'double',
         'restPeriod' => 'integer',
         'createdAt' => 'datetime:c',
         'updatedAt' => 'datetime:c',

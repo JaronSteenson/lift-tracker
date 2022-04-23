@@ -77,8 +77,8 @@ class SessionSet extends AbstractModel
     ];
 
     protected $casts = [
-        'reps' => 'integer',
-        'weight' => 'integer',
+        'reps' => 'double',
+        'weight' => 'double',
         'restPeriodDuration' => 'integer',
         'restPeriodStartedAt' => 'datetime:c',
         'restPeriodEndedAt' => 'datetime:c',

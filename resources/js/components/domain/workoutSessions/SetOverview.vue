@@ -168,6 +168,9 @@
                                 class="mt-0"
                                 label="Weight (kg)"
                                 type="number"
+                                :step="2.5"
+                                :max="9999"
+                                :min="0"
                                 v-model.number="weight"
                             />
                         </VCol>
@@ -177,6 +180,8 @@
                                 class="mt-0"
                                 label="Reps"
                                 type="number"
+                                :max="9999"
+                                :min="0"
                                 v-model.number="reps"
                             />
                         </VCol>

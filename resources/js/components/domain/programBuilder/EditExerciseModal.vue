@@ -24,6 +24,9 @@
                                 <VTextField
                                     label="Weight (kg)"
                                     type="number"
+                                    :step="2.5"
+                                    :max="9999"
+                                    :min="0"
                                     v-model="localState.weight"
                                 />
                             </VCol>
