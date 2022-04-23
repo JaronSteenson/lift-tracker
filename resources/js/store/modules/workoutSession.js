@@ -302,14 +302,7 @@ export const getters = {
 
     weightForCurrentSet: (state, getters) => (uuid) => {
         const actualSet = getters.set(uuid);
-
-        if (actualSet.weight !== null) {
-            return actualSet.weight;
-        }
-
-        const exercise = getters.exerciseBySet(uuid);
-
-        return exercise.plannedWeight;
+        return actualSet.weight;
     },
 
     restPeriodForCurrentSet: (state, getters) => (uuid) => {
