@@ -5,13 +5,11 @@
 </template>
 
 <script>
-    export default {
-
-    }
+export default {};
 </script>
 
 <style lang="scss" scoped>
-    .editable-title {
-        flex-grow: 1;
-    }
+.editable-title {
+    flex-grow: 1;
+}
 </style>

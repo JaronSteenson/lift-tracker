@@ -3,17 +3,16 @@ import ApiService from './ApiService';
 const RESOURCE_NAME = 'workout-programs';
 
 const WorkoutProgramService = {
-
     get(uuid) {
-        return ApiService.get(RESOURCE_NAME, uuid)
+        return ApiService.get(RESOURCE_NAME, uuid);
     },
 
     getByRoutine(routineUuid) {
-        return ApiService.get(`${RESOURCE_NAME}?routine-uuid=${routineUuid}`)
+        return ApiService.get(`${RESOURCE_NAME}?routine-uuid=${routineUuid}`);
     },
 
     getAll() {
-        return ApiService.get(RESOURCE_NAME)
+        return ApiService.get(RESOURCE_NAME);
     },
 
     save(workoutProgram) {
@@ -22,8 +21,7 @@ const WorkoutProgramService = {
 
     delete(uuid) {
         return ApiService.delete(RESOURCE_NAME, uuid);
-    }
-
+    },
 };
 
 export default WorkoutProgramService;

@@ -1,10 +1,8 @@
-
-import { v4 as uuidV4 }  from 'uuid';
+import { v4 as uuidV4 } from 'uuid';
 
 export default {
-
     /**
-     * Generate a new uuid.
+     * Generate a new UUID.
      * @returns {*}
      */
     assign() {
@@ -12,7 +10,7 @@ export default {
     },
 
     /**
-     * Assign a uuid to an object if it doesn't already have one.
+     * Assign a UUID to an object if it doesn't already have one.
      * @param object
      * @returns {{uuid}|*}
      */
@@ -27,27 +25,27 @@ export default {
     },
 
     /**
-     * Assign a uuid to every element in an array.
+     * Assign a UUID to every element in an array.
      * @param array
      */
     assignToAll(array) {
-        array.forEach(object => this.assignTo(object))
+        array.forEach((object) => this.assignTo(object));
     },
 
     /**
-     * Find an object in an array where it has the specified uuid.
-     * The look up is not deep.
+     * Find an object in an array where it has the specified UUID.
+     * The look-up is not deep.
      * @param array
-     * @param uuid
+     * @param uuid {string}
      * @returns {*}
      */
     findIn(array, uuid) {
-        return array.find(object => object.uuid === uuid);
+        return array.find((object) => object.uuid === uuid);
     },
 
     /**
-     * Find and replace an object in an array where it has the specified uuid.
-     * The look up is not deep.
+     * Find and replace an object in an array where it has the specified UUID.
+     * The look-up is not deep.
      * @param array
      * @param replaceWith
      * @returns {*}
@@ -55,7 +53,9 @@ export default {
     replaceInCopy(array, replaceWith) {
         const copy = [...array];
 
-        const index = copy.findIndex(object => object.uuid === replaceWith.uuid);
+        const index = copy.findIndex(
+            (object) => object.uuid === replaceWith.uuid
+        );
 
         copy.splice(index, 1, replaceWith);
 
@@ -63,57 +63,46 @@ export default {
     },
 
     /**
-     * Find an object by uuid recursively in an array or object.
-     * @param subject {Array | object}
+     * Find an object by UUID recursively in an array or object.
+     * @param subject {Array | Object}
      * @param uuid {string}
-     * @return {null | object}
+     * @return {null | Object}
      */
     findDeep(subject, uuid) {
-        if (!uuid instanceof String) {
-            throw new Error('Uuid must be a string');
-        }
-
         let found = null;
-
-        for (const property in subject) {
-            if (!subject.hasOwnProperty(property)) {
-                continue;
+        Object.values(subject).forEach((value) => {
+            if (!value) {
+                return;
             }
 
-            const entry = subject[property]
-
-            if (!entry) {
-                continue;
-            }
-
-            if (typeof entry === 'object') {
-                if (entry?.uuid === uuid) {
-                    return entry;
+            if (typeof value === 'object') {
+                if (value?.uuid === uuid) {
+                    return value;
                 }
 
-                let foundDeep = this.findDeep(entry, uuid);
+                let foundDeep = this.findDeep(value, uuid);
 
                 if (foundDeep) {
                     return foundDeep;
                 } else {
-                    continue;
+                    return;
                 }
             }
 
-            if (typeof entry === 'Array') {
-                let foundDeep =  this.findDeep(entry, uuid);
+            if (Array.isArray(value)) {
+                let foundDeep = this.findDeep(value, uuid);
 
                 if (foundDeep) {
                     return foundDeep;
                 }
             }
-        }
+        });
 
         return found;
     },
 
     /**
-     * Does an object in an array have the specified uuid.
+     * Does an object in an array have the specified UUID.
      * @param array
      * @param uuid
      * @return {boolean}
@@ -123,13 +112,13 @@ export default {
     },
 
     /**
-     * Remove an object from an array where it has the specified uuid.
+     * Remove an object from an array where it has the specified UUID.
      * @param array
      * @param uuid
      * @returns {boolean} True if the item was found and removed from the array.
      */
     removeFrom(array, uuid) {
-        const foundIndex =  array.findIndex(object => object.uuid === uuid);
+        const foundIndex = array.findIndex((object) => object.uuid === uuid);
 
         if (foundIndex === -1) {
             return false;
@@ -152,6 +141,5 @@ export default {
         this.removeFrom(copy, uuid);
 
         return copy;
-    }
-
+    },
 };

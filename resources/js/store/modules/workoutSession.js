@@ -1,7 +1,7 @@
 import WorkoutSessionService from '../../api/WorkoutSessionService';
 import UuidHelper from '../../UuidHelper';
 import { dateDescription, utcNow } from '../../dates';
-import { memoizeDebounceAction } from "../../util";
+import { memoizeDebounceAction } from '../../util';
 import { differenceInSeconds, isAfter } from 'date-fns';
 import {
     mutations as saveStatusMutations,
@@ -36,7 +36,7 @@ function defaultState() {
          * Note this is only relevant to finished workouts.
          */
         openForEdits: new Map(),
-    }
+    };
 }
 
 const state = defaultState();
@@ -57,16 +57,21 @@ export const getters = {
             return null;
         }
 
-        return state.myWorkoutSessions.map(workoutSession => {
+        return state.myWorkoutSessions.map((workoutSession) => {
             let startedAt = dateDescription(workoutSession.startedAt);
 
             if (getters.isInProgressWorkout(workoutSession.uuid)) {
                 startedAt = `${startedAt} (in progress)`;
             }
 
-            const workoutProgram = workoutSession?.workoutProgramRoutine?.workoutProgram;
-            const programName = workoutProgram ? workoutProgram.name : '(Archived program)'
-            const originProgramUuid = workoutProgram ? workoutProgram.uuid : null;
+            const workoutProgram =
+                workoutSession?.workoutProgramRoutine?.workoutProgram;
+            const programName = workoutProgram
+                ? workoutProgram.name
+                : '(Archived program)';
+            const originProgramUuid = workoutProgram
+                ? workoutProgram.uuid
+                : null;
 
             return {
                 ...workoutSession,
@@ -76,7 +81,7 @@ export const getters = {
                     originProgramUuid,
                 },
             };
-        })
+        });
     },
 
     isOpenForEdits: (state, getters) => (workoutSessionUuid) => {
@@ -88,7 +93,10 @@ export const getters = {
     },
 
     isInProgressWorkout: (state, getters) => (workoutSessionUuid) => {
-        return UuidHelper.findIn(getters.inProgressWorkouts, workoutSessionUuid);
+        return UuidHelper.findIn(
+            getters.inProgressWorkouts,
+            workoutSessionUuid
+        );
     },
 
     inProgressSet(state, getters) {
@@ -96,11 +104,16 @@ export const getters = {
             return null;
         }
 
-        return getters.currentSetForInProgressWorkout(getters.inProgressWorkouts[0].uuid);
+        return getters.currentSetForInProgressWorkout(
+            getters.inProgressWorkouts[0].uuid
+        );
     },
 
-    originRoutineUuid:  (state) => (sessionUuid) => {
-        const workoutSession = UuidHelper.findIn(state.myWorkoutSessions, sessionUuid);
+    originRoutineUuid: (state) => (sessionUuid) => {
+        const workoutSession = UuidHelper.findIn(
+            state.myWorkoutSessions,
+            sessionUuid
+        );
 
         return workoutSession.workoutProgramRoutine.uuid;
     },
@@ -108,48 +121,57 @@ export const getters = {
     /**
      * Flatten all sets from every exercise in a single array.
      */
-    flattenAllSets: () => workout => {
-        const setGroups = workout.sessionExercises.map(exercise => {
-            return exercise.sessionSets.map(set => {
-                return {exercise: exercise, ...set}
-            })
+    flattenAllSets: () => (workout) => {
+        const setGroups = workout.sessionExercises.map((exercise) => {
+            return exercise.sessionSets.map((set) => {
+                return { exercise: exercise, ...set };
+            });
         });
 
         return setGroups.reduce((accumulator, setGroup) => {
             accumulator.push(...setGroup);
             return accumulator;
-        }, [])
+        }, []);
     },
 
-    currentSetForInProgressWorkout: (state, getters) => (workoutSessionUuid) => {
-        const workout =  UuidHelper.findIn(getters.inProgressWorkouts, workoutSessionUuid);
+    currentSetForInProgressWorkout:
+        (state, getters) => (workoutSessionUuid) => {
+            const workout = UuidHelper.findIn(
+                getters.inProgressWorkouts,
+                workoutSessionUuid
+            );
 
-        if (!workout) {
-            return null;
-        }
+            if (!workout) {
+                return null;
+            }
 
-        const allSets = getters.flattenAllSets(workout);
+            const allSets = getters.flattenAllSets(workout);
 
-        if (allSets[0].startedAt === null) {
-            return allSets[0];
-        }
+            if (allSets[0].startedAt === null) {
+                return allSets[0];
+            }
 
-        return allSets.reduce((lastStartedSet, set) => {
-            if (set.startedAt === null) {
+            return allSets.reduce((lastStartedSet, set) => {
+                if (set.startedAt === null) {
+                    return lastStartedSet;
+                }
+
+                if (set.startedAt === lastStartedSet.startedAt) {
+                    return set;
+                }
+
+                if (
+                    isAfter(
+                        new Date(set.startedAt),
+                        new Date(lastStartedSet.startedAt)
+                    )
+                ) {
+                    return set;
+                }
+
                 return lastStartedSet;
-            }
-
-            if (set.startedAt === lastStartedSet.startedAt) {
-                return set;
-            }
-
-            if (isAfter(new Date(set.startedAt), new Date(lastStartedSet.startedAt))) {
-                return set;
-            }
-
-            return lastStartedSet;
-        }, allSets[0]);
-    },
+            }, allSets[0]);
+        },
 
     inProgressWorkouts(state) {
         return state.inProgressWorkouts;
@@ -176,14 +198,14 @@ export const getters = {
     },
 
     firstSet(state) {
-        return state.workoutSession.sessionExercises[0].sessionSets[0]
+        return state.workoutSession.sessionExercises[0].sessionSets[0];
     },
 
     setIsInFocusedSession: (state, getters) => (sessionSetUuid) => {
         if (state?.workoutSession?.sessionExercises) {
             const allSets = getters.flattenAllSets(state.workoutSession);
 
-            return UuidHelper.arrayIncludes(allSets, sessionSetUuid)
+            return UuidHelper.arrayIncludes(allSets, sessionSetUuid);
         }
 
         return false;
@@ -198,7 +220,7 @@ export const getters = {
     exerciseBySet: (state) => (uuid) => {
         const exercises = state.workoutSession.sessionExercises;
 
-        return exercises.find(exercise => {
+        return exercises.find((exercise) => {
             return UuidHelper.arrayIncludes(exercise.sessionSets, uuid);
         });
     },
@@ -216,9 +238,10 @@ export const getters = {
             if (set.uuid === uuid) {
                 previousSetIndex = index - 1;
             }
-        })
+        });
 
-        const inSameExercise = currentSetsExercise.sessionSets[previousSetIndex];
+        const inSameExercise =
+            currentSetsExercise.sessionSets[previousSetIndex];
         if (inSameExercise) {
             return inSameExercise;
         }
@@ -231,9 +254,12 @@ export const getters = {
             }
         });
 
-        const inPreviousExercise = state.workoutSession.sessionExercises[previousExerciseIndex];
+        const inPreviousExercise =
+            state.workoutSession.sessionExercises[previousExerciseIndex];
         if (inPreviousExercise) {
-            return inPreviousExercise.sessionSets[inPreviousExercise.sessionSets.length - 1];
+            return inPreviousExercise.sessionSets[
+                inPreviousExercise.sessionSets.length - 1
+            ];
         }
 
         // Must be on the first set of the workout
@@ -249,7 +275,7 @@ export const getters = {
             if (set.uuid === uuid) {
                 nextSetIndex = index + 1;
             }
-        })
+        });
 
         const inSameExercise = currentSetsExercise.sessionSets[nextSetIndex];
         if (inSameExercise) {
@@ -262,9 +288,10 @@ export const getters = {
             if (exercise.uuid === currentSetsExercise.uuid) {
                 nextExerciseIndex = index + 1;
             }
-        })
+        });
 
-        const inNextExercise = state.workoutSession.sessionExercises[nextExerciseIndex];
+        const inNextExercise =
+            state.workoutSession.sessionExercises[nextExerciseIndex];
         if (inNextExercise) {
             return inNextExercise.sessionSets[0];
         }
@@ -320,8 +347,12 @@ export const getters = {
     isLastSetOfWorkout: (state, getters) => (uuid) => {
         const actualSet = getters.set(uuid);
 
-        const lastExercise = state.workoutSession.sessionExercises[state.workoutSession.sessionExercises.length - 1];
-        const lastSet = lastExercise.sessionSets[lastExercise.sessionSets.length - 1];
+        const lastExercise =
+            state.workoutSession.sessionExercises[
+                state.workoutSession.sessionExercises.length - 1
+            ];
+        const lastSet =
+            lastExercise.sessionSets[lastExercise.sessionSets.length - 1];
 
         return actualSet.uuid === lastSet.uuid;
     },
@@ -329,7 +360,8 @@ export const getters = {
     isLastSetOfExercise: (state, getters) => (setUuid) => {
         const exercise = getters.exerciseBySet(setUuid);
 
-        const lastExerciseOfSet = exercise.sessionSets[exercise.sessionSets.length - 1];
+        const lastExerciseOfSet =
+            exercise.sessionSets[exercise.sessionSets.length - 1];
 
         return setUuid === lastExerciseOfSet.uuid;
     },
@@ -342,13 +374,17 @@ export const getters = {
 
     isDuringRestPeriod: (state, getters) => (uuid) => {
         const set = getters.set(uuid);
-        return set.restPeriodStartedAt !== null && set.restPeriodEndedAt === null;
+        return (
+            set.restPeriodStartedAt !== null && set.restPeriodEndedAt === null
+        );
     },
 
     restPeriodIsFinished: (state, getters) => (uuid) => {
         const set = getters.set(uuid);
 
-        return set.restPeriodStartedAt !== null && set.restPeriodEndedAt !== null;
+        return (
+            set.restPeriodStartedAt !== null && set.restPeriodEndedAt !== null
+        );
     },
 
     restPeriodTimeRemaining: (state, getters) => (uuid) => {
@@ -360,7 +396,7 @@ export const getters = {
         const expectedDuration = getters.restPeriodForCurrentSet(uuid);
 
         const minutesToAdd = Math.floor(expectedDuration / 60);
-        const secondsToAdd =  expectedDuration - minutesToAdd * 60;
+        const secondsToAdd = expectedDuration - minutesToAdd * 60;
 
         let startTime = new Date(getters.set(uuid).restPeriodStartedAt);
 
@@ -368,17 +404,19 @@ export const getters = {
         const finishTimeSeconds = secondsToAdd + startTime.getSeconds();
 
         let finishTime = new Date(getters.set(uuid).restPeriodStartedAt);
-        finishTime.setMinutes(finishTimeMinutes)
-        finishTime.setSeconds(finishTimeSeconds)
+        finishTime.setMinutes(finishTimeMinutes);
+        finishTime.setSeconds(finishTimeSeconds);
 
-        const now = Math.round((new Date(utcNow()).getTime()) / 1000);
-        const finishInSeconds = Math.round((finishTime).getTime() / 1000);
+        const now = Math.round(new Date(utcNow()).getTime() / 1000);
+        const finishInSeconds = Math.round(finishTime.getTime() / 1000);
 
         return finishInSeconds - now;
     },
 
     hasLoadedExercisePreviousEntries: (state) => (exerciseUuid) => {
-        return typeof state.exercisesPreviousEntries[exerciseUuid] !== 'undefined';
+        return (
+            typeof state.exercisesPreviousEntries[exerciseUuid] !== 'undefined'
+        );
     },
 
     exercisePreviousEntries: (state) => (exerciseUuid) => {
@@ -388,7 +426,6 @@ export const getters = {
     updatedAt(state) {
         return state.workoutSession.updatedAt;
     },
-
 };
 
 export const actions = {
@@ -401,7 +438,7 @@ export const actions = {
         if (getters.isInProgressWorkout) {
             const exercise = getters.exerciseBySet(uuid);
 
-            exercise.sessionSets.forEach(set => {
+            exercise.sessionSets.forEach((set) => {
                 if (set.uuid !== uuid && set.startedAt === null) {
                     commit('updateSet', { uuid: set.uuid, weight });
                 }
@@ -413,25 +450,28 @@ export const actions = {
         }
     },
 
-    updateSetRestPeriodDuration({ commit, dispatch  }, { uuid, restPeriodDuration }) {
+    updateSetRestPeriodDuration(
+        { commit, dispatch },
+        { uuid, restPeriodDuration }
+    ) {
         commit('updateSet', { uuid, restPeriodDuration });
 
         dispatch('saveSet', uuid);
     },
 
-    updateSetReps({ commit, dispatch  }, { uuid, reps }) {
+    updateSetReps({ commit, dispatch }, { uuid, reps }) {
         commit('updateSet', { uuid, reps });
 
         dispatch('saveSet', uuid);
     },
 
-    updateExerciseNotes({ commit, dispatch  }, { uuid, notes }) {
+    updateExerciseNotes({ commit, dispatch }, { uuid, notes }) {
         commit('updateExercise', { uuid, notes });
 
         dispatch('saveExercise', uuid);
     },
 
-    startSet({ commit, dispatch, getters  }, { uuid }) {
+    startSet({ commit, dispatch }, { uuid }) {
         const startedAt = utcNow();
 
         commit('startSet', { uuid, startedAt });
@@ -440,15 +480,25 @@ export const actions = {
         dispatch('saveSet', uuid);
     },
 
-    endSet({ commit, dispatch, getters  }, { uuid, endedAt }) {
+    endSet({ commit, dispatch, getters }, { uuid, endedAt }) {
         const set = getters.set(uuid);
 
         endedAt = endedAt || utcNow();
 
-        if (set.restPeriodStartedAt !== null && set.restPeriodEndedAt === null) {
+        if (
+            set.restPeriodStartedAt !== null &&
+            set.restPeriodEndedAt === null
+        ) {
             const restPeriodEndedAt = utcNow();
-            const restPeriodDuration = differenceInSeconds(new Date(restPeriodEndedAt), new Date(set.restPeriodStartedAt));
-            commit('endRestPeriod', { uuid, restPeriodEndedAt, restPeriodDuration });
+            const restPeriodDuration = differenceInSeconds(
+                new Date(restPeriodEndedAt),
+                new Date(set.restPeriodStartedAt)
+            );
+            commit('endRestPeriod', {
+                uuid,
+                restPeriodEndedAt,
+                restPeriodDuration,
+            });
         }
 
         commit('endSet', { uuid, endedAt });
@@ -456,20 +506,31 @@ export const actions = {
         dispatch('saveSet', uuid);
     },
 
-    startRestPeriod({ commit, dispatch, getters  }, { uuid }) {
+    startRestPeriod({ commit, dispatch }, { uuid }) {
         const restPeriodStartedAt = utcNow();
 
-        commit('updateSet', { uuid, restPeriodStartedAt, restPeriodEndedAt: null });
+        commit('updateSet', {
+            uuid,
+            restPeriodStartedAt,
+            restPeriodEndedAt: null,
+        });
 
         dispatch('saveSet', uuid);
     },
 
-    endRestPeriod({ commit, dispatch, getters  }, { uuid }) {
+    endRestPeriod({ commit, dispatch, getters }, { uuid }) {
         const set = getters.set(uuid);
 
         const restPeriodEndedAt = utcNow();
-        const restPeriodDuration = differenceInSeconds(new Date(restPeriodEndedAt), new Date(set.restPeriodStartedAt));
-        commit('endRestPeriod', { uuid, restPeriodEndedAt, restPeriodDuration });
+        const restPeriodDuration = differenceInSeconds(
+            new Date(restPeriodEndedAt),
+            new Date(set.restPeriodStartedAt)
+        );
+        commit('endRestPeriod', {
+            uuid,
+            restPeriodEndedAt,
+            restPeriodDuration,
+        });
 
         dispatch('saveSet', uuid);
     },
@@ -484,8 +545,14 @@ export const actions = {
 
     async archive({ state, commit, dispatch }, uuidToDelete) {
         try {
-            const updatedWorkoutSessions = UuidHelper.removeFromCopy(state.myWorkoutSessions, uuidToDelete)
-            const updatedInProgressWorkouts = UuidHelper.removeFromCopy(state.inProgressWorkouts, uuidToDelete)
+            const updatedWorkoutSessions = UuidHelper.removeFromCopy(
+                state.myWorkoutSessions,
+                uuidToDelete
+            );
+            const updatedInProgressWorkouts = UuidHelper.removeFromCopy(
+                state.inProgressWorkouts,
+                uuidToDelete
+            );
 
             // Optimistically remove from the state.
             commit('reset', {
@@ -515,64 +582,72 @@ export const actions = {
      * @param uuid The sets uuid
      * @return {Promise<void>}
      */
-    saveSet: memoizeDebounceAction(async ({ commit, getters, dispatch }, uuid) => {
-        try {
-            dispatch('startSaving');
+    saveSet: memoizeDebounceAction(
+        async ({ commit, getters, dispatch }, uuid) => {
+            try {
+                dispatch('startSaving');
 
-            commit('updateSet', {
-                uuid,
-                updatedAt: utcNow()
-            });
+                commit('updateSet', {
+                    uuid,
+                    updatedAt: utcNow(),
+                });
 
-            const set = getters.set(uuid);
-            const response = await WorkoutSessionService.saveSet(set);
+                const set = getters.set(uuid);
+                const response = await WorkoutSessionService.saveSet(set);
 
-            commit('updateWorkoutSession', {
-                uuid: getters.uuid,
-                updatedAt: response.data.updatedAt,
-            });
+                commit('updateWorkoutSession', {
+                    uuid: getters.uuid,
+                    updatedAt: response.data.updatedAt,
+                });
 
-            commit('updateSet', {
-                uuid,
-                updatedAt: response.data.updatedAt,
-                createdAt: response.data.createdAt,
-            });
+                commit('updateSet', {
+                    uuid,
+                    updatedAt: response.data.updatedAt,
+                    createdAt: response.data.createdAt,
+                });
 
-            dispatch('finishSaving');
-        } catch (error) {
-            dispatch('finishSavingError');
-            console.error(error);
-        }
-    }, SAVE_DEBOUNCE_WAIT),
+                dispatch('finishSaving');
+            } catch (error) {
+                dispatch('finishSavingError');
+                console.error(error);
+            }
+        },
+        SAVE_DEBOUNCE_WAIT
+    ),
 
-    saveExercise: memoizeDebounceAction(async ({ commit, getters, dispatch }, uuid) => {
-        try {
-            dispatch('startSaving');
+    saveExercise: memoizeDebounceAction(
+        async ({ commit, getters, dispatch }, uuid) => {
+            try {
+                dispatch('startSaving');
 
-            commit('updateExercise', {
-                uuid,
-                updatedAt: utcNow()
-            });
+                commit('updateExercise', {
+                    uuid,
+                    updatedAt: utcNow(),
+                });
 
-            const response = await WorkoutSessionService.saveExercise(getters.exercise(uuid));
+                const response = await WorkoutSessionService.saveExercise(
+                    getters.exercise(uuid)
+                );
 
-            commit('updateWorkoutSession', {
-                uuid: getters.uuid,
-                updatedAt: response.data.updatedAt,
-            });
+                commit('updateWorkoutSession', {
+                    uuid: getters.uuid,
+                    updatedAt: response.data.updatedAt,
+                });
 
-            commit('updateExercise', {
-                uuid,
-                updatedAt: response.data.updatedAt,
-                createdAt: response.data.createdAt,
-            });
+                commit('updateExercise', {
+                    uuid,
+                    updatedAt: response.data.updatedAt,
+                    createdAt: response.data.createdAt,
+                });
 
-            dispatch('finishSaving');
-        } catch (error) {
-            dispatch('finishSavingError');
-            console.error(error);
-        }
-    }, SAVE_DEBOUNCE_WAIT),
+                dispatch('finishSaving');
+            } catch (error) {
+                dispatch('finishSavingError');
+                console.error(error);
+            }
+        },
+        SAVE_DEBOUNCE_WAIT
+    ),
 
     async saveWorkout({ commit, state, dispatch }) {
         try {
@@ -582,10 +657,12 @@ export const actions = {
 
             commit('updateWorkoutSession', {
                 uuid,
-                updatedAt: utcNow()
+                updatedAt: utcNow(),
             });
 
-            const response = await WorkoutSessionService.save(state.workoutSession);
+            const response = await WorkoutSessionService.save(
+                state.workoutSession
+            );
 
             commit('updateWorkoutSession', {
                 uuid,
@@ -600,7 +677,7 @@ export const actions = {
         }
     },
 
-    async fetch({ commit, dispatch }, uuid) {
+    async fetch({ commit }, uuid) {
         const response = await WorkoutSessionService.get(uuid);
         commit('reset', { workoutSession: response.data });
 
@@ -619,13 +696,14 @@ export const actions = {
         commit('reset', {
             myWorkoutSessions: [...state.myWorkoutSessions, ...response.data],
             myMyWorkoutSessionsPagesLoaded: nextPage,
-            myMyWorkoutSessionsPagesAllLoaded: response.data.length < WorkoutSessionService.getPageSize(),
+            myMyWorkoutSessionsPagesAllLoaded:
+                response.data.length < WorkoutSessionService.getPageSize(),
         });
 
         return response;
     },
 
-    async fetchBySet({ commit, dispatch }, sessionSetUuid) {
+    async fetchBySet({ commit }, sessionSetUuid) {
         const response = await WorkoutSessionService.getBySet(sessionSetUuid);
         commit('reset', { workoutSession: response.data });
 
@@ -644,21 +722,28 @@ export const actions = {
         return response;
     },
 
-    async fetchExercisePreviousEntries({ commit, dispatch }, exerciseUuid) {
-        const response = await WorkoutSessionService.getExercisePreviousEntries(exerciseUuid);
+    async fetchExercisePreviousEntries({ commit }, exerciseUuid) {
+        const response = await WorkoutSessionService.getExercisePreviousEntries(
+            exerciseUuid
+        );
 
         if (response.data === '') {
             response.data = [];
         }
 
-        commit('updateExercisePreviousEntries', { exerciseUuid, previousEntries: response.data });
+        commit('updateExercisePreviousEntries', {
+            exerciseUuid,
+            previousEntries: response.data,
+        });
 
         return response;
     },
 
-    async startWorkout({ commit, dispatch, state }, { originWorkoutUuid }) {
+    async startWorkout({ commit, state }, { originWorkoutUuid }) {
         const originalState = defaultState();
-        const response = await WorkoutSessionService.startNew(originWorkoutUuid);
+        const response = await WorkoutSessionService.startNew(
+            originWorkoutUuid
+        );
 
         const update = {
             workoutSession: response.data,
@@ -673,17 +758,23 @@ export const actions = {
     async endWorkout({ commit, dispatch, getters }) {
         const endedAt = utcNow();
 
-        const lastExercise = state.workoutSession.sessionExercises[state.workoutSession.sessionExercises.length - 1];
-        const lastSet = lastExercise.sessionSets[lastExercise.sessionSets.length - 1];
+        const lastExercise =
+            state.workoutSession.sessionExercises[
+                state.workoutSession.sessionExercises.length - 1
+            ];
+        const lastSet =
+            lastExercise.sessionSets[lastExercise.sessionSets.length - 1];
 
         if (lastSet.endedAt === null) {
             dispatch('endSet', { uuid: lastSet.uuid, endedAt });
         }
 
         // Remove this workout from the in progress list.
-        const inProgressWorkouts = getters.inProgressWorkouts.filter((inProgressWorkout) => {
-            return getters.workoutSession.uuid !== inProgressWorkout.uuid;
-        })
+        const inProgressWorkouts = getters.inProgressWorkouts.filter(
+            (inProgressWorkout) => {
+                return getters.workoutSession.uuid !== inProgressWorkout.uuid;
+            }
+        );
 
         commit('endWorkout', { endedAt });
         commit('updateInProgress', inProgressWorkouts);
@@ -693,7 +784,6 @@ export const actions = {
 
         return save;
     },
-
 };
 
 const mutations = {
@@ -702,47 +792,59 @@ const mutations = {
     restoreDefault(state) {
         const originalState = defaultState();
 
-        Object.keys(originalState).forEach(key => {
+        Object.keys(originalState).forEach((key) => {
             state[key] = originalState[key];
         });
     },
 
     reset(state, newState) {
-        Object.keys(newState).forEach(key => {
-            state[key] = newState[key]
+        Object.keys(newState).forEach((key) => {
+            state[key] = newState[key];
         });
     },
 
     updateWorkoutSession(state, newSetState) {
-        Object.keys(newSetState).forEach(key => {
-            state.workoutSession[key] = newSetState[key]
+        Object.keys(newSetState).forEach((key) => {
+            state.workoutSession[key] = newSetState[key];
         });
     },
 
     updateSet(state, newSetState) {
-        const set = UuidHelper.findDeep(state.workoutSession.sessionExercises, newSetState.uuid);
+        const set = UuidHelper.findDeep(
+            state.workoutSession.sessionExercises,
+            newSetState.uuid
+        );
 
-        Object.keys(newSetState).forEach(key => {
-            set[key] = newSetState[key]
+        Object.keys(newSetState).forEach((key) => {
+            set[key] = newSetState[key];
         });
     },
 
     updateExercise(state, newExerciseState) {
-        const exercise = UuidHelper.findIn(state.workoutSession.sessionExercises, newExerciseState.uuid);
+        const exercise = UuidHelper.findIn(
+            state.workoutSession.sessionExercises,
+            newExerciseState.uuid
+        );
 
-        Object.keys(newExerciseState).forEach(key => {
-            exercise[key] = newExerciseState[key]
+        Object.keys(newExerciseState).forEach((key) => {
+            exercise[key] = newExerciseState[key];
         });
     },
 
     updateInProgress(state, inProgressWorkouts) {
-        if (state.inProgressWorkouts === null || inProgressWorkouts.length === 0) {
+        if (
+            state.inProgressWorkouts === null ||
+            inProgressWorkouts.length === 0
+        ) {
             state.inProgressWorkouts = inProgressWorkouts;
             return;
         }
 
-        inProgressWorkouts.forEach(fromServer => {
-            const inState = UuidHelper.findIn(state.inProgressWorkouts, fromServer.uuid)
+        inProgressWorkouts.forEach((fromServer) => {
+            const inState = UuidHelper.findIn(
+                state.inProgressWorkouts,
+                fromServer.uuid
+            );
 
             const fromServerUpdatedAt = new Date(fromServer.updatedAt);
             const fromStateUpdatedAt = new Date(inState.updatedAt);
@@ -750,7 +852,7 @@ const mutations = {
             if (isAfter(fromServerUpdatedAt, fromStateUpdatedAt)) {
                 Object.assign(inState, fromServer);
             }
-        })
+        });
     },
 
     updateExercisePreviousEntries(state, { exerciseUuid, previousEntries }) {
@@ -758,16 +860,28 @@ const mutations = {
     },
 
     startSet(state, { uuid, startedAt }) {
-        const set = UuidHelper.findDeep(state.workoutSession.sessionExercises, uuid);
-        const inProgressSet = UuidHelper.findDeep(state.inProgressWorkouts, uuid);
+        const set = UuidHelper.findDeep(
+            state.workoutSession.sessionExercises,
+            uuid
+        );
+        const inProgressSet = UuidHelper.findDeep(
+            state.inProgressWorkouts,
+            uuid
+        );
 
         set.startedAt = startedAt;
         inProgressSet.startedAt = startedAt;
     },
 
     endSet(state, { uuid, endedAt }) {
-        const set = UuidHelper.findDeep(state.workoutSession.sessionExercises, uuid);
-        const inProgressSet = UuidHelper.findDeep(state.inProgressWorkouts, uuid);
+        const set = UuidHelper.findDeep(
+            state.workoutSession.sessionExercises,
+            uuid
+        );
+        const inProgressSet = UuidHelper.findDeep(
+            state.inProgressWorkouts,
+            uuid
+        );
 
         set.endedAt = endedAt;
         inProgressSet.endedAt = endedAt;
@@ -778,7 +892,10 @@ const mutations = {
     },
 
     endRestPeriod(state, { uuid, restPeriodEndedAt, restPeriodDuration }) {
-        const set = UuidHelper.findDeep(state.workoutSession.sessionExercises, uuid);
+        const set = UuidHelper.findDeep(
+            state.workoutSession.sessionExercises,
+            uuid
+        );
         set.restPeriodEndedAt = restPeriodEndedAt;
         set.restPeriodDuration = restPeriodDuration;
 
@@ -789,7 +906,6 @@ const mutations = {
     endWorkout(state, { endedAt }) {
         state.workoutSession.endedAt = endedAt;
     },
-
 };
 
 export default {
@@ -797,6 +913,5 @@ export default {
     state,
     getters,
     actions,
-    mutations
-}
-
+    mutations,
+};

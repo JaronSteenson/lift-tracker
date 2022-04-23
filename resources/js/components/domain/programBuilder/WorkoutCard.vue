@@ -1,14 +1,12 @@
 <template>
-    <component :elevation="isSessionOverview ? 0 : 5"
-               :is="isSessionOverview ? 'div' : 'VCard'"
-               class="js-workout-drag-handle workout-card"
-               max-width="960"
-               width="100%"
+    <component
+        :elevation="isSessionOverview ? 0 : 5"
+        :is="isSessionOverview ? 'div' : 'VCard'"
+        class="js-workout-drag-handle workout-card"
+        max-width="960"
+        width="100%"
     >
-        <div
-            v-if="isSessionOverview"
-            class="px-4 py-2"
-        >
+        <div v-if="isSessionOverview" class="px-4 py-2">
             <div v-if="isEditingTitle" class="workout-title-edit">
                 <VTextField
                     v-model="localState.name"
@@ -21,10 +19,15 @@
                     @keydown.esc="abortEditingTitle"
                 />
             </div>
-            <EditableTitle v-else @click="editTitle">{{ nameDisplay }}</EditableTitle>
+            <EditableTitle v-else @click="editTitle">{{
+                nameDisplay
+            }}</EditableTitle>
         </div>
         <VToolbar v-else flat>
-            <VCardTitle v-if="isEditingTitle" class="workout-title-edit workout-title-edit--editing-card">
+            <VCardTitle
+                v-if="isEditingTitle"
+                class="workout-title-edit workout-title-edit--editing-card"
+            >
                 <VTextField
                     v-model="localState.name"
                     :autofocus="isEditingTitle"
@@ -49,13 +52,20 @@
                     @keydown.esc="abortAddingNew"
                 >
                     <template v-slot:append-outer>
-                        <VBtn small @click="abortAddingNew" icon ref="abortAddNewButton">
+                        <VBtn
+                            small
+                            @click="abortAddingNew"
+                            icon
+                            ref="abortAddNewButton"
+                        >
                             <VIcon>{{ $svgIcons.mdiClose }}</VIcon>
                         </VBtn>
                     </template>
                 </VTextField>
             </VCardTitle>
-            <EditableTitle @click="editTitle" v-else>{{ nameDisplay }}</EditableTitle>
+            <EditableTitle @click="editTitle" v-else>{{
+                nameDisplay
+            }}</EditableTitle>
 
             <v-menu bottom left v-if="!isAddingNew && !isEditingTitle">
                 <template v-slot:activator="{ on }">
@@ -72,206 +82,261 @@
             </v-menu>
         </VToolbar>
 
-            <template v-if="isSessionOverview">
-                <VCardText v-if="hasNoExercises">
-                    <MissingValue class="d-flex justify-center">No exercises</MissingValue>
-                </VCardText>
-            </template>
+        <template v-if="isSessionOverview">
+            <VCardText v-if="hasNoExercises">
+                <MissingValue class="d-flex justify-center"
+                    >No exercises</MissingValue
+                >
+            </VCardText>
+        </template>
 
-            <component :is="isSessionOverview ? 'div' : 'VRow'" class="mt-0">
-                <component :is="isSessionOverview ? 'div' : 'VCol'">
-                    <Draggable
-                        :forceFallback="true"
-                        :delay="250"
-                        :delayOnTouchOnly="true"
-                        :group="{ name: 'exercises', pull: true, put: true }"
-                        dragClass="elevation-24"
-                        ghostClass="drop-placeholder-exercise"
-                        handle=".js-exercise-drag-handle"
-                        v-model="orderedExercises"
-                    >
-                        <template v-for="(exercise) in orderedExercises">
-                            <ExerciseCard :exercise-uuid="exercise.uuid" :key="exercise.uuid" ref="exercise-cards"/>
-                        </template>
-                    </Draggable>
-                </component>
+        <component :is="isSessionOverview ? 'div' : 'VRow'" class="mt-0">
+            <component :is="isSessionOverview ? 'div' : 'VCol'">
+                <Draggable
+                    :forceFallback="true"
+                    :delay="250"
+                    :delayOnTouchOnly="true"
+                    :group="{ name: 'exercises', pull: true, put: true }"
+                    dragClass="elevation-24"
+                    ghostClass="drop-placeholder-exercise"
+                    handle=".js-exercise-drag-handle"
+                    v-model="orderedExercises"
+                >
+                    <template v-for="exercise in orderedExercises">
+                        <ExerciseCard
+                            :exercise-uuid="exercise.uuid"
+                            :key="exercise.uuid"
+                            ref="exercise-cards"
+                        />
+                    </template>
+                </Draggable>
             </component>
-        <div v-if="isSessionOverview" class="mx-3 mt-3" :class="{ 'd-flex justify-space-between': $vuetify.breakpoint.smAndUp }">
-            <VBtn @click="addExercise" :width="$vuetify.breakpoint.xsOnly ? '100%' : '40%'">
+        </component>
+        <div
+            v-if="isSessionOverview"
+            class="mx-3 mt-3"
+            :class="{
+                'd-flex justify-space-between': $vuetify.breakpoint.smAndUp,
+            }"
+        >
+            <VBtn
+                @click="addExercise"
+                :width="$vuetify.breakpoint.xsOnly ? '100%' : '40%'"
+            >
                 <VIcon left>{{ $svgIcons.mdiPlus }}</VIcon>
-                   Add exercise
+                Add exercise
             </VBtn>
-            <VBtn v-if="isSessionOverview" :class="{ 'mt-5': $vuetify.breakpoint.xsOnly }" :width="$vuetify.breakpoint.xsOnly ? '100%' : '40%'"  color="success" :loading="starting" @click="startWorkout">
+            <VBtn
+                v-if="isSessionOverview"
+                :class="{ 'mt-5': $vuetify.breakpoint.xsOnly }"
+                :width="$vuetify.breakpoint.xsOnly ? '100%' : '40%'"
+                color="success"
+                :loading="starting"
+                @click="startWorkout"
+            >
                 <VIcon left>{{ $svgIcons.mdiPlay }}</VIcon>
-                    Start workout
+                Start workout
             </VBtn>
         </div>
-        <VCardActions v-else  class="justify-center" width="100%">
+        <VCardActions v-else class="justify-center" width="100%">
             <VBtn @click="addExercise" width="100%">
                 <VIcon left>{{ $svgIcons.mdiPlus }}</VIcon>
                 Add exercise
             </VBtn>
-        </VcardActions>
+        </VCardActions>
     </component>
 </template>
 
 <script>
-    import ExerciseCard from "./ExerciseCard";
-    import Draggable from 'vuedraggable';
-    import EditableTitle from "../../formFields/EditableTitle";
-    import MissingValue from "../../util/MissingValue";
+import ExerciseCard from './ExerciseCard';
+import Draggable from 'vuedraggable';
+import EditableTitle from '../../formFields/EditableTitle';
+import MissingValue from '../../util/MissingValue';
 
-    export default {
-        components: {
-            MissingValue,
-            EditableTitle,
-            ExerciseCard,
-            Draggable,
+export default {
+    components: {
+        MissingValue,
+        EditableTitle,
+        ExerciseCard,
+        Draggable,
+    },
+    data() {
+        return {
+            isAddingNew: false,
+            isEditingTitle: false,
+            localState: {
+                ...this.$store.getters['programBuilder/getWorkout'](
+                    this.workoutUuid
+                ),
+            },
+            starting: false,
+        };
+    },
+    props: {
+        workoutUuid: {
+            type: String,
+            required: true,
         },
-        data() {
-            return {
-                isAddingNew: false,
-                isEditingTitle: false,
-                localState: {...this.$store.getters['programBuilder/getWorkout'](this.workoutUuid)},
-                starting: false,
-            }
-        },
-        props: {
-            workoutUuid: {
-                type: String,
-                required: true,
-            },
-            isSessionOverview: Boolean,
-        },
-        mounted() {
-            if (this.$store.getters['programBuilder/isJustAddedModelUuid'](this.workoutUuid)) {
-                this.isAddingNew = true;
-                this.$nextTick(() => {
-                    this.$store.dispatch('programBuilder/forgetJustAddedUuid');
-                });
-            }
-        },
-        computed: {
-            workout: {
-                get() {
-                    return this.$store.getters['programBuilder/getWorkout'](this.workoutUuid);
-                },
-                set(newState) {
-                    this.$store.dispatch('programBuilder/updateWorkout', {uuid: this.workoutUuid, ...newState});
-                }
-            },
-            name: {
-                get() {
-                    return this.localState.name;
-                },
-                set(name) {
-                    this.localState.name = name;
-                    this.finishEditingTitle();
-                }
-            },
-            nameDisplay() {
-                return this.localState.name || 'Unnamed workout'
-            },
-            orderedExercises: {
-                get() {
-                    return this.$store.getters['programBuilder/getOrderedExercises'](this.workoutUuid);
-                },
-                set(newOrderedExercises) {
-                    this.$store.dispatch('programBuilder/updateExercisePositionFromOrder', {
-                        workoutUuid: this.workoutUuid,
-                        newOrderedExercises
-                    });
-                }
-            },
-            hasNoExercises() {
-                return this.orderedExercises.length === 0;
-            },
-        },
-        methods: {
-            editTitle() {
-                this.isEditingTitle = true;
-            },
-            finishEditingTitle() {
-                this.isEditingTitle = false;
-                this.workout = this.localState;
-            },
-            abortEditingTitle() {
-                this.isEditingTitle = false;
-                this.localState.name = this.workout.name;
-            },
-            finishAddingNew(e) {
-                // Allow canceling addition of element by clicking the cancel cross.
-                if (e.relatedTarget === this.$refs.abortAddNewButton.$el) {
-                    this.abortAddingNew();
-                    return;
-                }
-
-                this.isAddingNew = false;
-                this.workout = this.localState;
-            },
-            abortAddingNew() {
-                this.deleteWorkout();
-            },
-            addExercise() {
-                this.$store.dispatch('programBuilder/addExerciseToWorkout', { workoutUuid: this.workoutUuid });
-            },
-            deleteWorkout() {
-                this.$store.dispatch('programBuilder/deleteWorkout', { workoutUuid: this.workoutUuid });
-            },
-            async startWorkout() {
-                this.starting = true;
-
-                // Save updates to the master workout routine.
-                await this.$store.dispatch('programBuilder/saveChangesFormSessionSetup', { workoutUuid: this.workoutUuid });
-
-                // Create a new workout session from the updated master routine.
-                await this.$store.dispatch('workoutSession/startWorkout', { originWorkoutUuid: this.workoutUuid });
-
-                // Replace history with the in progress overview, so that back button takes you there instead of
-                // the set up screen for a new session.
-                const workoutSessionUuid = this.$store.getters['workoutSession/uuid'];
-                await this.$router.replace({ name: 'SessionOverviewPage', params: { workoutSessionUuid }});
-
-                // Finally go to the first set in the workout.
-                const firstSet = this.$store.getters['workoutSession/firstSet'];
-                await this.$router.push({ name: 'SetOverviewPage', params: { sessionSetUuid: firstSet.uuid }});
-                this.starting = false;
-            }
+        isSessionOverview: Boolean,
+    },
+    mounted() {
+        if (
+            this.$store.getters['programBuilder/isJustAddedModelUuid'](
+                this.workoutUuid
+            )
+        ) {
+            this.isAddingNew = true;
+            this.$nextTick(() => {
+                this.$store.dispatch('programBuilder/forgetJustAddedUuid');
+            });
         }
-    }
+    },
+    computed: {
+        workout: {
+            get() {
+                return this.$store.getters['programBuilder/getWorkout'](
+                    this.workoutUuid
+                );
+            },
+            set(newState) {
+                this.$store.dispatch('programBuilder/updateWorkout', {
+                    uuid: this.workoutUuid,
+                    ...newState,
+                });
+            },
+        },
+        name: {
+            get() {
+                return this.localState.name;
+            },
+            set(name) {
+                this.localState.name = name;
+                this.finishEditingTitle();
+            },
+        },
+        nameDisplay() {
+            return this.localState.name || 'Unnamed workout';
+        },
+        orderedExercises: {
+            get() {
+                return this.$store.getters[
+                    'programBuilder/getOrderedExercises'
+                ](this.workoutUuid);
+            },
+            set(newOrderedExercises) {
+                this.$store.dispatch(
+                    'programBuilder/updateExercisePositionFromOrder',
+                    {
+                        workoutUuid: this.workoutUuid,
+                        newOrderedExercises,
+                    }
+                );
+            },
+        },
+        hasNoExercises() {
+            return this.orderedExercises.length === 0;
+        },
+    },
+    methods: {
+        editTitle() {
+            this.isEditingTitle = true;
+        },
+        finishEditingTitle() {
+            this.isEditingTitle = false;
+            this.workout = this.localState;
+        },
+        abortEditingTitle() {
+            this.isEditingTitle = false;
+            this.localState.name = this.workout.name;
+        },
+        finishAddingNew(e) {
+            // Allow canceling addition of element by clicking the cancel cross.
+            if (e.relatedTarget === this.$refs.abortAddNewButton.$el) {
+                this.abortAddingNew();
+                return;
+            }
+
+            this.isAddingNew = false;
+            this.workout = this.localState;
+        },
+        abortAddingNew() {
+            this.deleteWorkout();
+        },
+        addExercise() {
+            this.$store.dispatch('programBuilder/addExerciseToWorkout', {
+                workoutUuid: this.workoutUuid,
+            });
+        },
+        deleteWorkout() {
+            this.$store.dispatch('programBuilder/deleteWorkout', {
+                workoutUuid: this.workoutUuid,
+            });
+        },
+        async startWorkout() {
+            this.starting = true;
+
+            // Save updates to the master workout routine.
+            await this.$store.dispatch(
+                'programBuilder/saveChangesFormSessionSetup',
+                { workoutUuid: this.workoutUuid }
+            );
+
+            // Create a new workout session from the updated master routine.
+            await this.$store.dispatch('workoutSession/startWorkout', {
+                originWorkoutUuid: this.workoutUuid,
+            });
+
+            // Replace history with the in progress overview, so that back button takes you there instead of
+            // the set up screen for a new session.
+            const workoutSessionUuid =
+                this.$store.getters['workoutSession/uuid'];
+            await this.$router.replace({
+                name: 'SessionOverviewPage',
+                params: { workoutSessionUuid },
+            });
+
+            // Finally go to the first set in the workout.
+            const firstSet = this.$store.getters['workoutSession/firstSet'];
+            await this.$router.push({
+                name: 'SetOverviewPage',
+                params: { sessionSetUuid: firstSet.uuid },
+            });
+            this.starting = false;
+        },
+    },
+};
 </script>
 
 <style scoped lang="scss">
+.workout-card.v-card {
+    border: solid 1px var(--v-primary-base);
+}
+
+.workout-title-edit {
+    &--editing-card {
+        margin-top: 10px;
+        padding-left: 0;
+        margin-left: 0;
+        width: 100%;
+    }
+}
+
+.sortable-chosen {
     .workout-card.v-card {
-        border: solid 1px var(--v-primary-base);
+        border: 1px solid lightgray;
+        animation: blink 0.5s step-end infinite alternate;
     }
+}
 
-    .workout-title-edit {
-        &--editing-card {
-            margin-top: 10px;
-            padding-left: 0;
-            margin-left: 0;
-            width: 100%;
-        }
+.workout-drop-placeholder {
+    .workout-card.v-card {
+        border: solid 1px var(--v-warning-base);
     }
+}
 
-    .sortable-chosen {
-        .workout-card.v-card {
-            border: 1px solid lightgray;
-            animation: blink .5s step-end infinite alternate;
-        }
+@keyframes blink {
+    50% {
+        border: solid 1px var(--v-warning-base);
     }
-
-    .workout-drop-placeholder {
-        .workout-card.v-card {
-            border: solid 1px var(--v-warning-base);
-        }
-    }
-
-    @keyframes blink {
-        50% {
-            border: solid 1px var(--v-warning-base);
-        }
-    }
-
+}
 </style>

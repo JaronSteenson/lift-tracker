@@ -1,5 +1,5 @@
 <template>
-    <component v-bind="barProps">
+    <component :is="barComponent" v-bind="barProps">
         <div
             class="d-flex justify-space-between align-center toolbar-content-container"
         >
@@ -7,11 +7,13 @@
                 class="text-left"
                 :class="{
                     'fixed-outside-flex-basis': $vuetify.breakpoint.smAndUp,
-                    'left-align-title': $vuetify.breakpoint.xsOnly
+                    'left-align-title': $vuetify.breakpoint.xsOnly,
                 }"
             >
                 <RouterLink :to="backTo">
-                    <VIcon :color="isAppBar ? null : 'grey'">{{ $svgIcons.backNavigation }}</VIcon>
+                    <VIcon :color="isAppBar ? null : 'grey'">{{
+                        $svgIcons.backNavigation
+                    }}</VIcon>
                 </RouterLink>
 
                 <slot v-if="$vuetify.breakpoint.xsOnly" name="middle">
@@ -29,9 +31,11 @@
 
             <div
                 class="d-flex justify-end"
-                :class="{ 'fixed-outside-flex-basis': $vuetify.breakpoint.smAndUp }"
+                :class="{
+                    'fixed-outside-flex-basis': $vuetify.breakpoint.smAndUp,
+                }"
             >
-                <slot name="right"/>
+                <slot name="right" />
             </div>
         </div>
     </component>
@@ -44,41 +48,45 @@ export default {
         title: String,
     },
     computed: {
+        barComponent() {
+            if (this.isAppBar) {
+                return 'VAppBar';
+            }
+
+            return 'VToolbar';
+        },
         barProps() {
             if (this.isAppBar) {
                 return {
-                    is: 'VAppBar',
                     app: true,
                     color: 'primary',
                     dark: true,
                 };
             }
 
-            return {
-                is: 'VToolbar',
-            };
+            return {};
         },
         isAppBar() {
             return this.$vuetify.breakpoint.smAndDown;
-        }
+        },
     },
-}
+};
 </script>
 
 <style scoped>
-    .toolbar-content-container {
-        width: 100%;
-    }
+.toolbar-content-container {
+    width: 100%;
+}
 
-    .fixed-outside-flex-basis {
-        flex-basis: 30%;
-    }
+.fixed-outside-flex-basis {
+    flex-basis: 30%;
+}
 
-    .left-align-title {
-        display: flex;
-        flex-grow: 1;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-    }
+.left-align-title {
+    display: flex;
+    flex-grow: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
 </style>

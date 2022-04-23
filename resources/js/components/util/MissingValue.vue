@@ -1,18 +1,18 @@
 <template>
     <span
         class="missing-value"
-        :class="{'missing-value--full-opacity': fullOpacity}"
+        :class="{ 'missing-value--full-opacity': fullOpacity }"
     >
-        <slot/>
+        <slot />
     </span>
 </template>
 
 <script>
-     export default {
-        props: {
-            fullOpacity: Boolean
-        }
-    }
+export default {
+    props: {
+        fullOpacity: Boolean,
+    },
+};
 </script>
 
 <style scoped lang="scss">

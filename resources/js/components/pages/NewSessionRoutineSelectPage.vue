@@ -1,17 +1,15 @@
 <template>
     <div v-if="userIsAuthenticated">
-        <PageToolbar title="Start new session" :back-to="{ name: 'MyWorkoutSessionsPage' }" />
-        <NoProgramsWelcomeHint
-            v-if="shouldShowNoProgramsWelcomeHint"
+        <PageToolbar
+            title="Start new session"
+            :back-to="{ name: 'MyWorkoutSessionsPage' }"
         />
+        <NoProgramsWelcomeHint v-if="shouldShowNoProgramsWelcomeHint" />
         <NoProgramsStartNewSessionHint
             v-else-if="shouldShowNoProgramsHintStartNewSession"
         />
-        <ListPage
-            v-else
-            sub-title="Choose a routine to start"
-        >
-            <StartRoutineSelectionList/>
+        <ListPage v-else sub-title="Choose a routine to start">
+            <StartRoutineSelectionList />
         </ListPage>
     </div>
 </template>
@@ -20,9 +18,9 @@
 import ListPage from '../layouts/ListPage';
 import StartRoutineSelectionList from '../domain/StartRoutineSelectionList';
 import NoProgramsStartNewSessionHint from '../domain/userHints/NoProgramsStartNewSessionHint';
-import {mapGetters} from "vuex";
-import NoProgramsWelcomeHint from "../domain/userHints/NoProgramsWelcomeHint";
-import PageToolbar from "../layouts/PageToolbar";
+import { mapGetters } from 'vuex';
+import NoProgramsWelcomeHint from '../domain/userHints/NoProgramsWelcomeHint';
+import PageToolbar from '../layouts/PageToolbar';
 
 export default {
     components: {
@@ -33,8 +31,11 @@ export default {
         ListPage,
     },
     computed: {
-        ...mapGetters('app',
-            ['userIsAuthenticated', 'shouldShowNoProgramsWelcomeHint', 'shouldShowNoProgramsHintStartNewSession']),
+        ...mapGetters('app', [
+            'userIsAuthenticated',
+            'shouldShowNoProgramsWelcomeHint',
+            'shouldShowNoProgramsHintStartNewSession',
+        ]),
     },
-}
+};
 </script>

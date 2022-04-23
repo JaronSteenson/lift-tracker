@@ -7,13 +7,14 @@ const EXERCISE_PREVIOUS_ENTRIES = 'session-exercise-previous-entries';
 const IN_PROGRESS_WORKOUTS = 'in-progress-workouts';
 
 const WorkoutProgramService = {
-
     startNew(originWorkoutUuid) {
-          return ApiService.post(`${RESOURCE_NAME}?origin-workout-uuid=${originWorkoutUuid}`)
+        return ApiService.post(
+            `${RESOURCE_NAME}?origin-workout-uuid=${originWorkoutUuid}`
+        );
     },
 
     get(uuid) {
-        return ApiService.get(RESOURCE_NAME, uuid)
+        return ApiService.get(RESOURCE_NAME, uuid);
     },
 
     /**
@@ -29,15 +30,19 @@ const WorkoutProgramService = {
     },
 
     getBySet(sessionSetUuid) {
-        return ApiService.get(`${RESOURCE_NAME}?session-set-uuid=${sessionSetUuid}`)
+        return ApiService.get(
+            `${RESOURCE_NAME}?session-set-uuid=${sessionSetUuid}`
+        );
     },
 
     getInProgressWorkouts() {
-        return ApiService.get(`${IN_PROGRESS_WORKOUTS}`)
+        return ApiService.get(`${IN_PROGRESS_WORKOUTS}`);
     },
 
     getExercisePreviousEntries(sessionExerciseUuid) {
-        return ApiService.get(`${EXERCISE_PREVIOUS_ENTRIES}/${sessionExerciseUuid}`)
+        return ApiService.get(
+            `${EXERCISE_PREVIOUS_ENTRIES}/${sessionExerciseUuid}`
+        );
     },
 
     saveSet(sessionSet) {
@@ -54,8 +59,7 @@ const WorkoutProgramService = {
 
     delete(uuid) {
         return ApiService.delete(RESOURCE_NAME, uuid);
-    }
-
+    },
 };
 
 export default WorkoutProgramService;

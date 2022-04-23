@@ -7,11 +7,10 @@ let baseUrl = process.env.BASE_API_URL ?? '/api/';
 if (typeof baseUrl === 'string') {
     baseUrl = baseUrl.replace(/\/+$/, '');
 } else {
-    console.warn('No api base url configured.')
+    console.error('No api base url configured.');
 }
 
 const ApiService = {
-
     get(resourceType, resourceUuid = null) {
         return axios.get(this.makeEndpointUrl(resourceType, resourceUuid));
     },
@@ -33,7 +32,10 @@ const ApiService = {
     },
 
     put(resourceType, resourceUuid, payload) {
-        return axios.put(this.makeEndpointUrl(resourceType, resourceUuid), payload);
+        return axios.put(
+            this.makeEndpointUrl(resourceType, resourceUuid),
+            payload
+        );
     },
 
     delete(resourceType, resourceUuid) {
@@ -44,7 +46,7 @@ const ApiService = {
         let url = `${baseUrl}/${resourceType}`;
 
         if (resourceUuid !== null) {
-            url += `/${resourceUuid}`
+            url += `/${resourceUuid}`;
         }
 
         return url;
@@ -58,7 +60,6 @@ const ApiService = {
     registerResponseInterceptor(onFulfilled, onRejected) {
         axios.interceptors.response.use(onFulfilled, onRejected);
     },
-
 };
 
 export default ApiService;

@@ -26,7 +26,9 @@
 
             <VCardText>
                 <h3 class="mb-2 mt-4">Notes</h3>
-                <p v-if="sessionExercise.notes" class="notes">{{ sessionExercise.notes }}</p>
+                <p v-if="sessionExercise.notes" class="notes">
+                    {{ sessionExercise.notes }}
+                </p>
                 <MissingValue v-else>No notes</MissingValue>
 
                 <hr class="mt-2" />
@@ -77,7 +79,7 @@
                 <div class="graph" v-if="setsForRest.length > 0">
                     <h3 class="mb-2 mt-8">
                         {{
-                            isSingleRestPeriod ? "Rest period" : "Rest periods"
+                            isSingleRestPeriod ? 'Rest period' : 'Rest periods'
                         }}
                     </h3>
                     <div v-if="isSingleRestPeriod">{{ singleSetRest }}</div>
@@ -104,18 +106,18 @@
 <script>
 import { dateDescription, minsSecDuration } from '../../../dates';
 import BackForwardToolbar from './../../BackForwardToolbar.vue';
-import MissingValue from "../../util/MissingValue";
+import MissingValue from '../../util/MissingValue';
 
 export default {
-    components: {MissingValue, BackForwardToolbar },
+    components: { MissingValue, BackForwardToolbar },
     props: {
         sessionExercises: {
             type: Array,
-            required: true
+            required: true,
         },
         value: {
             type: Boolean,
-            required: true
+            required: true,
         },
         startIndex: {
             type: Number,
@@ -125,7 +127,7 @@ export default {
     },
     data() {
         return {
-            currentIndex: (this.sessionExercises.length - 1) - this.startIndex,
+            currentIndex: this.sessionExercises.length - 1 - this.startIndex,
         };
     },
     computed: {
@@ -134,7 +136,6 @@ export default {
         },
         hasManyExercises() {
             return this.sessionExercises.length > 1;
-            s;
         },
         hasPrevious() {
             return this.currentIndex !== 0;
@@ -164,7 +165,7 @@ export default {
             return `${weight}kg`;
         },
         weights() {
-            return this.sessionExercise.sessionSets.map(set => {
+            return this.sessionExercise.sessionSets.map((set) => {
                 if (set.weight === null) {
                     return 0;
                 }
@@ -173,9 +174,9 @@ export default {
             });
         },
         weightLabels() {
-            return this.sessionExercise.sessionSets.map(set => {
+            return this.sessionExercise.sessionSets.map((set) => {
                 if (set.weight === null) {
-                    return "n/a";
+                    return 'n/a';
                 }
 
                 return `${set.weight}kg`;
@@ -185,13 +186,13 @@ export default {
             const reps = this.sessionExercise.sessionSets[0].reps;
 
             if (reps === null) {
-                return "";
+                return '';
             }
 
             return `x ${reps} reps`;
         },
         reps() {
-            return this.sessionExercise.sessionSets.map(set => {
+            return this.sessionExercise.sessionSets.map((set) => {
                 if (set.reps === null) {
                     return 0;
                 }
@@ -200,9 +201,9 @@ export default {
             });
         },
         repLabels() {
-            return this.sessionExercise.sessionSets.map(set => {
+            return this.sessionExercise.sessionSets.map((set) => {
                 if (set.reps === null) {
-                    return "n/a";
+                    return 'n/a';
                 }
 
                 return set.reps;
@@ -214,7 +215,7 @@ export default {
             )}`;
         },
         rest() {
-            return this.setsForRest.map(set => {
+            return this.setsForRest.map((set) => {
                 if (set.restPeriodDuration === null) {
                     return 0;
                 }
@@ -223,9 +224,9 @@ export default {
             });
         },
         restLabels() {
-            return this.setsForRest.map(set => {
+            return this.setsForRest.map((set) => {
                 if (set.restPeriodDuration === null) {
-                    return "n/a";
+                    return 'n/a';
                 }
 
                 return minsSecDuration(set.restPeriodDuration, true);
@@ -238,7 +239,7 @@ export default {
             sets.pop();
 
             return sets;
-        }
+        },
     },
     methods: {
         showPrevious() {
@@ -257,14 +258,14 @@ export default {
             }
         },
         close() {
-            this.$emit("input", false);
-        }
-    }
+            this.$emit('input', false);
+        },
+    },
 };
 </script>
 
 <style lang="scss" scoped>
-    .notes {
-        white-space: pre-line;
-    }
+.notes {
+    white-space: pre-line;
+}
 </style>

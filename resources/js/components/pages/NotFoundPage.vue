@@ -1,22 +1,20 @@
 <template>
     <div>
-        <PageToolbar :back-to="{ name: 'HomePage' }"/>
+        <PageToolbar :back-to="{ name: 'HomePage' }" />
         <NotFound>
-            <slot>
-                Sorry we couldn't find the page you are after.
-            </slot>
+            <slot> Sorry we couldn't find the page you are after. </slot>
         </NotFound>
     </div>
 </template>
 
 <script>
-    import NotFound from "../routing/NotFound";
-    import PageToolbar from "../layouts/PageToolbar";
+import NotFound from '../routing/NotFound';
+import PageToolbar from '../layouts/PageToolbar';
 
-    export default {
-        components: {
-            PageToolbar,
-            NotFound
-        },
-    };
+export default {
+    components: {
+        PageToolbar,
+        NotFound,
+    },
+};
 </script>

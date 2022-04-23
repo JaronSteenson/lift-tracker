@@ -1,12 +1,9 @@
 import ApiService from './ApiService';
 
 const RESOURCE_NAME = 'app';
-const LOGIN_URI = 'LoginPage';
-const SIGN_UP_URI = 'sign-up';
 const LOGOUT_URI = 'logout';
 
 const WorkoutProgramService = {
-
     async getBootstrapData() {
         const response = await ApiService.get(RESOURCE_NAME);
 
@@ -22,8 +19,7 @@ const WorkoutProgramService = {
         ApiService.setCsrfToken(response.data.app.csrfToken);
 
         return response;
-    }
-
+    },
 };
 
 export default WorkoutProgramService;

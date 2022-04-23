@@ -11,14 +11,14 @@ import App from './components/App.vue';
 
     delete bodyDataset.appBootstrap; // This should be only accessed via store/ajax now.
 
-    // This cannot just live in ApiService or we end up with circular imports.
+    // This cannot just live in ApiService, or we end up with circular imports.
     ApiService.registerResponseInterceptor(
-        async response => {
+        async (response) => {
             await store.dispatch('app/extendSessionExpiry');
 
             return response;
         },
-        async error => {
+        async (error) => {
             if (error.request.status === 401) {
                 await store.dispatch('app/expireSession');
                 return Promise.resolve(error);
@@ -30,11 +30,10 @@ import App from './components/App.vue';
 
     await store.dispatch('app/directlyLoadAppBoostrap', appBoostrap);
 
-
-    const v = new Vue({
+    new Vue({
         store,
         router,
         vuetify,
-        render: h => h(App),
+        render: (h) => h(App),
     }).$mount('#app');
 })();

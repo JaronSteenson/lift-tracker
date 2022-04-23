@@ -21,43 +21,43 @@
 </template>
 
 <script>
-    import {
-        dateDescription,
-        hoursMinutesSecondsFromStartEnd,
-        timeDescription
-    } from "../../../dates";
+import {
+    dateDescription,
+    hoursMinutesSecondsFromStartEnd,
+    timeDescription,
+} from '../../../dates';
 
-    export default {
-        props: {
-            workoutSession: {
-                type: Object,
-                required: true,
-            }
+export default {
+    props: {
+        workoutSession: {
+            type: Object,
+            required: true,
         },
-        computed: {
-            stats() {
-                return [
-                    {
-                        icon: this.$svgIcons.sessionDate,
-                        value: dateDescription(this.workoutSession.startedAt)
-                    },
-                    {
-                        icon: this.$svgIcons.mdiClockOutline,
-                        value: hoursMinutesSecondsFromStartEnd(
-                            this.workoutSession.startedAt,
-                            this.workoutSession.endedAt
-                        ),
-                    },
-                    {
-                        icon: this.$svgIcons.mdiPlay,
-                        value: timeDescription(this.workoutSession.startedAt, true)
-                    },
-                    {
-                        icon: this.$svgIcons.mdiStop,
-                        value: timeDescription(this.workoutSession.endedAt, true)
-                    },
-                ]
-            }
-        }
-    }
+    },
+    computed: {
+        stats() {
+            return [
+                {
+                    icon: this.$svgIcons.sessionDate,
+                    value: dateDescription(this.workoutSession.startedAt),
+                },
+                {
+                    icon: this.$svgIcons.mdiClockOutline,
+                    value: hoursMinutesSecondsFromStartEnd(
+                        this.workoutSession.startedAt,
+                        this.workoutSession.endedAt
+                    ),
+                },
+                {
+                    icon: this.$svgIcons.mdiPlay,
+                    value: timeDescription(this.workoutSession.startedAt, true),
+                },
+                {
+                    icon: this.$svgIcons.mdiStop,
+                    value: timeDescription(this.workoutSession.endedAt, true),
+                },
+            ];
+        },
+    },
+};
 </script>

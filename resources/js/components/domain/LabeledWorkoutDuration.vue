@@ -8,47 +8,47 @@
 </template>
 
 <script>
-    import {hoursMinutesSecondsFromStartEnd} from "../../dates";
+import { hoursMinutesSecondsFromStartEnd } from '../../dates';
 
-    export default {
-        props: {
-            workoutSession: {
-                type: Object,
-                required: true,
-            },
+export default {
+    props: {
+        workoutSession: {
+            type: Object,
+            required: true,
         },
-        data() {
-            return {
-                refreshForce: null,
-                refreshInterval: null,
-            }
+    },
+    data() {
+        return {
+            refreshForce: null,
+            refreshInterval: null,
+        };
+    },
+    created() {
+        this.startRefreshInterval();
+    },
+    destroyed() {
+        this.clearRefreshInterval();
+    },
+    computed: {
+        workoutDurationDisplay() {
+            this.refreshForce;
+            return hoursMinutesSecondsFromStartEnd(
+                this.workoutSession.startedAt,
+                this.workoutSession.endedAt
+            );
         },
-        created() {
-            this.startRefreshInterval();
+    },
+    methods: {
+        startRefreshInterval() {
+            this.refreshInterval = setInterval(() => {
+                this.refreshForce = Date.now();
+            }, 1000);
         },
-        destroyed() {
-            this.clearRefreshInterval();
+        clearRefreshInterval() {
+            clearInterval(this.interval);
         },
-        computed: {
-            workoutDurationDisplay() {
-                this.refreshForce;
-                return hoursMinutesSecondsFromStartEnd(
-                    this.workoutSession.startedAt,
-                    this.workoutSession.endedAt
-                );
-            },
-        },
-        methods: {
-            startRefreshInterval() {
-                this.refreshInterval = setInterval(() => {
-                    this.refreshForce =  Date.now();
-                }, 1000);
-            },
-            clearRefreshInterval() {
-                clearInterval(this.interval);
-            },
-        }
-    }
+    },
+};
 </script>
 
 <style lang="scss">

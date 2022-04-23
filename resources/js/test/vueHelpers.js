@@ -21,12 +21,12 @@ function ensureVuetifyAppDivExists() {
 
 function localMountOptions() {
     const localVue = createLocalVue();
-    const vuetify = new Vuetify;
+    const vuetify = new Vuetify();
 
-    Vue.use(Vuetify)
+    Vue.use(Vuetify);
     Vue.use(Vuex);
 
-    Vue.config.productionTip = false
+    Vue.config.productionTip = false;
 
     return {
         localVue,
@@ -34,9 +34,6 @@ function localMountOptions() {
         mocks: {
             // $vuetify: { breakpoint: {} },
             $svgIcons: svgIcons,
-        }
+        },
     };
 }
-
-
-

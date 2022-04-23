@@ -1,4 +1,4 @@
-import { mount, RouterLinkStub } from '@vue/test-utils';
+import { mount } from '@vue/test-utils';
 import Vuex from 'vuex';
 import App from '../../components/App';
 import appModule from '../../store/modules/app';
@@ -31,14 +31,13 @@ const app = {
 const stubs = ['RouterLink', 'RouterView'];
 
 describe('App.vue', () => {
-
     test('should not show the nav drawer and avatar menu when not logged in', () => {
         const store = new Vuex.Store({
             modules: {
                 app,
                 workoutSession,
                 programBuilder,
-            }
+            },
         });
 
         const wrapper = mount(App, {
@@ -48,7 +47,9 @@ describe('App.vue', () => {
         });
 
         expect(wrapper.findComponent({ name: 'VAvatar' }).exists()).toBeFalsy();
-        expect(wrapper.findComponent({ name: 'VNavigationDrawer' }).exists()).toBeFalsy();
+        expect(
+            wrapper.findComponent({ name: 'VNavigationDrawer' }).exists()
+        ).toBeFalsy();
     });
 
     test('should show the nav drawer and avatar menu when logged in', () => {
@@ -67,7 +68,7 @@ describe('App.vue', () => {
             modules: {
                 app,
                 workoutSession,
-            }
+            },
         });
 
         const wrapper = mount(App, {
@@ -76,8 +77,11 @@ describe('App.vue', () => {
             stubs,
         });
 
-        expect(wrapper.findComponent({ name: 'VAvatar' }).exists()).toBeTruthy();
-        expect(wrapper.findComponent({ name: 'VNavigationDrawer' }).exists()).toBeTruthy();
+        expect(
+            wrapper.findComponent({ name: 'VAvatar' }).exists()
+        ).toBeTruthy();
+        expect(
+            wrapper.findComponent({ name: 'VNavigationDrawer' }).exists()
+        ).toBeTruthy();
     });
-
 });

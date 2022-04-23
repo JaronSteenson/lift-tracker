@@ -6,7 +6,7 @@
                 <p><slot></slot></p>
                 <VBtn
                     class="home-button"
-                    :to="{ name: 'HomePage'}"
+                    :to="{ name: 'HomePage' }"
                     depressed
                     large
                 >
@@ -18,12 +18,11 @@
 </template>
 
 <style lang="scss" scoped>
-    .home-button {
-        border: 1px solid var(--v-primary-base) !important;
+.home-button {
+    border: 1px solid var(--v-primary-base) !important;
 
-
-        &.VBtn:before {
-            opacity: 0 !important;
-        }
+    &.VBtn:before {
+        opacity: 0 !important;
     }
+}
 </style>

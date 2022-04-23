@@ -10,7 +10,9 @@
                         v-if="isEditingTitle"
                         v-model="localState.name"
                     />
-                    <EditableTitle @click="isEditingTitle = true" v-else>{{ nameDisplay }}</EditableTitle>
+                    <EditableTitle @click="isEditingTitle = true" v-else>{{
+                        nameDisplay
+                    }}</EditableTitle>
                     <V-btn @click="close" icon>
                         <v-icon>{{ $svgIcons.mdiClose }}</v-icon>
                     </V-btn>
@@ -33,7 +35,9 @@
                                 ></VSelect>
                             </VCol>
                             <VCol cols="12">
-                                <RestPeriodSlider v-model="localState.restPeriod"/>
+                                <RestPeriodSlider
+                                    v-model="localState.restPeriod"
+                                />
                             </VCol>
                         </VRow>
                     </v-container>
@@ -44,33 +48,33 @@
 </template>
 
 <script>
-    import EditableTitle from "../../formFields/EditableTitle";
-    import exerciseMixin from "./mixins/exerciseMixin";
-    import RestPeriodSlider from "../RestPeriodSlider";
+import EditableTitle from '../../formFields/EditableTitle';
+import exerciseMixin from './mixins/exerciseMixin';
+import RestPeriodSlider from '../RestPeriodSlider';
 
-    export default {
-        mixins: [exerciseMixin],
-        components: {
-            RestPeriodSlider,
-            EditableTitle
+export default {
+    mixins: [exerciseMixin],
+    components: {
+        RestPeriodSlider,
+        EditableTitle,
+    },
+    props: {
+        value: {
+            required: true,
+            type: Boolean,
         },
-        props: {
-            value: {
-                required: true,
-                type: Boolean,
-            },
-            exerciseUuid: {
-                required: true,
-                type: String,
+        exerciseUuid: {
+            required: true,
+            type: String,
+        },
+    },
+    methods: {
+        close() {
+            if (this.isDirty) {
+                this.exercise = this.localState;
             }
+            this.$emit('input', false);
         },
-        methods: {
-            close() {
-                if (this.isDirty) {
-                    this.exercise = this.localState;
-                }
-                this.$emit('input', false)
-            }
-        },
-    }
+    },
+};
 </script>

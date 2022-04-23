@@ -6,7 +6,12 @@
                 <VIcon color="primary">{{ $svgIcons.sessionDate }}</VIcon>
                 <RouterLink
                     v-if="routine.latestSession"
-                    :to="{ name: 'SessionOverviewPage', params: { workoutSessionUuid: routine.latestSession.uuid } }"
+                    :to="{
+                        name: 'SessionOverviewPage',
+                        params: {
+                            workoutSessionUuid: routine.latestSession.uuid,
+                        },
+                    }"
                 >
                     {{ dateDescription(routine.latestSession.startedAt) }}
                 </RouterLink>
@@ -16,17 +21,33 @@
                 <VIcon color="primary">{{ $svgIcons.workoutProgram }}</VIcon>
                 <RouterLink
                     v-if="routine.workoutProgram"
-                    :to="{ name: 'ProgramBuilderPage', params: { workoutProgramUuid: routine.workoutProgram.uuid } }"
+                    :to="{
+                        name: 'ProgramBuilderPage',
+                        params: {
+                            workoutProgramUuid: routine.workoutProgram.uuid,
+                        },
+                    }"
                 >
-                    <template v-if="routine.workoutProgram.name">{{ routine.workoutProgram.name }}</template>
-                    <MissingValue v-else full-opacity>Unnamed program</MissingValue>
+                    <template v-if="routine.workoutProgram.name">{{
+                        routine.workoutProgram.name
+                    }}</template>
+                    <MissingValue v-else full-opacity
+                        >Unnamed program</MissingValue
+                    >
                 </RouterLink>
                 <MissingValue v-else>Deleted program</MissingValue>
             </div>
         </VCardText>
         <div class="d-flex">
-            <VBtn width="50%" :to="{ name: 'NewSessionOverviewPage', params: { originRoutineUuid: routine.uuid } }">
-                Prepare <VIcon color="primary">{{ $svgIcons.workoutProgram }}</VIcon>
+            <VBtn
+                width="50%"
+                :to="{
+                    name: 'NewSessionOverviewPage',
+                    params: { originRoutineUuid: routine.uuid },
+                }"
+            >
+                Prepare
+                <VIcon color="primary">{{ $svgIcons.workoutProgram }}</VIcon>
             </VBtn>
             <VBtn width="50%" :loading="starting" @click="startNow">
                 Start now <VIcon color="green">{{ $svgIcons.mdiPlay }}</VIcon>
@@ -36,44 +57,45 @@
 </template>
 
 <script>
-import { dateDescription } from  '../../dates';
-import MissingValue from "../util/MissingValue";
+import { dateDescription } from '../../dates';
+import MissingValue from '../util/MissingValue';
 
 export default {
     components: {
-        MissingValue
+        MissingValue,
     },
     props: {
         routine: {
             type: Object,
             required: true,
-        }
+        },
     },
     data() {
-      return {
-          starting: false,
-      }
+        return {
+            starting: false,
+        };
     },
-    computed: {
-
-    },
+    computed: {},
     methods: {
         dateDescription,
         async startNow() {
             this.starting = true;
 
             // Create a new workout session from the updated master routine.
-            await this.$store.dispatch('workoutSession/startWorkout', { originWorkoutUuid: this.routine.uuid });
+            await this.$store.dispatch('workoutSession/startWorkout', {
+                originWorkoutUuid: this.routine.uuid,
+            });
 
             // Then go to the first set in the workout.
             const firstSet = this.$store.getters['workoutSession/firstSet'];
-            await this.$router.push({ name: 'SetOverviewPage', params: { sessionSetUuid: firstSet.uuid }});
+            await this.$router.push({
+                name: 'SetOverviewPage',
+                params: { sessionSetUuid: firstSet.uuid },
+            });
             this.starting = false;
-        }
-    }
-}
+        },
+    },
+};
 </script>
 
-<style scoped>
-
-</style>
+<style scoped></style>

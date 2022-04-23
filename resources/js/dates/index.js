@@ -1,4 +1,3 @@
-
 import {
     differenceInSeconds,
     differenceInHours,
@@ -10,14 +9,14 @@ import {
     subDays,
     subWeeks,
     format,
-} from 'date-fns'
+} from 'date-fns';
 
 const isSameWeekOptions = { weekStartsOn: 1 }; // Monday.
 
 export default {
     minsSecDuration,
     timeDescription: dateTimeDescription,
-}
+};
 
 /**
  * Get a full iso date string with utc timezone for now.
@@ -55,11 +54,14 @@ export function utcNow() {
     const utcDate = `${date.getUTCFullYear()}-${paddedMonth}-${paddedDay}`;
     const utcTime = `${paddedHour}:${paddedMinutes}:${paddedSeconds}`;
 
-
     return `${utcDate}T${utcTime}+00:00`;
 }
 
-export function minsSecDuration(valueInSeconds, noZeroTreatment, roundOffSeconds) {
+export function minsSecDuration(
+    valueInSeconds,
+    noZeroTreatment,
+    roundOffSeconds
+) {
     if (typeof noZeroTreatment === 'undefined' && !valueInSeconds) {
         return 'None';
     }
@@ -100,7 +102,7 @@ export function hoursMinutesSecondsFromStartEnd(start, end) {
 export function hoursMinutesSecondsDuration(totalSeconds) {
     const hours = Math.floor(totalSeconds / 3600);
     const minutes = Math.floor((totalSeconds / 60) % 60);
-    const seconds = Math.floor((totalSeconds % 60));
+    const seconds = Math.floor(totalSeconds % 60);
 
     if (hours === 0 && minutes === 0) {
         return `${seconds}s`;
@@ -149,14 +151,14 @@ export function updatedAtMicro(utcDate, now) {
     const daysAgo = differenceInDays(now, date);
 
     if (hoursAgo >= 24) {
-        return `${daysAgo}d`
+        return `${daysAgo}d`;
     }
 
     if (hoursAgo >= 1) {
-        return `${hoursAgo}h`
+        return `${hoursAgo}h`;
     }
 
-    return minsSecDuration(differenceInSeconds(now, date), true, true)
+    return minsSecDuration(differenceInSeconds(now, date), true, true);
 }
 
 /**
@@ -209,7 +211,7 @@ function addWeekDescription(date, now) {
     }
 
     const lastWeek = subWeeks(now, 1);
-    if (isSameWeek(lastWeek, date,  isSameWeekOptions)) {
+    if (isSameWeek(lastWeek, date, isSameWeekOptions)) {
         return `${dateWithoutYear} (last ${dayOfWeek})`;
     }
 

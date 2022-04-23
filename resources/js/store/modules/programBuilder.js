@@ -1,7 +1,7 @@
-import WorkoutProgramService from '../../api/WorkoutProgramService'
-import UuidHelper from '../../UuidHelper'
-import { dateTimeDescription } from "../../dates";
-import { debounce, pick } from '../../util';
+import WorkoutProgramService from '../../api/WorkoutProgramService';
+import UuidHelper from '../../UuidHelper';
+import { dateTimeDescription } from '../../dates';
+import { debounce, pick } from '../../util/index';
 import {
     mutations as saveStatusMutations,
     actions as saveStatusActions,
@@ -9,7 +9,6 @@ import {
     getters as savingStatusGetters,
 } from './saveStatusMixin';
 
-const LOCAL_STORAGE_NAMESPACE = 'program-builder-state';
 const SAVE_DEBOUNCE_WAIT = 1000;
 
 function sortByPosition(a, b) {
@@ -30,7 +29,7 @@ function defaultState() {
         },
         delayedSavingToServer: false,
         myWorkoutPrograms: null,
-    }
+    };
 }
 
 const state = defaultState();
@@ -57,25 +56,31 @@ const getters = {
     ...savingStatusGetters,
 
     hasMadeSignificantChangesFromNew(state) {
-        return Boolean(state.inFocusProgram.uuid || // Has somehow forced a save or uuid assignment.
-            state.inFocusProgram.name.trim() !== '' || // Has added a name.
-            state.inFocusProgram.workoutProgramRoutines.length > 1 || // Has added a workout.
-            state.inFocusProgram.workoutProgramRoutines[0]?.name || // Has a name for the first routine.
-            state.inFocusProgram.workoutProgramRoutines[0]?.routineExercises.length > 0); // Has added an exercise to the first routine.
+        return Boolean(
+            state.inFocusProgram.uuid || // Has somehow forced a save or uuid assignment.
+                state.inFocusProgram.name.trim() !== '' || // Has added a name.
+                state.inFocusProgram.workoutProgramRoutines.length > 1 || // Has added a workout.
+                state.inFocusProgram.workoutProgramRoutines[0]?.name || // Has a name for the first routine.
+                state.inFocusProgram.workoutProgramRoutines[0]?.routineExercises
+                    .length > 0
+        ); // Has added an exercise to the first routine.
     },
 
     isJustAddedModelUuid: (state) => (uuid) => {
-        return state.justAddedModelUuid === uuid
+        return state.justAddedModelUuid === uuid;
     },
 
     getWorkout: (state) => (uuid) => {
-        return UuidHelper.findIn(state.inFocusProgram.workoutProgramRoutines, uuid);
+        return UuidHelper.findIn(
+            state.inFocusProgram.workoutProgramRoutines,
+            uuid
+        );
     },
 
     getOrderedWorkouts(state) {
         return [...state.inFocusProgram.workoutProgramRoutines].sort((a, b) => {
             return a.position - b.position;
-        })
+        });
     },
 
     getOrderedExercises: (state, getters) => (workoutUuid) => {
@@ -83,14 +88,14 @@ const getters = {
 
         return [...workout.routineExercises].sort((a, b) => {
             return a.position - b.position;
-        })
+        });
     },
 
     getExercise: (state) => (uuid) => {
         let exercise = null;
 
         state.inFocusProgram.workoutProgramRoutines.some(function (workout) {
-            let found =  UuidHelper.findIn(workout.routineExercises, uuid);
+            let found = UuidHelper.findIn(workout.routineExercises, uuid);
 
             if (found) {
                 exercise = found;
@@ -102,17 +107,19 @@ const getters = {
     },
 
     savePayload(state) {
-        const cleaned = { ...state.inFocusProgram }
+        const cleaned = { ...state.inFocusProgram };
 
-        cleaned.workoutProgramRoutines = state.inFocusProgram.workoutProgramRoutines.map(workout => {
-            const cleanedWorkout = pick(workout, workoutFields);
+        cleaned.workoutProgramRoutines =
+            state.inFocusProgram.workoutProgramRoutines.map((workout) => {
+                const cleanedWorkout = pick(workout, workoutFields);
 
-            cleanedWorkout.routineExercises = cleanedWorkout.routineExercises.map(
-                exercise => pick(exercise, exerciseFields)
-            );
+                cleanedWorkout.routineExercises =
+                    cleanedWorkout.routineExercises.map((exercise) =>
+                        pick(exercise, exerciseFields)
+                    );
 
-            return cleanedWorkout;
-        });
+                return cleanedWorkout;
+            });
 
         return cleaned;
     },
@@ -122,46 +129,59 @@ const getters = {
             return null;
         }
 
-        return state.myWorkoutPrograms.map(workoutProgram => {
+        return state.myWorkoutPrograms.map((workoutProgram) => {
             return {
                 ...workoutProgram,
                 ...{
-                    updatedAtDescription: dateTimeDescription(workoutProgram.updatedAt)
+                    updatedAtDescription: dateTimeDescription(
+                        workoutProgram.updatedAt
+                    ),
                 },
             };
-        })
+        });
     },
-
 };
 
 const actions = {
     ...saveStatusActions,
     startNew({ state, commit }) {
-        commit('reset', { ...defaultState(), myWorkoutPrograms: state.myWorkoutPrograms });
+        commit('reset', {
+            ...defaultState(),
+            myWorkoutPrograms: state.myWorkoutPrograms,
+        });
     },
 
-    updateName({ state, commit, dispatch }, name) {
+    updateName({ commit, dispatch }, name) {
         commit('updateName', name);
-
-        dispatch('save')
-    },
-
-    updateWorkout({ state, commit, dispatch }, { uuid, name }) {
-        const workout = UuidHelper.findIn(state.inFocusProgram.workoutProgramRoutines, uuid);
-
-        commit('updateWorkout', { workout, newState: { name }  });
 
         dispatch('save');
     },
 
-    updateWorkoutPositionFromOrder({ state, commit, dispatch }, orderedWorkouts) {
+    updateWorkout({ state, commit, dispatch }, { uuid, name }) {
+        const workout = UuidHelper.findIn(
+            state.inFocusProgram.workoutProgramRoutines,
+            uuid
+        );
+
+        commit('updateWorkout', { workout, newState: { name } });
+
+        dispatch('save');
+    },
+
+    updateWorkoutPositionFromOrder({ commit, dispatch }, orderedWorkouts) {
         commit('updateWorkoutPositionFromOrder', orderedWorkouts);
 
         dispatch('save');
     },
 
-    updateExercisePositionFromOrder({ state, commit, dispatch }, { workoutUuid, newOrderedExercises }) {
-        const existingOrderedExercises = UuidHelper.findIn(state.inFocusProgram.workoutProgramRoutines, workoutUuid).routineExercises;
+    updateExercisePositionFromOrder(
+        { state, commit, dispatch },
+        { workoutUuid, newOrderedExercises }
+    ) {
+        const existingOrderedExercises = UuidHelper.findIn(
+            state.inFocusProgram.workoutProgramRoutines,
+            workoutUuid
+        ).routineExercises;
 
         let fromAnotherWorkout = null;
 
@@ -169,7 +189,10 @@ const actions = {
         // we have received an exercise from another workout.
         if (newOrderedExercises.length > existingOrderedExercises.length) {
             newOrderedExercises.some((newOrderedExercise, index) => {
-                if (newOrderedExercise.uuid !== existingOrderedExercises[index]?.uuid) {
+                if (
+                    newOrderedExercise.uuid !==
+                    existingOrderedExercises[index]?.uuid
+                ) {
                     fromAnotherWorkout = newOrderedExercise;
                     return true; // Early exit.
                 }
@@ -178,10 +201,13 @@ const actions = {
 
         // Figure out which workout this came from.
         if (fromAnotherWorkout) {
-
-            const exercisesOriginalWorkout = state.inFocusProgram.workoutProgramRoutines.find(workout => {
-                return UuidHelper.findIn(workout.routineExercises, fromAnotherWorkout.uuid);
-            });
+            const exercisesOriginalWorkout =
+                state.inFocusProgram.workoutProgramRoutines.find((workout) => {
+                    return UuidHelper.findIn(
+                        workout.routineExercises,
+                        fromAnotherWorkout.uuid
+                    );
+                });
 
             const withOutMovedExercise = UuidHelper.removeFromCopy(
                 exercisesOriginalWorkout.routineExercises,
@@ -194,7 +220,10 @@ const actions = {
             });
         }
 
-        commit('updateExercisePositionFromOrder', { workoutUuid, newOrderedExercises });
+        commit('updateExercisePositionFromOrder', {
+            workoutUuid,
+            newOrderedExercises,
+        });
 
         dispatch('save');
     },
@@ -205,7 +234,8 @@ const actions = {
         }
 
         if (!workout.position) {
-            workout.position = state.inFocusProgram.workoutProgramRoutines.length;
+            workout.position =
+                state.inFocusProgram.workoutProgramRoutines.length;
         }
 
         if (!workout.routineExercises) {
@@ -220,7 +250,7 @@ const actions = {
         dispatch('save');
     },
 
-    addExerciseToWorkout({ state, commit, dispatch }, { workoutUuid }) {
+    addExerciseToWorkout({ commit }, { workoutUuid }) {
         const uuid = UuidHelper.assign();
 
         commit('addExerciseToWorkout', { uuid, workoutUuid });
@@ -234,7 +264,7 @@ const actions = {
         commit('setJustAddedUuid', null);
     },
 
-    deleteWorkout({ state, commit, dispatch }, { workoutUuid }) {
+    deleteWorkout({ commit, dispatch }, { workoutUuid }) {
         commit('deleteWorkout', { workoutUuid });
 
         commit('fixPositions');
@@ -242,32 +272,37 @@ const actions = {
         dispatch('save');
     },
 
-    deleteExercise({ state, commit, dispatch }, { exerciseUuid }) {
+    deleteExercise({ commit, dispatch }, { exerciseUuid }) {
         commit('deleteExercise', { exerciseUuid });
 
         commit('fixPositions');
 
-        dispatch('save')
+        dispatch('save');
     },
 
-    updateExercise({ state, commit, getters, dispatch }, { exerciseUuid, ...newState }) {
+    updateExercise(
+        { commit, getters, dispatch },
+        { exerciseUuid, ...newState }
+    ) {
         const exercise = getters.getExercise(exerciseUuid);
 
         commit('updateExercise', { exercise, newState });
 
-        dispatch('save')
+        dispatch('save');
     },
 
     async archive({ state, commit, dispatch }, uuid) {
         try {
             const uuidToDelete = uuid || state.inFocusProgram.uuid;
-            const updatedWorkoutPrograms = UuidHelper.removeFromCopy(state.myWorkoutPrograms, uuidToDelete)
+            const updatedWorkoutPrograms = UuidHelper.removeFromCopy(
+                state.myWorkoutPrograms,
+                uuidToDelete
+            );
 
             commit('reset', { myWorkoutPrograms: updatedWorkoutPrograms }); // Optimistically remove from the state.
 
             await WorkoutProgramService.delete(uuidToDelete);
         } catch (error) {
-            console.error(error);
             dispatch('finishSavingError');
 
             commit('reset', { myWorkoutPrograms: state.myWorkoutPrograms }); // Rollback the remove from the state.
@@ -275,7 +310,7 @@ const actions = {
     },
 
     save: debounce(async ({ state, commit, dispatch, getters }) => {
-         // Don't actually save anything until there is some decent changes.
+        // Don't actually save anything until there is some decent changes.
         if (!getters.hasMadeSignificantChangesFromNew) {
             return;
         }
@@ -284,7 +319,10 @@ const actions = {
 
         // We still don't have a top level uuid, but we have made some changes,
         // assign a uuid and actually save the program.
-        if (!state.inFocusProgram.uuid && getters.hasMadeSignificantChangesFromNew) {
+        if (
+            !state.inFocusProgram.uuid &&
+            getters.hasMadeSignificantChangesFromNew
+        ) {
             commit('assignTopLevelUuid');
         }
 
@@ -293,21 +331,24 @@ const actions = {
         }
 
         try {
-            const response = await WorkoutProgramService.save(getters.savePayload);
+            const response = await WorkoutProgramService.save(
+                getters.savePayload
+            );
             commit('patchInSaveResponse', response.data);
 
-            const updatedWorkoutPrograms = UuidHelper.replaceInCopy(state.myWorkoutPrograms, state.inFocusProgram);
+            const updatedWorkoutPrograms = UuidHelper.replaceInCopy(
+                state.myWorkoutPrograms,
+                state.inFocusProgram
+            );
             commit('reset', { myWorkoutPrograms: updatedWorkoutPrograms });
 
             dispatch('finishSaving');
         } catch (error) {
-            console.error(error);
             dispatch('finishSavingError');
         }
-
     }, SAVE_DEBOUNCE_WAIT),
 
-    async fetch({ commit, dispatch }, uuid) {
+    async fetch({ commit }, uuid) {
         const response = await WorkoutProgramService.get(uuid);
         commit('reset', {
             inFocusProgram: response.data,
@@ -315,7 +356,7 @@ const actions = {
         });
     },
 
-    async prepareForSessionOverview({ commit, dispatch }, routineUuid) {
+    async prepareForSessionOverview({ commit }, routineUuid) {
         const response = await WorkoutProgramService.getByRoutine(routineUuid);
         commit('reset', {
             inFocusProgram: response.data,
@@ -330,9 +371,8 @@ const actions = {
     async fetchMyWorkoutPrograms({ commit }) {
         const response = await WorkoutProgramService.getAll();
 
-        commit('reset', { myWorkoutPrograms: response.data })
+        commit('reset', { myWorkoutPrograms: response.data });
     },
-
 };
 
 const mutations = {
@@ -341,14 +381,14 @@ const mutations = {
     restoreDefault(state) {
         const originalState = defaultState();
 
-        Object.keys(originalState).forEach(key => {
+        Object.keys(originalState).forEach((key) => {
             state[key] = originalState[key];
         });
     },
 
     reset(state, newState) {
-        Object.keys(newState).forEach(key => {
-            state[key] = newState[key]
+        Object.keys(newState).forEach((key) => {
+            state[key] = newState[key];
         });
     },
 
@@ -365,32 +405,45 @@ const mutations = {
     },
 
     updateWorkout(state, { workout, newState }) {
-        Object.keys(newState).forEach(key => {
-            workout[key] = newState[key]
-        })
+        Object.keys(newState).forEach((key) => {
+            workout[key] = newState[key];
+        });
     },
 
     updateWorkoutPositionFromOrder(state, orderedWorkouts) {
-        orderedWorkouts.forEach((workout, updatedPosition) => { workout.position = updatedPosition; });
+        orderedWorkouts.forEach((workout, updatedPosition) => {
+            workout.position = updatedPosition;
+        });
 
         state.inFocusProgram.workoutProgramRoutines = orderedWorkouts;
     },
 
-    updateExercisePositionFromOrder(state, { workoutUuid, newOrderedExercises }) {
-        newOrderedExercises.forEach((exercise, updatedPosition) => { exercise.position = updatedPosition; });
+    updateExercisePositionFromOrder(
+        state,
+        { workoutUuid, newOrderedExercises }
+    ) {
+        newOrderedExercises.forEach((exercise, updatedPosition) => {
+            exercise.position = updatedPosition;
+        });
 
-        const workout = UuidHelper.findIn(state.inFocusProgram.workoutProgramRoutines, workoutUuid);
+        const workout = UuidHelper.findIn(
+            state.inFocusProgram.workoutProgramRoutines,
+            workoutUuid
+        );
         workout.routineExercises = newOrderedExercises;
     },
 
     updateExercise(state, { exercise, newState }) {
-        Object.keys(newState).forEach(key => {
-            exercise[key] = newState[key]
-        })
+        Object.keys(newState).forEach((key) => {
+            exercise[key] = newState[key];
+        });
     },
 
     addExerciseToWorkout(state, { uuid, workoutUuid }) {
-        const workout = UuidHelper.findIn(state.inFocusProgram.workoutProgramRoutines, workoutUuid);
+        const workout = UuidHelper.findIn(
+            state.inFocusProgram.workoutProgramRoutines,
+            workoutUuid
+        );
 
         workout.routineExercises.push({
             uuid,
@@ -398,31 +451,39 @@ const mutations = {
             weight: null,
             numberOfSets: 3,
             restPeriod: 2 * 60, // 2 minutes in seconds.
-            position: workout.routineExercises.length
+            position: workout.routineExercises.length,
         });
     },
 
     deleteExercise(state, { exerciseUuid }) {
         // Use some to early exit if the exercise was found and removed.
-        state.inFocusProgram.workoutProgramRoutines.some(workout => {
-            return UuidHelper.removeFrom(workout.routineExercises, exerciseUuid);
+        state.inFocusProgram.workoutProgramRoutines.some((workout) => {
+            return UuidHelper.removeFrom(
+                workout.routineExercises,
+                exerciseUuid
+            );
         });
     },
 
     deleteWorkout(state, { workoutUuid }) {
-        UuidHelper.removeFrom(state.inFocusProgram.workoutProgramRoutines, workoutUuid);
+        UuidHelper.removeFrom(
+            state.inFocusProgram.workoutProgramRoutines,
+            workoutUuid
+        );
     },
 
     fixPositions(state) {
         state.inFocusProgram.workoutProgramRoutines.sort(sortByPosition);
-        state.inFocusProgram.workoutProgramRoutines.forEach((workout, index) => {
-            workout.position = index;
+        state.inFocusProgram.workoutProgramRoutines.forEach(
+            (workout, index) => {
+                workout.position = index;
 
-            workout.routineExercises.sort(sortByPosition);
-            workout.routineExercises.forEach((exercise, index) => {
-                exercise.position = index;
-            });
-        });
+                workout.routineExercises.sort(sortByPosition);
+                workout.routineExercises.forEach((exercise, index) => {
+                    exercise.position = index;
+                });
+            }
+        );
     },
 
     addWorkout(state, workout) {
@@ -432,13 +493,19 @@ const mutations = {
         }
 
         // Bump the positions off all routines that come after the one we are adding.
-        state.inFocusProgram.workoutProgramRoutines.forEach(existingWorkout => {
-            if (existingWorkout.position >= workout.position) {
-                existingWorkout.position++;
+        state.inFocusProgram.workoutProgramRoutines.forEach(
+            (existingWorkout) => {
+                if (existingWorkout.position >= workout.position) {
+                    existingWorkout.position++;
+                }
             }
-        });
+        );
 
-        state.inFocusProgram.workoutProgramRoutines.splice(workout.position, 0, workout);
+        state.inFocusProgram.workoutProgramRoutines.splice(
+            workout.position,
+            0,
+            workout
+        );
     },
 
     patchInSaveResponse(state, saveResponse) {
@@ -447,7 +514,6 @@ const mutations = {
         state.inFocusProgram.createdAt = saveResponse.createdAt;
         state.inFocusProgram.updatedAt = saveResponse.updatedAt;
     },
-
 };
 
 export default {
@@ -455,5 +521,5 @@ export default {
     state,
     getters,
     actions,
-    mutations
-}
+    mutations,
+};

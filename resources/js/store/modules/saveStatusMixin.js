@@ -5,7 +5,7 @@ export const STATUS_SAVE_ERROR = Symbol('save_error');
 export const state = {
     saveStatus: null,
     updateSaveStatusTimeout: null,
-}
+};
 
 export const getters = {
     saveStatusMessage(state) {
@@ -18,7 +18,7 @@ export const getters = {
                 return 'Saving...';
         }
 
-        return null
+        return null;
     },
 };
 
@@ -41,19 +41,22 @@ export const actions = {
         state.saveStatus = saveStatus;
     },
 
-    startSaving({commit}) {
+    startSaving({ commit }) {
         commit('updateSaveStatusTimeout', null);
         commit('updateSaveStatus', STATUS_SAVING);
     },
 
-    finishSaving({commit}) {
+    finishSaving({ commit }) {
         commit('updateSaveStatus', STATUS_SAVE_SUCCESS);
-        commit('updateSaveStatusTimeout', setTimeout(() => {
-            commit('updateSaveStatus', null);
-        }, 30 * 1000));
+        commit(
+            'updateSaveStatusTimeout',
+            setTimeout(() => {
+                commit('updateSaveStatus', null);
+            }, 30 * 1000)
+        );
     },
 
-    finishSavingError({commit}) {
+    finishSavingError({ commit }) {
         commit('updateSaveStatus', STATUS_SAVE_ERROR);
     },
 };

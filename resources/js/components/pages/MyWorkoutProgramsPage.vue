@@ -1,10 +1,13 @@
 <template>
     <div v-if="userIsAuthenticated">
-        <PageToolbar title="My workout programs" :back-to="{ name: 'MyWorkoutSessionsPage' }" />
-        <NoProgramsHint v-if="myWorkoutPrograms.length === 0"/>
+        <PageToolbar
+            title="My workout programs"
+            :back-to="{ name: 'MyWorkoutSessionsPage' }"
+        />
+        <NoProgramsHint v-if="myWorkoutPrograms.length === 0" />
         <ListPage v-else>
             <slot>
-                <WorkoutProgramList/>
+                <WorkoutProgramList />
             </slot>
             <template v-slot:fab>
                 <VBtn
@@ -25,9 +28,9 @@
 <script>
 import WorkoutProgramList from '../domain/WorkoutProgramList';
 import ListPage from '../layouts/ListPage';
-import {mapGetters} from "vuex";
-import NoProgramsHint from "../domain/userHints/NoProgramsHint";
-import PageToolbar from "../layouts/PageToolbar";
+import { mapGetters } from 'vuex';
+import NoProgramsHint from '../domain/userHints/NoProgramsHint';
+import PageToolbar from '../layouts/PageToolbar';
 
 export default {
     components: {
@@ -40,5 +43,5 @@ export default {
         ...mapGetters('app', ['userIsAuthenticated']),
         ...mapGetters('programBuilder', ['myWorkoutPrograms']),
     },
-}
+};
 </script>

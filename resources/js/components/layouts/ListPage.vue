@@ -2,8 +2,8 @@
     <div>
         <VContainer class="list-page">
             <VCardTitle class="page-sub-title">{{ subTitle }}</VCardTitle>
-            <slot/>
-            <slot name="fab"/>
+            <slot />
+            <slot name="fab" />
         </VContainer>
     </div>
 </template>
@@ -13,7 +13,7 @@ export default {
     props: {
         subTitle: String,
     },
-}
+};
 </script>
 
 <style lang="scss" scoped>

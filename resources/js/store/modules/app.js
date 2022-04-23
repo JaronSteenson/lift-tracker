@@ -1,8 +1,8 @@
-import AppService from "../../api/AppService";
-import { addMinutes, isAfter } from 'date-fns'
+import AppService from '../../api/AppService';
+import { addMinutes, isAfter } from 'date-fns';
 
 const state = {
-    isBaseBootstraped: false,
+    isBaseBootstrapped: false,
     appName: null,
     authenticatedUser: null,
     csrfToken: null,
@@ -15,7 +15,7 @@ const state = {
     sessionLifetime: null,
     /**
      * Roughly when the session will expire.
-     * @type ?DateTime
+     * @type ?Date
      */
     sessionExpiryTime: null,
     /**
@@ -26,9 +26,8 @@ const state = {
 };
 
 const getters = {
-
     isBaseBootstraped(state) {
-        return state.isBaseBootstraped;
+        return state.isBaseBootstrapped;
     },
 
     userIsAuthenticated(state) {
@@ -44,10 +43,10 @@ const getters = {
 
     afterLoginUrl(state) {
         if (state?.afterLoginUrl?.name === 'logout') {
-            return { name: 'HomePage'};
+            return { name: 'HomePage' };
         }
 
-        return state.afterLoginUrl ?? { name: 'HomePage'};
+        return state.afterLoginUrl ?? { name: 'HomePage' };
     },
 
     shouldShowNoProgramsWelcomeHint(state, getters, rootState, rootGetters) {
@@ -55,16 +54,23 @@ const getters = {
             return false;
         }
 
-        return rootGetters['workoutSession/myWorkoutSessions'].length === 0
-            && rootGetters['programBuilder/myWorkoutPrograms'].length === 0
+        return (
+            rootGetters['workoutSession/myWorkoutSessions'].length === 0 &&
+            rootGetters['programBuilder/myWorkoutPrograms'].length === 0
+        );
     },
 
-    shouldShowNoProgramsHintStartNewSession(state, getters, rootState, rootGetters) {
+    shouldShowNoProgramsHintStartNewSession(
+        state,
+        getters,
+        rootState,
+        rootGetters
+    ) {
         if (!getters.userIsAuthenticated) {
             return false;
         }
 
-        return rootGetters['programBuilder/myWorkoutPrograms'].length === 0
+        return rootGetters['programBuilder/myWorkoutPrograms'].length === 0;
     },
 
     shouldShowNoSessionsHint(state, getters, rootState, rootGetters) {
@@ -72,8 +78,10 @@ const getters = {
             return false;
         }
 
-        return rootGetters['workoutSession/myWorkoutSessions'].length === 0
-            && rootGetters['programBuilder/myWorkoutPrograms'].length > 0
+        return (
+            rootGetters['workoutSession/myWorkoutSessions'].length === 0 &&
+            rootGetters['programBuilder/myWorkoutPrograms'].length > 0
+        );
     },
 
     sessionIsExpired: (state) => () => {
@@ -83,20 +91,23 @@ const getters = {
     showSessionExpiredModal(state) {
         return state.showSessionExpiredModal;
     },
-
 };
 
 const actions = {
-    directlyLoadAppBoostrap({ state, commit, dispatch, getters }, data) {
+    directlyLoadAppBoostrap({ commit, getters }, data) {
         const isAuthed = data.app.authenticatedUser !== null;
 
         if (isAuthed) {
-            data.app.sessionExpiryTime = addMinutes(new Date(), data.app.sessionLifetime);
+            data.app.sessionExpiryTime = addMinutes(
+                new Date(),
+                data.app.sessionLifetime
+            );
 
             const sessionExpiryCheckInterval = setInterval(async () => {
-                 if (getters.sessionIsExpired()) {
+                if (getters.sessionIsExpired()) {
                     // We need to re-fetch the xsrf token before the user trys to re-auth.
-                    const boostrapDataResponse = await AppService.getBootstrapData();
+                    const boostrapDataResponse =
+                        await AppService.getBootstrapData();
                     const csrfToken = boostrapDataResponse.data.app.csrfToken;
 
                     commit('reset', {
@@ -151,21 +162,19 @@ const actions = {
             sessionExpiryTime: new Date(),
             showSessionExpiredModal: true,
         });
-   },
+    },
 };
 
 const mutations = {
-
     reset(state, newState) {
-        Object.keys(newState).forEach(key => {
-            state[key] = newState[key]
+        Object.keys(newState).forEach((key) => {
+            state[key] = newState[key];
         });
     },
 
     setAfterLoginUrl(state, to) {
-        state.afterLoginUrl = to
+        state.afterLoginUrl = to;
     },
-
 };
 
 export default {
@@ -173,5 +182,5 @@ export default {
     state,
     getters,
     actions,
-    mutations
-}
+    mutations,
+};

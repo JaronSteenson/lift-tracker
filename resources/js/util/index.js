@@ -10,12 +10,12 @@
  * @return {function(any): any}
  */
 export function debounce(original, wait) {
-    let timeout
+    let timeout;
 
-    return function(...args) {
-        clearTimeout(timeout)
-        timeout = setTimeout(() => original.apply(this, args), wait)
-    }
+    return function (...args) {
+        clearTimeout(timeout);
+        timeout = setTimeout(() => original.apply(this, args), wait);
+    };
 }
 
 /**
@@ -32,11 +32,14 @@ export function memoizeDebounceAction(original, wait) {
 
     return function (vuexContext, arg1) {
         if (typeof cache[arg1] !== 'function') {
-            cache[arg1] = debounce(original.bind(this, vuexContext, arg1), wait);
+            cache[arg1] = debounce(
+                original.bind(this, vuexContext, arg1),
+                wait
+            );
         }
 
         return cache[arg1].call();
-    }
+    };
 }
 
 /**
@@ -46,8 +49,8 @@ export function memoizeDebounceAction(original, wait) {
 export function pick(object, fields) {
     const out = {};
 
-    fields.forEach(field => {
-        if (object.hasOwnProperty(field)) {
+    fields.forEach((field) => {
+        if (Object.prototype.hasOwnProperty.call(object, field)) {
             out[field] = object[field];
         }
     });

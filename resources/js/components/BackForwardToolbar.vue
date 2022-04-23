@@ -14,8 +14,8 @@
 export default {
     props: {
         enableBack: Boolean,
-        enableForward: Boolean
-    }
+        enableForward: Boolean,
+    },
 };
 </script>
 

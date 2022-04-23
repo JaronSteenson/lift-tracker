@@ -1,4 +1,4 @@
-import Vue from 'vue'
+import Vue from 'vue';
 import LoginPage from '../components/pages/LoginPage';
 import AccountPage from '../components/pages/AccountPage';
 import ProgramBuilderPage from '../components/pages/ProgramBuilderPage';
@@ -19,7 +19,7 @@ async function forceLogin(to, from, next) {
     const toLogin = to.name === 'LoginPage' || to.name === 'sign-up';
 
     if (isAuthed && toLogin) {
-        next({ name: 'HomePage'});
+        next({ name: 'HomePage' });
         return;
     }
 
@@ -41,14 +41,20 @@ function checkPwaStart(to, from, next) {
         return;
     }
 
-    const inProgressWorkouts = store.getters['workoutSession/inProgressWorkouts'];
+    const inProgressWorkouts =
+        store.getters['workoutSession/inProgressWorkouts'];
     if (inProgressWorkouts === null || inProgressWorkouts.length === 0) {
-        next({ name: 'HomePage'});
+        next({ name: 'HomePage' });
         return;
     }
 
-    const inProgressSet = store.getters['workoutSession/currentSetForInProgressWorkout'](inProgressWorkouts[0].uuid);
-    next({ name: 'SetOverviewPage', params: { sessionSetUuid: inProgressSet.uuid }});
+    const inProgressSet = store.getters[
+        'workoutSession/currentSetForInProgressWorkout'
+    ](inProgressWorkouts[0].uuid);
+    next({
+        name: 'SetOverviewPage',
+        params: { sessionSetUuid: inProgressSet.uuid },
+    });
 }
 
 const routes = [
@@ -82,7 +88,7 @@ const routes = [
         name: 'ProgramBuilderPage',
         path: '/program-builder/:workoutProgramUuid',
         component: ProgramBuilderPage,
-        props: true
+        props: true,
     },
     {
         name: 'MyWorkoutProgramsPage',
@@ -103,28 +109,28 @@ const routes = [
         name: 'NewSessionOverviewPage',
         path: '/new-session-overview/:originRoutineUuid',
         component: NewSessionOverviewPage,
-        props: true
+        props: true,
     },
     {
         name: 'SessionOverviewPage',
         path: '/session-overview/:workoutSessionUuid',
         component: SessionOverviewPage,
-        props: true
+        props: true,
     },
     {
         name: 'SetOverviewPage',
         path: '/set-overview/:sessionSetUuid',
         component: SetOverviewPage,
-        props: true
+        props: true,
     },
     {
         path: '*',
         name: '404',
         component: NotFoundPage,
-    }
+    },
 ];
 
-const router =  new VueRouter({
+const router = new VueRouter({
     routes,
     mode: 'history',
 });
