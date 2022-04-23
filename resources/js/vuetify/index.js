@@ -24,15 +24,21 @@ export default new Vuetify({
         },
         themes: {
             light: {
-                primary: colors.purple,
+                primary: '#246080',
                 accent: colors.white,
-                anchor: colors.blue.base,
-                secondary: colors.purple.lighten2,
+                anchor: '#246080',
+                secondary: colors.grey.lighten2,
                 info: colors.blue.lighten1,
                 warning: colors.orange.darken2,
                 error: colors.red.base,
                 success: colors.green.base,
             },
+            dark: {
+                primary: '#fb8c00',
+                accent: colors.white,
+                secondary: '#cf9e68',
+            },
         },
+        dark: false,
     },
 });

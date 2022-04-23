@@ -9,7 +9,7 @@
 
 <script>
 import NotFound from '../routing/NotFound';
-import PageToolbar from '../layouts/PageToolbar';
+import PageToolbar from '../layouts/PageAppBar';
 
 export default {
     components: {

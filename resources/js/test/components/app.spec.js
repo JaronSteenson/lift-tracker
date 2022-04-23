@@ -52,7 +52,7 @@ describe('App.vue', () => {
         ).toBeFalsy();
     });
 
-    test('should show the nav drawer and avatar menu when logged in', () => {
+    test('should show the nav drawer and avatar menu when logged in and on the home page', () => {
         const app = {
             namespaced: true,
             state: appModule.state,
@@ -75,6 +75,10 @@ describe('App.vue', () => {
             store,
             ...mountOptions,
             stubs,
+            mocks: {
+                $svgIcons: {},
+                $route: { name: 'MyWorkoutSessionsPage' },
+            },
         });
 
         expect(

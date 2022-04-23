@@ -1,5 +1,5 @@
 <template>
-    <component :is="barComponent" v-bind="barProps">
+    <VAppBar app dense>
         <div
             class="d-flex justify-space-between align-center toolbar-content-container"
         >
@@ -10,11 +10,11 @@
                     'left-align-title': $vuetify.breakpoint.xsOnly,
                 }"
             >
-                <RouterLink :to="backTo">
-                    <VIcon :color="isAppBar ? null : 'grey'">{{
-                        $svgIcons.backNavigation
-                    }}</VIcon>
-                </RouterLink>
+                <VBtn :to="backTo" icon active-class="disable-btn-active">
+                    <VIcon>
+                        {{ $svgIcons.backNavigation }}
+                    </VIcon>
+                </VBtn>
 
                 <slot v-if="$vuetify.breakpoint.xsOnly" name="middle">
                     <VToolbarTitle class="mx-2">
@@ -38,7 +38,7 @@
                 <slot name="right" />
             </div>
         </div>
-    </component>
+    </VAppBar>
 </template>
 
 <script>
@@ -48,24 +48,6 @@ export default {
         title: String,
     },
     computed: {
-        barComponent() {
-            if (this.isAppBar) {
-                return 'VAppBar';
-            }
-
-            return 'VToolbar';
-        },
-        barProps() {
-            if (this.isAppBar) {
-                return {
-                    app: true,
-                    color: 'primary',
-                    dark: true,
-                };
-            }
-
-            return {};
-        },
         isAppBar() {
             return this.$vuetify.breakpoint.smAndDown;
         },

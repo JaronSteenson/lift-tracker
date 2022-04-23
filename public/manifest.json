@@ -1,8 +1,8 @@
 {
- "short_name": "LT",
+ "short_name": "Lift Tracker",
  "name": "Lift Tracker",
  "start_url": "/pwa-start",
- "theme_color": "#524f52",
+ "theme_color": "#f5f5f5",
  "background_color": "#ffffff",
  "display": "standalone",
  "scope": "/",

@@ -56,7 +56,7 @@ import SessionStatsCard from './SessionStatsCard';
 import { mapGetters } from 'vuex';
 import ExerciseSummaryCard from './ExerciseSummaryCard';
 import NarrowContentContainer from '../../layouts/NarrowContentContainer';
-import PageToolbar from '../../layouts/PageToolbar';
+import PageToolbar from '../../layouts/PageAppBar';
 
 export default {
     components: {

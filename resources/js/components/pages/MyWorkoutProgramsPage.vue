@@ -30,7 +30,7 @@ import WorkoutProgramList from '../domain/WorkoutProgramList';
 import ListPage from '../layouts/ListPage';
 import { mapGetters } from 'vuex';
 import NoProgramsHint from '../domain/userHints/NoProgramsHint';
-import PageToolbar from '../layouts/PageToolbar';
+import PageToolbar from '../layouts/PageAppBar';
 
 export default {
     components: {

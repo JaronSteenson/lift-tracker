@@ -20,7 +20,7 @@ import StartRoutineSelectionList from '../domain/StartRoutineSelectionList';
 import NoProgramsStartNewSessionHint from '../domain/userHints/NoProgramsStartNewSessionHint';
 import { mapGetters } from 'vuex';
 import NoProgramsWelcomeHint from '../domain/userHints/NoProgramsWelcomeHint';
-import PageToolbar from '../layouts/PageToolbar';
+import PageToolbar from '../layouts/PageAppBar';
 
 export default {
     components: {

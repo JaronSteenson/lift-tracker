@@ -12,6 +12,7 @@
                         params: { sessionSetUuid: inProgressSet.uuid },
                     }"
                     fab
+                    color="secondary"
                     fixed
                     right
                     bottom
@@ -23,6 +24,7 @@
                     v-else
                     :to="{ name: 'NewSessionRoutineSelectPage' }"
                     fab
+                    color="secondary"
                     fixed
                     right
                     bottom

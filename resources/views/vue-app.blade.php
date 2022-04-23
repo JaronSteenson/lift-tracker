@@ -11,14 +11,10 @@
 
 @section('inline-styles')
     <style>
-        body {
-            background: {{ config('app.brand_color_dark') }};
-        }
-
         .initial-loading {
             margin-top: 40vh;
             text-align: center;
-            color: white;
+            color: {{ config('app.app_icon_background_color') }};
             font-size: 2em;
             font-family: Roboto, sans-serif;
         }
@@ -36,7 +32,7 @@
             width: 13px;
             height: 13px;
             border-radius: 50%;
-            background: #fff;
+            background: {{ config('app.app_icon_background_color') }};
             animation-timing-function: cubic-bezier(0, 1, 1, 0);
         }
 

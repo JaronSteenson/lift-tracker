@@ -127,10 +127,10 @@ return [
     |--------------------------------------------------------------------------
     | Brand color
     |--------------------------------------------------------------------------
-    | Brand color for things outside of css such as app theme color meta tag.
+    | The background color of the favicon image.
     |
     */
-    'brand_color_dark' => '#9c27b0',
+    'app_icon_background_color' => '#524f52',
 
     /*
     |--------------------------------------------------------------------------

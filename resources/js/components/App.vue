@@ -1,7 +1,7 @@
 <template>
     <VApp :class="{ 'prevent-text-select': preventTextSelect }">
         <VNavigationDrawer
-            v-if="userIsAuthenticated"
+            v-if="allowNavigationDrawer"
             v-model="drawer"
             app
             :clipped="$vuetify.breakpoint.lgAndUp"
@@ -17,9 +17,9 @@
                         }"
                     >
                         <VListItemAction>
-                            <VIcon color="success">{{
-                                $svgIcons.workoutSessionnInProgress
-                            }}</VIcon>
+                            <VIcon color="success">
+                                {{ $svgIcons.workoutSessionnInProgress }}
+                            </VIcon>
                         </VListItemAction>
                         <VListItemContent>
                             <VListItemTitle
@@ -72,9 +72,9 @@
 
                 <VListItem link :to="{ name: 'MyWorkoutSessionsPage' }">
                     <VListItemAction>
-                        <VIcon color="primary">{{
-                            $svgIcons.workoutSession
-                        }}</VIcon>
+                        <VIcon color="primary">
+                            {{ $svgIcons.workoutSession }}
+                        </VIcon>
                     </VListItemAction>
                     <VListItemContent>
                         <VListItemTitle>My workout sessions</VListItemTitle>
@@ -123,8 +123,7 @@
         <VAppBar
             v-if="showAppBar"
             app
-            color="primary"
-            dark
+            dense
             :clipped-left="$vuetify.breakpoint.lgAndUp"
         >
             <VAppBarNavIcon
@@ -143,10 +142,8 @@
             >
                 <template v-slot:activator="{ on }">
                     <VBtn icon v-on="on">
-                        <VAvatar class="app-avatar">
-                            <span class="accent--text headline">{{
-                                avatarInitial
-                            }}</span>
+                        <VAvatar color="secondary" :size="32">
+                            {{ avatarInitial }}
                         </VAvatar>
                     </VBtn>
                 </template>
@@ -186,21 +183,7 @@ export default {
         };
     },
     mounted() {
-        const supportsTouch =
-            'ontouchstart' in window || navigator.msMaxTouchPoints;
-
-        // Prevent context menu and text select on touch devices to give a real app like feel,
-        // and to prevent visual interference when dragging elements.
-        if (supportsTouch) {
-            this.$el.oncontextmenu = (e) => {
-                e.preventDefault();
-                return false;
-            };
-        }
-
-        if (supportsTouch && this.$vuetify.breakpoint.smAndDown) {
-            this.preventTextSelect = true;
-        }
+        this.setSupportsTextSelect();
     },
     computed: {
         ...mapState('app', ['appName', 'authenticatedUser']),
@@ -219,11 +202,7 @@ export default {
                 return true;
             }
 
-            if (this.$vuetify.breakpoint.smAndDown) {
-                return this.$route.name === 'MyWorkoutSessionsPage';
-            }
-
-            return true;
+            return this.$route.name === 'MyWorkoutSessionsPage';
         },
         appBarTitle() {
             if (this.$vuetify.breakpoint.smAndUp) {
@@ -234,8 +213,36 @@ export default {
                 ? 'Home'
                 : this.appName;
         },
+        allowNavigationDrawer() {
+            if (!this.userIsAuthenticated) {
+                return false;
+            }
+
+            return this.$route.name === 'MyWorkoutSessionsPage';
+        },
     },
     methods: {
+        setSupportsTextSelect() {
+            if (window.location.host === 'localhost') {
+                return;
+            }
+
+            const supportsTouch =
+                'ontouchstart' in window || navigator.msMaxTouchPoints;
+
+            // Prevent context menu and text select on touch devices to give a real app like feel,
+            // and to prevent visual interference when dragging elements.
+            if (supportsTouch) {
+                this.$el.oncontextmenu = (e) => {
+                    e.preventDefault();
+                    return false;
+                };
+            }
+
+            if (supportsTouch && this.$vuetify.breakpoint.smAndDown) {
+                this.preventTextSelect = true;
+            }
+        },
         workoutIsInFocus(workoutSessionUuid) {
             if (
                 this.$route.name !== 'SetOverviewPage' &&
@@ -277,10 +284,6 @@ export default {
 .app-name {
     text-decoration: none;
     color: var(--v-accent-base) !important;
-}
-
-.app-avatar {
-    background-color: var(--v-primary-lighten2);
 }
 
 .v-main--not-logged-in {
@@ -340,5 +343,9 @@ export default {
 .row {
     margin-top: 0;
     margin-bottom: 0;
+}
+
+.disable-btn-active.v-btn--active::before {
+    background-color: transparent;
 }
 </style>
