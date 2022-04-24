@@ -58,19 +58,13 @@
 
         @keyframes lds-ellipsis1 {
             0% {
-                transform: scale(0);
+                transform: translate(0, 0);
+            }
+            70% {
+                transform: translate(150px, 0);
             }
             100% {
-                transform: scale(1);
-            }
-        }
-
-        @keyframes lds-ellipsis3 {
-            0% {
-                transform: scale(1);
-            }
-            100% {
-                transform: scale(0);
+                transform: translate(150px, 0);
             }
         }
 
@@ -78,9 +72,94 @@
             0% {
                 transform: translate(0, 0);
             }
-            100% {
-                transform: translate(24px, 0);
+            10% {
+                transform: translate(0, 0);
             }
+            80% {
+                transform: translate(150px, 0);
+            }
+            100% {
+                transform: translate(150px, 0);
+            }
+        }
+
+        @keyframes lds-ellipsis3 {
+            0% {
+                transform: translate(0, 0);
+            }
+            20% {
+                transform: translate(0, 0);
+            }
+            90% {
+                transform: translate(150px, 0);
+            }
+            100% {
+                transform: translate(150px, 0);
+            }
+        }
+
+        @keyframes lds-ellipsis4 {
+            0% {
+                transform: translate(0, 0);
+            }
+            30% {
+                transform: translate(0, 0);
+            }
+            100% {
+                transform: translate(150px, 0);
+            }
+        }
+
+        .il-container {
+            display: flex;
+            flex-direction: row;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .il-animation-container {
+            width: 150px;
+            display: flex;
+            flex-direction: row;
+        }
+
+        .il-plate-red {
+            background-color: #b22e33;
+            border-radius: 2px;
+            height: 15px;
+            width: 5px;
+            animation: lds-ellipsis1 2.6s infinite linear alternate;
+            position: relative;
+        }
+
+        .il-plate-blue {
+            background-color: #365d8f;
+            border-radius: 2px;
+            height: 15px;
+            width: 5px;
+            animation: lds-ellipsis2 2.6s infinite linear alternate;
+            position: relative;
+            left: -5px;
+        }
+
+        .il-plate-yellow {
+            background-color: #f7c607;
+            border-radius: 2px;
+            height: 15px;
+            width: 5px;
+            animation: lds-ellipsis3 2.6s infinite linear alternate;
+            position: relative;
+            left: -10px;
+        }
+
+        .il-plate-green {
+            background-color: #418054;
+            border-radius: 2px;
+            height: 15px;
+            width: 5px;
+            animation: lds-ellipsis4 2.6s infinite linear alternate;
+            position: relative;
+            left: -15px;
         }
     </style>
 @stop
@@ -99,11 +178,13 @@
     <main id="app">
         <div class="initial-loading">
             <div>{{ config('app.name') }}</div>
-            <div class="lds-ellipsis">
-                <div></div>
-                <div></div>
-                <div></div>
-                <div></div>
+            <div class="il-container">
+                <div class="il-animation-container">
+                    <div class="il-plate-red"></div>
+                    <div class="il-plate-blue"></div>
+                    <div class="il-plate-yellow"></div>
+                    <div class="il-plate-green"></div>
+                </div>
             </div>
         </div>
     </main>
