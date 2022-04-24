@@ -45,7 +45,6 @@
                     </template>
                     <VSparkline
                         v-else
-                        :gradient="['purple', 'violet']"
                         :label-size="10"
                         :labels="weightLabels"
                         :line-width="15"
@@ -62,7 +61,6 @@
                 <div v-if="!isSingleSet" class="graph">
                     <h3 class="mb-2 mt-4">Reps</h3>
                     <VSparkline
-                        :gradient="['purple', 'violet']"
                         :label-size="10"
                         :labels="repLabels"
                         :line-width="15"
@@ -85,7 +83,6 @@
                     <div v-if="isSingleRestPeriod">{{ singleSetRest }}</div>
                     <VSparkline
                         v-else
-                        :gradient="['purple', 'violet']"
                         :label-size="10"
                         :labels="restLabels"
                         :line-width="5"
