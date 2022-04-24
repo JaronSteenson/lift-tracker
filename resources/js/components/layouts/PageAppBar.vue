@@ -17,7 +17,7 @@
                 </VBtn>
 
                 <slot v-if="$vuetify.breakpoint.xsOnly" name="middle">
-                    <VToolbarTitle class="mx-2">
+                    <VToolbarTitle class="mx-2 d-flex align-center">
                         {{ title }}
                     </VToolbarTitle>
                 </slot>
