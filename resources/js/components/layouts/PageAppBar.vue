@@ -47,11 +47,6 @@ export default {
         backTo: Object,
         title: String,
     },
-    computed: {
-        isAppBar() {
-            return this.$vuetify.breakpoint.smAndDown;
-        },
-    },
 };
 </script>
 
@@ -66,6 +61,7 @@ export default {
 
 .left-align-title {
     display: flex;
+    align-items: center;
     flex-grow: 1;
     overflow: hidden;
     text-overflow: ellipsis;

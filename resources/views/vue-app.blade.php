@@ -61,10 +61,10 @@
                 transform: translate(0, 0);
             }
             70% {
-                transform: translate(150px, 0);
+                transform: translate(145px, 0);
             }
             100% {
-                transform: translate(150px, 0);
+                transform: translate(145px, 0);
             }
         }
 
@@ -76,10 +76,10 @@
                 transform: translate(0, 0);
             }
             80% {
-                transform: translate(150px, 0);
+                transform: translate(145px, 0);
             }
             100% {
-                transform: translate(150px, 0);
+                transform: translate(145px, 0);
             }
         }
 
@@ -91,10 +91,10 @@
                 transform: translate(0, 0);
             }
             90% {
-                transform: translate(150px, 0);
+                transform: translate(145px, 0);
             }
             100% {
-                transform: translate(150px, 0);
+                transform: translate(145px, 0);
             }
         }
 
@@ -106,7 +106,7 @@
                 transform: translate(0, 0);
             }
             100% {
-                transform: translate(150px, 0);
+                transform: translate(145px, 0);
             }
         }
 
@@ -118,7 +118,9 @@
         }
 
         .il-animation-container {
-            width: 150px;
+            /* Manual adjustment to line up with "L" and "r" stems. */
+            margin-left: -6px;
+            width: 145px;
             display: flex;
             flex-direction: row;
         }
@@ -128,7 +130,7 @@
             border-radius: 2px;
             height: 15px;
             width: 5px;
-            animation: lds-ellipsis1 2.6s infinite linear alternate;
+            animation: lds-ellipsis1 2s infinite linear alternate;
             position: relative;
         }
 
@@ -137,7 +139,7 @@
             border-radius: 2px;
             height: 15px;
             width: 5px;
-            animation: lds-ellipsis2 2.6s infinite linear alternate;
+            animation: lds-ellipsis2 2s infinite linear alternate;
             position: relative;
             left: -5px;
         }
@@ -147,7 +149,7 @@
             border-radius: 2px;
             height: 15px;
             width: 5px;
-            animation: lds-ellipsis3 2.6s infinite linear alternate;
+            animation: lds-ellipsis3 2s infinite linear alternate;
             position: relative;
             left: -10px;
         }
@@ -157,7 +159,7 @@
             border-radius: 2px;
             height: 15px;
             width: 5px;
-            animation: lds-ellipsis4 2.6s infinite linear alternate;
+            animation: lds-ellipsis4 2s infinite linear alternate;
             position: relative;
             left: -15px;
         }
