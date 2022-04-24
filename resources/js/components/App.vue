@@ -287,7 +287,7 @@ export default {
 }
 
 .v-main--not-logged-in {
-    background-color: #f0f0f0;
+    background-color: var(--v-primary-darken2);
 }
 
 .v-dialog {

@@ -1,50 +1,60 @@
 <template>
-    <div v-if="$vuetify.breakpoint.xsOnly" class="mt-5 d-flex justify-center">
+    <div v-if="$vuetify.breakpoint.xsOnly" class="d-flex justify-center">
         <div class="left-column d-flex flex-column justify-center align-center">
-            <h1 class="heading heading--small mx-3">
-                Super simple gym tracking
-            </h1>
             <img
                 v-show="imageHasLoaded"
                 ref="image"
-                class="set-overview-demo set-overview-demo--small mt-5 elevation-5"
+                class="banner-image banner-image--small"
                 :class="{
-                    'set-overview-demo--fade-in': fadeImageIn,
+                    'banner-image--fade-in': fadeImageIn,
                 }"
-                src="images/set-overview.png"
-                alt="Set overview"
+                src="images/phone-gym-floor.jpg"
+                alt="Banner image"
             />
             <VSkeletonLoader
                 v-if="!imageHasLoaded"
-                class="set-overview-demo-skeleton-small mt-5"
+                class="banner-image-skeleton-small"
                 type="image"
             />
-            <FacebookLoginButton class="mt-10" />
-            <a class="mt-3 d-block" href="/privacy-policy">Privacy policy</a>
+            <h1 class="heading heading--small mt-15">
+                The simplest way to track your lifts
+            </h1>
+            <div class="login-container mt-15 pa-2">
+                <FacebookLoginButton />
+            </div>
+            <a class="privacy-policy mt-10 d-block" href="/privacy-policy">
+                Privacy policy
+            </a>
         </div>
     </div>
 
-    <div v-else class="container-large d-flex justify-center">
-        <div
-            class="left-column mr-5 d-flex flex-column justify-center align-center"
-        >
-            <h1 class="heading">Super simple gym tracking</h1>
-            <FacebookLoginButton class="mt-5" />
-            <a class="mt-3 d-block" href="/privacy-policy">Privacy policy</a>
+    <div class="container-large" v-else>
+        <div class="d-flex flex-wrap justify-center">
+            <div class="mx-15">
+                <img
+                    v-show="imageHasLoaded"
+                    ref="image"
+                    class="banner-image banner-image--large"
+                    :class="{ 'banner-image--fade-in': fadeImageIn }"
+                    src="images/phone-gym-floor.jpg"
+                    alt="Banner image"
+                />
+                <VSkeletonLoader
+                    v-if="!imageHasLoaded"
+                    class="banner-image-skeleton"
+                    type="image"
+                />
+            </div>
+            <div class="mx-15 d-flex flex-column justify-center align-center">
+                <h1 class="heading">The simplest way to track your lifts</h1>
+                <div class="login-container mt-15 pa-2">
+                    <FacebookLoginButton />
+                </div>
+                <a class="privacy-policy mt-5 d-block" href="/privacy-policy">
+                    Privacy policy
+                </a>
+            </div>
         </div>
-        <img
-            v-show="imageHasLoaded"
-            ref="image"
-            class="set-overview-demo ml-5 elevation-5"
-            :class="{ 'set-overview-demo--fade-in': fadeImageIn }"
-            src="images/set-overview.png"
-            alt="Set overview"
-        />
-        <VSkeletonLoader
-            v-if="!imageHasLoaded"
-            class="set-overview-demo-skeleton ml-5"
-            type="image"
-        />
     </div>
 </template>
 
@@ -69,32 +79,46 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+$defaultThemeAppBarColor: #f5f5f5;
+
 .container-large {
     margin-top: 15vh;
 }
 
-.left-column {
-    max-width: 400px;
-}
-
 .heading {
+    color: $defaultThemeAppBarColor;
     text-align: center;
-    font-size: 3em;
+    font-size: 1.8em;
 
     &--small {
-        font-size: 1.8em;
+        font-size: 1.3em;
     }
 }
 
-.set-overview-demo {
-    opacity: 0;
+.login-container {
+    background-color: $defaultThemeAppBarColor;
     border-radius: 5px;
-    height: calc(315px);
-    width: calc(188px);
+}
+
+.privacy-policy {
+    color: $defaultThemeAppBarColor !important;
+    font-size: 0.8em;
+}
+
+.banner-image {
+    opacity: 0;
 
     &--small {
-        height: 50vh;
-        width: unset;
+        height: unset;
+        width: 100vw;
+        border-bottom: 8px solid $defaultThemeAppBarColor;
+    }
+
+    &--large {
+        height: 260px;
+        width: 390px;
+        border: 8px solid $defaultThemeAppBarColor;
+        border-radius: 5px;
     }
 
     &--fade-in {
@@ -105,14 +129,13 @@ export default {
 </style>
 
 <style lang="scss">
-.set-overview-demo-skeleton .v-skeleton-loader__image.v-skeleton-loader__bone {
-    height: calc(315px);
-    width: calc(188px);
+.banner-image-skeleton .v-skeleton-loader__image.v-skeleton-loader__bone {
+    height: 260px;
+    width: 390px;
 }
 
-.set-overview-demo-skeleton-small
-    .v-skeleton-loader__image.v-skeleton-loader__bone {
-    height: 50vh;
-    width: 30vh;
+.banner-image-skeleton-small .v-skeleton-loader__image.v-skeleton-loader__bone {
+    height: calc(100vw * 0.666);
+    width: 100vw;
 }
 </style>

@@ -45,6 +45,7 @@
                     </template>
                     <VSparkline
                         v-else
+                        :gradient="gradient"
                         :label-size="10"
                         :labels="weightLabels"
                         :line-width="15"
@@ -128,6 +129,10 @@ export default {
         };
     },
     computed: {
+        // Bars require a gradient, or they will default to grey.
+        gradient() {
+            return [this.$vuetify.theme.themes.light.primary];
+        },
         sessionExercise() {
             return this.sessionExercises[this.currentIndex];
         },

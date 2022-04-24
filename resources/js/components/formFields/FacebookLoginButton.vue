@@ -43,6 +43,7 @@ export default {
     max-width: 300px;
 
     &__text {
+        font-size: 0.8em;
         margin-left: 1em;
     }
 }
