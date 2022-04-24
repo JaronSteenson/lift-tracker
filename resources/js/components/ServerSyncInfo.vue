@@ -1,7 +1,7 @@
 <template>
     <VSubheader class="px-0">
         <VIcon :size="$vuetify.breakpoint.xsOnly ? 'small' : null">
-            {{ $svgIcons.mdiCloudSync }}
+            {{ icon }}
         </VIcon>
         <span
             class="updated-at"
@@ -16,6 +16,11 @@
 <script>
 import { dateTimeDescription, updatedAtMicro } from '../dates';
 import VSubheader from 'vuetify/lib/components/VSubheader';
+import {
+    STATUS_SAVE_ERROR,
+    STATUS_SAVE_IN_PROGRESS,
+    STATUS_SAVE_OK,
+} from '../store/modules/saveStatusMixin';
 
 export default {
     components: {
@@ -26,7 +31,7 @@ export default {
             type: String,
             required: false,
         },
-        statusMessage: {
+        status: {
             type: String,
             required: false,
         },
@@ -44,11 +49,34 @@ export default {
         this.clearRefreshInterval();
     },
     computed: {
+        icon() {
+            switch (this.status) {
+                case STATUS_SAVE_OK:
+                    return this.$svgIcons.saveOk;
+                case STATUS_SAVE_IN_PROGRESS:
+                    return this.$svgIcons.saveInProgress;
+                case STATUS_SAVE_ERROR:
+                default:
+                    return this.$svgIcons.saveFailed;
+            }
+        },
         generatedStatusMessage() {
             this.refreshForce;
 
-            if (this.statusMessage) {
-                return this.statusMessage;
+            if (this.status === STATUS_SAVE_ERROR) {
+                if (this.$vuetify.breakpoint.smAndDown) {
+                    return '';
+                }
+
+                return 'Error saving';
+            }
+
+            if (this.status === STATUS_SAVE_IN_PROGRESS) {
+                if (this.$vuetify.breakpoint.smAndDown) {
+                    return '...';
+                }
+
+                return 'Saving';
             }
 
             if (this.updatedAt) {

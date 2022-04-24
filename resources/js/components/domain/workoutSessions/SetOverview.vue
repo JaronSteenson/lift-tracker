@@ -8,10 +8,7 @@
             }"
         >
             <template v-slot:right>
-                <ServerSyncInfo
-                    :status-message="saveStatusMessage"
-                    :updated-at="updatedAt"
-                />
+                <ServerSyncInfo :status="saveStatus" :updated-at="updatedAt" />
 
                 <VMenu bottom left>
                     <template v-slot:activator="{ on }">
@@ -203,7 +200,7 @@
                         </VCol>
                     </VRow>
                     <VRow v-if="!wasAddedOnTheFly" class="pt-0 mt-0">
-                        <VCol class="pt-0 mt-0" cols="8">
+                        <VCol class="pt-0 mt-0" cols="12" sm="6">
                             <span v-if="!hasLoadedExercisePreviousEntries">
                                 Loading previous entry overviews...
                                 <VProgressLinear indeterminate />
@@ -229,11 +226,11 @@
                                         :start-index="1"
                                     />
                                 </template>
-                                <span v-else
-                                    >This is the first time you are doing this
+                                <span v-else>
+                                    This is the first time you are doing this
                                     exercise. Last time recaps will appear here
-                                    next time.</span
-                                >
+                                    next time.
+                                </span>
                             </template>
                         </VCol>
                     </VRow>
@@ -380,7 +377,7 @@
 </template>
 
 <script>
-import { mapGetters } from 'vuex';
+import { mapGetters, mapState } from 'vuex';
 import RestPeriodInput from '../RestPeriodInput';
 import RestPeriodTimer from '../RestPeriodTimer';
 import SessionExerciseStatsModal from './SessionExerciseStatsModal';
@@ -417,11 +414,11 @@ export default {
         };
     },
     computed: {
+        ...mapState('workoutSession', ['saveStatus']),
         ...mapGetters('workoutSession', [
             'workoutName',
             'workoutSession',
             'uuid',
-            'saveStatusMessage',
             'updatedAt',
         ]),
         pageTitle() {

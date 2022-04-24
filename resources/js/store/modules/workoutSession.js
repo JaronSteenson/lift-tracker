@@ -7,7 +7,6 @@ import {
     mutations as saveStatusMutations,
     actions as saveStatusActions,
     state as saveStatusState,
-    getters as savingStatusGetters,
 } from './saveStatusMixin';
 
 const SAVE_DEBOUNCE_WAIT = 1000;
@@ -42,14 +41,8 @@ function defaultState() {
 const state = defaultState();
 
 export const getters = {
-    ...savingStatusGetters,
-
     hasLoadedInProgressWorkouts(state, getters) {
         return getters.inProgressWorkouts !== null;
-    },
-
-    hasLoadedFirstPage(state) {
-        return state.myMyWorkoutSessionsPagesLoaded > 0;
     },
 
     myWorkoutSessions(state, getters) {

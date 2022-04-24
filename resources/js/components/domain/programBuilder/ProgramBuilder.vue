@@ -34,7 +34,7 @@
                     </template>
                     <template v-slot:right>
                         <ServerSyncInfo
-                            :status-message="saveStatusMessage"
+                            :status="saveStatus"
                             :updatedAt="inFocusProgram.updatedAt"
                         />
                         <VMenu bottom left>
@@ -166,11 +166,8 @@ export default {
         notFound() {
             return !this.loading && this.fetchError;
         },
-        ...mapState('programBuilder', ['inFocusProgram']),
-        ...mapGetters('programBuilder', [
-            'hasMadeSignificantChangesFromNew',
-            'saveStatusMessage',
-        ]),
+        ...mapState('programBuilder', ['inFocusProgram', 'saveStatus']),
+        ...mapGetters('programBuilder', ['hasMadeSignificantChangesFromNew']),
         uuid() {
             return this.inFocusProgram.uuid;
         },

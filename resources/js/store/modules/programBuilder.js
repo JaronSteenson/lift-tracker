@@ -6,7 +6,6 @@ import {
     mutations as saveStatusMutations,
     actions as saveStatusActions,
     state as saveStatusState,
-    getters as savingStatusGetters,
 } from './saveStatusMixin';
 
 const SAVE_DEBOUNCE_WAIT = 1000;
@@ -53,8 +52,6 @@ const exerciseFields = [
 ];
 
 const getters = {
-    ...savingStatusGetters,
-
     hasMadeSignificantChangesFromNew(state) {
         return Boolean(
             state.inFocusProgram.uuid || // Has somehow forced a save or uuid assignment.
