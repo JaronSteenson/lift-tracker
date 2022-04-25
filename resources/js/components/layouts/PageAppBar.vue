@@ -35,6 +35,7 @@
                     'fixed-outside-flex-basis': $vuetify.breakpoint.smAndUp,
                 }"
             >
+                <AvatarInitials v-if="!$slots.right" />
                 <slot name="right" />
             </div>
         </div>
@@ -42,7 +43,12 @@
 </template>
 
 <script>
+import AvatarInitials from '../AvatarInitials';
+
 export default {
+    components: {
+        AvatarInitials,
+    },
     props: {
         backTo: Object,
         title: String,

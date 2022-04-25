@@ -47,9 +47,9 @@
                         }"
                     >
                         <VListItemAction>
-                            <VIcon color="success">{{
-                                $svgIcons.mdiPlay
-                            }}</VIcon>
+                            <VIcon color="success">
+                                {{ $svgIcons.mdiPlay }}
+                            </VIcon>
                         </VListItemAction>
                         <VListItemContent>
                             <VListItemTitle
@@ -134,28 +134,7 @@
 
             <VSpacer />
 
-            <VMenu
-                v-if="userIsAuthenticated"
-                transition="slide-y-transition"
-                bottom
-                offset-y
-            >
-                <template v-slot:activator="{ on }">
-                    <VBtn icon v-on="on">
-                        <VAvatar color="secondary" :size="32">
-                            {{ avatarInitial }}
-                        </VAvatar>
-                    </VBtn>
-                </template>
-                <VList>
-                    <VListItem :to="{ name: 'AccountPage' }">
-                        <VListItemTitle>My account</VListItemTitle>
-                    </VListItem>
-                    <VListItem @click="logout">
-                        <VListItemTitle>Logout</VListItemTitle>
-                    </VListItem>
-                </VList>
-            </VMenu>
+            <AvatarInitials />
         </VAppBar>
 
         <LoginModal v-if="showSessionExpiredModal" session-expiry-warning />
@@ -169,11 +148,13 @@
 </template>
 
 <script>
-import { mapState, mapGetters } from 'vuex';
+import { mapGetters, mapState } from 'vuex';
 import LoginModal from './LoginModal';
+import AvatarInitials from './AvatarInitials';
 
 export default {
     components: {
+        AvatarInitials,
         LoginModal,
     },
     data() {
@@ -262,15 +243,6 @@ export default {
                 this.$route.params.sessionSetUuid === set.uuid
             );
         },
-        async logout() {
-            if (!this.userIsAuthenticated) {
-                await this.$router.push({ name: 'LoginPage' });
-                return;
-            }
-
-            await this.$store.dispatch('app/logout');
-            await this.$router.push({ name: 'LoginPage' });
-        },
         getCurrentSet(workoutSessionUuid) {
             return this.$store.getters[
                 'workoutSession/currentSetForInProgressWorkout'
@@ -287,7 +259,7 @@ export default {
 }
 
 .v-main--not-logged-in {
-    background-color: var(--v-primary-darken2);
+    background-color: #00324f; // Hard-codded default light theme primary darken 2
 }
 
 .v-dialog {
@@ -347,5 +319,12 @@ export default {
 
 .disable-btn-active.v-btn--active::before {
     background-color: transparent;
+}
+
+// Flexbox gap helpers, mapping to vuetify padding/margin helpers.
+@for $i from 1 through 10 {
+    .gap-#{$i} {
+        gap: $i * 4px;
+    }
 }
 </style>

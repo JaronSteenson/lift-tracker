@@ -63,6 +63,7 @@
                     <h3 class="mb-2 mt-4">Reps</h3>
                     <VSparkline
                         :label-size="10"
+                        :gradient="gradient"
                         :labels="repLabels"
                         :line-width="15"
                         :radius="10"
@@ -131,7 +132,11 @@ export default {
     computed: {
         // Bars require a gradient, or they will default to grey.
         gradient() {
-            return [this.$vuetify.theme.themes.light.primary];
+            return [
+                this.$vuetify.theme.themes[
+                    this.$vuetify.theme.dark ? 'dark' : 'light'
+                ].primary,
+            ];
         },
         sessionExercise() {
             return this.sessionExercises[this.currentIndex];

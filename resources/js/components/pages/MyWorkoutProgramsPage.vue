@@ -1,5 +1,5 @@
 <template>
-    <div v-if="userIsAuthenticated">
+    <div>
         <PageToolbar
             title="My workout programs"
             :back-to="{ name: 'MyWorkoutSessionsPage' }"
@@ -40,7 +40,6 @@ export default {
         WorkoutProgramList,
     },
     computed: {
-        ...mapGetters('app', ['userIsAuthenticated']),
         ...mapGetters('programBuilder', ['myWorkoutPrograms']),
     },
 };

@@ -22,12 +22,9 @@ export default {
 <style lang="scss" scoped>
 .back-forward-toolbar {
     position: sticky;
-    position: -webkit-sticky;
     top: 0;
     display: flex;
     justify-content: space-between;
-    background-color: #fff;
-    border-bottom: 1px solid rgba(0, 0, 0, 0.12);
     padding-left: 12px !important;
     padding-right: 12px !important;
 }

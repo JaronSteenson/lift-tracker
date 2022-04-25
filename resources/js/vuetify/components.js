@@ -19,6 +19,8 @@ export {
     VFadeTransition,
     VForm,
     VIcon,
+    VItem,
+    VItemGroup,
     VList,
     VListItem,
     VListItemAction,
