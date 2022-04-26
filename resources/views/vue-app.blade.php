@@ -6,7 +6,7 @@
 
 @section('assets')
     <!-- JS app bundle, includes css. -->
-    <script src="{{ asset('js/app.js') }}" defer></script>
+    <script src="{{ mix('js/app.js') }}" defer></script>
 @stop
 
 @section('inline-styles')
