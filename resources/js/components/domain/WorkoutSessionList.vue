@@ -2,6 +2,7 @@
     <div>
         <!-- eslint-disable vue/valid-v-slot -->
         <VDataTable
+            v-if="$vuetify.breakpoint.lgAndUp"
             :headers="headers"
             :items="myWorkoutSessions"
             :items-per-page="myWorkoutSessions.length"
@@ -14,28 +15,15 @@
                         params: { workoutSessionUuid: session.uuid },
                     }"
                 >
-                    {{ session.startedAt }}
+                    {{ getFormattedDate(session) }}
                 </RouterLink>
             </template>
             <template v-slot:item.programName="{ item: session }">
-                <RouterLink
-                    v-if="session.originProgramUuid"
-                    :to="{
-                        name: 'ProgramBuilderPage',
-                        params: {
-                            workoutProgramUuid: session.originProgramUuid,
-                        },
-                    }"
-                >
-                    <template v-if="session.programName">{{
-                        session.programName
-                    }}</template>
-                    <MissingValue full-opacity v-else
-                        >Unnamed program</MissingValue
-                    >
-                </RouterLink>
-                <!--  Archived -->
-                <MissingValue v-else>{{ session.programName }}</MissingValue>
+                <ProgramName
+                    :workoutProgram="
+                        session.workoutProgramRoutine.workoutProgram
+                    "
+                />
             </template>
             <template v-slot:item.menu="{ item: session }">
                 <VMenu bottom left>
@@ -76,6 +64,16 @@
             </template>
         </VDataTable>
         <!-- eslint-enable -->
+        <NarrowContentContainer v-else>
+            <div class="d-flex flex-column gap-4">
+                <SessionStatsCard
+                    v-for="workoutSession in myWorkoutSessions"
+                    :key="workoutSession.uuid"
+                    :workout-session="workoutSession"
+                    link-title
+                />
+            </div>
+        </NarrowContentContainer>
 
         <div class="text-center mt-5">
             <VBtn
@@ -92,12 +90,17 @@
 </template>
 
 <script>
-import MissingValue from './../util/MissingValue';
+import NarrowContentContainer from '../layouts/NarrowContentContainer';
 import { mapState, mapGetters } from 'vuex';
+import SessionStatsCard from '../domain/workoutSessions/SessionStatsCard';
+import { dateDescription } from '../../dates';
+import ProgramName from '../domain/programBuilder/ProgramName';
 
 export default {
     components: {
-        MissingValue,
+        NarrowContentContainer,
+        SessionStatsCard,
+        ProgramName,
     },
     data() {
         return {
@@ -107,7 +110,10 @@ export default {
     },
     computed: {
         ...mapState('workoutSession', ['myMyWorkoutSessionsPagesAllLoaded']),
-        ...mapGetters('workoutSession', ['myWorkoutSessions']),
+        ...mapGetters('workoutSession', [
+            'myWorkoutSessions',
+            'isInProgressWorkout',
+        ]),
         headers() {
             return [
                 {
@@ -154,6 +160,15 @@ export default {
                     workoutSessionUuid
                 );
             }
+        },
+        getFormattedDate(workoutSession) {
+            let startedAt = dateDescription(workoutSession.startedAt);
+
+            if (this.isInProgressWorkout(workoutSession.uuid)) {
+                startedAt = `${startedAt} (in progress)`;
+            }
+
+            return startedAt;
         },
     },
 };

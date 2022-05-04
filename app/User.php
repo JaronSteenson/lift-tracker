@@ -83,9 +83,9 @@ class User extends AbstractModel implements AuthenticatableContract
     public function getWorkoutPrograms(): Collection
     {
         return $this->workoutPrograms()
-        ->orderBy('name')
-        ->orderBy('createdAt', 'desc')
-        ->get();
+            ->orderBy('name')
+            ->orderBy('createdAt', 'desc')
+            ->get();
     }
 
     public function findWorkoutPrograms(): Collection

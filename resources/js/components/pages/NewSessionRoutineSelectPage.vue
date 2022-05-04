@@ -2,7 +2,7 @@
     <div v-if="userIsAuthenticated">
         <PageToolbar
             title="Start new session"
-            :back-to="{ name: 'MyWorkoutSessionsPage' }"
+            :back-to="{ name: 'HomePage' }"
         />
         <NoProgramsWelcomeHint v-if="shouldShowNoProgramsWelcomeHint" />
         <NoProgramsStartNewSessionHint

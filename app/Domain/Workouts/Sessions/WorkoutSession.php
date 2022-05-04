@@ -82,6 +82,7 @@ class WorkoutSession extends AbstractModel
 
     protected $with = [
         'sessionExercises',
+        'workoutProgramRoutine.workoutProgram',
     ];
 
     public static function createFromRoutine(WorkoutProgramRoutine $originRoutine, string $userId, bool $startNow): self

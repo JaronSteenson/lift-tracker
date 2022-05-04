@@ -45,23 +45,14 @@ export const getters = {
         return getters.inProgressWorkouts !== null;
     },
 
-    myWorkoutSessions(state, getters) {
+    myWorkoutSessions(state) {
         if (state.myWorkoutSessions === null) {
             return null;
         }
 
         return state.myWorkoutSessions.map((workoutSession) => {
-            let startedAt = dateDescription(workoutSession.startedAt);
-
-            if (getters.isInProgressWorkout(workoutSession.uuid)) {
-                startedAt = `${startedAt} (in progress)`;
-            }
-
             const workoutProgram =
                 workoutSession?.workoutProgramRoutine?.workoutProgram;
-            const programName = workoutProgram
-                ? workoutProgram.name
-                : '(Archived program)';
             const originProgramUuid = workoutProgram
                 ? workoutProgram.uuid
                 : null;
@@ -69,8 +60,6 @@ export const getters = {
             return {
                 ...workoutSession,
                 ...{
-                    startedAt,
-                    programName,
                     originProgramUuid,
                 },
             };

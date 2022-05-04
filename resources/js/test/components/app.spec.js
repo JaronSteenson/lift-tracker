@@ -77,7 +77,7 @@ describe('App.vue', () => {
             stubs,
             mocks: {
                 $svgIcons: {},
-                $route: { name: 'MyWorkoutSessionsPage' },
+                $route: { name: 'HomePage' },
             },
         });
 

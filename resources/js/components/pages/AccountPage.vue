@@ -1,9 +1,6 @@
 <template>
     <NarrowContentContainer>
-        <PageToolbar
-            title="My account"
-            :back-to="{ name: 'MyWorkoutSessionsPage' }"
-        />
+        <PageToolbar title="My account" :back-to="{ name: 'HomePage' }" />
 
         <h2>Change theme</h2>
         <p>Note: Themes are saved per device, rather than per account.</p>

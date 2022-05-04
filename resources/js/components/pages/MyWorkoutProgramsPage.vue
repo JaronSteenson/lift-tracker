@@ -2,7 +2,7 @@
     <div>
         <PageToolbar
             title="My workout programs"
-            :back-to="{ name: 'MyWorkoutSessionsPage' }"
+            :back-to="{ name: 'HomePage' }"
         />
         <NoProgramsHint v-if="myWorkoutPrograms.length === 0" />
         <ListPage v-else>

@@ -12,17 +12,7 @@
             hide-default-footer
         >
             <template v-slot:item.name="{ item: program }">
-                <RouterLink
-                    :to="{
-                        name: 'ProgramBuilderPage',
-                        params: { workoutProgramUuid: program.uuid },
-                    }"
-                >
-                    <template v-if="program.name">{{ program.name }}</template>
-                    <MissingValue v-else full-opacity
-                        >Unnamed program</MissingValue
-                    >
-                </RouterLink>
+                <ProgramName :workoutProgram="program" />
             </template>
             <template v-slot:item.menu="{ item: program }">
                 <VMenu bottom left>
@@ -63,11 +53,11 @@
 <script>
 import NewSessionModal from './workoutSessions/NewSessionModal';
 import { mapActions, mapGetters } from 'vuex';
-import MissingValue from '../util/MissingValue';
+import ProgramName from '../domain/programBuilder/ProgramName';
 
 export default {
     components: {
-        MissingValue,
+        ProgramName,
         NewSessionModal,
     },
     data() {

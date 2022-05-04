@@ -19,23 +19,7 @@
             </div>
             <div class="mt-2">
                 <VIcon color="primary">{{ $svgIcons.workoutProgram }}</VIcon>
-                <RouterLink
-                    v-if="routine.workoutProgram"
-                    :to="{
-                        name: 'ProgramBuilderPage',
-                        params: {
-                            workoutProgramUuid: routine.workoutProgram.uuid,
-                        },
-                    }"
-                >
-                    <template v-if="routine.workoutProgram.name">{{
-                        routine.workoutProgram.name
-                    }}</template>
-                    <MissingValue v-else full-opacity
-                        >Unnamed program</MissingValue
-                    >
-                </RouterLink>
-                <MissingValue v-else>Deleted program</MissingValue>
+                <ProgramName :workoutProgram="routine.workoutProgram" />
             </div>
         </VCardText>
         <div class="d-flex">
@@ -59,10 +43,12 @@
 <script>
 import { dateDescription } from '../../dates';
 import MissingValue from '../util/MissingValue';
+import ProgramName from '../domain/programBuilder/ProgramName';
 
 export default {
     components: {
         MissingValue,
+        ProgramName,
     },
     props: {
         routine: {

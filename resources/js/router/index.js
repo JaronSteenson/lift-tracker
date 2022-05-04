@@ -3,7 +3,7 @@ import LoginPage from '../components/pages/LoginPage';
 import AccountPage from '../components/pages/AccountPage';
 import ProgramBuilderPage from '../components/pages/ProgramBuilderPage';
 import MyWorkoutProgramsPage from '../components/pages/MyWorkoutProgramsPage';
-import MyWorkoutSessionsPage from '../components/pages/MyWorkoutSessionsPage';
+import HomePage from '../components/pages/HomePage';
 import NewSessionOverviewPage from '../components/pages/NewSessionOverviewPage';
 import NewSessionRoutineSelectPage from '../components/pages/NewSessionRoutineSelectPage';
 import SessionOverviewPage from '../components/pages/SessionOverviewPage';
@@ -61,7 +61,7 @@ const routes = [
     {
         name: 'HomePage',
         path: '/',
-        redirect: '/workout-sessions',
+        component: HomePage,
     },
     {
         name: 'PwaStart',
@@ -94,11 +94,6 @@ const routes = [
         name: 'MyWorkoutProgramsPage',
         path: '/workout-programs',
         component: MyWorkoutProgramsPage,
-    },
-    {
-        name: 'MyWorkoutSessionsPage',
-        path: '/workout-sessions',
-        component: MyWorkoutSessionsPage,
     },
     {
         name: 'NewSessionRoutineSelectPage',

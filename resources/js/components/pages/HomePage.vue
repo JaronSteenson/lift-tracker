@@ -2,7 +2,7 @@
     <div v-if="userIsAuthenticated">
         <NoProgramsWelcomeHint v-if="shouldShowNoProgramsWelcomeHint" />
         <NoSessionsHint v-else-if="shouldShowNoSessionsHint" />
-        <ListPage v-else sub-title="My workout sessions">
+        <ListPage v-else>
             <WorkoutSessionList />
             <template v-slot:fab>
                 <VBtn

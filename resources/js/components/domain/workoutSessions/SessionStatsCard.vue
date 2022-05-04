@@ -1,15 +1,31 @@
 <template>
     <VCard>
         <VCardTitle>
-            {{ workoutSession.name }}
+            <RouterLink
+                v-if="linkTitle"
+                :to="{
+                    name: 'SessionOverviewPage',
+                    params: { workoutSessionUuid: workoutSession.uuid },
+                }"
+            >
+                {{ workoutSession.name }}
+            </RouterLink>
+            <template v-else>{{ workoutSession.name }}</template>
         </VCardTitle>
+        <VCardSubtitle>
+            From
+            <ProgramName
+                :workoutProgram="
+                    workoutSession.workoutProgramRoutine.workoutProgram
+                "
+            />
+        </VCardSubtitle>
         <VCardText>
             <VRow>
                 <VCol
                     :key="index"
                     class="py-1"
-                    cols="12"
-                    sm="6"
+                    cols="6"
                     v-for="(stat, index) in stats"
                 >
                     <VIcon>{{ stat.icon }}</VIcon>
@@ -26,12 +42,20 @@ import {
     hoursMinutesSecondsFromStartEnd,
     timeDescription,
 } from '../../../dates';
+import ProgramName from '../../domain/programBuilder/ProgramName';
 
 export default {
+    components: {
+        ProgramName,
+    },
     props: {
         workoutSession: {
             type: Object,
             required: true,
+        },
+        linkTitle: {
+            type: Boolean,
+            required: false,
         },
     },
     computed: {

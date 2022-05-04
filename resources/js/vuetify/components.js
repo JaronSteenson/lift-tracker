@@ -11,6 +11,7 @@ export {
     VCardActions,
     VCardText,
     VCardTitle,
+    VCardSubtitle,
     VCol,
     VContainer,
     VDataTable,

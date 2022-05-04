@@ -1,7 +1,9 @@
 <template>
     <div>
         <VContainer class="list-page">
-            <VCardTitle class="page-sub-title">{{ subTitle }}</VCardTitle>
+            <VCardTitle v-if="subTitle" class="page-sub-title">
+                {{ subTitle }}
+            </VCardTitle>
             <slot />
             <slot name="fab" />
         </VContainer>

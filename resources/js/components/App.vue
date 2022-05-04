@@ -69,17 +69,6 @@
                 <VDivider
                     v-if="inProgressWorkouts && inProgressWorkouts.length > 0"
                 />
-
-                <VListItem link :to="{ name: 'MyWorkoutSessionsPage' }">
-                    <VListItemAction>
-                        <VIcon color="primary">
-                            {{ $svgIcons.workoutSession }}
-                        </VIcon>
-                    </VListItemAction>
-                    <VListItemContent>
-                        <VListItemTitle>My workout sessions</VListItemTitle>
-                    </VListItemContent>
-                </VListItem>
                 <VListItem
                     v-if="
                         !inProgressWorkouts || inProgressWorkouts.length === 0
@@ -94,9 +83,6 @@
                         <VListItemTitle>Start new session</VListItemTitle>
                     </VListItemContent>
                 </VListItem>
-
-                <VDivider />
-
                 <VListItem link :to="{ name: 'MyWorkoutProgramsPage' }">
                     <VListItemAction>
                         <VIcon color="primary">{{
@@ -183,23 +169,17 @@ export default {
                 return true;
             }
 
-            return this.$route.name === 'MyWorkoutSessionsPage';
+            return this.$route.name === 'HomePage';
         },
         appBarTitle() {
-            if (this.$vuetify.breakpoint.smAndUp) {
-                return this.appName;
-            }
-
-            return this.$route.name === 'MyWorkoutSessionsPage'
-                ? 'Home'
-                : this.appName;
+            return this.appName;
         },
         allowNavigationDrawer() {
             if (!this.userIsAuthenticated) {
                 return false;
             }
 
-            return this.$route.name === 'MyWorkoutSessionsPage';
+            return this.$route.name === 'HomePage';
         },
     },
     methods: {
@@ -322,9 +302,8 @@ export default {
 }
 
 // Flexbox gap helpers, mapping to vuetify padding/margin helpers.
-@for $i from 1 through 10 {
-    .gap-#{$i} {
-        gap: $i * 4px;
-    }
+$vuetify-gap-basis: 4px;
+.gap-4 {
+    gap: 4 * $vuetify-gap-basis;
 }
 </style>
