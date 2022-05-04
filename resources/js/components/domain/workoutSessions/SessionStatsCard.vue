@@ -66,7 +66,7 @@ export default {
                     value: dateDescription(this.workoutSession.startedAt),
                 },
                 {
-                    icon: this.$svgIcons.mdiClockOutline,
+                    icon: this.$svgIcons.duration,
                     value: hoursMinutesSecondsFromStartEnd(
                         this.workoutSession.startedAt,
                         this.workoutSession.endedAt

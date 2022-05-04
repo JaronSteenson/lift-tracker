@@ -53,6 +53,9 @@ const icons = {
 };
 
 icons.backNavigation = icons.mdiArrowLeft;
+icons.duration = icons.mdiClockOutline;
+icons.restPeriod = icons.mdiClock;
+icons.restPeriodStart = icons.mdiClockStart;
 icons.saveFailed = icons.mdiSyncProblem;
 icons.saveInProgress = icons.mdiCloudSync;
 icons.saveOk = icons.mdiCloudDone;

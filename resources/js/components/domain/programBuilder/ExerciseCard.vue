@@ -54,7 +54,7 @@
                             style="text-align: right"
                         >
                             <VIcon class="v-icon--small">{{
-                                $svgIcons.mdiClock
+                                $svgIcons.restPeriod
                             }}</VIcon>
                             {{ restPeriod }} rest
                         </VCol>

@@ -1,6 +1,6 @@
 import WorkoutSessionService from '../../api/WorkoutSessionService';
 import UuidHelper from '../../UuidHelper';
-import { dateDescription, utcNow } from '../../dates';
+import { utcNow } from '../../dates';
 import { memoizeDebounceAction } from '../../util';
 import { differenceInSeconds, isAfter } from 'date-fns';
 import {

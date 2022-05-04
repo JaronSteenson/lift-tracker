@@ -367,7 +367,7 @@
                         color="primary"
                         x-large
                     >
-                        <VIcon left>{{ $svgIcons.mdiClockStart }}</VIcon>
+                        <VIcon left>{{ $svgIcons.restPeriodStart }}</VIcon>
                         Start rest period
                     </VBtn>
                 </VCardActions>

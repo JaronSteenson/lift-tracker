@@ -7,7 +7,7 @@
             :max="5 * 60"
             :min="0"
             :prepend-icon="
-                $vuetify.breakpoint.smAndUp ? $svgIcons.mdiClock : null
+                $vuetify.breakpoint.smAndUp ? $svgIcons.restPeriod : null
             "
             :value="value"
             @input="$emit('input', $event)"
