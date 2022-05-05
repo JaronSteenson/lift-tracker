@@ -1,6 +1,11 @@
 <template>
-    <div class="narrow-content-container">
-        <div class="narrow-content-container__content">
+    <div class="narrow-content-container mx-2 my-4">
+        <div
+            class="narrow-content-container__content gap-4"
+            :style="{
+                'min-width': $vuetify.breakpoint.mdAndUp ? '600px' : undefined,
+            }"
+        >
             <slot />
         </div>
     </div>
@@ -10,10 +15,12 @@
 .narrow-content-container {
     display: flex;
     justify-content: center;
-    margin: 20px 10px 30px;
+    align-items: center;
 
     &__content {
-        width: 700px;
+        display: flex;
+        flex-direction: column;
+        max-width: 700px;
     }
 }
 </style>

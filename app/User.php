@@ -73,7 +73,7 @@ class User extends AbstractModel implements AuthenticatableContract
             ->with('workoutProgramRoutine.workoutProgram')
             ->without('sessionExercises', 'sessionExercises.sessionSets')
             ->orderBy('createdAt', 'desc')
-            ->simplePaginate(null, ['*'], 'page', $page)
+            ->simplePaginate(50, ['*'], 'page', $page)
             ->items();
     }
 

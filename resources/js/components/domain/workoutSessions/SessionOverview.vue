@@ -42,7 +42,6 @@
             <SessionStatsCard :workout-session="workoutSession" />
 
             <ExerciseSummaryCard
-                class="mt-5"
                 v-for="sessionExercise in sessionExercises"
                 :exercise="sessionExercise"
                 :key="sessionExercise.uuid"

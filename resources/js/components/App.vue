@@ -303,6 +303,9 @@ export default {
 
 // Flexbox gap helpers, mapping to vuetify padding/margin helpers.
 $vuetify-gap-basis: 4px;
+.gap-1 {
+    gap: 1 * $vuetify-gap-basis;
+}
 .gap-4 {
     gap: 4 * $vuetify-gap-basis;
 }

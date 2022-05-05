@@ -63,9 +63,9 @@
                     </template>
                 </VTextField>
             </VCardTitle>
-            <EditableTitle @click="editTitle" v-else>{{
-                nameDisplay
-            }}</EditableTitle>
+            <EditableTitle @click="editTitle" v-else>
+                {{ nameDisplay }}
+            </EditableTitle>
 
             <v-menu bottom left v-if="!isAddingNew && !isEditingTitle">
                 <template v-slot:activator="{ on }">
@@ -84,9 +84,9 @@
 
         <template v-if="isSessionOverview">
             <VCardText v-if="hasNoExercises">
-                <MissingValue class="d-flex justify-center"
-                    >No exercises</MissingValue
-                >
+                <MissingValue class="d-flex justify-center">
+                    No exercises
+                </MissingValue>
             </VCardText>
         </template>
 
@@ -112,32 +112,30 @@
                 </Draggable>
             </component>
         </component>
-        <div
+        <component
+            :is="$vuetify.breakpoint.xsOnly ? 'div' : 'VCardActions'"
             v-if="isSessionOverview"
             class="mx-3 mt-3"
-            :class="{
-                'd-flex justify-space-between': $vuetify.breakpoint.smAndUp,
-            }"
         >
             <VBtn
                 @click="addExercise"
-                :width="$vuetify.breakpoint.xsOnly ? '100%' : '40%'"
+                :width="$vuetify.breakpoint.xsOnly ? '100%' : '50%'"
             >
-                <VIcon left>{{ $svgIcons.mdiPlus }}</VIcon>
+                <VIcon>{{ $svgIcons.mdiPlus }}</VIcon>
                 Add exercise
             </VBtn>
             <VBtn
                 v-if="isSessionOverview"
                 :class="{ 'mt-5': $vuetify.breakpoint.xsOnly }"
-                :width="$vuetify.breakpoint.xsOnly ? '100%' : '40%'"
+                :width="$vuetify.breakpoint.xsOnly ? '100%' : '50%'"
                 color="success"
                 :loading="starting"
                 @click="startWorkout"
             >
-                <VIcon left>{{ $svgIcons.mdiPlay }}</VIcon>
+                <VIcon>{{ $svgIcons.mdiPlay }}</VIcon>
                 Start workout
             </VBtn>
-        </div>
+        </component>
         <VCardActions v-else class="justify-center" width="100%">
             <VBtn @click="addExercise" width="100%">
                 <VIcon left>{{ $svgIcons.mdiPlus }}</VIcon>

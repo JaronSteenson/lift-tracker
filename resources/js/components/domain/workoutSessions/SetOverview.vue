@@ -85,7 +85,7 @@
             >
                 <div class="d-flex justify-space-between align-center">
                     <template v-if="isOpenForEdits">
-                        <span>
+                        <span class="px-2">
                             Your are making retrospective edits to a workout.
                         </span>
                         <VBtn
@@ -97,7 +97,9 @@
                         </VBtn>
                     </template>
                     <template v-else>
-                        <span> You are viewing a finished workout. </span>
+                        <span class="px-2">
+                            You are viewing a finished workout.
+                        </span>
                         <VBtn
                             @click="isOpenForEdits = true"
                             color="primary"

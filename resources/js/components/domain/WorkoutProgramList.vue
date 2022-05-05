@@ -1,11 +1,7 @@
 <template>
-    <div>
-        <VCard v-if="myWorkoutPrograms.length === 0">
-            To get started build a program.
-        </VCard>
+    <VContainer>
         <!-- eslint-disable vue/valid-v-slot -->
         <VDataTable
-            v-else
             :headers="headers"
             :items="myWorkoutPrograms"
             :items-per-page="myWorkoutPrograms.length"
@@ -47,7 +43,7 @@
         </VDataTable>
         <!-- eslint-enable -->
         <NewSessionModal :program-uuid.sync="newSessionModalProgramUuid" />
-    </div>
+    </VContainer>
 </template>
 
 <script>

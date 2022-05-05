@@ -1,6 +1,6 @@
 <template>
     <VCard>
-        <VCardTitle class="pb-0">
+        <VCardTitle>
             <RouterLink
                 :to="{
                     name: 'SetOverviewPage',
@@ -13,13 +13,12 @@
         <VCardText>
             <VRow>
                 <VCol
-                    class="py-1"
-                    cols="12"
-                    sm="6"
+                    class="py-0"
+                    cols="6"
                     :key="index"
                     v-for="(weightGroup, index) in weightGroups"
                 >
-                    <VIcon class="v-icon--small">
+                    <VIcon small>
                         {{ $svgIcons.mdiDumbbell }}
                     </VIcon>
                     {{ weightGroup.weight }}:
@@ -39,30 +38,30 @@
                         </template>
                     </template>
                 </VCol>
-                <VCol class="py-1" cols="12" sm="6">
-                    <VIcon class="v-icon--small">
+                <VCol class="py-0" cols="6">
+                    <VIcon small>
                         {{ $svgIcons.duration }}
                     </VIcon>
                     {{ totalDuration }}
                 </VCol>
-                <VCol class="py-1" cols="12" sm="6">
-                    <VIcon class="v-icon--small">
-                        {{ $svgIcons.mdiChartLineVariant }}
-                    </VIcon>
-                    <a @click.prevent="openStatsModal" href="#">Overview</a>
-                    <SessionExerciseStatsModal
-                        :session-exercises="[exercise]"
-                        v-model="showStatsModal"
-                    />
-                </VCol>
-                <VCol class="py-1" cols="12" sm="6">
-                    <VIcon class="v-icon--small">
+                <VCol class="py-0" cols="6">
+                    <VIcon small>
                         {{ $svgIcons.restPeriod }}
                     </VIcon>
                     {{ averageRestPeriod }}
                 </VCol>
+                <VCol class="py-0" cols="6">
+                    <VIcon small>
+                        {{ $svgIcons.mdiChartLineVariant }}
+                    </VIcon>
+                    <a @click.prevent="openStatsModal" href="#">Overview</a>
+                </VCol>
             </VRow>
         </VCardText>
+        <SessionExerciseStatsModal
+            :session-exercises="[exercise]"
+            v-model="showStatsModal"
+        />
     </VCard>
 </template>
 
@@ -143,7 +142,10 @@ export default {
             const startedAt = this.firstSet.startedAt;
             const endedAt = this.lastSet.endedAt;
 
-            return hoursMinutesSecondsFromStartEnd(startedAt, endedAt);
+            return `${hoursMinutesSecondsFromStartEnd(
+                startedAt,
+                endedAt
+            )} total duration`;
         },
         averageRestPeriod() {
             const setsWithoutLast = [...this.exercise.sessionSets];

@@ -1,29 +1,24 @@
 <template>
     <div>
         <VSkeletonLoader v-if="loading" class="ma-5" type="card@10" />
-        <VSheet v-else>
-            <VRow>
-                <VCol
-                    v-for="(routine, index) in routines"
-                    :key="index"
-                    cols="12"
-                    lg="3"
-                    md="4"
-                    sm="6"
-                >
-                    <RoutineCard :routine="routine" />
-                </VCol>
-            </VRow>
-        </VSheet>
+        <NarrowContentContainer v-else>
+            <RoutineCard
+                v-for="routine in routines"
+                :key="routine.uuid"
+                :routine="routine"
+            />
+        </NarrowContentContainer>
     </div>
 </template>
 
 <script>
 import RoutineCard from './RoutineCard';
 import WorkoutRoutineService from '../../api/WorkoutRoutineService';
+import NarrowContentContainer from '../layouts/NarrowContentContainer';
 
 export default {
     components: {
+        NarrowContentContainer,
         RoutineCard,
     },
     created() {

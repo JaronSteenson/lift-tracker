@@ -1,8 +1,17 @@
 <template>
-    <div>
+    <VContainer v-if="showTable">
+        <VToolbar dense>
+            <VToolbarTitle> My sessions </VToolbarTitle>
+            <VSpacer />
+            <VSwitch
+                class="mt-4 pt-1"
+                v-model="showTable"
+                @change="setHomePageShowTable"
+                :append-icon="$svgIcons.mdiTable"
+            />
+        </VToolbar>
         <!-- eslint-disable vue/valid-v-slot -->
         <VDataTable
-            v-if="$vuetify.breakpoint.lgAndUp"
             :headers="headers"
             :items="myWorkoutSessions"
             :items-per-page="myWorkoutSessions.length"
@@ -37,7 +46,9 @@
                         <VListItem
                             :to="{
                                 name: 'SessionOverviewPage',
-                                params: { workoutSessionUuid: session.uuid },
+                                params: {
+                                    workoutSessionUuid: session.uuid,
+                                },
                             }"
                         >
                             <VListItemTitle>View overview</VListItemTitle>
@@ -64,29 +75,26 @@
             </template>
         </VDataTable>
         <!-- eslint-enable -->
-        <NarrowContentContainer v-else>
-            <div class="d-flex flex-column gap-4">
-                <SessionStatsCard
-                    v-for="workoutSession in myWorkoutSessions"
-                    :key="workoutSession.uuid"
-                    :workout-session="workoutSession"
-                    link-title
-                />
-            </div>
-        </NarrowContentContainer>
+    </VContainer>
 
-        <div class="text-center mt-5">
-            <VBtn
-                v-if="!myMyWorkoutSessionsPagesAllLoaded"
-                depressed
-                small
-                :loading="loadingNextPage"
-                @click="loadNextPage"
-            >
-                Load more
-            </VBtn>
-        </div>
-    </div>
+    <NarrowContentContainer class="d-flex flex-column gap-4" v-else>
+        <VToolbar dense>
+            <VToolbarTitle> My sessions </VToolbarTitle>
+            <VSpacer />
+            <VSwitch
+                class="mt-4 pt-1"
+                v-model="showTable"
+                @change="setHomePageShowTable"
+                :append-icon="$svgIcons.mdiTable"
+            />
+        </VToolbar>
+        <SessionStatsCard
+            v-for="workoutSession in myWorkoutSessions"
+            :key="workoutSession.uuid"
+            :workout-session="workoutSession"
+            link-title
+        />
+    </NarrowContentContainer>
 </template>
 
 <script>
@@ -104,9 +112,17 @@ export default {
     },
     data() {
         return {
+            showTable: localStorage.getItem('homePageShowTable') === 'true',
             loadingNextPage: false,
             newSessionModalProgramUuid: null,
         };
+    },
+    mounted() {
+        this.infiniteScroll();
+        window.addEventListener('scroll', this.infiniteScroll);
+    },
+    destroyed() {
+        window.removeEventListener('scroll', this.infiniteScroll);
     },
     computed: {
         ...mapState('workoutSession', ['myMyWorkoutSessionsPagesAllLoaded']),
@@ -144,6 +160,20 @@ export default {
         },
     },
     methods: {
+        setHomePageShowTable(value) {
+            localStorage.setItem(
+                'homePageShowTable',
+                Boolean(value).toString()
+            );
+        },
+        infiniteScroll() {
+            const atBottom =
+                document.documentElement.scrollTop + window.innerHeight ===
+                document.documentElement.offsetHeight;
+            if (atBottom) {
+                this.loadNextPage();
+            }
+        },
         async loadNextPage() {
             this.loadingNextPage = true;
             await this.$store.dispatch('workoutSession/fetchNextPage');

@@ -1,5 +1,5 @@
 <template>
-    <div v-if="userIsAuthenticated">
+    <div>
         <PageToolbar
             title="Start new session"
             :back-to="{ name: 'HomePage' }"
@@ -8,14 +8,11 @@
         <NoProgramsStartNewSessionHint
             v-else-if="shouldShowNoProgramsHintStartNewSession"
         />
-        <ListPage v-else sub-title="Choose a routine to start">
-            <StartRoutineSelectionList />
-        </ListPage>
+        <StartRoutineSelectionList />
     </div>
 </template>
 
 <script>
-import ListPage from '../layouts/ListPage';
 import StartRoutineSelectionList from '../domain/StartRoutineSelectionList';
 import NoProgramsStartNewSessionHint from '../domain/userHints/NoProgramsStartNewSessionHint';
 import { mapGetters } from 'vuex';
@@ -28,11 +25,9 @@ export default {
         NoProgramsWelcomeHint,
         StartRoutineSelectionList,
         NoProgramsStartNewSessionHint,
-        ListPage,
     },
     computed: {
         ...mapGetters('app', [
-            'userIsAuthenticated',
             'shouldShowNoProgramsWelcomeHint',
             'shouldShowNoProgramsHintStartNewSession',
         ]),

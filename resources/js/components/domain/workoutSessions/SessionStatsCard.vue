@@ -21,31 +21,35 @@
             />
         </VCardSubtitle>
         <VCardText>
-            <VRow>
-                <VCol
-                    :key="index"
-                    class="py-1"
-                    cols="6"
-                    v-for="(stat, index) in stats"
-                >
-                    <VIcon>{{ stat.icon }}</VIcon>
-                    <span>{{ stat.value }}</span>
-                </VCol>
-            </VRow>
+            <SessionStats :workoutSession="workoutSession" />
         </VCardText>
+        <VCardActions>
+            <VBtn
+                small
+                :to="{
+                    name: 'NewSessionOverviewPage',
+                    params: {
+                        originRoutineUuid:
+                            workoutSession.workoutProgramRoutine.uuid,
+                    },
+                }"
+            >
+                Repeat
+                <VIcon small color="green">
+                    {{ $svgIcons.repeat }}
+                </VIcon>
+            </VBtn>
+        </VCardActions>
     </VCard>
 </template>
 
 <script>
-import {
-    dateDescription,
-    hoursMinutesSecondsFromStartEnd,
-    timeDescription,
-} from '../../../dates';
 import ProgramName from '../../domain/programBuilder/ProgramName';
+import SessionStats from './SessionStats';
 
 export default {
     components: {
+        SessionStats,
         ProgramName,
     },
     props: {
@@ -56,31 +60,6 @@ export default {
         linkTitle: {
             type: Boolean,
             required: false,
-        },
-    },
-    computed: {
-        stats() {
-            return [
-                {
-                    icon: this.$svgIcons.sessionDate,
-                    value: dateDescription(this.workoutSession.startedAt),
-                },
-                {
-                    icon: this.$svgIcons.duration,
-                    value: hoursMinutesSecondsFromStartEnd(
-                        this.workoutSession.startedAt,
-                        this.workoutSession.endedAt
-                    ),
-                },
-                {
-                    icon: this.$svgIcons.mdiPlay,
-                    value: timeDescription(this.workoutSession.startedAt, true),
-                },
-                {
-                    icon: this.$svgIcons.mdiStop,
-                    value: timeDescription(this.workoutSession.endedAt, true),
-                },
-            ];
         },
     },
 };

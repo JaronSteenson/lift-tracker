@@ -2,29 +2,35 @@
     <NarrowContentContainer>
         <PageToolbar title="My account" :back-to="{ name: 'HomePage' }" />
 
-        <h2>Change theme</h2>
-        <p>Note: Themes are saved per device, rather than per account.</p>
-        <ThemePicker class="mt-10" />
+        <VCard>
+            <VCardTitle>Change theme</VCardTitle>
+            <VCardText>
+                Note: Themes are saved per device, rather than per account.
+                <ThemePicker class="mt-2" />
+            </VCardText>
+        </VCard>
 
-        <hr class="mt-10" />
+        <VCard>
+            <VCardTitle>Privacy policy</VCardTitle>
+            <VCardText>
+                <a href="/privacy-policy">Read online</a>
+            </VCardText>
+        </VCard>
 
-        <h2 class="mt-10">Privacy policy</h2>
-        <p>
-            <a href="/privacy-policy">Read online</a>
-        </p>
-
-        <hr class="mt-10" />
-
-        <h2 class="mt-10">Permanently delete my account</h2>
-        <p>
-            This will permanently delete all data associated with your account,
-            and is not reversible.
-        </p>
-        <p>
-            You will be prompted to login to Facebook again, doing so confirms
-            the deletion of your account.
-        </p>
-        <FacebookLoginDeleteAccountButton />
+        <VCard>
+            <VCardTitle>Permanently delete my account</VCardTitle>
+            <VCardText>
+                <p>
+                    This will permanently delete all data associated with your
+                    account, and is not reversible.
+                </p>
+                <p>
+                    You will be prompted to login to Facebook again, doing so
+                    confirms the deletion of your account.
+                </p>
+                <FacebookLoginDeleteAccountButton />
+            </VCardText>
+        </VCard>
     </NarrowContentContainer>
 </template>
 

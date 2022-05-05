@@ -47,6 +47,7 @@ export {
     VStepperHeader,
     VStepperStep,
     VSubheader,
+    VSwitch,
     VTextField,
     VTextarea,
     VToolbar,

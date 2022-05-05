@@ -1,29 +1,31 @@
 <template>
-    <VCard class="routine-card">
-        <VCardTitle>{{ routine.name }}</VCardTitle>
+    <VCard>
+        <VCardTitle>
+            <RouterLink
+                v-if="routine.latestSession"
+                :to="{
+                    name: 'SessionOverviewPage',
+                    params: { workoutSessionUuid: routine.latestSession.uuid },
+                }"
+            >
+                {{ routine.name }}
+            </RouterLink>
+            <template v-else>{{ routine.name }}</template>
+        </VCardTitle>
+        <VCardSubtitle>
+            From
+            <ProgramName :workoutProgram="routine.workoutProgram" />
+        </VCardSubtitle>
         <VCardText>
-            <div>
-                <VIcon color="primary">{{ $svgIcons.sessionDate }}</VIcon>
-                <RouterLink
-                    v-if="routine.latestSession"
-                    :to="{
-                        name: 'SessionOverviewPage',
-                        params: {
-                            workoutSessionUuid: routine.latestSession.uuid,
-                        },
-                    }"
-                >
-                    {{ dateDescription(routine.latestSession.startedAt) }}
-                </RouterLink>
-                <MissingValue v-else>Not used yet</MissingValue>
-            </div>
-            <div class="mt-2">
-                <VIcon color="primary">{{ $svgIcons.workoutProgram }}</VIcon>
-                <ProgramName :workoutProgram="routine.workoutProgram" />
-            </div>
+            <SessionStats
+                v-if="routine.latestSession"
+                :workoutSession="routine.latestSession"
+            />
+            <MissingValue v-else>Routine not used yet</MissingValue>
         </VCardText>
-        <div class="d-flex">
+        <VCardActions>
             <VBtn
+                small
                 width="50%"
                 :to="{
                     name: 'NewSessionOverviewPage',
@@ -31,12 +33,15 @@
                 }"
             >
                 Prepare
-                <VIcon color="primary">{{ $svgIcons.workoutProgram }}</VIcon>
+                <VIcon small color="primary">
+                    {{ $svgIcons.workoutProgram }}
+                </VIcon>
             </VBtn>
-            <VBtn width="50%" :loading="starting" @click="startNow">
-                Start now <VIcon color="green">{{ $svgIcons.mdiPlay }}</VIcon>
+            <VBtn small width="50%" :loading="starting" @click="startNow">
+                Start now
+                <VIcon small color="green">{{ $svgIcons.mdiPlay }}</VIcon>
             </VBtn>
-        </div>
+        </VCardActions>
     </VCard>
 </template>
 
@@ -44,11 +49,13 @@
 import { dateDescription } from '../../dates';
 import MissingValue from '../util/MissingValue';
 import ProgramName from '../domain/programBuilder/ProgramName';
+import SessionStats from './workoutSessions/SessionStats';
 
 export default {
     components: {
         MissingValue,
         ProgramName,
+        SessionStats,
     },
     props: {
         routine: {
