@@ -142,6 +142,10 @@ export default {
             const startedAt = this.firstSet.startedAt;
             const endedAt = this.lastSet.endedAt;
 
+            if (!startedAt) {
+                return 'Not started';
+            }
+
             return `${hoursMinutesSecondsFromStartEnd(
                 startedAt,
                 endedAt

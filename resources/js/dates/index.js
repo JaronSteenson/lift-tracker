@@ -127,7 +127,7 @@ export function dateTimeDescription(utcDate, noRecent) {
 
 export function timeDescription(utcDate, noRecent) {
     if (utcDate === null) {
-        return 'unfinished';
+        return 'Unfinished';
     }
 
     const recent = noRecent ? null : recentDescription(utcDate);

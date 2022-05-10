@@ -82,9 +82,9 @@ describe('dates', () => {
     describe('Time description', () => {
         each([
             ['2019-01-01 12:00:00', true, '12:00 PM'],
-            [null, true, 'unfinished'],
+            [null, true, 'Unfinished'],
             ['2019-01-01 12:00:00', false, '12:00 PM'],
-            [null, false, 'unfinished'],
+            [null, false, 'Unfinished'],
             [thirty5MinsAgo, false, '35 minutes ago'],
         ]).test(
             'It should return the time description for "%s", noRecent flag: "%s"',
