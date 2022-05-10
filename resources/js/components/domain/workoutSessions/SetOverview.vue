@@ -47,7 +47,7 @@
             </template>
         </PageToolbar>
 
-        <NarrowContentContainer>
+        <NarrowContentContainer use-full-width>
             <VAlert
                 dense
                 text
@@ -157,7 +157,7 @@
                 </VStepperHeader>
             </VStepper>
 
-            <VCardText>
+            <VCardText class="px-0">
                 <VContainer class="py-0">
                     <VRow>
                         <VCol class="pt-0" cols="6" md="6" sm="6">
