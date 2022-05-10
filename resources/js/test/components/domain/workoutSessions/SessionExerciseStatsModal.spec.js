@@ -43,14 +43,19 @@ const multipleSetExercise = {
     sessionSets: [set, set, set],
 };
 
+const mocks = {
+    $route: { query: { 'stats-open': true } },
+};
+
 describe('SessionExerciseStatsModal.vue', () => {
     test('should render correctly in single set mode', () => {
         const wrapper = shallowMount(SessionExerciseStatsModal, {
             propsData: {
-                value: true,
+                urlSearchParam: 'stats-open',
                 sessionExercises: [singleSetExercise],
             },
             ...mountOptions,
+            mocks: { ...mountOptions.mocks, ...mocks },
         });
 
         expect(wrapper.text()).toContain('No notes');
@@ -69,10 +74,11 @@ describe('SessionExerciseStatsModal.vue', () => {
     test('should render correctly in single rest/double set mode', () => {
         const wrapper = shallowMount(SessionExerciseStatsModal, {
             propsData: {
-                value: true,
+                urlSearchParam: 'stats-open',
                 sessionExercises: [doubleSetExercise],
             },
             ...mountOptions,
+            mocks: { ...mountOptions.mocks, ...mocks },
         });
 
         expect(wrapper.text()).toContain('No notes');
@@ -92,10 +98,11 @@ describe('SessionExerciseStatsModal.vue', () => {
     test('should render correctly in multiple set mode', () => {
         const wrapper = shallowMount(SessionExerciseStatsModal, {
             propsData: {
-                value: true,
+                urlSearchParam: 'stats-open',
                 sessionExercises: [multipleSetExercise],
             },
             ...mountOptions,
+            mocks: { ...mountOptions.mocks, ...mocks },
         });
 
         expect(wrapper.text()).toContain('No notes');
@@ -112,10 +119,11 @@ describe('SessionExerciseStatsModal.vue', () => {
     test('should render correctly with notes', () => {
         const wrapper = shallowMount(SessionExerciseStatsModal, {
             propsData: {
-                value: true,
+                urlSearchParam: 'stats-open',
                 sessionExercises: [singleSetExerciseWithNotes],
             },
             ...mountOptions,
+            mocks: { ...mountOptions.mocks, ...mocks },
         });
 
         expect(wrapper.text()).toContain('Notes');
@@ -125,10 +133,11 @@ describe('SessionExerciseStatsModal.vue', () => {
     test('should not render navigation when there is only a single exercise', () => {
         const wrapper = shallowMount(SessionExerciseStatsModal, {
             propsData: {
-                value: true,
+                urlSearchParam: 'stats-open',
                 sessionExercises: [singleSetExercise],
             },
             ...mountOptions,
+            mocks: { ...mountOptions.mocks, ...mocks },
         });
 
         const backForwardToolbar = wrapper.findComponent(BackForwardToolbar);
@@ -138,13 +147,14 @@ describe('SessionExerciseStatsModal.vue', () => {
     test('should have exercise navigation when there is multiple exercises', async () => {
         const wrapper = shallowMount(SessionExerciseStatsModal, {
             propsData: {
-                value: true,
+                urlSearchParam: 'stats-open',
                 sessionExercises: [
                     singleSetExerciseWithNotes, // DB rows.
                     otherSingleSetExerciseWithNotes, // BB bench.
                 ],
             },
             ...mountOptions,
+            mocks: { ...mountOptions.mocks, ...mocks },
         });
 
         const backForwardToolbar = wrapper.findComponent(BackForwardToolbar);

@@ -2,7 +2,7 @@
     <VDialog
         :fullscreen="$vuetify.breakpoint.xsOnly"
         :max-width="$vuetify.breakpoint.xsOnly ? null : '400px'"
-        :value="value"
+        :value="$route.query[urlSearchParam]"
         hide-overlay
         transition="dialog-bottom-transition"
         @input="updateDialogValue"
@@ -110,12 +110,12 @@ import MissingValue from '../../util/MissingValue';
 export default {
     components: { MissingValue, BackForwardToolbar },
     props: {
-        sessionExercises: {
-            type: Array,
+        urlSearchParam: {
+            type: String,
             required: true,
         },
-        value: {
-            type: Boolean,
+        sessionExercises: {
+            type: Array,
             required: true,
         },
         startIndex: {
@@ -265,7 +265,14 @@ export default {
             }
         },
         close() {
-            this.$emit('input', false);
+            const newLocation = {
+                ...this.$route,
+                ...{
+                    query: { [this.urlSearchParam]: undefined },
+                },
+            };
+
+            this.$router.push(newLocation);
         },
     },
 };

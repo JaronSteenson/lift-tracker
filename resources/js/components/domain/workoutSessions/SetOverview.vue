@@ -56,9 +56,9 @@
             >
                 <div class="d-flex justify-space-between align-center">
                     <span v-if="isLookingBack">This is a previous set.</span>
-                    <span v-else-if="isLookingAhead"
-                        >This is an upcoming set.</span
-                    >
+                    <span v-else-if="isLookingAhead">
+                        This is an upcoming set.
+                    </span>
                     <VBtn
                         class="ml-5"
                         small
@@ -211,16 +211,19 @@
                                 <template
                                     v-if="exercisePreviousEntries.length > 0"
                                 >
-                                    <a
-                                        @click="openPreviousEntryOverviews"
-                                        href="#"
+                                    <RouterLink
+                                        :to="{
+                                            $route,
+                                            ...{
+                                                query: { 'stats-open': true },
+                                            },
+                                        }"
                                     >
                                         Previous entry overviews
-                                    </a>
+                                    </RouterLink>
 
                                     <SessionExerciseStatsModal
-                                        v-if="showPreviousEntryOverviews"
-                                        v-model="showPreviousEntryOverviews"
+                                        url-search-param="stats-open"
                                         :session-exercises="[
                                             ...exercisePreviousEntries,
                                             exercise,
@@ -410,7 +413,6 @@ export default {
     data() {
         return {
             hasLoadedExercisePreviousEntries: false,
-            showPreviousEntryOverviews: false,
             isChangingSet: false,
             isEndingWorkout: false,
         };
@@ -748,9 +750,6 @@ export default {
                 await this.fetchExercisePreviousEntries();
                 this.hasLoadedExercisePreviousEntries = true;
             }
-        },
-        openPreviousEntryOverviews() {
-            this.showPreviousEntryOverviews = true;
         },
     },
     watch: {

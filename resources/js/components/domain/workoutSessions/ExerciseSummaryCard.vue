@@ -54,11 +54,16 @@
                     <VIcon small>
                         {{ $svgIcons.mdiChartLineVariant }}
                     </VIcon>
-                    <a @click.prevent="openStatsModal" href="#">Overview</a>
+                    <RouterLink
+                        :to="{ $route, ...{ query: { 'stats-open': true } } }"
+                    >
+                        Overview
+                    </RouterLink>
                 </VCol>
             </VRow>
         </VCardText>
         <SessionExerciseStatsModal
+            url-search-param="stats-open"
             :session-exercises="[exercise]"
             v-model="showStatsModal"
         />
@@ -81,11 +86,6 @@ export default {
             type: Object,
             required: true,
         },
-    },
-    data() {
-        return {
-            showStatsModal: false,
-        };
     },
     computed: {
         firstSet() {
@@ -169,11 +169,6 @@ export default {
             }
 
             return `${minsSecDuration(average)} rest on average`;
-        },
-    },
-    methods: {
-        openStatsModal() {
-            this.showStatsModal = true;
         },
     },
 };
