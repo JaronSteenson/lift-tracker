@@ -65,7 +65,6 @@
         <SessionExerciseStatsModal
             url-search-param="stats-open"
             :session-exercises="[exercise]"
-            v-model="showStatsModal"
         />
     </VCard>
 </template>

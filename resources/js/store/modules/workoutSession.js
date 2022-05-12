@@ -28,7 +28,7 @@ function defaultState() {
         myMyWorkoutSessionsPagesLoaded: 0,
         myMyWorkoutSessionsPagesAllLoaded: false,
         exercisesPreviousEntries: {}, // Previous entries of exercises keyed by exercise uuid.
-        inProgressWorkouts: null, // An array of workouts.
+        inProgressWorkouts: [], // An array of workouts.
         restPeriodTimout: null,
         /**
          * A map of workout session ids to boolean, indicating if a session is open for retrospective editing.

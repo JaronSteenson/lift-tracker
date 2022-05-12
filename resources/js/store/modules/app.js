@@ -23,6 +23,7 @@ const state = {
      * @type Boolean
      */
     showSessionExpiredModal: false,
+    navigationDrawerOpen: false,
 };
 
 const getters = {
@@ -94,6 +95,11 @@ const getters = {
 };
 
 const actions = {
+    setNavigationDrawerOpen({ commit }, value) {
+        commit('reset', {
+            navigationDrawerOpen: value,
+        });
+    },
     directlyLoadAppBoostrap({ commit, getters }, data) {
         const isAuthed = data.app.authenticatedUser !== null;
 

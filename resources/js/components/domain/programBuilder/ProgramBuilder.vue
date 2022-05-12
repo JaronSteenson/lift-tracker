@@ -115,7 +115,7 @@ import Draggable from 'vuedraggable';
 import EditableTitle from '../../formFields/EditableTitle';
 import ProgramBuilderLoadingSkeleton from './ProgramBuilderLoadingSkeleton';
 import ServerSyncInfo from '../../ServerSyncInfo';
-import PageToolbar from '../../layouts/PageAppBar';
+import PageToolbar from '../../AppBar';
 
 export default {
     components: {

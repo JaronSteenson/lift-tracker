@@ -12,7 +12,7 @@
 
 <script>
 import NewSessionOverview from '../domain/workoutSessions/NewSessionOverview';
-import PageToolbar from '../layouts/PageAppBar';
+import PageToolbar from '../AppBar';
 import { mapGetters } from 'vuex';
 
 export default {

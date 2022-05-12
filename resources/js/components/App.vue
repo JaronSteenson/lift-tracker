@@ -1,127 +1,6 @@
 <template>
     <VApp :class="{ 'prevent-text-select': preventTextSelect }">
-        <VNavigationDrawer
-            v-if="allowNavigationDrawer"
-            v-model="drawer"
-            app
-            :clipped="$vuetify.breakpoint.lgAndUp"
-        >
-            <VList dense>
-                <div :key="workout.uuid" v-for="workout in inProgressWorkouts">
-                    <VListItem
-                        :key="workout.uuid"
-                        link
-                        :to="{
-                            name: 'SessionOverviewPage',
-                            params: { workoutSessionUuid: workout.uuid },
-                        }"
-                    >
-                        <VListItemAction>
-                            <VIcon color="success">
-                                {{ $svgIcons.workoutSessionnInProgress }}
-                            </VIcon>
-                        </VListItemAction>
-                        <VListItemContent>
-                            <VListItemTitle
-                                v-if="workoutIsInFocus(workout.uuid)"
-                                >In progress workout</VListItemTitle
-                            >
-                            <VListItemTitle v-else
-                                >Resume workout</VListItemTitle
-                            >
-                            <VListItemSubtitle>{{
-                                workout.name
-                            }}</VListItemSubtitle>
-                        </VListItemContent>
-                    </VListItem>
-
-                    <VListItem
-                        :key="getCurrentSet(workout.uuid).uuid"
-                        link
-                        :to="{
-                            name: 'SetOverviewPage',
-                            params: {
-                                sessionSetUuid: getCurrentSet(workout.uuid)
-                                    .uuid,
-                            },
-                        }"
-                    >
-                        <VListItemAction>
-                            <VIcon color="success">
-                                {{ $svgIcons.mdiPlay }}
-                            </VIcon>
-                        </VListItemAction>
-                        <VListItemContent>
-                            <VListItemTitle
-                                v-if="setIsInFocus(getCurrentSet(workout.uuid))"
-                                >In progress set</VListItemTitle
-                            >
-                            <VListItemTitle v-else>Resume set</VListItemTitle>
-                            <VListItemSubtitle>
-                                {{ getCurrentSet(workout.uuid).exercise.name }}
-                                - set
-                                {{ getCurrentSet(workout.uuid).position + 1 }}
-                            </VListItemSubtitle>
-                        </VListItemContent>
-                    </VListItem>
-                </div>
-
-                <VDivider
-                    v-if="inProgressWorkouts && inProgressWorkouts.length > 0"
-                />
-                <VListItem
-                    v-if="
-                        !inProgressWorkouts || inProgressWorkouts.length === 0
-                    "
-                    link
-                    :to="{ name: 'NewSessionRoutineSelectPage' }"
-                >
-                    <VListItemAction>
-                        <VIcon color="primary">{{ $svgIcons.mdiPlay }}</VIcon>
-                    </VListItemAction>
-                    <VListItemContent>
-                        <VListItemTitle>Start new session</VListItemTitle>
-                    </VListItemContent>
-                </VListItem>
-                <VListItem link :to="{ name: 'MyWorkoutProgramsPage' }">
-                    <VListItemAction>
-                        <VIcon color="primary">{{
-                            $svgIcons.workoutProgram
-                        }}</VIcon>
-                    </VListItemAction>
-                    <VListItemContent>
-                        <VListItemTitle>My workout programs</VListItemTitle>
-                    </VListItemContent>
-                </VListItem>
-                <VListItem link :to="{ name: 'ProgramBuilderPageNew' }">
-                    <VListItemAction>
-                        <VIcon color="primary">{{ $svgIcons.mdiPlus }}</VIcon>
-                    </VListItemAction>
-                    <VListItemContent>
-                        <VListItemTitle
-                            >Build new workout program</VListItemTitle
-                        >
-                    </VListItemContent>
-                </VListItem>
-            </VList>
-        </VNavigationDrawer>
-
-        <VAppBar
-            v-if="showAppBar"
-            app
-            dense
-            :clipped-left="$vuetify.breakpoint.lgAndUp"
-        >
-            <VAppBarNavIcon
-                v-if="userIsAuthenticated"
-                @click.stop="drawer = !drawer"
-            />
-            <VToolbarTitle>{{ appBarTitle }}</VToolbarTitle>
-
-            <VSpacer />
-
-            <AvatarInitials />
-        </VAppBar>
+        <AppNavigationDrawer />
 
         <LoginModal v-if="showSessionExpiredModal" session-expiry-warning />
 
@@ -136,11 +15,11 @@
 <script>
 import { mapGetters, mapState } from 'vuex';
 import LoginModal from './LoginModal';
-import AvatarInitials from './AvatarInitials';
+import AppNavigationDrawer from './AppNavigationDrawer';
 
 export default {
     components: {
-        AvatarInitials,
+        AppNavigationDrawer,
         LoginModal,
     },
     data() {
@@ -160,27 +39,6 @@ export default {
             showSessionExpiredModal: 'showSessionExpiredModal',
         }),
         ...mapGetters('programBuilder', ['myWorkoutPrograms']),
-        ...mapGetters('workoutSession', [
-            'hasLoadedInProgressWorkouts',
-            'inProgressWorkouts',
-        ]),
-        showAppBar() {
-            if (!this.userIsAuthenticated) {
-                return true;
-            }
-
-            return this.$route.name === 'HomePage';
-        },
-        appBarTitle() {
-            return this.appName;
-        },
-        allowNavigationDrawer() {
-            if (!this.userIsAuthenticated) {
-                return false;
-            }
-
-            return this.$route.name === 'HomePage';
-        },
     },
     methods: {
         setSupportsTextSelect() {
@@ -203,30 +61,6 @@ export default {
             if (supportsTouch && this.$vuetify.breakpoint.smAndDown) {
                 this.preventTextSelect = true;
             }
-        },
-        workoutIsInFocus(workoutSessionUuid) {
-            if (
-                this.$route.name !== 'SetOverviewPage' &&
-                this.$route.name !== 'SessionOverviewPage'
-            ) {
-                return false;
-            }
-
-            return (
-                this.$store.getters['workoutSession/workoutSession']?.uuid ===
-                workoutSessionUuid
-            );
-        },
-        setIsInFocus(set) {
-            return (
-                this.$route.name === 'SetOverviewPage' &&
-                this.$route.params.sessionSetUuid === set.uuid
-            );
-        },
-        getCurrentSet(workoutSessionUuid) {
-            return this.$store.getters[
-                'workoutSession/currentSetForInProgressWorkout'
-            ](workoutSessionUuid);
         },
     },
 };

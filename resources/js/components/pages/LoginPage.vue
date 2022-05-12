@@ -1,58 +1,70 @@
 <template>
-    <div v-if="$vuetify.breakpoint.xsOnly" class="d-flex justify-center">
-        <div class="left-column d-flex flex-column justify-center align-center">
-            <img
-                v-show="imageHasLoaded"
-                ref="image"
-                class="banner-image banner-image--small"
-                :class="{
-                    'banner-image--fade-in': fadeImageIn,
-                }"
-                src="images/phone-gym-floor.jpg"
-                alt="Banner image"
-            />
-            <VSkeletonLoader
-                v-if="!imageHasLoaded"
-                class="banner-image-skeleton-small"
-                type="image"
-            />
-            <h1 class="heading heading--small mt-15">
-                The simplest way to track your lifts
-            </h1>
-            <div class="login-container mt-15 pa-2">
-                <FacebookLoginButton />
-            </div>
-            <a class="privacy-policy mt-10 d-block" href="/privacy-policy">
-                Privacy policy
-            </a>
-        </div>
-    </div>
-
-    <div class="container-large" v-else>
-        <div class="d-flex flex-wrap justify-center">
-            <div class="mx-15">
+    <div>
+        <AppBar :title="appName" :back-to="null" />
+        <div v-if="$vuetify.breakpoint.xsOnly" class="d-flex justify-center">
+            <div
+                class="left-column d-flex flex-column justify-center align-center"
+            >
                 <img
                     v-show="imageHasLoaded"
                     ref="image"
-                    class="banner-image banner-image--large"
-                    :class="{ 'banner-image--fade-in': fadeImageIn }"
+                    class="banner-image banner-image--small"
+                    :class="{
+                        'banner-image--fade-in': fadeImageIn,
+                    }"
                     src="images/phone-gym-floor.jpg"
                     alt="Banner image"
                 />
                 <VSkeletonLoader
                     v-if="!imageHasLoaded"
-                    class="banner-image-skeleton"
+                    class="banner-image-skeleton-small"
                     type="image"
                 />
-            </div>
-            <div class="mx-15 d-flex flex-column justify-center align-center">
-                <h1 class="heading">The simplest way to track your lifts</h1>
+                <h1 class="heading heading--small mt-15">
+                    The simplest way to track your lifts
+                </h1>
                 <div class="login-container mt-15 pa-2">
                     <FacebookLoginButton />
                 </div>
-                <a class="privacy-policy mt-5 d-block" href="/privacy-policy">
+                <a class="privacy-policy mt-10 d-block" href="/privacy-policy">
                     Privacy policy
                 </a>
+            </div>
+        </div>
+
+        <div class="container-large" v-else>
+            <div class="d-flex flex-wrap justify-center">
+                <div class="mx-15">
+                    <img
+                        v-show="imageHasLoaded"
+                        ref="image"
+                        class="banner-image banner-image--large"
+                        :class="{ 'banner-image--fade-in': fadeImageIn }"
+                        src="images/phone-gym-floor.jpg"
+                        alt="Banner image"
+                    />
+                    <VSkeletonLoader
+                        v-if="!imageHasLoaded"
+                        class="banner-image-skeleton"
+                        type="image"
+                    />
+                </div>
+                <div
+                    class="mx-15 d-flex flex-column justify-center align-center"
+                >
+                    <h1 class="heading">
+                        The simplest way to track your lifts
+                    </h1>
+                    <div class="login-container mt-15 pa-2">
+                        <FacebookLoginButton />
+                    </div>
+                    <a
+                        class="privacy-policy mt-5 d-block"
+                        href="/privacy-policy"
+                    >
+                        Privacy policy
+                    </a>
+                </div>
             </div>
         </div>
     </div>
@@ -60,10 +72,13 @@
 
 <script>
 import FacebookLoginButton from '../formFields/FacebookLoginButton';
+import AppBar from '../AppBar';
+import { mapState } from 'vuex';
 
 export default {
     components: {
         FacebookLoginButton,
+        AppBar,
     },
     mounted() {
         this.$refs.image.onload = () => (this.imageHasLoaded = true);
@@ -74,6 +89,9 @@ export default {
             imageHasLoaded: false,
             fadeImageIn: false,
         };
+    },
+    computed: {
+        ...mapState('app', ['appName']),
     },
 };
 </script>

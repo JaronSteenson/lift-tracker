@@ -23,7 +23,7 @@
 import WorkoutProgramList from '../domain/WorkoutProgramList';
 import { mapGetters } from 'vuex';
 import NoProgramsHint from '../domain/userHints/NoProgramsHint';
-import PageToolbar from '../layouts/PageAppBar';
+import PageToolbar from '../AppBar';
 
 export default {
     components: {

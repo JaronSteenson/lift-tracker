@@ -389,7 +389,7 @@ import SessionExerciseStatsModal from './SessionExerciseStatsModal';
 import ServerSyncInfo from './../../ServerSyncInfo';
 import LabeledWorkoutDuration from '../LabeledWorkoutDuration';
 import NarrowContentContainer from '../../layouts/NarrowContentContainer';
-import PageToolbar from '../../layouts/PageAppBar';
+import PageToolbar from '../../AppBar';
 
 export default {
     components: {

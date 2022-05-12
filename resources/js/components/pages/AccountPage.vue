@@ -35,7 +35,7 @@
 </template>
 
 <script>
-import PageToolbar from '../layouts/PageAppBar';
+import PageToolbar from '../AppBar';
 import FacebookLoginDeleteAccountButton from '../formFields/FacebookLoginDeleteAccountButton';
 import ThemePicker from '../formFields/ThemePicker';
 import NarrowContentContainer from '../layouts/NarrowContentContainer';

@@ -10,7 +10,16 @@
                     'left-align-title': $vuetify.breakpoint.xsOnly,
                 }"
             >
-                <VBtn :to="backTo" icon active-class="disable-btn-active">
+                <VAppBarNavIcon
+                    v-if="showDrawerIcon && userIsAuthenticated"
+                    @click.stop="drawer = !drawer"
+                />
+                <VBtn
+                    v-else-if="backTo"
+                    :to="backTo"
+                    icon
+                    active-class="disable-btn-active"
+                >
                     <VIcon>
                         {{ $svgIcons.backNavigation }}
                     </VIcon>
@@ -43,15 +52,29 @@
 </template>
 
 <script>
-import AvatarInitials from '../AvatarInitials';
+import AvatarInitials from './AvatarInitials';
+import { mapGetters, mapState } from 'vuex';
 
 export default {
     components: {
         AvatarInitials,
     },
     props: {
+        showDrawerIcon: Boolean,
         backTo: Object,
         title: String,
+    },
+    computed: {
+        ...mapState('app', ['navigationDrawerOpen']),
+        ...mapGetters('app', ['userIsAuthenticated']),
+        drawer: {
+            get() {
+                return this.navigationDrawerOpen;
+            },
+            set(value) {
+                this.$store.dispatch('app/setNavigationDrawerOpen', value);
+            },
+        },
     },
 };
 </script>

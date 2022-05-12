@@ -1,5 +1,6 @@
 <template>
     <div>
+        <PageAppBar :title="appName" show-drawer-icon />
         <NoProgramsWelcomeHint v-if="shouldShowNoProgramsWelcomeHint" />
         <NoSessionsHint v-else-if="shouldShowNoSessionsHint" />
         <WorkoutSessionList v-else />
@@ -35,17 +36,20 @@
 
 <script>
 import WorkoutSessionList from '../domain/WorkoutSessionList';
-import { mapGetters } from 'vuex';
+import { mapGetters, mapState } from 'vuex';
 import NoProgramsWelcomeHint from '../domain/userHints/NoProgramsWelcomeHint';
 import NoSessionsHint from '../domain/userHints/NoSessionsHint';
+import PageAppBar from '../AppBar';
 
 export default {
     components: {
+        PageAppBar,
         NoSessionsHint,
         NoProgramsWelcomeHint,
         WorkoutSessionList,
     },
     computed: {
+        ...mapState('app', ['appName']),
         ...mapGetters('app', [
             'shouldShowNoProgramsWelcomeHint',
             'shouldShowNoSessionsHint',
