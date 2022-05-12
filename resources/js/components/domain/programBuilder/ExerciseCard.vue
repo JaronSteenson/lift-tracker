@@ -159,7 +159,7 @@ export default {
     padding-bottom: 10px;
 }
 
-.exercise-card.theme--light.v-sheet--outlined {
+.exercise-card.v-sheet--outlined {
     border: solid 1px var(--v-primary-base);
 
     &.sortable-chosen {
