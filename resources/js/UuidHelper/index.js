@@ -57,6 +57,10 @@ export default {
             (object) => object.uuid === replaceWith.uuid
         );
 
+        if (index === -1) {
+            return copy;
+        }
+
         copy.splice(index, 1, replaceWith);
 
         return copy;

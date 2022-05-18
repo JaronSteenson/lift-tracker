@@ -2,11 +2,14 @@ import { getters, actions } from '../../../store/modules/workoutSession';
 import { describe } from '@jest/globals';
 import each from 'jest-each';
 import WorkoutSessionService from '../../../api/WorkoutSessionService';
+import * as createSessionModule from '../../../domain/createSessionFromBuilderWorkout';
+jest.mock('../../../domain/createSessionFromBuilderWorkout');
 jest.mock('../../../api/WorkoutSessionService');
 
 describe('workout session store', () => {
     afterEach(() => {
         jest.resetModules();
+        jest.resetAllMocks();
     });
 
     describe('getters', () => {
@@ -81,19 +84,26 @@ describe('workout session store', () => {
                     uuid: '2185451e-b967-11ec-8422-0242ac120002',
                 };
 
-                const mockStartNewResponse = {
-                    createdAt: '2022-04-11T05:46:53+00:00',
-                    endedAt: '2022-04-11T05:47:05+00:00',
+                const mockSessionCreateReturn = {
                     name: 'Push',
                     notes: null,
                     sessionExercises: [],
                     startedAt: '2022-04-11T05:46:53+00:00',
-                    updatedAt: '2022-04-11T05:47:06+00:00',
                     uuid: '19c0230f-56ca-4aac-ba7e-19588baaa6f4',
                 };
 
-                jest.spyOn(WorkoutSessionService, 'startNew').mockResolvedValue(
-                    Promise.resolve(mockStartNewResponse)
+                createSessionModule.default.mockReturnValue(
+                    mockSessionCreateReturn
+                );
+
+                const mockSaveResponse = {
+                    ...mockSessionCreateReturn,
+                    createdAt: '2022-04-11T05:46:53+00:00',
+                    updatedAt: '2022-04-11T05:47:06+00:00',
+                };
+
+                jest.spyOn(WorkoutSessionService, 'save').mockResolvedValue(
+                    Promise.resolve(mockSaveResponse)
                 );
 
                 const commit = jest.fn();
@@ -103,31 +113,50 @@ describe('workout session store', () => {
                     inProgressWorkouts: [inProgressSession],
                 };
 
-                WorkoutSessionService.startNew.mockResolvedValue({
-                    data: mockStartNewResponse,
+                WorkoutSessionService.save.mockResolvedValue({
+                    data: mockSaveResponse,
                 });
 
                 await actions.startWorkout(
                     { commit, dispatch, state },
                     {
-                        originWorkoutUuid:
-                            '8dabae09-e749-43b5-a1c5-109942ef2a4b',
+                        originWorkout: {
+                            uuid: '8dabae09-e749-43b5-a1c5-109942ef2a4b',
+                            name: 'Push',
+                            routineExercises: [],
+                        },
                     }
                 );
 
-                expect(commit).toBeCalledWith('reset', {
-                    workoutSession: mockStartNewResponse,
+                expect(commit).toHaveBeenCalledTimes(2);
+                expect(commit).toHaveBeenNthCalledWith(1, 'reset', {
+                    workoutSession: mockSessionCreateReturn,
                     exercisesPreviousEntries: {},
                     inProgressWorkouts: [
                         inProgressSession,
-                        mockStartNewResponse,
+                        mockSessionCreateReturn,
                     ],
                     myWorkoutSessions: [
-                        mockStartNewResponse,
+                        mockSessionCreateReturn,
                         inProgressSession,
                         olderWorkoutSession,
                     ],
                 });
+
+                // In reality, we actually expect the below assertion for the second call.
+                // However this test case doesn't update the state var which the second commit is reliant on.
+                // expect(commit).toHaveBeenNthCalledWith(2, 'reset', {
+                //     workoutSession: mockSessionCreateReturn,
+                //     inProgressWorkouts: [
+                //         inProgressSession,
+                //         mockSessionCreateReturn,
+                //     ],
+                //     myWorkoutSessions: [
+                //         mockSessionCreateReturn,
+                //         inProgressSession,
+                //         olderWorkoutSession,
+                //     ],
+                // });
             });
         });
         describe('updateSetWeight', () => {

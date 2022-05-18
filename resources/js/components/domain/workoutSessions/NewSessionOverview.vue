@@ -2,9 +2,9 @@
     <div>
         <SessionOverviewLoadingSkeleton v-if="loading" />
         <div v-else>
-            <NotFound v-if="notFound"
-                >Sorry we couldn't find that routine.</NotFound
-            >
+            <NotFound v-if="notFound">
+                Sorry we couldn't find that routine.
+            </NotFound>
             <NarrowContentContainer v-else>
                 <WorkoutCard
                     :workoutUuid="originRoutineUuid"

@@ -149,12 +149,36 @@ class WorkoutSession extends AbstractModel
 
         $workoutSession->fill($request->all());
 
+        $workoutProgramRoutineUuid = $request->get('workoutProgramRoutine')['uuid'];
+
+        if ($workoutProgramRoutineUuid) {
+            $workoutProgramRoutine = (new WorkoutProgramRoutine())->findByUuid($workoutProgramRoutineUuid);
+            $workoutSession->workoutProgramRoutine()->associate($workoutProgramRoutine);
+        }
+
         // Associate the user with the top level entity.
         if (!$workoutSession->exists) {
             $workoutSession->user()->associate($request->user());
         }
 
         return $workoutSession;
+    }
+
+    public function saveExercisesFromRequest(array $sessionExercises): void
+    {
+        foreach ($sessionExercises as $requestSessionExercise) {
+            $sessionExercise = new SessionExercise($requestSessionExercise);
+            $sessionExercise->workoutSessionId = $this->id;
+
+            $routineExerciseUuid = $requestSessionExercise['routineExerciseUuid'];
+            if ($routineExerciseUuid) {
+                $routineExercise = (new RoutineExercise())->findByUuid($routineExerciseUuid);
+                $sessionExercise->routineExerciseId = $routineExercise->id;
+            }
+
+            $sessionExercise->setSessionSetsFromRequest($requestSessionExercise['sessionSets']);
+            $sessionExercise->saveWithChildren();
+        }
     }
 
     public function findBySet(string $setUuid): ?self

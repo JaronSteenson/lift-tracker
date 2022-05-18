@@ -315,7 +315,7 @@ const actions = {
         dispatch('startSaving');
 
         // We still don't have a top level uuid, but we have made some changes,
-        // assign a uuid and actually save the program.
+        // assign a UUID and actually save the program.
         if (
             !state.inFocusProgram.uuid &&
             getters.hasMadeSignificantChangesFromNew

@@ -2,9 +2,9 @@
     <div v-if="userIsAuthenticated">
         <SessionOverviewLoadingSkeleton v-if="loading" />
         <template v-else>
-            <NotFoundPage v-if="notFound"
-                >Sorry we couldn't find that workout session.</NotFoundPage
-            >
+            <NotFoundPage v-if="notFound">
+                Sorry we couldn't find that workout session.
+            </NotFoundPage>
             <SessionOverview
                 v-else
                 :workout-session-uuid="workoutSessionUuid"

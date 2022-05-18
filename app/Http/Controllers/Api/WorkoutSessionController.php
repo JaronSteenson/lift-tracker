@@ -75,19 +75,12 @@ class WorkoutSessionController extends Controller
      */
     public function store(WorkoutSessionRequest $request): WorkoutSession
     {
-        if (!$request->has('origin-workout-uuid')) {
-            throw new BadRequestHttpException('origin-workout-uuid must be supplied');
-        }
+        $workoutSession = WorkoutSession::createFromRequest($request);
+        $workoutSession->save();
+        $workoutSession->saveExercisesFromRequest($request->get('sessionExercises'));
 
-        /** @var WorkoutProgramRoutine $originRoutine */
-        $originRoutine = (new WorkoutProgramRoutine())->findByUuid($request->get('origin-workout-uuid'));
-
-        // Only supporting doing your own workout for now.
-        if ($originRoutine === null || $originRoutine->workoutProgram->isNotOwnedBy($request->user())) {
-            throw new BadRequestHttpException('Origin workout not found');
-        }
-
-        return WorkoutSession::createFromRoutine($originRoutine, $request->user()->id, true);
+        // Ensure partial payloads return the full response.
+        return $workoutSession->findByUuid($workoutSession->uuid);
     }
 
     /**
@@ -96,21 +89,14 @@ class WorkoutSessionController extends Controller
      * @param WorkoutSessionRequest $request
      * @return WorkoutSession
      */
-    public function update(WorkoutSessionRequest $request)
-    {
-        return $this->saveFromRequest($request);
-    }
-
-    private function saveFromRequest(WorkoutSessionRequest $request): WorkoutSession
+    public function update(WorkoutSessionRequest $request): WorkoutSession
     {
         $workoutSession = WorkoutSession::createFromRequest($request);
-
         $workoutSession->save();
 
         // Ensure partial payloads return the full response.
-        return $workoutSession->refresh();
+        return $workoutSession->findByUuid($workoutSession->uuid);
     }
-
 
     /**
      * Remove the specified resource from storage.HasUuidTrait.php

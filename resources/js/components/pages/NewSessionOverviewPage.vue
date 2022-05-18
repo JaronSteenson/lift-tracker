@@ -4,9 +4,7 @@
             title="Session overview"
             :back-to="{ name: 'NewSessionRoutineSelectPage' }"
         />
-        <NewSessionOverview
-            :originRoutineUuid="originRoutineUuid"
-        ></NewSessionOverview>
+        <NewSessionOverview :originRoutineUuid="originRoutineUuid" />
     </div>
 </template>
 

@@ -12,7 +12,7 @@
             </RouterLink>
             <template v-else>{{ workoutSession.name }}</template>
         </VCardTitle>
-        <VCardSubtitle>
+        <VCardSubtitle v-if="workoutSession.workoutProgramRoutine">
             From
             <ProgramName
                 :workoutProgram="
@@ -23,7 +23,7 @@
         <VCardText>
             <SessionStats :workoutSession="workoutSession" />
         </VCardText>
-        <VCardActions>
+        <VCardActions v-if="workoutSession.workoutProgramRoutine">
             <VBtn
                 small
                 :to="{

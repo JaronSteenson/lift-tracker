@@ -7,12 +7,6 @@ const EXERCISE_PREVIOUS_ENTRIES = 'session-exercise-previous-entries';
 const IN_PROGRESS_WORKOUTS = 'in-progress-workouts';
 
 const WorkoutProgramService = {
-    startNew(originWorkoutUuid) {
-        return ApiService.post(
-            `${RESOURCE_NAME}?origin-workout-uuid=${originWorkoutUuid}`
-        );
-    },
-
     get(uuid) {
         return ApiService.get(RESOURCE_NAME, uuid);
     },
@@ -53,8 +47,8 @@ const WorkoutProgramService = {
         return ApiService.save(EXERCISE_RESOURCE_NAME, sessionExercise);
     },
 
-    save(workoutProgram) {
-        return ApiService.save(RESOURCE_NAME, workoutProgram);
+    save(workoutSession) {
+        return ApiService.save(RESOURCE_NAME, workoutSession);
     },
 
     delete(uuid) {

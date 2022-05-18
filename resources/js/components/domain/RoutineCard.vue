@@ -46,7 +46,6 @@
 </template>
 
 <script>
-import { dateDescription } from '../../dates';
 import MissingValue from '../util/MissingValue';
 import ProgramName from '../domain/programBuilder/ProgramName';
 import SessionStats from './workoutSessions/SessionStats';
@@ -68,15 +67,13 @@ export default {
             starting: false,
         };
     },
-    computed: {},
     methods: {
-        dateDescription,
         async startNow() {
             this.starting = true;
 
             // Create a new workout session from the updated master routine.
             await this.$store.dispatch('workoutSession/startWorkout', {
-                originWorkoutUuid: this.routine.uuid,
+                originWorkout: this.routine,
             });
 
             // Then go to the first set in the workout.

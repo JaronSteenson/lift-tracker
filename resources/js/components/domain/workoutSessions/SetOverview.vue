@@ -651,6 +651,9 @@ export default {
         wasAddedOnTheFly() {
             return this.exercise?.wasAddedOnTheFly;
         },
+        createdAt() {
+            return this.workoutSession.createdAt;
+        },
     },
     methods: {
         getStepColor(otherSet) {
@@ -686,12 +689,12 @@ export default {
                 this.exercise.uuid
             );
         },
-        async endWorkout() {
+        endWorkout() {
             this.isEndingWorkout = true;
             this.isChangingSet = true;
 
-            await this.$store.dispatch('workoutSession/endWorkout');
-            await this.$router.push({
+            this.$store.dispatch('workoutSession/endWorkout');
+            this.$router.push({
                 name: 'SessionOverviewPage',
                 params: { workoutSessionUuid: this.uuid },
             });
@@ -743,6 +746,11 @@ export default {
                 return;
             }
 
+            // We must wait for the workout to be created on the server first.
+            if (this.createdAt === null) {
+                return;
+            }
+
             this.hasLoadedExercisePreviousEntries = this.$store.getters[
                 'workoutSession/hasLoadedExercisePreviousEntries'
             ](this.exercise.uuid);
@@ -755,6 +763,11 @@ export default {
     watch: {
         sessionSetUuid() {
             this.ensureExercisePreviousEntriesAreLoaded();
+        },
+        createdAt(value, oldValue) {
+            if (value !== null && oldValue === null) {
+                this.ensureExercisePreviousEntriesAreLoaded();
+            }
         },
     },
 };

@@ -28,9 +28,6 @@ class WorkoutRoutineController extends Controller
      */
     public function index(WorkoutProgramRequest $request): array
     {
-        /** @var User $loggedInUser */
-        $loggedInUser = $request->user();
-
         $sql = '
             select * from (
                 -- Routines that have been used.
@@ -73,6 +70,7 @@ class WorkoutRoutineController extends Controller
         $workoutRoutines = (new WorkoutProgramRoutine())
             ->whereIn('id', $workoutRoutineIds)
             ->with('workoutProgram')
+            ->with('routineExercises')
             ->get()->keyBy('id');
 
         $mostRecentSessions = (new WorkoutSession)->without('sessionExercises')

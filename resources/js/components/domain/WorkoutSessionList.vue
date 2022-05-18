@@ -54,7 +54,7 @@
                             <VListItemTitle>View overview</VListItemTitle>
                         </VListItem>
                         <VListItem
-                            v-if="session.originProgramUuid"
+                            v-if="session.workoutProgramRoutine.uuid"
                             :to="{
                                 name: 'NewSessionOverviewPage',
                                 params: {
@@ -125,11 +125,11 @@ export default {
         window.removeEventListener('scroll', this.infiniteScroll);
     },
     computed: {
-        ...mapState('workoutSession', ['myMyWorkoutSessionsPagesAllLoaded']),
-        ...mapGetters('workoutSession', [
+        ...mapState('workoutSession', [
+            'myMyWorkoutSessionsPagesAllLoaded',
             'myWorkoutSessions',
-            'isInProgressWorkout',
         ]),
+        ...mapGetters('workoutSession', ['isInProgressWorkout']),
         headers() {
             return [
                 {

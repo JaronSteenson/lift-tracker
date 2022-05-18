@@ -2,7 +2,7 @@ import AppService from '../../api/AppService';
 import { addMinutes, isAfter } from 'date-fns';
 
 const state = {
-    isBaseBootstrapped: false,
+    isBaseBootstraped: false,
     appName: null,
     authenticatedUser: null,
     csrfToken: null,
@@ -28,7 +28,7 @@ const state = {
 
 const getters = {
     isBaseBootstraped(state) {
-        return state.isBaseBootstrapped;
+        return state.isBaseBootstraped;
     },
 
     userIsAuthenticated(state) {
@@ -56,7 +56,7 @@ const getters = {
         }
 
         return (
-            rootGetters['workoutSession/myWorkoutSessions'].length === 0 &&
+            rootState.workoutSession.myWorkoutSessions.length === 0 &&
             rootGetters['programBuilder/myWorkoutPrograms'].length === 0
         );
     },
@@ -80,7 +80,7 @@ const getters = {
         }
 
         return (
-            rootGetters['workoutSession/myWorkoutSessions'].length === 0 &&
+            rootState.workoutSession.myWorkoutSessions.length === 0 &&
             rootGetters['programBuilder/myWorkoutPrograms'].length > 0
         );
     },
