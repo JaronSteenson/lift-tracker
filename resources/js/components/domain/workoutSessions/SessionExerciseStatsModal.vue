@@ -2,7 +2,7 @@
     <VDialog
         :fullscreen="$vuetify.breakpoint.xsOnly"
         :max-width="$vuetify.breakpoint.xsOnly ? null : '400px'"
-        :value="$route.query[urlSearchParam]"
+        :value="$route.query[urlSearchParam] === urlSearchShowValue"
         hide-overlay
         transition="dialog-bottom-transition"
         @input="updateDialogValue"
@@ -113,6 +113,10 @@ export default {
         urlSearchParam: {
             type: String,
             required: true,
+        },
+        urlSearchShowValue: {
+            type: String,
+            default: 'true',
         },
         sessionExercises: {
             type: Array,

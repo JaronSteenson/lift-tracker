@@ -55,7 +55,10 @@
                         {{ $svgIcons.mdiChartLineVariant }}
                     </VIcon>
                     <RouterLink
-                        :to="{ $route, ...{ query: { 'stats-open': true } } }"
+                        :to="{
+                            $route,
+                            ...{ query: { 'stats-open': exercise.uuid } },
+                        }"
                     >
                         Overview
                     </RouterLink>
@@ -64,6 +67,7 @@
         </VCardText>
         <SessionExerciseStatsModal
             url-search-param="stats-open"
+            :url-search-show-value="exercise.uuid"
             :session-exercises="[exercise]"
         />
     </VCard>
