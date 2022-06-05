@@ -5,7 +5,9 @@
                 v-if="linkTitle"
                 :to="{
                     name: 'SessionOverviewPage',
-                    params: { workoutSessionUuid: workoutSession.uuid },
+                    params: {
+                        workoutSessionUuid: workoutSession.uuid,
+                    },
                 }"
             >
                 {{ workoutSession.name }}

@@ -1,8 +1,8 @@
 <template>
     <ProgramBuilder
         v-if="userIsAuthenticated"
-        :workoutProgramUuid="workoutProgramUuid"
-    ></ProgramBuilder>
+        :workout-program-uuid="workoutProgramUuid"
+    />
 </template>
 
 <script>

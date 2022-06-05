@@ -10,7 +10,11 @@
                     :title="
                         $vuetify.breakpoint.smAndDown ? 'Program builder' : null
                     "
-                    :back-to="{ name: 'MyWorkoutProgramsPage' }"
+                    :back-to="
+                        $route.query.returnTo || {
+                            name: 'MyWorkoutProgramsPage',
+                        }
+                    "
                 >
                     <template v-if="$vuetify.breakpoint.mdAndUp" v-slot:middle>
                         <VTextField

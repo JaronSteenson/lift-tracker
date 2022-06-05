@@ -6,6 +6,12 @@
             params: {
                 workoutProgramUuid: workoutProgram.uuid,
             },
+            query:
+                $route.name === 'MyWorkoutProgramsPage'
+                    ? undefined
+                    : {
+                          returnTo: $route.path,
+                      },
         }"
     >
         <span v-if="workoutProgram.name">

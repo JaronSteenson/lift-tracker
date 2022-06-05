@@ -61,7 +61,7 @@ export default {
     },
     props: {
         showDrawerIcon: Boolean,
-        backTo: Object,
+        backTo: [Object, String],
         title: String,
     },
     computed: {
