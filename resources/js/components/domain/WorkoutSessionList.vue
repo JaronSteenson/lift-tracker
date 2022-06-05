@@ -1,104 +1,110 @@
 <template>
-    <VContainer v-if="showTable">
-        <VToolbar dense>
-            <VToolbarTitle> My sessions </VToolbarTitle>
-            <VSpacer />
-            <VSwitch
-                class="mt-4 pt-1"
-                v-model="showTable"
-                @change="setHomePageShowTable"
-                :append-icon="$svgIcons.mdiTable"
-            />
-        </VToolbar>
-        <!-- eslint-disable vue/valid-v-slot -->
-        <VDataTable
-            :headers="headers"
-            :items="myWorkoutSessions"
-            :items-per-page="myWorkoutSessions.length"
-            hide-default-footer
-        >
-            <template v-slot:item.startedAt="{ item: session }">
-                <RouterLink
-                    :to="{
-                        name: 'SessionOverviewPage',
-                        params: { workoutSessionUuid: session.uuid },
-                    }"
-                >
-                    {{ getFormattedDate(session) }}
-                </RouterLink>
-            </template>
-            <template v-slot:item.programName="{ item: session }">
-                <ProgramName
-                    :workoutProgram="
-                        session.workoutProgramRoutine &&
-                        session.workoutProgramRoutine.workoutProgram
-                    "
+    <div>
+        <VContainer v-show="showTable">
+            <VToolbar dense>
+                <VToolbarTitle> My sessions </VToolbarTitle>
+                <VSpacer />
+                <VSwitch
+                    class="mt-4 pt-1"
+                    v-model="showTable"
+                    @change="setHomePageShowTable"
+                    :append-icon="$svgIcons.mdiTable"
                 />
-            </template>
-            <template v-slot:item.menu="{ item: session }">
-                <VMenu bottom left>
-                    <template v-slot:activator="{ on }">
-                        <VBtn icon v-on="on">
-                            <VIcon>{{ $svgIcons.mdiDotsVertical }}</VIcon>
-                        </VBtn>
-                    </template>
+            </VToolbar>
+            <!-- eslint-disable vue/valid-v-slot -->
+            <VDataTable
+                :headers="headers"
+                :items="myWorkoutSessions"
+                :items-per-page="myWorkoutSessions.length"
+                hide-default-footer
+            >
+                <template v-slot:item.startedAt="{ item: session }">
+                    <RouterLink
+                        :to="{
+                            name: 'SessionOverviewPage',
+                            params: { workoutSessionUuid: session.uuid },
+                        }"
+                    >
+                        {{ getFormattedDate(session) }}
+                    </RouterLink>
+                </template>
+                <template v-slot:item.programName="{ item: session }">
+                    <ProgramName
+                        :workoutProgram="
+                            session.workoutProgramRoutine &&
+                            session.workoutProgramRoutine.workoutProgram
+                        "
+                    />
+                </template>
+                <template v-slot:item.menu="{ item: session }">
+                    <VMenu bottom left>
+                        <template v-slot:activator="{ on }">
+                            <VBtn icon v-on="on">
+                                <VIcon>{{ $svgIcons.mdiDotsVertical }}</VIcon>
+                            </VBtn>
+                        </template>
 
-                    <VList>
-                        <VListItem
-                            :to="{
-                                name: 'SessionOverviewPage',
-                                params: {
-                                    workoutSessionUuid: session.uuid,
-                                },
-                            }"
-                        >
-                            <VListItemTitle>View overview</VListItemTitle>
-                        </VListItem>
-                        <VListItem
-                            v-if="
-                                session.workoutProgramRoutine &&
-                                session.workoutProgramRoutine.uuid
-                            "
-                            :to="{
-                                name: 'NewSessionOverviewPage',
-                                params: {
-                                    originRoutineUuid:
-                                        session.workoutProgramRoutine.uuid,
-                                },
-                            }"
-                        >
-                            <VListItemTitle>Repeat now</VListItemTitle>
-                        </VListItem>
-                        <VListItem
-                            @click="showArchiveConfirmation(session.uuid)"
-                        >
-                            <VListItemTitle>Archive</VListItemTitle>
-                        </VListItem>
-                    </VList>
-                </VMenu>
-            </template>
-        </VDataTable>
-        <!-- eslint-enable -->
-    </VContainer>
+                        <VList>
+                            <VListItem
+                                :to="{
+                                    name: 'SessionOverviewPage',
+                                    params: {
+                                        workoutSessionUuid: session.uuid,
+                                    },
+                                }"
+                            >
+                                <VListItemTitle>View overview</VListItemTitle>
+                            </VListItem>
+                            <VListItem
+                                v-if="
+                                    session.workoutProgramRoutine &&
+                                    session.workoutProgramRoutine.uuid
+                                "
+                                :to="{
+                                    name: 'NewSessionOverviewPage',
+                                    params: {
+                                        originRoutineUuid:
+                                            session.workoutProgramRoutine.uuid,
+                                    },
+                                }"
+                            >
+                                <VListItemTitle>Repeat now</VListItemTitle>
+                            </VListItem>
+                            <VListItem
+                                @click="showArchiveConfirmation(session.uuid)"
+                            >
+                                <VListItemTitle>Archive</VListItemTitle>
+                            </VListItem>
+                        </VList>
+                    </VMenu>
+                </template>
+            </VDataTable>
+            <!-- eslint-enable -->
+        </VContainer>
 
-    <NarrowContentContainer class="d-flex flex-column gap-4" v-else>
-        <VToolbar dense>
-            <VToolbarTitle> My sessions </VToolbarTitle>
-            <VSpacer />
-            <VSwitch
-                class="mt-4 pt-1"
-                v-model="showTable"
-                @change="setHomePageShowTable"
-                :append-icon="$svgIcons.mdiTable"
+        <NarrowContentContainer
+            class="flex-column gap-4"
+            v-show="!showTable"
+            :class="{ 'd-flex': !showTable }"
+        >
+            <VToolbar dense>
+                <VToolbarTitle> My sessions </VToolbarTitle>
+                <VSpacer />
+                <VSwitch
+                    class="mt-4 pt-1"
+                    v-model="showTable"
+                    @change="setHomePageShowTable"
+                    :append-icon="$svgIcons.mdiTable"
+                />
+            </VToolbar>
+            <SessionStatsCard
+                v-for="workoutSession in myWorkoutSessions"
+                :key="workoutSession.uuid"
+                :workout-session="workoutSession"
+                link-title
             />
-        </VToolbar>
-        <SessionStatsCard
-            v-for="workoutSession in myWorkoutSessions"
-            :key="workoutSession.uuid"
-            :workout-session="workoutSession"
-            link-title
-        />
-    </NarrowContentContainer>
+        </NarrowContentContainer>
+    </div>
 </template>
 
 <script>

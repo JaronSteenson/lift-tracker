@@ -6,7 +6,9 @@
 
         <VMain :class="{ 'v-main--not-logged-in': !userIsAuthenticated }">
             <VFadeTransition leave-absolute>
-                <RouterView />
+                <KeepAlive include="HomePage">
+                    <RouterView />
+                </KeepAlive>
             </VFadeTransition>
         </VMain>
     </VApp>

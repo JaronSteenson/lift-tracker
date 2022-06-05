@@ -42,6 +42,7 @@ import NoSessionsHint from '../domain/userHints/NoSessionsHint';
 import PageAppBar from '../AppBar';
 
 export default {
+    name: 'HomePage',
     components: {
         PageAppBar,
         NoSessionsHint,
