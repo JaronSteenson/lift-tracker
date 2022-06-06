@@ -44,7 +44,7 @@
             "density": "4.0"
         },
         {
-            "src": "app-icons\/maskable-icon-x48.png",
+            "src": "app-icons\/maskable-icon-x36.png",
             "sizes": "36x36",
             "type": "image\/png",
             "purpose": "maskable"
@@ -74,7 +74,7 @@
             "purpose": "maskable"
         },
         {
-            "src": "app-icons\/maskable-icon-x192.png",
+            "src": "app-icons\/maskable-icon-x144.png",
             "sizes": "144x144",
             "type": "image\/png",
             "purpose": "maskable"
