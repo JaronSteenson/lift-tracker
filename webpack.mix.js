@@ -7,7 +7,19 @@ let plugins = [new BundleAnalyzerPlugin()];
 if (mix.inProduction()) {
     mix.disableNotifications();
 } else {
-    mix.sourceMaps().webpackConfig({ plugins });
+    mix.options({
+        hmrOptions: {
+            host: 'localhost',
+            port: '8081',
+        },
+    });
+
+    mix.sourceMaps().webpackConfig({
+        plugins,
+        devServer: {
+            port: '8081',
+        },
+    });
 }
 
 mix.js('resources/js/app.js', 'public/js').vue({ version: 2 }).version();
