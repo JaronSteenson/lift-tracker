@@ -167,7 +167,6 @@
 @stop
 
 @section('body')
-    <body data-app-bootstrap="{{ json_encode($appBootstrapData) }}">
     <div id="fb-root"></div>
     <script
         async

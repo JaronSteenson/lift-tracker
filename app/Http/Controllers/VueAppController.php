@@ -15,8 +15,6 @@ class VueAppController extends Controller
      */
     public function index(): View
     {
-        return view('vue-app', [
-            'appBootstrapData' => new AppBootstrapData(),
-        ]);
+        return view('vue-app');
     }
 }

@@ -13,10 +13,4 @@ class AppController extends Controller
         return new AppBootstrapData();
     }
 
-
-//    public function show(WorkoutProgramRequest $request): WorkoutProgram
-//    {
-//        return $request->getModelOr404();
-//    }
-
 }

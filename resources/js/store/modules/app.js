@@ -2,7 +2,7 @@ import AppService from '../../api/AppService';
 import { addMinutes, isAfter } from 'date-fns';
 
 const state = {
-    isBaseBootstraped: false,
+    isBootstrapped: false,
     appName: null,
     authenticatedUser: null,
     csrfToken: null,
@@ -27,8 +27,8 @@ const state = {
 };
 
 const getters = {
-    isBaseBootstraped(state) {
-        return state.isBaseBootstraped;
+    isBootstrapped(state) {
+        return state.isBootstrapped;
     },
 
     userIsAuthenticated(state) {
@@ -100,7 +100,9 @@ const actions = {
             navigationDrawerOpen: value,
         });
     },
-    directlyLoadAppBoostrap({ commit, getters }, data) {
+    async boostrap({ commit, getters }) {
+        const data = (await AppService.getBootstrapData()).data;
+
         const isAuthed = data.app.authenticatedUser !== null;
 
         if (isAuthed) {
@@ -126,7 +128,7 @@ const actions = {
             }, 60 * 1000);
         }
 
-        commit('reset', { ...data.app, isBaseBootstraped: true });
+        commit('reset', { ...data.app, isBootstrapped: true });
 
         if (isAuthed) {
             commit('workoutSession/reset', data.workoutSession, { root: true });
@@ -143,7 +145,7 @@ const actions = {
     async logout({ commit }) {
         const response = await AppService.logout();
 
-        commit('reset', { ...response.data.app, isBaseBootstraped: true });
+        commit('reset', { ...response.data.app, isBootstrapped: true });
 
         commit('workoutSession/restoreDefault', undefined, { root: true });
         commit('programBuilder/restoreDefault', undefined, { root: true });

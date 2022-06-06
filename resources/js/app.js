@@ -6,10 +6,9 @@ import vuetify from './vuetify';
 import App from './components/App.vue';
 
 (async function () {
-    const bodyDataset = document.querySelector('body').dataset;
-    const appBoostrap = JSON.parse(bodyDataset.appBootstrap);
-
-    delete bodyDataset.appBootstrap; // This should be only accessed via store/ajax now.
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('/service-worker.js');
+    }
 
     // This cannot just live in ApiService, or we end up with circular imports.
     ApiService.registerResponseInterceptor(
@@ -28,7 +27,7 @@ import App from './components/App.vue';
         }
     );
 
-    await store.dispatch('app/directlyLoadAppBoostrap', appBoostrap);
+    await store.dispatch('app/boostrap');
 
     new Vue({
         store,
