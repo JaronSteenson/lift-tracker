@@ -25,6 +25,7 @@ function defaultState() {
             workoutProgramRoutines: [],
             createdAt: null,
             updatedAt: null,
+            isDirty: false,
         },
         delayedSavingToServer: false,
         myWorkoutPrograms: null,
@@ -361,14 +362,12 @@ const actions = {
         });
     },
 
-    async saveChangesFormSessionSetup({ getters }) {
-        return WorkoutProgramService.save(getters.savePayload);
-    },
+    saveIfDirty({ state, getters }) {
+        if (state.inFocusProgram.isDirty) {
+            return WorkoutProgramService.save(getters.savePayload);
+        }
 
-    async fetchMyWorkoutPrograms({ commit }) {
-        const response = await WorkoutProgramService.getAll();
-
-        commit('reset', { myWorkoutPrograms: response.data });
+        return Promise.resolve(state.inFocusProgram);
     },
 };
 
@@ -405,6 +404,7 @@ const mutations = {
         Object.keys(newState).forEach((key) => {
             workout[key] = newState[key];
         });
+        state.inFocusProgram.isDirty = true;
     },
 
     updateWorkoutPositionFromOrder(state, orderedWorkouts) {
@@ -413,6 +413,7 @@ const mutations = {
         });
 
         state.inFocusProgram.workoutProgramRoutines = orderedWorkouts;
+        state.inFocusProgram.isDirty = true;
     },
 
     updateExercisePositionFromOrder(
@@ -428,12 +429,14 @@ const mutations = {
             workoutUuid
         );
         workout.routineExercises = newOrderedExercises;
+        state.inFocusProgram.isDirty = true;
     },
 
     updateExercise(state, { exercise, newState }) {
         Object.keys(newState).forEach((key) => {
             exercise[key] = newState[key];
         });
+        state.inFocusProgram.isDirty = true;
     },
 
     addExerciseToWorkout(state, { uuid, workoutUuid }) {
@@ -450,6 +453,7 @@ const mutations = {
             restPeriod: 2 * 60, // 2 minutes in seconds.
             position: workout.routineExercises.length,
         });
+        state.inFocusProgram.isDirty = true;
     },
 
     deleteExercise(state, { exerciseUuid }) {
@@ -460,6 +464,7 @@ const mutations = {
                 exerciseUuid
             );
         });
+        state.inFocusProgram.isDirty = true;
     },
 
     deleteWorkout(state, { workoutUuid }) {
@@ -467,6 +472,7 @@ const mutations = {
             state.inFocusProgram.workoutProgramRoutines,
             workoutUuid
         );
+        state.inFocusProgram.isDirty = true;
     },
 
     fixPositions(state) {
@@ -503,10 +509,11 @@ const mutations = {
             0,
             workout
         );
+        state.inFocusProgram.isDirty = true;
     },
 
     patchInSaveResponse(state, saveResponse) {
-        // Nothing should be different from the server except the create date. And uuid if it was assigned there.
+        // Nothing should be different from the server except the creation date. And uuid if it was assigned there.
         state.inFocusProgram.uuid = saveResponse.uuid;
         state.inFocusProgram.createdAt = saveResponse.createdAt;
         state.inFocusProgram.updatedAt = saveResponse.updatedAt;

@@ -273,12 +273,6 @@ export default {
         startWorkout() {
             this.starting = true;
 
-            // Save updates to the master workout routine.
-            // TODO only save on change, and only save routine.
-            this.$store.dispatch('programBuilder/saveChangesFormSessionSetup', {
-                workoutUuid: this.workoutUuid,
-            });
-
             // Create a new workout session from the updated master routine.
             this.$store.dispatch('workoutSession/startWorkout', {
                 originWorkout: this.workout,

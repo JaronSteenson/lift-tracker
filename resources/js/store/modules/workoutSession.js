@@ -666,27 +666,9 @@ export const actions = {
         return response;
     },
 
-    startWorkout({ commit, state }, { originWorkout }) {
-        const workoutSession = createSessionFromBuilderWorkout({
+    async startWorkout({ commit, state, dispatch }, { originWorkout }) {
+        let workoutSession = createSessionFromBuilderWorkout({
             originWorkout,
-        });
-
-        WorkoutSessionService.save(workoutSession).then((response) => {
-            const workoutSession = response.data;
-
-            const update = {
-                workoutSession,
-                inProgressWorkouts: UuidHelper.replaceInCopy(
-                    state.inProgressWorkouts,
-                    workoutSession
-                ),
-                myWorkoutSessions: UuidHelper.replaceInCopy(
-                    state.myWorkoutSessions,
-                    workoutSession
-                ),
-            };
-
-            commit('reset', update);
         });
 
         const originalState = defaultState();
@@ -696,8 +678,28 @@ export const actions = {
             myWorkoutSessions: [workoutSession, ...state.myWorkoutSessions],
             exercisesPreviousEntries: originalState.exercisesPreviousEntries,
         };
-
         commit('reset', update);
+
+        // Save updates to the master workout routine.
+        await dispatch('programBuilder/saveIfDirty', undefined, { root: true });
+
+        // We must wait for the master routine to be updated,
+        // so we can link any new session exercises to their builder counterparts.
+        workoutSession = (await WorkoutSessionService.save(workoutSession))
+            .data;
+
+        const updateFromServer = {
+            workoutSession,
+            inProgressWorkouts: UuidHelper.replaceInCopy(
+                state.inProgressWorkouts,
+                workoutSession
+            ),
+            myWorkoutSessions: UuidHelper.replaceInCopy(
+                state.myWorkoutSessions,
+                workoutSession
+            ),
+        };
+        commit('reset', updateFromServer);
     },
 
     async endWorkout({ commit, dispatch, getters }) {

@@ -128,6 +128,12 @@ describe('workout session store', () => {
                     }
                 );
 
+                expect(dispatch).toHaveBeenCalledWith(
+                    'programBuilder/saveIfDirty',
+                    undefined,
+                    { root: true }
+                );
+
                 expect(commit).toHaveBeenCalledTimes(2);
                 expect(commit).toHaveBeenNthCalledWith(1, 'reset', {
                     workoutSession: mockSessionCreateReturn,
