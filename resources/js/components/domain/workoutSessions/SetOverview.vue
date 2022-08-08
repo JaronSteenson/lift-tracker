@@ -163,7 +163,6 @@
                         <VCol class="pt-0" cols="6" md="6" sm="6">
                             <VTextField
                                 :disabled="!isOpenForEdits"
-                                autofocus
                                 class="mt-0"
                                 label="Weight (kg)"
                                 type="number"
