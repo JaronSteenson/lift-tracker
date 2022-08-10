@@ -699,7 +699,7 @@ export const actions = {
                 workoutSession
             ),
         };
-        commit('reset', updateFromServer);
+        return commit('reset', updateFromServer);
     },
 
     async endWorkout({ commit, dispatch, getters }) {

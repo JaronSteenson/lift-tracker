@@ -118,18 +118,20 @@
             class="mx-3 mt-3"
         >
             <VBtn
-                @click="addExercise"
                 :width="$vuetify.breakpoint.xsOnly ? '100%' : '50%'"
+                :disabled="starting"
+                @click="addExercise"
             >
                 <VIcon>{{ $svgIcons.mdiPlus }}</VIcon>
                 Add exercise
             </VBtn>
             <VBtn
                 v-if="isSessionOverview"
+                :ripple="false"
+                :loading="starting"
                 :class="{ 'mt-5': $vuetify.breakpoint.xsOnly }"
                 :width="$vuetify.breakpoint.xsOnly ? '100%' : '50%'"
                 color="success"
-                :loading="starting"
                 @click="startWorkout"
             >
                 <VIcon>{{ $svgIcons.mdiPlay }}</VIcon>
@@ -270,30 +272,21 @@ export default {
                 workoutUuid: this.workoutUuid,
             });
         },
-        startWorkout() {
+        async startWorkout() {
             this.starting = true;
 
             // Create a new workout session from the updated master routine.
-            this.$store.dispatch('workoutSession/startWorkout', {
+            await this.$store.dispatch('workoutSession/startWorkout', {
                 originWorkout: this.workout,
-            });
-
-            // Replace history with the in progress overview, so that back button takes you there instead of
-            // the set-up screen for a new session.
-            const workoutSessionUuid =
-                this.$store.getters['workoutSession/uuid'];
-            this.$router.replace({
-                name: 'SessionOverviewPage',
-                params: { workoutSessionUuid },
             });
 
             // Finally, go to the first set in the workout.
             const firstSet = this.$store.getters['workoutSession/firstSet'];
-            this.$router.push({
+            // Replace so that back button doesn't go to the workout setup page.
+            this.$router.replace({
                 name: 'SetOverviewPage',
                 params: { sessionSetUuid: firstSet.uuid },
             });
-            this.starting = false;
         },
     },
 };

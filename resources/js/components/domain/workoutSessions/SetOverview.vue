@@ -318,7 +318,8 @@
                                 <VBtn
                                     v-if="isLastSetOfWorkout"
                                     height="3rem"
-                                    :loading="isChangingSet"
+                                    :ripple="false"
+                                    :loading="isEndingWorkout"
                                     :width="
                                         $vuetify.breakpoint.xsOnly
                                             ? '100%'
@@ -692,14 +693,12 @@ export default {
             this.isEndingWorkout = true;
             this.isChangingSet = true;
 
+            // Force a delay, so we show the loading feedback before the app get too busy to re-render the ui.
             this.$store.dispatch('workoutSession/endWorkout');
             this.$router.push({
                 name: 'SessionOverviewPage',
                 params: { workoutSessionUuid: this.uuid },
             });
-
-            this.isChangingSet = false;
-            this.isEndingWorkout = false;
         },
         skipSet() {
             this.startNextSet();
@@ -753,6 +752,7 @@ export default {
             this.hasLoadedExercisePreviousEntries = this.$store.getters[
                 'workoutSession/hasLoadedExercisePreviousEntries'
             ](this.exercise.uuid);
+
             if (!this.hasLoadedExercisePreviousEntries) {
                 await this.fetchExercisePreviousEntries();
                 this.hasLoadedExercisePreviousEntries = true;
