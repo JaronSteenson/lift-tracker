@@ -5,11 +5,9 @@
         <LoginModal v-if="showSessionExpiredModal" session-expiry-warning />
 
         <VMain :class="{ 'v-main--not-logged-in': !userIsAuthenticated }">
-            <VFadeTransition leave-absolute>
-                <KeepAlive include="HomePage">
-                    <RouterView />
-                </KeepAlive>
-            </VFadeTransition>
+            <KeepAlive include="HomePage">
+                <RouterView />
+            </KeepAlive>
         </VMain>
     </VApp>
 </template>
