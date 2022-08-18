@@ -118,42 +118,77 @@
                 @change="changeSetFromStepper($event)"
             >
                 <VStepperHeader>
-                    <VIcon
-                        v-if="canLookBack"
-                        @click="lookBack"
-                        class="set-navigation set-navigation--left"
+                    <RouterLink
+                        v-if="hasPrevousExercise"
+                        class="d-flex"
+                        :to="{
+                            name: 'SetOverviewPage',
+                            params: { sessionSetUuid: this.previousSet.uuid },
+                        }"
                     >
-                        {{ $svgIcons.mdiChevronLeft }}
-                    </VIcon>
-
-                    <template v-for="otherSet in setsForStepper">
-                        <VStepperStep
-                            :key="otherSet.position"
-                            :complete="otherSet.endedAt !== null"
-                            :color="getStepColor(otherSet)"
-                            :step="otherSet.position + 1"
-                            :editable="set.uuid !== otherSet.uuid"
-                            :edit-icon="$svgIcons.mdiCheck"
+                        <VIcon
+                            class="set-navigation set-navigation--left"
+                            large
+                            color="secondary-darken1"
                         >
-                            Set {{ otherSet.position + 1 }}
-                        </VStepperStep>
+                            {{ $svgIcons.mdiChevronLeft }}
+                        </VIcon>
+                    </RouterLink>
+                    <div v-else class="d-flex">
+                        <VIcon
+                            class="set-navigation set-navigation--left set-navigation--disabled"
+                            large
+                        >
+                            {{ $svgIcons.mdiChevronLeft }}
+                        </VIcon>
+                    </div>
 
-                        <VDivider
-                            v-if="
-                                otherSet.position + 1 <
-                                exercise.sessionSets.length
-                            "
-                            :key="otherSet.position + '-divider'"
-                        />
-                    </template>
+                    <div class="d-flex justify-space-around flex-grow-1">
+                        <template v-for="otherSet in setsForStepper">
+                            <VStepperStep
+                                :key="otherSet.position"
+                                :complete="otherSet.endedAt !== null"
+                                :color="getStepColor(otherSet)"
+                                :step="otherSet.position + 1"
+                                :editable="set.uuid !== otherSet.uuid"
+                                :edit-icon="$svgIcons.mdiCheck"
+                            >
+                                Set {{ otherSet.position + 1 }}
+                            </VStepperStep>
 
-                    <VIcon
+                            <VDivider
+                                v-if="
+                                    otherSet.position + 1 <
+                                    exercise.sessionSets.length
+                                "
+                                :key="otherSet.position + '-divider'"
+                            />
+                        </template>
+                    </div>
+
+                    <RouterLink
                         v-if="canLookAhead"
-                        @click="lookAhead"
-                        class="set-navigation set-navigation--right"
+                        class="d-flex"
+                        :to="{
+                            name: 'SetOverviewPage',
+                            params: { sessionSetUuid: this.nextSet.uuid },
+                        }"
                     >
-                        {{ $svgIcons.mdiChevronRight }}
-                    </VIcon>
+                        <VIcon
+                            class="set-navigation set-navigation--right"
+                            large
+                        >
+                            {{ $svgIcons.mdiChevronRight }}
+                        </VIcon>
+                    </RouterLink>
+                    <div v-else class="d-flex">
+                        <VIcon
+                            class="set-navigation set-navigation--right set-navigation--disabled"
+                            large
+                        >
+                            {{ $svgIcons.mdiChevronRight }}
+                        </VIcon>
+                    </div>
                 </VStepperHeader>
             </VStepper>
 
@@ -254,7 +289,11 @@
                         justify="space-between"
                         v-if="shouldShowRestPeriodActions"
                     >
-                        <VCol class="pt-0" cols="6">
+                        <VCol
+                            class="pt-0"
+                            :class="{ 'mt-2': $vuetify.breakpoint.xsOnly }"
+                            cols="6"
+                        >
                             <RestPeriodTimer
                                 :session-set-uuid="sessionSetUuid"
                                 label="Rest period remaining"
@@ -814,6 +853,10 @@ export default {
 
     &--right {
         margin-right: 15px;
+    }
+
+    &--disabled {
+        color: var(--v-secondary-darken1) !important;
     }
 }
 </style>
