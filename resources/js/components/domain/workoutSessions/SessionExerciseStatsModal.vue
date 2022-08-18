@@ -133,6 +133,14 @@ export default {
             currentIndex: this.sessionExercises.length - 1 - this.startIndex,
         };
     },
+    watch: {
+        $route(before, after) {
+            if (before.path !== after.path) {
+                this.currentIndex =
+                    this.sessionExercises.length - 1 - this.startIndex;
+            }
+        },
+    },
     computed: {
         // Bars require a gradient, or they will default to grey.
         gradient() {
@@ -269,7 +277,6 @@ export default {
             }
         },
         close() {
-            this.currentIndex = this.startIndex;
             const newLocation = {
                 ...this.$route,
                 ...{
