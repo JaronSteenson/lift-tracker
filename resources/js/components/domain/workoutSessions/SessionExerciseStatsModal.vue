@@ -269,6 +269,7 @@ export default {
             }
         },
         close() {
+            this.currentIndex = this.startIndex;
             const newLocation = {
                 ...this.$route,
                 ...{
