@@ -118,6 +118,7 @@
             class="mx-3 mt-3"
         >
             <VBtn
+                :height="$vuetify.breakpoint.xs ? '4rem' : null"
                 :width="$vuetify.breakpoint.xsOnly ? '100%' : '50%'"
                 :disabled="starting"
                 @click="addExercise"
@@ -127,6 +128,7 @@
             </VBtn>
             <VBtn
                 v-if="isSessionOverview"
+                :height="$vuetify.breakpoint.xs ? '4rem' : null"
                 :ripple="false"
                 :loading="starting"
                 :class="{ 'mt-5': $vuetify.breakpoint.xsOnly }"

@@ -250,6 +250,7 @@
                         </VCol>
                     </VRow>
                     <VRow
+                        alight="center"
                         justify="space-between"
                         v-if="shouldShowRestPeriodActions"
                     >
@@ -263,15 +264,15 @@
 
                         <VCol class="pt-0 text-right" cols="6">
                             <VBtn
+                                :height="$vuetify.breakpoint.xs ? '4rem' : null"
+                                large
                                 :disabled="isChangingSet"
-                                :height="'75%'"
                                 :width="
                                     $vuetify.breakpoint.xsOnly ? '100%' : null
                                 "
                                 @click="endRestPeriod"
                                 class="mt-2"
                                 color="error"
-                                small
                             >
                                 <VIcon left>{{ $svgIcons.mdiStop }}</VIcon>
                                 End rest
@@ -317,7 +318,10 @@
                             >
                                 <VBtn
                                     v-if="isLastSetOfWorkout"
-                                    height="3rem"
+                                    :height="
+                                        $vuetify.breakpoint.xs ? '4rem' : null
+                                    "
+                                    large
                                     :ripple="false"
                                     :loading="isEndingWorkout"
                                     :width="
@@ -328,7 +332,6 @@
                                     @click="endWorkout"
                                     class="mt-2"
                                     color="success"
-                                    small
                                 >
                                     <VIcon left>{{ $svgIcons.mdiCheck }}</VIcon>
                                     Finish
@@ -337,7 +340,10 @@
                                 </VBtn>
                                 <VBtn
                                     v-else
-                                    height="3rem"
+                                    :height="
+                                        $vuetify.breakpoint.xs ? '4rem' : null
+                                    "
+                                    large
                                     :loading="isChangingSet"
                                     :width="
                                         $vuetify.breakpoint.xsOnly
@@ -347,7 +353,6 @@
                                     @click="startNextSet"
                                     class="mt-2"
                                     color="success"
-                                    small
                                 >
                                     <VIcon left>{{ $svgIcons.mdiPlay }}</VIcon>
                                     Next set
@@ -367,10 +372,11 @@
                     width="100%"
                 >
                     <VBtn
+                        :height="$vuetify.breakpoint.xs ? '4rem' : null"
+                        large
                         @click="startRestPeriod"
                         class="start-rest-button"
                         color="primary"
-                        x-large
                     >
                         <VIcon left>{{ $svgIcons.restPeriodStart }}</VIcon>
                         Start rest period
