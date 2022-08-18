@@ -65,7 +65,9 @@ async function getFetchResponse(request) {
     const cache = await caches.open(RUNTIME);
     const response = await fetch(request);
 
-    cache.put(cacheKey, response.clone());
+    if (cacheKey.method.toUpperCase() === 'GET') {
+        cache.put(cacheKey, response.clone());
+    }
 
     return response;
 }
