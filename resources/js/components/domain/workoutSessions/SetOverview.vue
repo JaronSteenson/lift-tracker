@@ -111,7 +111,13 @@
                 </div>
             </VAlert>
 
+            <!--
+                I have not worked it out, but we need to force a re-render with :key
+                or the no steps are selected when looking back or forward through the
+                exercises.
+             -->
             <VStepper
+                :key="this.exercise.uuid"
                 :value="set.position + 1"
                 flat
                 :vertical="false"
@@ -119,11 +125,13 @@
             >
                 <VStepperHeader>
                     <RouterLink
-                        v-if="hasPrevousExercise"
+                        v-if="previousExerciseLastSet"
                         class="d-flex"
                         :to="{
                             name: 'SetOverviewPage',
-                            params: { sessionSetUuid: this.previousSet.uuid },
+                            params: {
+                                sessionSetUuid: previousExerciseLastSet.uuid,
+                            },
                         }"
                     >
                         <VIcon
@@ -146,7 +154,7 @@
                     <div class="d-flex justify-space-around flex-grow-1">
                         <template v-for="otherSet in setsForStepper">
                             <VStepperStep
-                                :key="otherSet.position"
+                                :key="otherSet.uuid"
                                 :complete="otherSet.endedAt !== null"
                                 :color="getStepColor(otherSet)"
                                 :step="otherSet.position + 1"
@@ -167,11 +175,13 @@
                     </div>
 
                     <RouterLink
-                        v-if="canLookAhead"
+                        v-if="nextExerciseFirstSet"
                         class="d-flex"
                         :to="{
                             name: 'SetOverviewPage',
-                            params: { sessionSetUuid: this.nextSet.uuid },
+                            params: {
+                                sessionSetUuid: this.nextExerciseFirstSet.uuid,
+                            },
                         }"
                     >
                         <VIcon
@@ -526,12 +536,6 @@ export default {
         allowEndWorkout() {
             return this.isInProgressSet && this.isLastSetOfWorkout;
         },
-        canLookAhead() {
-            return !this.isLastSetOfWorkout;
-        },
-        canLookBack() {
-            return !this.isFirstSetOfWorkout;
-        },
         isLookingBack() {
             if (this.workoutIsFinished) {
                 return false;
@@ -558,9 +562,20 @@ export default {
 
             return !this.isInProgressSet && !this.isLookingBack;
         },
+        previousExerciseLastSet() {
+            return this.$store.getters['workoutSession/previousSet'](
+                this.exercise.sessionSets[0].uuid
+            );
+        },
         previousSet() {
             return this.$store.getters['workoutSession/previousSet'](
                 this.sessionSetUuid
+            );
+        },
+        nextExerciseFirstSet() {
+            return this.$store.getters['workoutSession/nextSet'](
+                this.exercise.sessionSets[this.exercise.sessionSets.length - 1]
+                    .uuid
             );
         },
         nextSet() {
@@ -583,7 +598,7 @@ export default {
             const position = this.set.position;
 
             if (length <= 5) {
-                return this.exercise.sessionSets;
+                return [...this.exercise.sessionSets];
             }
 
             if (position < 3) {
@@ -845,14 +860,6 @@ export default {
     // Prevent focus/loss of focus background.
     &:after {
         background: none !important;
-    }
-
-    &--left {
-        margin-left: 15px;
-    }
-
-    &--right {
-        margin-right: 15px;
     }
 
     &--disabled {
