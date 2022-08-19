@@ -274,21 +274,31 @@ export default {
                 workoutUuid: this.workoutUuid,
             });
         },
-        async startWorkout() {
+        startWorkout() {
             this.starting = true;
 
-            // Create a new workout session from the updated master routine.
-            await this.$store.dispatch('workoutSession/startWorkout', {
-                originWorkout: this.workout,
-            });
+            // For some reason mobile devices get locked up for about a second here.
+            // So we might as well just force that one second wait, so we can show the
+            // loading spinner on the button, then this seems to happen very quickly
+            // at the one second mark.
+            setTimeout(
+                async () => {
+                    // Create a new workout session from the updated master routine.
+                    await this.$store.dispatch('workoutSession/startWorkout', {
+                        originWorkout: this.workout,
+                    });
 
-            // Finally, go to the first set in the workout.
-            const firstSet = this.$store.getters['workoutSession/firstSet'];
-            // Replace so that back button doesn't go to the workout setup page.
-            this.$router.replace({
-                name: 'SetOverviewPage',
-                params: { sessionSetUuid: firstSet.uuid },
-            });
+                    // Finally, go to the first set in the workout.
+                    const firstSet =
+                        this.$store.getters['workoutSession/firstSet'];
+                    // Replace so that back button doesn't go to the workout setup page.
+                    this.$router.replace({
+                        name: 'SetOverviewPage',
+                        params: { sessionSetUuid: firstSet.uuid },
+                    });
+                },
+                this.$vuetify.breakpoint.xsOnly ? 1000 : 0
+            );
         },
     },
 };
