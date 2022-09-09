@@ -134,7 +134,7 @@
                 v-if="isSessionOverview"
                 :height="$vuetify.breakpoint.xs ? '4rem' : null"
                 :ripple="false"
-                :loading="starting"
+                :disabled="starting"
                 :class="{ 'mt-5': $vuetify.breakpoint.xsOnly }"
                 :width="$vuetify.breakpoint.xsOnly ? '100%' : '50%'"
                 color="success"

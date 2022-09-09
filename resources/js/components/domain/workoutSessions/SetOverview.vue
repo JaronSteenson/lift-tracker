@@ -372,7 +372,7 @@
                                     "
                                     large
                                     :ripple="false"
-                                    :loading="isEndingWorkout"
+                                    :disabled="isEndingWorkout"
                                     :width="
                                         $vuetify.breakpoint.xsOnly
                                             ? '100%'
