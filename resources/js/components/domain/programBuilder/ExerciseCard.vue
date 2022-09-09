@@ -23,10 +23,12 @@
             </VTextField>
         </VCardTitle>
         <template v-else>
-            <VCardTitle>
-                <EditableTitle @click="showEditModal = true">{{
-                    nameDisplay
-                }}</EditableTitle>
+            <VCardTitle class="exercise-card-title-wrapper">
+                <EditableTitle
+                    class="exercise-card-title"
+                    @click="showEditModal = true"
+                    >{{ nameDisplay }}</EditableTitle
+                >
                 <VMenu bottom left>
                     <template v-slot:activator="{ on }">
                         <VBtn icon v-on="on">
@@ -155,8 +157,16 @@ export default {
 </script>
 
 <style scoped lang="scss">
+.exercise-card-title-wrapper {
+    align-items: flex-start;
+}
+
 .exercise-card {
     padding-bottom: 10px;
+}
+
+.exercise-card-title {
+    width: 80%;
 }
 
 .exercise-card.v-sheet--outlined {
