@@ -1,6 +1,7 @@
 <template>
     <ProgramBuilder
         v-if="userIsAuthenticated"
+        class="programBuilder"
         :workout-program-uuid="workoutProgramUuid"
     />
 </template>
@@ -18,6 +19,16 @@ export default {
             type: String,
             required: false,
         },
+    },
+    mounted() {
+        const element = document.querySelector('main');
+        element.style.height = '100vh';
+        element.style.overflow = 'scroll hidden';
+    },
+    destroyed() {
+        const element = document.querySelector('main');
+        element.style.height = 'unset';
+        element.style.overflow = 'unset';
     },
     computed: {
         ...mapGetters('app', ['userIsAuthenticated']),

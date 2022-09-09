@@ -42,6 +42,10 @@ const getters = {
         return `${f}${l}`.trim();
     },
 
+    navigationDrawerOpen(state) {
+        return state.navigationDrawerOpen;
+    },
+
     afterLoginUrl(state) {
         if (state?.afterLoginUrl?.name === 'logout') {
             return { name: 'HomePage' };

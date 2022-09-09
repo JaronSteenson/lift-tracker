@@ -57,6 +57,21 @@ function checkPwaStart(to, from, next) {
     });
 }
 
+function checkForceDrawerHide(to, from, next) {
+    const goingToForceHideRoute = [
+        'ProgramBuilderPage',
+        'ProgramBuilderPageNew',
+    ].includes(to.name);
+
+    const isVisible = store.getters['app/navigationDrawerOpen'];
+    store.dispatch(
+        'app/setNavigationDrawerOpen',
+        isVisible && !goingToForceHideRoute
+    );
+
+    next();
+}
+
 const routes = [
     {
         name: 'HomePage',
@@ -139,5 +154,6 @@ const router = new VueRouter({
 
 router.beforeEach(forceLogin);
 router.beforeEach(checkPwaStart);
+router.beforeEach(checkForceDrawerHide);
 
 export default router;

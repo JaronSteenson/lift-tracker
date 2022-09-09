@@ -73,28 +73,25 @@
                     />
 
                     <Draggable
+                        class="main-draggable-container"
                         :forceFallback="true"
                         :delay="250"
                         :delayOnTouchOnly="true"
-                        class="row"
                         dragClass="workout-drag"
                         ghostClass="workout-drop-placeholder"
                         handle=".js-workout-drag-handle"
                         v-model="orderedWorkouts"
                     >
-                        <VCol
+                        <div
+                            class="workout-card-wrapper"
                             :key="workout.uuid"
-                            cols="12"
-                            lg="3"
-                            md="4"
-                            sm="6"
                             v-for="workout in orderedWorkouts"
                         >
                             <WorkoutCard
                                 :workoutUuid="workout.uuid"
                             ></WorkoutCard>
-                        </VCol>
-                        <VCol cols="12" lg="3" md="4" slot="footer" sm="6">
+                        </div>
+                        <div class="workout-card-wrapper">
                             <VBtn
                                 @click="addWorkoutToProgram(null)"
                                 draggable="false"
@@ -103,7 +100,7 @@
                                 <VIcon left>{{ $svgIcons.mdiPlus }}</VIcon>
                                 Add workout
                             </VBtn>
-                        </VCol>
+                        </div>
                     </Draggable>
                 </VSheet>
             </template>
@@ -256,5 +253,21 @@ export default {
 
 .builder-workouts-container {
     padding: 10px;
+    max-height: calc(90vh - 48px);
+}
+
+.main-draggable-container {
+    padding: 16px;
+    display: flex;
+    gap: 16px;
+}
+
+.workout-card-wrapper {
+    width: 420px;
+    min-width: 330px;
+    max-width: 400px;
+    max-height: calc(90vh);
+    overflow-y: scroll;
+    overflow-x: hidden;
 }
 </style>

@@ -143,4 +143,25 @@ $vuetify-gap-basis: 4px;
 .gap-4 {
     gap: 4 * $vuetify-gap-basis;
 }
+
+::-webkit-scrollbar {
+    width: 5px;
+    height: 10px;
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+    opacity: 0;
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+    background: #b9b9b9;
+    border-radius: 15px;
+}
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+    background: #787777;
+}
 </style>

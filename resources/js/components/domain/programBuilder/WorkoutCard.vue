@@ -90,7 +90,11 @@
             </VCardText>
         </template>
 
-        <component :is="isSessionOverview ? 'div' : 'VRow'" class="mt-0">
+        <component
+            :is="isSessionOverview ? 'div' : 'VRow'"
+            class="mt-0"
+            style="max-height: 100%"
+        >
             <component :is="isSessionOverview ? 'div' : 'VCol'">
                 <Draggable
                     :forceFallback="true"
