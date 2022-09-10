@@ -753,12 +753,21 @@ export default {
             this.isEndingWorkout = true;
             this.isChangingSet = true;
 
-            // Force a delay, so we show the loading feedback before the app get too busy to re-render the ui.
-            this.$store.dispatch('workoutSession/endWorkout');
-            this.$router.push({
-                name: 'SessionOverviewPage',
-                params: { workoutSessionUuid: this.uuid },
-            });
+            // For some reason mobile devices get locked up for about a second here.
+            // So we might as well just force that one second wait, so we can show the
+            // loading spinner on the button, then this seems to happen very quickly
+            // at the one second mark.
+            setTimeout(
+                async () => {
+                    // Force a delay, so we show the loading feedback before the app get too busy to re-render the ui.
+                    this.$store.dispatch('workoutSession/endWorkout');
+                    this.$router.push({
+                        name: 'SessionOverviewPage',
+                        params: { workoutSessionUuid: this.uuid },
+                    });
+                },
+                this.$vuetify.breakpoint.xsOnly ? 250 : 0
+            );
         },
         skipSet() {
             this.startNextSet();

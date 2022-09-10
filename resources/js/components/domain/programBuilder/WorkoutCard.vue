@@ -301,7 +301,7 @@ export default {
                         params: { sessionSetUuid: firstSet.uuid },
                     });
                 },
-                this.$vuetify.breakpoint.xsOnly ? 1000 : 0
+                this.$vuetify.breakpoint.xsOnly ? 250 : 0
             );
         },
     },
