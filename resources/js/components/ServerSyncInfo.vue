@@ -79,7 +79,7 @@ export default {
                 return 'Saving';
             }
 
-            if (this.updatedAt) {
+            if (this.updatedAt >= 0) {
                 if (this.$vuetify.breakpoint.mdAndDown) {
                     return `${updatedAtMicro(this.updatedAt)}`;
                 }
