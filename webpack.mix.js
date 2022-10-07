@@ -22,4 +22,10 @@ if (mix.inProduction()) {
     });
 }
 
-mix.js('resources/js/app.js', 'public/js').vue({ version: 2 }).version();
+mix.js('resources/js/app.js', 'public/js')
+    .setResourceRoot('resources')
+    .vue({
+        version: 2,
+        extractStyles: 'public/js/app-custom.css',
+    })
+    .version();

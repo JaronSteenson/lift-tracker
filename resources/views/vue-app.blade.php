@@ -5,7 +5,8 @@
 @stop
 
 @section('assets')
-    <!-- JS app bundle, includes css. -->
+    <link href="{{ asset('js/app.css') }}" rel="stylesheet">
+    <link href="{{ asset('js/app-custom.css') }}" rel="stylesheet">
     <script src="{{ mix('js/app.js') }}" defer></script>
 @stop
 
