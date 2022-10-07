@@ -36,10 +36,7 @@
                         >
                             <VListItemTitle>Skip set</VListItemTitle>
                         </VListItem>
-                        <VListItem
-                            :disabled="!allowEndWorkout"
-                            @click="endWorkout"
-                        >
+                        <VListItem @click="tryEndWorkout">
                             <VListItemTitle>Finish workout</VListItemTitle>
                         </VListItem>
                     </VList>
@@ -533,7 +530,7 @@ export default {
                 !this.isLastSetOfExercise
             );
         },
-        allowEndWorkout() {
+        allowInstanceEndWorkout() {
             return this.isInProgressSet && this.isLastSetOfWorkout;
         },
         isLookingBack() {
@@ -748,6 +745,20 @@ export default {
                 'workoutSession/fetchExercisePreviousEntries',
                 this.exercise.uuid
             );
+        },
+        tryEndWorkout() {
+            if (this.allowInstanceEndWorkout) {
+                this.endWorkout();
+                return;
+            }
+
+            const finishConfirmed = window.confirm(
+                'There are sets left in this workout, finish now?'
+            );
+
+            if (finishConfirmed) {
+                this.endWorkout();
+            }
         },
         endWorkout() {
             this.isEndingWorkout = true;
