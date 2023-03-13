@@ -24,6 +24,12 @@ class FacebookAuthManagerTest extends TestCase
 
     private const FACEBOOK_USER_ID = 1300000000000000;
 
+    public function setUp(): void
+    {
+        parent::setUp();
+        factory(User::class)->create();
+    }
+
     /**
      * @throws FacebookSDKException
      */

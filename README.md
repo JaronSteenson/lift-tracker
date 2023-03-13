@@ -26,7 +26,7 @@ php ./vendor/phpunit/phpunit/phpunit --configuration ./phpunit.xml
 
 <hr>
 
-## Inital setup gotchas
+## Initial setup gotchas
 
 ### Local host might not connect
 
