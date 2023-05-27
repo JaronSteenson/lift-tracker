@@ -10,7 +10,12 @@ pipelines:
               caches:
                 - composer
               script:
-                - apt-get update && apt-get install -qy git curl libmcrypt-dev default-mysql-client
+                - apt-get update
+                - apt-get install -qy git
+                - if [ $(. ci/should-build-frontend.sh) = "no-changes"  ]; then echo "No changes skipping build" && exit 0; fi
+                - apt-get install -qy curl libmcrypt-dev default-mysql-client
+                - git fetch origin refs/notes/*:refs/notes/*
+                - git push origin refs/notes/*
                 - yes | pecl install mcrypt-1.0.1
                 - docker-php-ext-install pdo_mysql
                 - curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
