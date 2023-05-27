@@ -7,4 +7,5 @@ const WorkoutProgramService = {
         return ApiService.get(RESOURCE_NAME);
     },
 };
+
 export default WorkoutProgramService;
