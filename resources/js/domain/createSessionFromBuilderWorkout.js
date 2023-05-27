@@ -50,7 +50,7 @@ function createExerciseForEmptyWorkout(name) {
 function createSessionExerciseFromBuilderExercise(builderExercise) {
     return {
         uuid: UuidHelper.assign(),
-        name: builderExercise.name,
+        name: builderExercise.name || 'Unnamed exercise',
         plannedWeight: builderExercise.weight,
         plannedRestPeriodDuration: builderExercise.restPeriod,
         position: builderExercise.position,
