@@ -320,6 +320,12 @@ export const getters = {
         return setUuid === lastExerciseOfSet.uuid;
     },
 
+    restPeriodStarted: (state, getters) => (uuid) => {
+        const set = getters.set(uuid);
+
+        return set.restPeriodStartedAt !== null;
+    },
+
     restPeriodNotStarted: (state, getters) => (uuid) => {
         const set = getters.set(uuid);
 
@@ -446,6 +452,17 @@ export const actions = {
             uuid,
             restPeriodStartedAt,
             restPeriodEndedAt: null,
+        });
+
+        dispatch('saveSet', uuid);
+    },
+
+    resetRestPeriod({ commit, dispatch }, { uuid }) {
+        commit('updateSet', {
+            uuid,
+            restPeriodStartedAt: null,
+            restPeriodEndedAt: null,
+            restPeriodDuration: null,
         });
 
         dispatch('saveSet', uuid);

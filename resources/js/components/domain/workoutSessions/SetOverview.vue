@@ -31,6 +31,12 @@
                             <VListItemTitle>View next</VListItemTitle>
                         </VListItem>
                         <VListItem
+                            :disabled="!restPeriodStarted"
+                            @click="resetRestPeriod"
+                        >
+                            <VListItemTitle>Reset rest period</VListItemTitle>
+                        </VListItem>
+                        <VListItem
                             :disabled="!isInProgressSet || isLastSetOfWorkout"
                             @click="skipSet"
                         >
@@ -613,6 +619,11 @@ export default {
                 this.sessionSetUuid
             );
         },
+        restPeriodStarted() {
+            return this.$store.getters['workoutSession/restPeriodStarted'](
+                this.sessionSetUuid
+            );
+        },
         restPeriodNotStarted() {
             return this.$store.getters['workoutSession/restPeriodNotStarted'](
                 this.sessionSetUuid
@@ -780,6 +791,12 @@ export default {
                 this.$vuetify.breakpoint.xsOnly ? 250 : 0
             );
         },
+        resetRestPeriod() {
+            const uuid = this.set.uuid;
+            this.$store.dispatch('workoutSession/resetRestPeriod', {
+                uuid,
+            });
+        },
         skipSet() {
             this.startNextSet();
         },
@@ -791,7 +808,6 @@ export default {
             }
 
             const nextSetUuid = this.nextSet.uuid;
-
             await this.$store.dispatch('workoutSession/startSet', {
                 uuid: nextSetUuid,
             });
