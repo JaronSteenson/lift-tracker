@@ -72,6 +72,8 @@ pipelines:
                 MODE: "command"
                 COMMAND: >
                   tar -xvf /tmp/deploy-backend/artifacts-backend.tar.gz -C /var/www/html/lift-tracker
+                  && cd /var/www/html/lift-tracker
+                  && php artisan migrate
             - if [ $(. ci/should-build-frontend.sh) = "no-changes"  ]; then echo "No changes skipping frontend deploy" && exit 0; fi
             - tar -czvf artifacts-frontend.tar.gz public;
             - pipe: atlassian/ssh-run:0.4.1
@@ -80,8 +82,8 @@ pipelines:
                 SERVER: $PROD_IP
                 MODE: "command"
                 COMMAND: >
-                  rm -rf /tmp/deploy-frontend/
-                  && mkdir /tmp/deploy-frontend/
+                  rm -rf /tmp/deploy-frontend
+                  && mkdir /tmp/deploy-frontend
             - pipe: atlassian/scp-deploy:0.3.3
               variables:
                 USER: $PROD_USER
