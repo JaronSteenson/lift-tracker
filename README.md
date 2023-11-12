@@ -1,19 +1,41 @@
+## Initial setup
+```
+# Clone the repo
+git clone --recursive git@bitbucket-personal:jaronsteenson/lift-tracker;
+cd lift-tracker;
+cp .env.example .env;
+cd lift-tracker-laradock;
+cp -f .env.example .env;
+
+# Set up docker
+docker-compose up nginx mysql;
+
+# Set up js
+nvm use 14;
+npm ci;
+
+# Set up php
+docker-compose exec workspace bash;
+compoers install;
+artisan migrate; 
+artisan migrate --database=mysql_test; # Migrate the app and unit test db;
+```
+
 
 ## Starting laradoc
-
 ```
 cd ~/code/lift-tracker/lift-tracker-laradock && docker-compose up -d nginx mysql && cd ..;
 ```
 
-## Migrating the test database
+## Migrating the database
 ```
 docker-compose exec workspace bash; # get into the workspace container
 
-artisan migrate && artisan migrate --database=mysql_test; # migrate the test db
+artisan migrate;
+artisan migrate --database=mysql_test; # Migrate the app and unit test db;
 ```
 
-## Debugging a unit test
-
+## Running php unit from cli
 ```
 docker-compose exec workspace bash; # get into the workspace container
 
@@ -23,40 +45,3 @@ php -dxdebug.remote_enable=1 -dxdebug.remote_mode=req -dxdebug.remote_port=9000 
 
 php ./vendor/phpunit/phpunit/phpunit --configuration ./phpunit.xml
 ```
-
-<hr>
-
-## Initial setup gotchas
-
-### Local host might not connect
-
-Go to http://127.0.0.1/ instead.
-
-### 1. Create the databases and users
-
-```
-CREATE DATABASE lift_tracker;
-CREATE DATABASE lift_tracker_test;
-
-CREATE USER 'lift_tracker' IDENTIFIED WITH mysql_native_password BY '';
-GRANT ALL PRIVILEGES ON *.* TO 'lift_tracker'@'localhost' WITH GRANT OPTION;
-
-CREATE USER 'lift_tracker_test' IDENTIFIED WITH mysql_native_password BY '';
-GRANT ALL PRIVILEGES ON *.* TO 'lift_tracker_test'@'localhost' WITH GRANT OPTION;
-```
-
-### 2. Run composer and npm install
-
-### 3. Manually install memcached
-
-`pecl install memcached`
-
-### 4. Run the migrations
-
-```
-docker-compose exec workspace bash; # get into the workspace container
-
-artisan migrate && artisan migrate --database=mysql_test; # migrate the test db
-```
-
-### 5. Run npm build
