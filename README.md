@@ -56,3 +56,6 @@ cp .idea.example/** .idea  -rf
 ```shell
 cp .idea/** .idea.example -rf;
 ```
+
+## Relevant framework docs
+https://laravel.com/docs/5.8
