@@ -52,7 +52,7 @@ return [
     |
     */
 
-    'url' => env('APP_URL', 'http://lift-tracker.io/'),
+    'url' => env('APP_URL', 'https://lift-tracker.app'),
 
     /*
     |--------------------------------------------------------------------------

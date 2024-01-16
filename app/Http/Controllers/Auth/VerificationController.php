@@ -44,18 +44,22 @@ class VerificationController extends Controller
 
     public function verify(Request $request)
     {
+        if (!$request->user()) {
+            throw new AuthorizationException('Most likely caused by switching browsers, or clearing cookies');
+        }
+
         if ($request->get('id') != $request->user()->getKey()) {
             throw new AuthorizationException;
         }
 
         if ($request->user()->hasVerifiedEmail()) {
-            return redirect('/?alreadyVerified=1');
+            return redirect(config('app.url'));
         }
 
         if ($request->user()->markEmailAsVerified()) {
             event(new Verified($request->user()));
         }
 
-        redirect('/');
+        return redirect(config('app.url'));
     }
 }
