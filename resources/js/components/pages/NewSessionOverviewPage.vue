@@ -1,6 +1,6 @@
 <template>
     <div v-if="userIsAuthenticated">
-        <PageToolbar
+        <AppBar
             title="Session overview"
             :back-to="{ name: 'NewSessionRoutineSelectPage' }"
         />
@@ -10,13 +10,13 @@
 
 <script>
 import NewSessionOverview from '../domain/workoutSessions/NewSessionOverview';
-import PageToolbar from '../AppBar';
+import AppBar from '../AppBar';
 import { mapGetters } from 'vuex';
 
 export default {
     components: {
         NewSessionOverview,
-        PageToolbar,
+        AppBar,
     },
     props: {
         originRoutineUuid: {

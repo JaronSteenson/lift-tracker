@@ -762,7 +762,7 @@ const mutations = {
     },
 
     reset(state, newState) {
-        Object.keys(newState).forEach((key) => {
+        Object.keys(newState || {}).forEach((key) => {
             state[key] = newState[key];
         });
     },

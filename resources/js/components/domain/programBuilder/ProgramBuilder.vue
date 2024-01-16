@@ -6,7 +6,7 @@
                 >Sorry we couldn't find that program.</NotFoundPage
             >
             <template v-else>
-                <PageToolbar
+                <AppBar
                     :title="
                         $vuetify.breakpoint.smAndDown ? 'Program builder' : null
                     "
@@ -57,7 +57,7 @@
                             </VList>
                         </VMenu>
                     </template>
-                </PageToolbar>
+                </AppBar>
 
                 <VSheet class="mx-3">
                     <VTextField
@@ -116,7 +116,7 @@ import Draggable from 'vuedraggable';
 import EditableTitle from '../../formFields/EditableTitle';
 import ProgramBuilderLoadingSkeleton from './ProgramBuilderLoadingSkeleton';
 import ServerSyncInfo from '../../ServerSyncInfo';
-import PageToolbar from '../../AppBar';
+import AppBar from '../../AppBar';
 
 export default {
     components: {
@@ -125,7 +125,7 @@ export default {
         NotFoundPage,
         Draggable,
         EditableTitle,
-        PageToolbar,
+        AppBar,
         ProgramBuilderLoadingSkeleton,
     },
     props: {

@@ -1,6 +1,6 @@
 <template>
     <div>
-        <AppBar :title="appName" :back-to="null" />
+        <AppBar />
         <div v-if="$vuetify.breakpoint.xsOnly" class="d-flex justify-center">
             <div
                 class="left-column d-flex flex-column justify-center align-center"
@@ -20,50 +20,86 @@
                     class="banner-image-skeleton-small"
                     type="image"
                 />
-                <h1 class="heading heading--small mt-15">
+                <h1 class="heading heading--small mt-4">
                     The simplest way to track your lifts
                 </h1>
-                <div class="login-container mt-15 pa-2">
-                    <FacebookLoginButton />
-                </div>
-                <a class="privacy-policy mt-10 d-block" href="/privacy-policy">
-                    Privacy policy
-                </a>
-            </div>
-        </div>
-
-        <div class="container-large" v-else>
-            <div class="d-flex flex-wrap justify-center">
-                <div class="mx-15">
-                    <img
-                        v-show="imageHasLoaded"
-                        ref="image"
-                        class="banner-image banner-image--large"
-                        :class="{ 'banner-image--fade-in': fadeImageIn }"
-                        src="images/phone-gym-floor.jpg"
-                        alt="Banner image"
+                <div class="pa-2">
+                    <LoginForm
+                        v-if="showingLoginForm"
+                        v-model="user"
+                        class="full-page-form"
+                        @showRegisterForm="showRegisterForm"
                     />
-                    <VSkeletonLoader
-                        v-if="!imageHasLoaded"
-                        class="banner-image-skeleton"
-                        type="image"
+                    <RegisterForm
+                        v-else-if="showRegisterForm"
+                        v-model="user"
+                        class="full-page-form"
+                        @showLoginForm="showLoginForm"
                     />
                 </div>
-                <div
-                    class="mx-15 d-flex flex-column justify-center align-center"
-                >
-                    <h1 class="heading">
-                        The simplest way to track your lifts
-                    </h1>
-                    <div class="login-container mt-15 pa-2">
-                        <FacebookLoginButton />
-                    </div>
-                    <a
-                        class="privacy-policy mt-5 d-block"
-                        href="/privacy-policy"
+                <div class="d-flex justify-space-around">
+                    <RouterLink
+                        class="small-login-page-link pa-2 d-block"
+                        :to="`/reset-password?email=${user.email}`"
+                    >
+                        Reset password
+                    </RouterLink>
+                    <RouterLink
+                        class="small-login-page-link pa-2 d-block"
+                        :to="{ name: 'PrivacyPolicy' }"
                     >
                         Privacy policy
-                    </a>
+                    </RouterLink>
+                </div>
+            </div>
+        </div>
+        <div
+            v-else
+            class="d-flex flex-wrap justify-center gap-4"
+            :class="$vuetify.breakpoint.mdAndUp ? 'mt-16' : 'mt-8'"
+        >
+            <div>
+                <img
+                    v-show="imageHasLoaded"
+                    ref="image"
+                    class="banner-image banner-image--large"
+                    :class="{ 'banner-image--fade-in': fadeImageIn }"
+                    src="images/phone-gym-floor.jpg"
+                    alt="Banner image"
+                />
+                <VSkeletonLoader
+                    v-if="!imageHasLoaded"
+                    class="banner-image-skeleton"
+                    type="image"
+                />
+            </div>
+            <div class="mx-15 d-flex flex-column justify-center align-center">
+                <h1 class="heading">The simplest way to track your lifts</h1>
+                <LoginForm
+                    v-if="showingLoginForm"
+                    v-model="user"
+                    class="full-page-form"
+                    @showRegisterForm="showRegisterForm"
+                />
+                <RegisterForm
+                    v-else-if="showRegisterForm"
+                    v-model="user"
+                    class="full-page-form"
+                    @showLoginForm="showLoginForm"
+                />
+                <div class="d-flex justify-space-around">
+                    <RouterLink
+                        class="small-login-page-link pa-2 d-block"
+                        :to="`/reset-password?email=${user.email}`"
+                    >
+                        Reset password
+                    </RouterLink>
+                    <RouterLink
+                        class="small-login-page-link pa-2 d-block"
+                        :to="{ name: 'PrivacyPolicy' }"
+                    >
+                        Privacy policy
+                    </RouterLink>
                 </div>
             </div>
         </div>
@@ -71,13 +107,14 @@
 </template>
 
 <script>
-import FacebookLoginButton from '../formFields/FacebookLoginButton';
 import AppBar from '../AppBar';
-import { mapState } from 'vuex';
+import LoginForm from '../domain/LoginForm';
+import RegisterForm from '../domain/RegisterForm';
 
 export default {
     components: {
-        FacebookLoginButton,
+        RegisterForm,
+        LoginForm,
         AppBar,
     },
     mounted() {
@@ -88,20 +125,32 @@ export default {
         return {
             imageHasLoaded: false,
             fadeImageIn: false,
+            showingLoginForm: true,
+            showingRegisterForm: false,
+            user: {
+                firstName: '',
+                lastName: '',
+                email: '',
+                password: '',
+                passwordConfirm: '',
+            },
         };
     },
-    computed: {
-        ...mapState('app', ['appName']),
+    methods: {
+        showLoginForm() {
+            this.showingLoginForm = true;
+            this.showingRegisterForm = false;
+        },
+        showRegisterForm() {
+            this.showingLoginForm = false;
+            this.showingRegisterForm = true;
+        },
     },
 };
 </script>
 
 <style lang="scss" scoped>
 $defaultThemeAppBarColor: #f5f5f5;
-
-.container-large {
-    margin-top: 15vh;
-}
 
 .heading {
     color: $defaultThemeAppBarColor;
@@ -111,16 +160,6 @@ $defaultThemeAppBarColor: #f5f5f5;
     &--small {
         font-size: 1.3em;
     }
-}
-
-.login-container {
-    background-color: $defaultThemeAppBarColor;
-    border-radius: 5px;
-}
-
-.privacy-policy {
-    color: $defaultThemeAppBarColor !important;
-    font-size: 0.8em;
 }
 
 .banner-image {

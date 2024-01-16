@@ -1,9 +1,6 @@
 <template>
     <div>
-        <PageToolbar
-            title="My workout programs"
-            :back-to="{ name: 'HomePage' }"
-        />
+        <AppBar title="My workout programs" :back-to="{ name: 'HomePage' }" />
         <NoProgramsHint v-if="myWorkoutPrograms.length === 0" />
         <WorkoutProgramList v-else />
         <VBtn
@@ -23,12 +20,12 @@
 import WorkoutProgramList from '../domain/WorkoutProgramList';
 import { mapGetters } from 'vuex';
 import NoProgramsHint from '../domain/userHints/NoProgramsHint';
-import PageToolbar from '../AppBar';
+import AppBar from '../AppBar';
 
 export default {
     components: {
         NoProgramsHint,
-        PageToolbar,
+        AppBar,
         WorkoutProgramList,
     },
     computed: {

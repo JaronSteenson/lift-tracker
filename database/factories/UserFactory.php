@@ -19,7 +19,7 @@ $factory->define(LiftTracker\User::class, static function (Faker $faker) {
         'firstName' => $faker->firstName,
         'lastName' => $faker->lastName,
         'email' => $faker->unique()->safeEmail,
-        'facebookId' => $faker->unique()->numberBetween(1200000000000000, 1210000000000000),
-        'facebookAccessToken' => '$2y$10$TKh8H1.PfQx37YgCzwiKb.KjNyWgaHb9cbcoQgdIVFlYg7B77UdFm', // secret
+        'password' => $faker->password(),
+        'emailVerifiedAt' => $faker->dateTime(),
     ];
 });

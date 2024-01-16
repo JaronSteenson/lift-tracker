@@ -15,7 +15,7 @@ return [
     */
 
     'mailgun' => [
-        'domain' => env('MAILGUN_DOMAIN'),
+        'domain' => env('MAILGUN_DOMAIN', 'lift-tracker.app'),
         'secret' => env('MAILGUN_SECRET'),
     ],
 

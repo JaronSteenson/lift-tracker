@@ -2,10 +2,13 @@
 
 namespace LiftTracker\Http\Controllers\Auth;
 
+use Illuminate\Auth\AuthenticationException;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use LiftTracker\Domain\AppBootstrapData;
 use LiftTracker\Http\Controllers\Controller;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
+use LiftTracker\Rules\UserExists;
 
 class LoginController extends Controller
 {
@@ -27,26 +30,17 @@ class LoginController extends Controller
      *
      * @var string
      */
-    protected $redirectTo = '';
+    protected $redirectTo = '/verification-email-sent';
 
-    /**
-     * Create a new controller instance.
-     *
-     * @return void
-     */
-    public function __construct()
+    public function login(Request $request): AppBootstrapData
     {
-        $this->middleware('guest')->except('logout');
-    }
+        $request->validate(['email' => new UserExists]);
 
-    /**
-     * Overridden for use with vue, instead of redirecting return bootstrap json data instead.
-     *
-     * @param Request $request
-     * @return AppBootstrapData
-     */
-    public function sendLoginResponse(Request $request): AppBootstrapData
-    {
+        $credentials = $request->only('email', 'password');
+        if (!Auth::attempt($credentials)) {
+            throw new AuthenticationException('Password is incorrect');
+        }
+
         return new AppBootstrapData();
     }
 

@@ -27,14 +27,14 @@
 
                 <slot v-if="$vuetify.breakpoint.xsOnly" name="middle">
                     <VToolbarTitle class="mx-2 d-flex align-center">
-                        {{ title }}
+                        {{ title || appName }}
                     </VToolbarTitle>
                 </slot>
             </div>
 
             <slot v-if="$vuetify.breakpoint.smAndUp" name="middle">
                 <VToolbarTitle class="mx-2">
-                    {{ title }}
+                    {{ title || appName }}
                 </VToolbarTitle>
             </slot>
 
@@ -65,7 +65,7 @@ export default {
         title: String,
     },
     computed: {
-        ...mapState('app', ['navigationDrawerOpen']),
+        ...mapState('app', ['appName', 'navigationDrawerOpen']),
         ...mapGetters('app', ['userIsAuthenticated']),
         drawer: {
             get() {

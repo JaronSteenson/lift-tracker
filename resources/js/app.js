@@ -1,7 +1,7 @@
 import Vue from 'vue';
 import store from './store';
 import ApiService from './api/ApiService';
-import router from './router';
+import router from './router/router';
 import vuetify from './vuetify';
 import App from './components/App.vue';
 
@@ -18,7 +18,10 @@ import App from './components/App.vue';
             return response;
         },
         async (error) => {
-            if (error.request.status === 401) {
+            if (
+                error.request.status === 401 &&
+                store.getters['app/userIsAuthenticated']
+            ) {
                 await store.dispatch('app/expireSession');
                 return Promise.resolve(error);
             }

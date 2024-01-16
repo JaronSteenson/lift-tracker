@@ -20,7 +20,7 @@ class WorkoutProgramFeatureTest extends TestCase
     public function setUp(): void
     {
         parent::setUp();
-        $this->withoutMiddleware([VerifyCsrfToken::class]);
+        $this->withoutMiddleware();
     }
 
     public function testIndexWithoutAnyWorkouts(): void

@@ -72,6 +72,27 @@ export default {
     color: var(--v-accent-base) !important;
 }
 
+.small-login-page-link {
+    color: #f5f5f5 !important;
+    font-size: 0.8em;
+}
+
+.full-page-form {
+    width: 100%;
+    min-width: 300px;
+}
+
+.container-large {
+    margin-top: 15vh;
+    @media (min-width: 600px) {
+        margin-top: 15vh;
+    }
+}
+
+.login-error {
+    color: var(--v-error-base);
+}
+
 .v-main--not-logged-in {
     background-color: #00324f; // Hard-codded default light theme primary darken 2
 }

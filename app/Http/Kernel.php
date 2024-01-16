@@ -3,8 +3,6 @@
 namespace LiftTracker\Http;
 
 use Illuminate\Foundation\Http\Kernel as HttpKernel;
-use LiftTracker\Http\Middleware\FacebookAuthParseState;
-use LiftTracker\Http\Middleware\FacebookAuthVerifyCsrfToken;
 
 class Kernel extends HttpKernel
 {
@@ -39,11 +37,6 @@ class Kernel extends HttpKernel
             \Illuminate\Routing\Middleware\SubstituteBindings::class,
         ],
 
-        'facebook-login' => [
-            FacebookAuthParseState::class,
-            FacebookAuthVerifyCsrfToken::class,
-        ],
-
         'api' => [
             'throttle:60,1',
             'bindings',
@@ -63,7 +56,7 @@ class Kernel extends HttpKernel
         'bindings' => \Illuminate\Routing\Middleware\SubstituteBindings::class,
         'cache.headers' => \Illuminate\Http\Middleware\SetCacheHeaders::class,
         'can' => \Illuminate\Auth\Middleware\Authorize::class,
-        'guest' => \LiftTracker\Http\Middleware\RedirectIfAuthenticated::class,
+        'guest' => null,
         'signed' => \Illuminate\Routing\Middleware\ValidateSignature::class,
         'throttle' => \Illuminate\Routing\Middleware\ThrottleRequests::class,
         'verified' => \Illuminate\Auth\Middleware\EnsureEmailIsVerified::class,

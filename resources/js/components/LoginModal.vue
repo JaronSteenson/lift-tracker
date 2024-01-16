@@ -10,9 +10,7 @@
             <VCardTitle class="d-block text-center">
                 Please log in to continue
             </VCardTitle>
-            <VCardText class="text-center pl-2 pr-2">
-                <FacebookLoginButton />
-            </VCardText>
+            <VCardText class="text-center pl-2 pr-2"> </VCardText>
             <VCardActions class="text-center d-block">
                 <a href="/privacy-policy">Privacy policy</a>
             </VCardActions>
@@ -20,12 +18,8 @@
     </VDialog>
 </template>
 <script>
-import FacebookLoginButton from './formFields/FacebookLoginButton';
-
 export default {
-    components: {
-        FacebookLoginButton,
-    },
+    components: {},
     props: {
         sessionExpiryWarning: Boolean,
     },

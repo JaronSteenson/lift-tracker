@@ -1,6 +1,6 @@
 <template>
     <div>
-        <PageToolbar
+        <AppBar
             :title="pageTitle"
             :back-to="{
                 name: 'SessionOverviewPage',
@@ -48,7 +48,7 @@
                     </VList>
                 </VMenu>
             </template>
-        </PageToolbar>
+        </AppBar>
 
         <NarrowContentContainer use-full-width>
             <VAlert
@@ -447,11 +447,11 @@ import SessionExerciseStatsModal from './SessionExerciseStatsModal';
 import ServerSyncInfo from './../../ServerSyncInfo';
 import LabeledWorkoutDuration from '../LabeledWorkoutDuration';
 import NarrowContentContainer from '../../layouts/NarrowContentContainer';
-import PageToolbar from '../../AppBar';
+import AppBar from '../../AppBar';
 
 export default {
     components: {
-        PageToolbar,
+        AppBar,
         NarrowContentContainer,
         LabeledWorkoutDuration,
         ServerSyncInfo,

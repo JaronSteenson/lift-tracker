@@ -15,7 +15,7 @@ class SessionSetTest extends TestCase
     public function setUp(): void
     {
         parent::setUp();
-        $this->withoutMiddleware([VerifyCsrfToken::class]);
+        $this->withoutMiddleware();
     }
 
     public function testUpdate(): void

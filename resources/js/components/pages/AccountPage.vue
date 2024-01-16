@@ -1,6 +1,6 @@
 <template>
     <NarrowContentContainer>
-        <PageToolbar title="My account" :back-to="{ name: 'HomePage' }" />
+        <AppBar title="My account" :back-to="{ name: 'HomePage' }" />
 
         <VCard>
             <VCardTitle>Change theme</VCardTitle>
@@ -13,7 +13,9 @@
         <VCard>
             <VCardTitle>Privacy policy</VCardTitle>
             <VCardText>
-                <a href="/privacy-policy">Read online</a>
+                <RouterLink :to="{ name: 'PrivacyPolicy' }">
+                    Read online
+                </RouterLink>
             </VCardText>
         </VCard>
 
@@ -35,7 +37,7 @@
 </template>
 
 <script>
-import PageToolbar from '../AppBar';
+import AppBar from '../AppBar';
 import FacebookLoginDeleteAccountButton from '../formFields/FacebookLoginDeleteAccountButton';
 import ThemePicker from '../formFields/ThemePicker';
 import NarrowContentContainer from '../layouts/NarrowContentContainer';
@@ -44,7 +46,7 @@ export default {
     components: {
         NarrowContentContainer,
         ThemePicker,
-        PageToolbar,
+        AppBar,
         FacebookLoginDeleteAccountButton,
     },
 };

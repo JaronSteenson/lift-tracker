@@ -8,6 +8,7 @@ const state = {
     csrfToken: null,
     facebookAppId: null,
     afterLoginUrl: null,
+    previousRoute: '/',
     /**
      * Session lifetime in minutes.
      * @type ?number
@@ -32,7 +33,9 @@ const getters = {
     },
 
     userIsAuthenticated(state) {
-        return state.authenticatedUser !== null;
+        return Boolean(
+            state.authenticatedUser && state.authenticatedUser.emailVerifiedAt
+        );
     },
 
     getUserAvatarInitial(state) {
@@ -104,11 +107,12 @@ const actions = {
             navigationDrawerOpen: value,
         });
     },
-    async boostrap({ commit, getters }) {
-        const data = (await AppService.getBootstrapData()).data;
+    async boostrap({ commit, getters }, data = null) {
+        if (!data) {
+            data = (await AppService.getBootstrapData()).data;
+        }
 
         const isAuthed = data.app.authenticatedUser !== null;
-
         if (isAuthed) {
             data.app.sessionExpiryTime = addMinutes(
                 new Date(),
@@ -142,8 +146,66 @@ const actions = {
         return data;
     },
 
+    async login({ commit }, { email, password }) {
+        const response = await AppService.login({ email, password });
+
+        const data = response.data;
+        if (response.status >= 400) {
+            return response;
+        }
+
+        commit('reset', { ...data.app, isBootstrapped: true });
+        commit('workoutSession/reset', data.workoutSession, { root: true });
+        commit('programBuilder/reset', data.programBuilder, { root: true });
+
+        return response;
+    },
+
+    async register(
+        { commit },
+        { firstName, lastName, email, password, passwordConfirm }
+    ) {
+        const response = await AppService.register({
+            firstName,
+            lastName,
+            email,
+            password,
+            passwordConfirm,
+        });
+        commit('reset', { ...response.data.app, isBootstrapped: true });
+        return response;
+    },
+
+    async sendPasswordResetEmail(_, email) {
+        return await AppService.sendPasswordResetEmail({
+            email,
+        });
+    },
+
+    async resetPassword(
+        { dispatch },
+        { email, password, passwordConfirm, token }
+    ) {
+        const response = await AppService.resetPassword({
+            email,
+            password,
+            passwordConfirm,
+            token,
+        });
+
+        if (response.status === 200) {
+            dispatch('boostrap', response.data);
+        }
+
+        return response;
+    },
+
     setAfterLoginUrl({ commit }, to) {
         commit('setAfterLoginUrl', to);
+    },
+
+    setPreviousRoute({ commit }, from) {
+        commit('setPreviousRoute', from);
     },
 
     async logout({ commit }) {
@@ -179,13 +241,17 @@ const actions = {
 
 const mutations = {
     reset(state, newState) {
-        Object.keys(newState).forEach((key) => {
+        Object.keys(newState || {}).forEach((key) => {
             state[key] = newState[key];
         });
     },
 
     setAfterLoginUrl(state, to) {
         state.afterLoginUrl = to;
+    },
+
+    setPreviousRoute(state, from) {
+        state.previousRoute = from;
     },
 };
 

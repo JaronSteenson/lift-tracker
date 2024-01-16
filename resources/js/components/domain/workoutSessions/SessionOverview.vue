@@ -1,6 +1,6 @@
 <template>
     <div>
-        <PageToolbar title="Session overview" :back-to="{ name: 'HomePage' }">
+        <AppBar title="Session overview" :back-to="{ name: 'HomePage' }">
             <template v-slot:right>
                 <VMenu bottom left>
                     <template v-slot:activator="{ on }">
@@ -19,7 +19,7 @@
                     </VList>
                 </VMenu>
             </template>
-        </PageToolbar>
+        </AppBar>
 
         <NarrowContentContainer>
             <VAlert v-if="isInProgress" dense text type="info">
@@ -55,12 +55,12 @@ import SessionStatsCard from './SessionStatsCard';
 import { mapGetters } from 'vuex';
 import ExerciseSummaryCard from './ExerciseSummaryCard';
 import NarrowContentContainer from '../../layouts/NarrowContentContainer';
-import PageToolbar from '../../AppBar';
+import AppBar from '../../AppBar';
 
 export default {
     components: {
         NarrowContentContainer,
-        PageToolbar,
+        AppBar,
         SessionStatsCard,
         ExerciseSummaryCard,
     },

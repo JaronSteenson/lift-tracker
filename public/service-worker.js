@@ -1,12 +1,12 @@
-const PRECACHE = 'precache-v2';
-const RUNTIME = 'runtime';
+const PRECACHE = "precache-v5";
+const RUNTIME = "runtime";
 
 // A list of local resources we always want to be cached.
-const PRECACHE_URLS = ['/', '/privacy-policy', '/audio/alarm.ogg'];
-const NON_SPA_PAGES = ['/privacy-policy', '/facebook-login'];
+const PRECACHE_URLS = ["/", "/privacy-policy", "/audio/alarm.ogg"];
+const NON_SPA_PAGES = ["/verify-email", "/reset-password"];
 
 // The "install" handler takes care of precaching the resources we always need.
-self.addEventListener('install', async (event) => {
+self.addEventListener("install", async (event) => {
     event.waitUntil(onInstall());
 });
 
@@ -18,7 +18,7 @@ async function onInstall() {
 }
 
 // The "activate" handler takes care of cleaning up old caches.
-self.addEventListener('activate', async (event) => {
+self.addEventListener("activate", async (event) => {
     event.waitUntil(onActivate());
 });
 
@@ -37,7 +37,7 @@ async function onActivate() {
     return self.clients.claim();
 }
 
-self.addEventListener('fetch', async (event) => {
+self.addEventListener("fetch", async (event) => {
     // Skip cross-origin requests, like those for Google Analytics.
     if (!event.request.url.startsWith(self.location.origin)) {
         return;
@@ -52,7 +52,7 @@ async function getFetchResponse(request) {
     );
 
     const isSpaRoute = eventIsForSpaPageRoute(request);
-    const cacheKey = isSpaRoute ? '/' : request;
+    const cacheKey = isSpaRoute ? "/" : request;
 
     if (!navigator.onLine || isSpaRoute || isPreCacheUrl) {
         const cachedResponse = await caches.match(cacheKey);
@@ -65,7 +65,7 @@ async function getFetchResponse(request) {
     const cache = await caches.open(RUNTIME);
     const response = await fetch(request);
 
-    if (cacheKey.method.toUpperCase() === 'GET') {
+    if (cacheKey.method.toUpperCase() === "GET") {
         cache.put(cacheKey, response.clone());
     }
 
@@ -78,18 +78,20 @@ async function getFetchResponse(request) {
  * @return {boolean}
  */
 function eventIsForSpaPageRoute(request) {
-    const isStaticAsset = request.url.includes('.');
+    const isStaticAsset = request.url.includes(".");
     if (isStaticAsset) {
         return false;
     }
 
-    const isApiCall = request.url.includes('/api/');
+    // We also need to cater for the in build laravel auth/register routes with /email/.
+    const isApiCall =
+        request.url.includes("/api/") || request.url.includes("/email/");
     if (isApiCall) {
         return false;
     }
 
     const isNonSpaPage = NON_SPA_PAGES.some((prefetchUrl) =>
-        request.url.split('?')[0].endsWith(prefetchUrl)
+        request.url.split("?")[0].endsWith(prefetchUrl)
     );
 
     return !isNonSpaPage;

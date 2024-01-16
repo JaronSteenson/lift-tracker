@@ -2,9 +2,12 @@
 
 namespace LiftTracker\Http\Controllers\Auth;
 
+use Illuminate\Auth\Access\AuthorizationException;
+use Illuminate\Auth\Events\Verified;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Illuminate\Foundation\Auth\VerifiesEmails;
+use Illuminate\Support\Facades\Auth;
 
 class VerificationController extends Controller
 {
@@ -35,8 +38,24 @@ class VerificationController extends Controller
      */
     public function __construct()
     {
-        $this->middleware('auth');
         $this->middleware('signed')->only('verify');
         $this->middleware('throttle:6,1')->only('verify', 'resend');
+    }
+
+    public function verify(Request $request)
+    {
+        if ($request->get('id') != $request->user()->getKey()) {
+            throw new AuthorizationException;
+        }
+
+        if ($request->user()->hasVerifiedEmail()) {
+            return redirect('/?alreadyVerified=1');
+        }
+
+        if ($request->user()->markEmailAsVerified()) {
+            event(new Verified($request->user()));
+        }
+
+        redirect('/');
     }
 }

@@ -7,6 +7,7 @@ use Illuminate\Foundation\Testing\DatabaseTransactions;
 use LiftTracker\Domain\Workouts\Sessions\SessionExercise;
 use LiftTracker\Domain\Workouts\Sessions\WorkoutSession;
 use LiftTracker\Http\Controllers\Api\SessionExercisePreviousEntries;
+use LiftTracker\Http\Middleware\Authenticate;
 use LiftTracker\Http\Middleware\VerifyCsrfToken;
 use LiftTracker\User;
 use Tests\TestCase;
@@ -18,7 +19,7 @@ class SessionExercisePreviousEntriesTest extends TestCase
     public function setUp(): void
     {
         parent::setUp();
-        $this->withoutMiddleware([VerifyCsrfToken::class]);
+        $this->withoutMiddleware();
     }
 
     public function testOriginSessionExerciseDoesntExist(): void

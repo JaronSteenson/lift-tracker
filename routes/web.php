@@ -10,14 +10,7 @@
 | contains the "web" middleware group. Now create something great!
 |
 */
-
 use Illuminate\Support\Facades\Route;
-
-/**
- * Auth logout.
- * @see \LiftTracker\Http\Controllers\Auth\LoginController
- */
-Route::post('api/logout', 'Auth\LoginController@logout');
 
 /**
  * App bootstrap endpoint.
@@ -30,6 +23,7 @@ Route::get('api/app', 'Api\AppController@index');
  * @see \LiftTracker\Http\Controllers\Api\WorkoutProgramController
  */
 Route::apiResource('api/workout-programs', 'Api\WorkoutProgramController')
+    ->middleware('verified')
     ->middleware('auth');
 
 /**
@@ -37,6 +31,7 @@ Route::apiResource('api/workout-programs', 'Api\WorkoutProgramController')
  * @see \LiftTracker\Http\Controllers\Api\WorkoutRoutineController
  */
 Route::apiResource('api/workout-routines', 'Api\WorkoutRoutineController')
+    ->middleware('verified')
     ->middleware('auth');
 
 /**
@@ -44,6 +39,7 @@ Route::apiResource('api/workout-routines', 'Api\WorkoutRoutineController')
  * @see \LiftTracker\Http\Controllers\Api\WorkoutSessionController
  */
 Route::apiResource('api/workout-sessions', 'Api\WorkoutSessionController')
+    ->middleware('verified')
     ->middleware('auth');
 
 /**
@@ -51,6 +47,7 @@ Route::apiResource('api/workout-sessions', 'Api\WorkoutSessionController')
  * @see \LiftTracker\Http\Controllers\Api\SessionExerciseController
  */
 Route::apiResource('api/sessions-exercises', 'Api\SessionExerciseController')
+    ->middleware('verified')
     ->middleware('auth');
 
 /**
@@ -58,44 +55,64 @@ Route::apiResource('api/sessions-exercises', 'Api\SessionExerciseController')
  * @see \LiftTracker\Http\Controllers\Api\SessionSetController
  */
 Route::apiResource('api/sessions-sets', 'Api\SessionSetController')
+    ->middleware('verified')
     ->middleware('auth');
 
 /**
  * @see \LiftTracker\Http\Controllers\Api\SessionExercisePreviousEntries
  */
 Route::get('api/session-exercise-previous-entries/{sessionExerciseUuid}', 'Api\SessionExercisePreviousEntries')
+    ->middleware('verified')
     ->middleware('auth');
 
 /**
  * @see \LiftTracker\Http\Controllers\Api\InProgressWorkoutSessions
  */
 Route::get('api/in-progress-workouts', 'Api\InProgressWorkoutSessions')
+    ->middleware('verified')
     ->middleware('auth');
 
 /**
- *  Authenticates the request from facebook's redirect.
- * @see \LiftTracker\Http\Controllers\Auth\FacebookLoginController
+ * Authenticates the user with standard email/password auth.
+ * @see \LiftTracker\Http\Controllers\Auth\LoginController::login()
  */
-Route::any('/facebook-login', 'Auth\FacebookLoginController@index')
-    ->name('facebook-login')
-    ->middleware('facebook-login');
+Route::post('api/login', 'Auth\LoginController@login')
+    ->name('login');
 
 /**
- *  Authenticates the request from facebook's forced re-auth redirect, then delete the users account.
- * @see \LiftTracker\Http\Controllers\Auth\FacebookLoginDeleteAccountController
+ * Un-authenticates the user with standard email/password auth.
+ * @see \LiftTracker\Http\Controllers\Auth\LoginController::logout()
  */
-Route::any('/facebook-login-delete-account', 'Auth\FacebookLoginDeleteAccountController@index')
-    ->name('facebook-login-delete-account')
-    ->middleware('facebook-login');
+Route::post('api/logout', 'Auth\LoginController@logout')
+    ->name('logout');
 
 /**
- * @see \LiftTracker\Http\Controllers\StaticLegalPagesController
+ * Un-authenticates the user with standard email/password auth.
+ * @see \LiftTracker\Http\Controllers\Auth\RegisterController::register()
  */
-Route::get('privacy-policy', 'StaticLegalPagesController@privacyPolicy')
-    ->name('privacy-policy');
+Route::post('api/register', 'Auth\RegisterController@register')
+    ->name('register');
 
+/**
+ * @see \LiftTracker\Http\Controllers\Auth\ResetPasswordController::sendResetLinkEmail()
+ */
+Route::post('api/send-password-reset-email', 'Auth\ResetPasswordController@sendResetLinkEmail')
+    ->name('password.email');
+
+/**
+ * @see \LiftTracker\Http\Controllers\Auth\ResetPasswordController::reset()
+ */
+Route::post('api/password-reset', 'Auth\ResetPasswordController@reset')
+    ->name('password.reset.post');
+
+/**
+ * Verify the users email during sign up flow.
+ * @see \LiftTracker\Http\Controllers\Auth\VerificationController::verify()
+ */
+Route::get('verify-email', 'Auth\VerificationController@verify')
+    ->name('verification.verify');
 /**
  * Catch all route.
  * @see \LiftTracker\Http\Controllers\VueAppController
  */
-Route::get('/{any}', 'VueAppController@index')->where('any','.*');
+Route::get('/{any}', 'VueAppController@index')->where('any', '.*');

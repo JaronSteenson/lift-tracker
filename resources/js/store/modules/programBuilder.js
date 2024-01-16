@@ -130,11 +130,9 @@ const getters = {
         return state.myWorkoutPrograms.map((workoutProgram) => {
             return {
                 ...workoutProgram,
-                ...{
-                    updatedAtDescription: dateTimeDescription(
-                        workoutProgram.updatedAt
-                    ),
-                },
+                updatedAtDescription: dateTimeDescription(
+                    workoutProgram.updatedAt
+                ),
             };
         });
     },
@@ -338,6 +336,7 @@ const actions = {
                 state.myWorkoutPrograms,
                 state.inFocusProgram
             );
+
             commit('reset', { myWorkoutPrograms: updatedWorkoutPrograms });
 
             dispatch('finishSaving');
@@ -383,7 +382,7 @@ const mutations = {
     },
 
     reset(state, newState) {
-        Object.keys(newState).forEach((key) => {
+        Object.keys(newState || {}).forEach((key) => {
             state[key] = newState[key];
         });
     },

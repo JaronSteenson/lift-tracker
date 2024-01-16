@@ -2,12 +2,19 @@
 
 namespace LiftTracker;
 
-use Illuminate\Auth\Authenticatable;
-use Illuminate\Contracts\Auth\Authenticatable as AuthenticatableContract;
+use DateTimeInterface;
+use Illuminate\Auth\Authenticatable as AuthenticatableTrait;
+use Illuminate\Auth\AuthenticationException;
+use Illuminate\Auth\Notifications\VerifyEmail;
+use Illuminate\Contracts\Auth\Authenticatable;
+use Illuminate\Contracts\Auth\CanResetPassword;
+use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Notifications\Notifiable;
 use LiftTracker\Domain\AbstractModel;
+use LiftTracker\Domain\Users\Notifications\ResetPassword;
 use LiftTracker\Domain\Workouts\Programs\WorkoutProgram;
 use LiftTracker\Domain\Workouts\Sessions\WorkoutSession;
 
@@ -20,12 +27,15 @@ use LiftTracker\Domain\Workouts\Sessions\WorkoutSession;
  * @property string|null $firstName
  * @property string|null $lastName
  * @property string|null $email
- * @property string|null $facebookAccessToken Long lived facebook access token, used to request data on behalf of the user.
+ * @property DateTimeInterface|null $emailVerifiedAt
  * @mixin Builder
  */
-class User extends AbstractModel implements AuthenticatableContract
+class User extends AbstractModel implements Authenticatable, MustVerifyEmail, CanResetPassword
 {
-    use Authenticatable;
+    use AuthenticatableTrait {
+        AuthenticatableTrait::getRememberTokenName as getRememberTokenNameOriginal;
+    }
+    use Notifiable;
 
     /**
      * The attributes that are mass assignable.
@@ -36,6 +46,7 @@ class User extends AbstractModel implements AuthenticatableContract
         'firstName',
         'lastName',
         'email',
+        'password',
     ];
 
     /**
@@ -47,7 +58,18 @@ class User extends AbstractModel implements AuthenticatableContract
         'firstName',
         'lastName',
         'email',
+        'emailVerifiedAt',
     ];
+
+    public function getRememberTokenName(): string
+    {
+        return 'rememberToken';
+    }
+
+    public static function findByUnverifiedEmail(string $email)
+    {
+        return self::where(['email' => $email])->whereNull('emailVerifiedAt')->first();
+    }
 
     /**
      * Get the workout out programs created and owned by this user.
@@ -93,77 +115,48 @@ class User extends AbstractModel implements AuthenticatableContract
         return $this->workoutPrograms()->orderBy('name')->get();
     }
 
-    public function findByFacebookId(int $facebookId): ?self
+    /**
+     * Determine if the user has verified their email address.
+     *
+     * @return bool
+     * @see \Illuminate\Auth\MustVerifyEmail::hasVerifiedEmail()
+     */
+    public function hasVerifiedEmail(): bool
     {
-        return $this->where('facebookId', $facebookId)->first();
+        return $this->emailVerifiedAt !== null;
     }
 
-    public function isLinkedToFacebook(): bool
+    /**
+     * Mark the given user's email as verified.
+     *
+     * @return bool
+     * @see \Illuminate\Auth\MustVerifyEmail::markEmailAsVerified()
+     */
+    public function markEmailAsVerified(): bool
     {
-        return $this->facebookId !== null;
+        return $this->forceFill([
+            'emailVerifiedAt' => $this->freshTimestamp(),
+        ])->save();
     }
 
-    public function isLoggedInWithWithFacebook(): bool
+    /**
+     * Send the email verification notification.
+     *
+     * @return void
+     * @see \Illuminate\Auth\MustVerifyEmail::sendEmailVerificationNotification()
+     */
+    public function sendEmailVerificationNotification(): void
     {
-        return $this->facebookAccessToken !== null;
+        $this->notify(new VerifyEmail);
     }
 
-    public function setNewFacebookLink(
-        int $facebookId,
-        ?string $firstName,
-        ?string $lastName,
-        ?string $email,
-        string $facebookAccessToken
-    ): self {
-        $this->ensureEligibleForNewFacebookLink();
-
-        $this->facebookId = $facebookId;
-        $this->firstName = $firstName;
-        $this->lastName = $lastName;
-        $this->email = $email;
-        $this->facebookAccessToken = $facebookAccessToken;
-
-        return $this;
-    }
-
-    public function updateFacebookLink(
-        ?string $firstName,
-        ?string $lastName,
-        ?string $email,
-        string $facebookAccessToken
-    ): self {
-        $this->ensureEligibleForFacebookLinkUpdate();
-
-        $this->firstName = $firstName;
-        $this->lastName = $lastName;
-        $this->email = $email;
-        $this->facebookAccessToken = $facebookAccessToken;
-
-        return $this;
-    }
-
-    private function ensureEligibleForNewFacebookLink(): void
+    public function getEmailForPasswordReset(): ?string
     {
-        if ($this->exists) {
-            throw new \InvalidArgumentException(
-                'Only new users can have a new Facebook link'
-            );
-        }
+        return $this->email;
     }
 
-    private function ensureEligibleForFacebookLinkUpdate(): void
+    public function sendPasswordResetNotification($token): void
     {
-        if (!$this->exists()) {
-            throw new \InvalidArgumentException(
-                'Only existing users can have their Facebook link updated'
-            );
-        }
-
-        if (!$this->isLinkedToFacebook()) {
-            throw new \InvalidArgumentException(
-                'Only users already linked to Facebook can have their facebook link updated'
-            );
-        }
+        $this->notify(new ResetPassword($token));
     }
-
 }

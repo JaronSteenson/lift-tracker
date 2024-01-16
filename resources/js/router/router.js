@@ -11,20 +11,33 @@ import NotFoundPage from '../components/pages/NotFoundPage';
 import VueRouter from 'vue-router';
 import store from './../store';
 import SetOverviewPage from '../components/pages/SetOverviewPage';
+import ResetPasswordPage from '../components/pages/ResetPasswordPage';
+import ResetPasswordConfirmPage from '../components/pages/ResetPasswordConfirmPage';
+import PrivacyPolicyPage from '../components/pages/PrivacyPolicyPage';
 
 Vue.use(VueRouter);
 
-async function forceLogin(to, from, next) {
+async function checkAuthGuards(to, from, next) {
     const isAuthed = store.getters['app/userIsAuthenticated'];
-    const toLogin = to.name === 'LoginPage' || to.name === 'sign-up';
+    await store.dispatch('app/setPreviousRoute', from);
 
-    if (isAuthed && toLogin) {
+    if (to.meta.guard === GUARD_NONE) {
+        next();
+        return;
+    }
+
+    if (isAuthed && to.meta.guard === GUARD_AUTHED) {
+        next();
+        return;
+    }
+
+    if (isAuthed && to.meta.guard === GUARD_UNAUTHED_ONLY) {
         next({ name: 'HomePage' });
         return;
     }
 
-    if (!isAuthed && !toLogin) {
-        await store.dispatch('app/setAfterLoginUrl', window.location.href);
+    if (!isAuthed && to.meta.guard === GUARD_AUTHED) {
+        await store.dispatch('app/setAfterLoginUrl', window.location.pathname);
         next({ name: 'LoginPage' });
         return;
     }
@@ -72,71 +85,136 @@ function checkForceDrawerHide(to, from, next) {
     next();
 }
 
+// The default is only authed.
+const GUARD_AUTHED = Symbol('GUARD_AUTHED');
+const GUARD_UNAUTHED_ONLY = Symbol('GUARD_UNAUTHED_ONLY');
+const GUARD_NONE = Symbol('GUARD_NONE');
+
 const routes = [
     {
         name: 'HomePage',
         path: '/',
         component: HomePage,
+        meta: {
+            guard: GUARD_AUTHED,
+        },
     },
     {
         name: 'PwaStart',
         path: '/pwa-start',
+        meta: {
+            guard: GUARD_AUTHED,
+        },
     },
     {
         name: 'LoginPage',
         path: '/login',
         component: LoginPage,
         props: true,
+        meta: {
+            guard: GUARD_UNAUTHED_ONLY,
+        },
+    },
+    {
+        name: 'PrivacyPolicy',
+        path: '/privacy-policy',
+        component: PrivacyPolicyPage,
+        meta: {
+            guard: GUARD_NONE,
+        },
+    },
+    {
+        name: 'ResetPasswordPage',
+        path: '/reset-password',
+        component: ResetPasswordPage,
+        meta: {
+            guard: GUARD_NONE,
+        },
+    },
+    {
+        name: 'ResetPasswordNewPasswordPage',
+        path: '/reset-password-confirm',
+        component: ResetPasswordConfirmPage,
+        meta: {
+            guard: GUARD_NONE,
+        },
     },
     {
         name: 'AccountPage',
         path: '/account',
         component: AccountPage,
+        meta: {
+            guard: GUARD_AUTHED,
+        },
     },
     {
         name: 'ProgramBuilderPageNew',
         path: '/program-builder',
         component: ProgramBuilderPage,
         props: true,
+        meta: {
+            guard: GUARD_AUTHED,
+        },
     },
     {
         name: 'ProgramBuilderPage',
         path: '/program-builder/:workoutProgramUuid',
         component: ProgramBuilderPage,
         props: true,
+        meta: {
+            guard: GUARD_AUTHED,
+        },
     },
     {
         name: 'MyWorkoutProgramsPage',
         path: '/workout-programs',
         component: MyWorkoutProgramsPage,
+        meta: {
+            guard: GUARD_AUTHED,
+        },
     },
     {
         name: 'NewSessionRoutineSelectPage',
         path: '/new-session',
         component: NewSessionRoutineSelectPage,
+        meta: {
+            guard: GUARD_AUTHED,
+        },
     },
     {
         name: 'NewSessionOverviewPage',
         path: '/new-session-overview/:originRoutineUuid',
         component: NewSessionOverviewPage,
         props: true,
+        meta: {
+            guard: GUARD_AUTHED,
+        },
     },
     {
         name: 'SessionOverviewPage',
         path: '/session-overview/:workoutSessionUuid',
         component: SessionOverviewPage,
         props: true,
+        meta: {
+            guard: GUARD_AUTHED,
+        },
     },
     {
         name: 'SetOverviewPage',
         path: '/set-overview/:sessionSetUuid',
         component: SetOverviewPage,
         props: true,
+        meta: {
+            guard: GUARD_AUTHED,
+        },
     },
     {
         path: '*',
         name: '404',
         component: NotFoundPage,
+        meta: {
+            guard: GUARD_NONE,
+        },
     },
 ];
 
@@ -152,8 +230,8 @@ const router = new VueRouter({
     },
 });
 
-router.beforeEach(forceLogin);
 router.beforeEach(checkPwaStart);
+router.beforeEach(checkAuthGuards);
 router.beforeEach(checkForceDrawerHide);
 
 export default router;

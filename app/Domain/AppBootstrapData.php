@@ -17,17 +17,16 @@ class AppBootstrapData implements \JsonSerializable
         /** @var User $authenticatedUser */
         $authenticatedUser = Auth::user();
 
-        $appData = [
-            'authenticatedUser' => $authenticatedUser,
-            'appName' => config('app.name'),
-            'csrfToken' => csrf_token(),
-            'facebookAppId' => config('app.facebook_app_id'),
-            'sessionLifetime' => config('session.lifetime'),
+        $baseData = [
+            'app' => [
+                'authenticatedUser' => $authenticatedUser,
+                'appName' => config('app.name'),
+                'csrfToken' => csrf_token(),
+                'sessionLifetime' => config('session.lifetime'),
+            ]
         ];
 
-        $baseData = ['app' => $appData];
-
-        if ($authenticatedUser) {
+        if ($authenticatedUser && $authenticatedUser->hasVerifiedEmail()) {
             return array_merge($baseData, $this->loadAuthenticatedUserData($authenticatedUser));
         }
 
@@ -37,7 +36,6 @@ class AppBootstrapData implements \JsonSerializable
     private function loadAuthenticatedUserData(User $user): array
     {
         $myWorkoutSessions = $user->getWorkoutSessionsPaginated(1);
-
         return [
             'workoutSession' => [
                 'inProgressWorkouts' => (new WorkoutSession)->findInProgress($user->id),

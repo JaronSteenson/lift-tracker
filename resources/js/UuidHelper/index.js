@@ -46,6 +46,8 @@ export default {
     /**
      * Find and replace an object in an array where it has the specified UUID.
      * The look-up is not deep.
+     *
+     * if It's not found, the item is appended to the end of the list.
      * @param array
      * @param replaceWith
      * @returns {*}
@@ -58,7 +60,7 @@ export default {
         );
 
         if (index === -1) {
-            return copy;
+            return [...copy, replaceWith];
         }
 
         copy.splice(index, 1, replaceWith);
