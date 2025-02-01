@@ -24,6 +24,12 @@ export default {
         stats() {
             return [
                 {
+                    icon: this.$svgIcons.bodyWeight,
+                    value: this.workoutSession.bodyWeight
+                        ? `${this.workoutSession.bodyWeight}kg`
+                        : 'Unknown body weight',
+                },
+                {
                     icon: this.$svgIcons.sessionDate,
                     value: dateDescription(this.workoutSession.startedAt),
                 },

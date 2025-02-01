@@ -391,6 +391,10 @@ export const getters = {
 export const actions = {
     ...saveStatusActions,
 
+    updateBodyWeight({ commit, dispatch }, { bodyWeight }) {
+        commit('updateWorkoutSession', { bodyWeight });
+        dispatch('saveWorkout');
+    },
     updateSetWeight({ commit, dispatch, getters }, { uuid, weight }) {
         commit('updateSet', { uuid, weight });
 

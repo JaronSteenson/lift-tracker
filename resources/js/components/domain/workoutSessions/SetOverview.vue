@@ -216,6 +216,20 @@
 
             <VCardText class="px-0">
                 <VContainer class="py-0">
+                    <VRow v-if="isFirstSetOfWorkout">
+                        <VCol class="pt-0" cols="12" md="12" sm="12">
+                            <VTextField
+                                :disabled="!isOpenForEdits"
+                                class="mt-0"
+                                label="Body weight (kg)"
+                                type="number"
+                                :step="1"
+                                :max="9999"
+                                :min="0"
+                                v-model.number="bodyWeight"
+                            />
+                        </VCol>
+                    </VRow>
                     <VRow>
                         <VCol class="pt-0" cols="6" md="6" sm="6">
                             <VTextField
@@ -715,6 +729,16 @@ export default {
                         restPeriodDuration,
                     }
                 );
+            },
+        },
+        bodyWeight: {
+            get() {
+                return this.workoutSession.bodyWeight;
+            },
+            set(bodyWeight) {
+                this.$store.dispatch('workoutSession/updateBodyWeight', {
+                    bodyWeight,
+                });
             },
         },
         exerciseNotes: {

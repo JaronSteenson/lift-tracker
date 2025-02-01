@@ -151,13 +151,19 @@ export default {
                 {
                     text: 'Routine',
                     value: 'name',
-                    width: '40%',
+                    width: '30%',
                     sortable: false,
                 },
                 {
                     text: 'Program',
                     value: 'programName',
-                    width: '40%',
+                    width: '30%',
+                    sortable: false,
+                },
+                {
+                    text: 'Body weight',
+                    value: 'bodyWeight',
+                    width: '20%',
                     sortable: false,
                 },
                 {

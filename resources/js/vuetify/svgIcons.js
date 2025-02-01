@@ -55,6 +55,7 @@ const icons = {
 };
 
 icons.backNavigation = icons.mdiArrowLeft;
+icons.bodyWeight = icons.mdiDumbbell;
 icons.duration = icons.mdiClockOutline;
 icons.repeat = icons.mdiRepeat;
 icons.restPeriod = icons.mdiClock;

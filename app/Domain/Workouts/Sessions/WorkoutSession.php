@@ -51,6 +51,7 @@ class WorkoutSession extends AbstractModel
     protected $fillable = [
         'uuid',
         'name',
+        'bodyWeight',
         'startedAt',
         'endedAt',
         'notes',
@@ -64,6 +65,7 @@ class WorkoutSession extends AbstractModel
     protected $visible = [
         'uuid',
         'name',
+        'bodyWeight',
         'startedAt',
         'endedAt',
         'notes',
