@@ -4,7 +4,6 @@ namespace LiftTracker;
 
 use DateTimeInterface;
 use Illuminate\Auth\Authenticatable as AuthenticatableTrait;
-use Illuminate\Auth\AuthenticationException;
 use Illuminate\Auth\Notifications\VerifyEmail;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Contracts\Auth\CanResetPassword;
