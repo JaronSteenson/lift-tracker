@@ -52,6 +52,7 @@ class SessionExercise extends AbstractModel implements UserOwnershipInterface
         'plannedRestPeriodDuration',
         'notes',
         'position',
+        'skipped',
     ];
 
     protected $appends = [
@@ -74,6 +75,7 @@ class SessionExercise extends AbstractModel implements UserOwnershipInterface
         'createdAt',
         'updatedAt',
         'wasAddedOnTheFly',
+        'skipped',
     ];
 
     protected $with = [
@@ -84,6 +86,7 @@ class SessionExercise extends AbstractModel implements UserOwnershipInterface
         'plannedReps' => 'integer',
         'plannedWeight' => 'integer',
         'plannedRestPeriodDuration' => 'integer',
+        'skipped' => 'boolean',
         'createdAt' => 'datetime:c',
         'updatedAt' => 'datetime:c',
     ];
@@ -149,6 +152,7 @@ class SessionExercise extends AbstractModel implements UserOwnershipInterface
             ->join('WorkoutSessions','WorkoutSessions.id','=','workoutSessionId')
             ->where('WorkoutSessions.userId', $userId)
             ->where('SessionExercises.id', '!=', $this->id)
+            ->where('SessionExercises.skipped', '=', false)
             ->orderBy('WorkoutSessions.startedAt')
             ->get();
     }
