@@ -445,6 +445,12 @@ export const actions = {
         dispatch('saveSet', uuid);
     },
 
+    skipExercise({ commit, dispatch }, { uuid }) {
+        commit('skipExercise', { uuid });
+
+        dispatch('saveExercise', uuid);
+    },
+
     startRestPeriod({ commit, dispatch }, { uuid }) {
         const restPeriodStartedAt = utcNow();
 
@@ -729,7 +735,7 @@ export const actions = {
         const lastSet =
             lastExercise.sessionSets[lastExercise.sessionSets.length - 1];
 
-        // TODO combine set and workout save (just save enverthing in one hit).
+        // TODO combine set and workout save (just save everything in one hit).
         commit('endSet', { uuid: lastSet.uuid, endedAt });
         dispatch('saveSet', lastSet.uuid);
 
@@ -792,6 +798,24 @@ const mutations = {
 
         Object.keys(newExerciseState).forEach((key) => {
             exercise[key] = newExerciseState[key];
+        });
+    },
+
+    skipExercise(state, { uuid }) {
+        const exercise = UuidHelper.findIn(
+            state.workoutSession.sessionExercises,
+            uuid
+        );
+
+        exercise.skipped = true;
+        exercise.sessionSets.forEach((set) => {
+            set.endedAt = utcNow();
+
+            const inProgressSet = UuidHelper.findDeep(
+                state.inProgressWorkouts,
+                set.uuid
+            );
+            inProgressSet.endedAt = set.endedAt;
         });
     },
 

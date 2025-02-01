@@ -42,7 +42,16 @@
                         >
                             <VListItemTitle>Skip set</VListItemTitle>
                         </VListItem>
-                        <VListItem @click="tryEndWorkout">
+                        <VListItem
+                            :disabled="!isInProgressSet || isSkippedExercise"
+                            @click="skipExercise"
+                        >
+                            <VListItemTitle>Skip exercise</VListItemTitle>
+                        </VListItem>
+                        <VListItem
+                            :disabled="!isInProgressWorkout"
+                            @click="tryEndWorkout"
+                        >
                             <VListItemTitle>Finish workout</VListItemTitle>
                         </VListItem>
                     </VList>
@@ -498,6 +507,9 @@ export default {
         isInProgressSet() {
             return this.set.uuid === this.inProgressSet?.uuid;
         },
+        isSkippedExercise() {
+            return this.exercise.skipped;
+        },
         isInProgressWorkout() {
             return this.$store.getters['workoutSession/isInProgressWorkout'](
                 this.workoutSession.uuid
@@ -816,6 +828,28 @@ export default {
                 name: 'SetOverviewPage',
                 params: { sessionSetUuid: nextSetUuid },
             });
+
+            this.isChangingSet = false;
+        },
+        async skipExercise() {
+            this.isChangingSet = true;
+            const nextSetUuid = this.nextExerciseFirstSet?.uuid;
+
+            await this.$store.dispatch('workoutSession/skipExercise', {
+                uuid: this.exercise.uuid,
+            });
+
+            if (nextSetUuid) {
+                await this.$store.dispatch('workoutSession/startSet', {
+                    uuid: nextSetUuid,
+                });
+                await this.$router.push({
+                    name: 'SetOverviewPage',
+                    params: { sessionSetUuid: nextSetUuid },
+                });
+            } else {
+                this.tryEndWorkout();
+            }
 
             this.isChangingSet = false;
         },
