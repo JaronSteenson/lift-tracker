@@ -30,6 +30,10 @@ export default {
                         : 'Unknown body weight',
                 },
                 {
+                    icon: '',
+                    value: '',
+                },
+                {
                     icon: this.$svgIcons.sessionDate,
                     value: dateDescription(this.workoutSession.startedAt),
                 },
