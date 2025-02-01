@@ -36,6 +36,9 @@
                         "
                     />
                 </template>
+                <template v-slot:item.bodyWeight="{ item: session }">
+                    {{ session.bodyWeight ? `${session.bodyWeight}kg` : '' }}
+                </template>
                 <template v-slot:item.menu="{ item: session }">
                     <VMenu bottom left>
                         <template v-slot:activator="{ on }">

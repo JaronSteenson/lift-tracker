@@ -26,7 +26,9 @@ export default {
                 {
                     icon: this.$svgIcons.bodyWeight,
                     value: this.workoutSession.bodyWeight
-                        ? `${this.workoutSession.bodyWeight}kg`
+                        ? `${Number(this.workoutSession.bodyWeight)
+                              .toFixed(2)
+                              .replace(/\.00$/, '')}kg body weight`
                         : 'Unknown body weight',
                 },
                 {
