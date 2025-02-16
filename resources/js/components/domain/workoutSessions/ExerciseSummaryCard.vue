@@ -11,7 +11,8 @@
             </RouterLink>
         </VCardTitle>
         <VCardText>
-            <VRow>
+            <MissingValue v-if="exercise.skipped">Skipped </MissingValue>
+            <VRow v-else>
                 <VCol
                     class="py-0"
                     cols="6"
@@ -79,9 +80,11 @@ import {
     minsSecDuration,
 } from '../../../dates';
 import SessionExerciseStatsModal from './SessionExerciseStatsModal';
+import MissingValue from '../../util/MissingValue.vue';
 
 export default {
     components: {
+        MissingValue,
         SessionExerciseStatsModal,
     },
     props: {
