@@ -1,6 +1,11 @@
 <template>
     <VRow>
-        <VCol :key="index" class="py-0" cols="6" v-for="(stat, index) in stats">
+        <VCol
+            :key="index"
+            class="py-0"
+            v-for="(stat, index) in stats"
+            :cols="stat.cols"
+        >
             <VIcon small>{{ stat.icon }}</VIcon>
             <span>{{ stat.value }}</span>
         </VCol>
@@ -30,14 +35,12 @@ export default {
                               .toFixed(2)
                               .replace(/\.00$/, '')}kg body weight`
                         : 'Unknown body weight',
-                },
-                {
-                    icon: '',
-                    value: '',
+                    cols: 12,
                 },
                 {
                     icon: this.$svgIcons.sessionDate,
                     value: dateDescription(this.workoutSession.startedAt),
+                    cols: 6,
                 },
                 {
                     icon: this.$svgIcons.duration,
@@ -45,14 +48,17 @@ export default {
                         this.workoutSession.startedAt,
                         this.workoutSession.endedAt
                     ),
+                    cols: 6,
                 },
                 {
                     icon: this.$svgIcons.mdiPlay,
                     value: timeDescription(this.workoutSession.startedAt, true),
+                    cols: 6,
                 },
                 {
                     icon: this.$svgIcons.mdiStop,
                     value: timeDescription(this.workoutSession.endedAt, true),
+                    cols: 6,
                 },
             ];
         },

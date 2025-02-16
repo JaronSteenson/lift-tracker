@@ -76,6 +76,7 @@ class SessionExercise extends AbstractModel implements UserOwnershipInterface
         'updatedAt',
         'wasAddedOnTheFly',
         'skipped',
+        'workoutSession',
     ];
 
     protected $with = [
@@ -148,6 +149,7 @@ class SessionExercise extends AbstractModel implements UserOwnershipInterface
         $userId = $this->workoutSession->userId;
 
         return $this->select('SessionExercises.*')
+            ->with('workoutSession')
             ->where('routineExerciseId', $this->routineExerciseId)
             ->join('WorkoutSessions','WorkoutSessions.id','=','workoutSessionId')
             ->where('WorkoutSessions.userId', $userId)

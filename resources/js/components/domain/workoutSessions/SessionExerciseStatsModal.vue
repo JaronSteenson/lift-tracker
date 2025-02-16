@@ -33,6 +33,14 @@
 
                 <hr class="mt-2" />
 
+                <template v-if="sessionExercise.workoutSession.bodyWeight">
+                    <h3 class="mt-2">Body weight</h3>
+                    <p>
+                        {{ sessionExercise.workoutSession.bodyWeight }}
+                    </p>
+                    <hr />
+                </template>
+
                 <div class="graph">
                     <h3 class="mb-2 mt-4">Weight</h3>
                     <template v-if="isSingleSet">
