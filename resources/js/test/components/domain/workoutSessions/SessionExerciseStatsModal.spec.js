@@ -11,10 +11,15 @@ const set = {
     restPeriodDuration: 90,
 };
 
+const workoutSession = {
+    bodyWeight: null,
+};
+
 const singleSetExercise = {
     name: 'DB rows',
     createdAt: '2019-12-04T12:00:00',
     sessionSets: [set],
+    workoutSession,
 };
 
 const singleSetExerciseWithNotes = {
@@ -22,6 +27,7 @@ const singleSetExerciseWithNotes = {
     createdAt: '2019-12-04T12:00:00',
     sessionSets: [set],
     notes: 'This exercise went very well.',
+    workoutSession,
 };
 
 const otherSingleSetExerciseWithNotes = {
@@ -29,18 +35,21 @@ const otherSingleSetExerciseWithNotes = {
     createdAt: '2019-12-04T12:00:00',
     sessionSets: [set],
     notes: 'This exercise did not go very well.',
+    workoutSession,
 };
 
 const doubleSetExercise = {
     name: 'DB rows',
     createdAt: '2019-12-04T12:00:00',
     sessionSets: [set, set],
+    workoutSession,
 };
 
 const multipleSetExercise = {
     name: 'DB rows',
     createdAt: '2019-12-04T12:00:00',
     sessionSets: [set, set, set],
+    workoutSession,
 };
 
 const mocks = {
