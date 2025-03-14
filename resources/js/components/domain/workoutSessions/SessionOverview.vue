@@ -34,7 +34,8 @@
                             params: { sessionSetUuid: currentSet.uuid },
                         }"
                     >
-                        <VIcon>{{ $svgIcons.mdiPlayPause }}</VIcon> Resume
+                        Resume
+                        <VIcon>{{ $svgIcons.mdiPlayPause }}</VIcon>
                     </VBtn>
                 </div>
             </VAlert>
