@@ -165,18 +165,32 @@ class SessionExercise extends AbstractModel implements UserOwnershipInterface
 
         $userId = $this->workoutSession->userId;
 
-        return $this->select('SessionExercises.*')
+        $sessionExercises = $this->select('SessionExercises.*')
             ->where('routineExerciseId', $this->routineExerciseId)
             ->join('WorkoutSessions','WorkoutSessions.id','=','workoutSessionId')
             ->where('WorkoutSessions.userId', $userId)
             ->where('SessionExercises.id', '!=', $this->id)
             ->where('SessionExercises.skipped', '=', false)
             ->orderBy('WorkoutSessions.createdAt')
-            ->limit(10)
-            ->get()
-            ->each(function (SessionExercise $sessionExercise) {
-                $sessionExercise->workoutSession->get();
-            });
+            ->limit(50)
+            ->get();
+
+        $workoutSessionIds = $sessionExercises->map(function (SessionExercise $sessionExercise) {
+            return $sessionExercise->workoutSessionId;
+        });
+
+        $workoutSessions = WorkoutSession::whereIn('id', $workoutSessionIds)->get();
+
+        $sessionExercises->each(function (SessionExercise $sessionExercise) use ($workoutSessions) {
+            $workoutSession = $workoutSessions->filter(function (WorkoutSession $workoutSession) use($sessionExercise) {
+                return $workoutSession->id === $sessionExercise->workoutSessionId;
+            } )->first();
+
+            $sessionExercise->setRelation('workoutSession', collect($workoutSession));
+        });
+
+        return $sessionExercises;
+
     }
 
     public function workoutSession(): BelongsTo
