@@ -173,7 +173,10 @@ class SessionExercise extends AbstractModel implements UserOwnershipInterface
             ->where('SessionExercises.skipped', '=', false)
             ->orderBy('WorkoutSessions.createdAt')
             ->limit(10)
-            ->get();
+            ->get()
+            ->each(function (SessionExercise $sessionExercise) {
+                $sessionExercise->workoutSession->get();
+            });
     }
 
     public function workoutSession(): BelongsTo
