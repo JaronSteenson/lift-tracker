@@ -30,10 +30,6 @@ export default {
             type: String,
             required: false,
         },
-        overdueLabel: {
-            type: String,
-            required: false,
-        },
     },
     data() {
         return {
@@ -47,7 +43,7 @@ export default {
         this.startRefreshInterval();
     },
     watch: {
-        restPeriodIsFinished(value, oldValue) {
+        timerFinished(value, oldValue) {
             // Stop the audio if the rest period has stopped by the user.
             if (value && !oldValue) {
                 this.stopAudio();
@@ -70,12 +66,17 @@ export default {
         },
     },
     computed: {
+        exercise() {
+            return this.$store.getters['workoutSession/exerciseBySet'](
+                this.sessionSetUuid
+            );
+        },
         _label() {
             if (this.overdue) {
-                return this.overdueLabel;
+                return `${this.label} overdue`;
             }
 
-            return this.label;
+            return `${this.label} remaining`;
         },
         timerClass() {
             return {
@@ -86,11 +87,30 @@ export default {
         },
         timeRemaining() {
             this.refreshForce;
+
+            if (
+                this.$store.getters['workoutSession/isDuringWarmUp'](
+                    this.exercise.uuid
+                )
+            ) {
+                return this.$store.getters[
+                    'workoutSession/warmUpTimeRemaining'
+                ](this.exercise.uuid);
+            }
+
             return this.$store.getters[
                 'workoutSession/restPeriodTimeRemaining'
             ](this.sessionSetUuid);
         },
-        restPeriodIsFinished() {
+        timerFinished() {
+            if (
+                this.$store.getters['workoutSession/isDuringWarmUp'](
+                    this.exercise.uuid
+                )
+            ) {
+                return false;
+            }
+
             return this.$store.getters['workoutSession/restPeriodIsFinished'](
                 this.sessionSetUuid
             );

@@ -1,14 +1,12 @@
 <template>
     <div>
-        <VMessages v-if="$vuetify.breakpoint.xsOnly" :value="[label]" />
+        <VMessages :value="[labelFull]" />
         <VSlider
             :disabled="disabled"
-            :label="$vuetify.breakpoint.smAndUp ? label : null"
+            :label="null"
             :max="5 * 60"
             :min="0"
-            :prepend-icon="
-                $vuetify.breakpoint.smAndUp ? $svgIcons.restPeriod : null
-            "
+            :prepend-icon="$svgIcons.restPeriod"
             :value="value"
             @input="$emit('input', $event)"
             class="px-0"
@@ -25,6 +23,11 @@ import { minsSecDuration } from '../../dates';
 
 export default {
     props: {
+        label: {
+            type: String,
+            required: false,
+            default: 'Rest period',
+        },
         value: {
             type: Number,
             required: false,
@@ -35,8 +38,8 @@ export default {
         },
     },
     computed: {
-        label() {
-            return `Rest period ${this.minsSecDuration}`;
+        labelFull() {
+            return `${this.label} ${this.minsSecDuration}`;
         },
         minsSecDuration() {
             return minsSecDuration(this.value);

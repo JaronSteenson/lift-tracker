@@ -27,6 +27,7 @@ use LiftTracker\User;
  * @property int numberOfSets
  * @property int weight in kg
  * @property int restPeriod in seconds
+ * @property int warmUp in seconds
  * @property int position
  * @property carbon|null deletedAt
  * @property WorkoutProgramRoutine routine
@@ -48,6 +49,7 @@ class RoutineExercise extends AbstractModel implements UserOwnershipInterface
         'position',
         'weight',
         'restPeriod',
+        'warmUp',
     ];
 
     /**
@@ -62,12 +64,14 @@ class RoutineExercise extends AbstractModel implements UserOwnershipInterface
         'position',
         'weight',
         'restPeriod',
+        'warmUp',
     ];
 
     protected $casts = [
         'numberOfSets' => 'integer',
         'weight' => 'double',
         'restPeriod' => 'integer',
+        'warmUp' => 'integer',
         'createdAt' => 'datetime:c',
         'updatedAt' => 'datetime:c',
     ];

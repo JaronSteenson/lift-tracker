@@ -107,6 +107,9 @@ export default {
         }
     },
     computed: {
+        warmUp() {
+            return minsSecDuration(this.exercise.warmUp);
+        },
         restPeriod() {
             return minsSecDuration(this.exercise.restPeriod);
         },

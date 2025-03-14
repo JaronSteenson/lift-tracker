@@ -35,6 +35,7 @@ function createExerciseForEmptyWorkout(name) {
         position: 0,
         plannedWeight: null,
         plannedRestPeriodDuration: null,
+        plannedWarmUp: null,
         sessionSets: [
             {
                 uuid: UuidHelper.assign(),
@@ -53,6 +54,7 @@ function createSessionExerciseFromBuilderExercise(builderExercise) {
         name: builderExercise.name || 'Unnamed exercise',
         plannedWeight: builderExercise.weight,
         plannedRestPeriodDuration: builderExercise.restPeriod,
+        plannedWarmUp: builderExercise.warmUp,
         position: builderExercise.position,
         sessionSets: Array.from({ length: builderExercise.numberOfSets }).map(
             (value, index) => {

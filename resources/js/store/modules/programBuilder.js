@@ -50,6 +50,7 @@ const exerciseFields = [
     'position',
     'weight',
     'restPeriod',
+    'warmUp',
 ];
 
 const getters = {
@@ -449,6 +450,7 @@ const mutations = {
             name: null,
             weight: null,
             numberOfSets: 3,
+            warmUp: 2 * 60, // 2 minutes in seconds.
             restPeriod: 2 * 60, // 2 minutes in seconds.
             position: workout.routineExercises.length,
         });

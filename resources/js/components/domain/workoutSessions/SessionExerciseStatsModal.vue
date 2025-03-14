@@ -33,10 +33,10 @@
 
                 <hr class="mt-2" />
 
-                <template v-if="sessionExercise.workoutSession.bodyWeight">
+                <template v-if="bodyWeight">
                     <h3 class="mt-2">Body weight</h3>
                     <p>
-                        {{ sessionExercise.workoutSession.bodyWeight }}
+                        {{ bodyWeight }}
                     </p>
                     <hr />
                 </template>
@@ -150,6 +150,13 @@ export default {
         },
     },
     computed: {
+        bodyWeight() {
+            return (
+                this.sessionExercise &&
+                this.sessionExercise.workoutSession &&
+                this.sessionExercise.workoutSession.bodyWeight
+            );
+        },
         // Bars require a gradient, or they will default to grey.
         gradient() {
             return [

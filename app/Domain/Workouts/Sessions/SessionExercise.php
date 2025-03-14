@@ -27,6 +27,10 @@ use LiftTracker\User;
  * @property string name
  * @property Carbon plannedWeight
  * @property string plannedRestPeriodDuration
+ * @property string plannedWarmUp
+ * @property int warmUpDuration
+ * @property Carbon warmUpStartedAt
+ * @property Carbon warmUpEndedAt
  * @property string notes
  * @property string position
  * @property SessionSet[]|Collection sessionSets
@@ -50,6 +54,10 @@ class SessionExercise extends AbstractModel implements UserOwnershipInterface
         'name',
         'plannedWeight',
         'plannedRestPeriodDuration',
+        'plannedWarmUp',
+        'warmUpDuration',
+        'warmUpStartedAt',
+        'warmUpEndedAt',
         'notes',
         'position',
         'skipped',
@@ -69,6 +77,10 @@ class SessionExercise extends AbstractModel implements UserOwnershipInterface
         'name',
         'plannedWeight',
         'plannedRestPeriodDuration',
+        'plannedWarmUp',
+        'warmUpDuration',
+        'warmUpStartedAt',
+        'warmUpEndedAt',
         'notes',
         'position',
         'sessionSets',
@@ -87,6 +99,10 @@ class SessionExercise extends AbstractModel implements UserOwnershipInterface
         'plannedReps' => 'integer',
         'plannedWeight' => 'integer',
         'plannedRestPeriodDuration' => 'integer',
+        'plannedWarmUp' => 'integer',
+        'warmUpEndedAt' => 'datetime:c',
+        'warmUpDuration' => 'integer',
+        'warmUpStartedAt' => 'datetime:c',
         'skipped' => 'boolean',
         'createdAt' => 'datetime:c',
         'updatedAt' => 'datetime:c',
@@ -107,6 +123,7 @@ class SessionExercise extends AbstractModel implements UserOwnershipInterface
             $sessionExercise->name = $originExercise->name;
             $sessionExercise->plannedWeight = $originExercise->weight;
             $sessionExercise->plannedRestPeriodDuration = $originExercise->restPeriod;
+            $sessionExercise->plannedWarmUp = $originExercise->warmUp;
             $sessionExercise->position = $originExercise->position;
             $sessionExercise->routineExerciseId = $originExercise->id;
 

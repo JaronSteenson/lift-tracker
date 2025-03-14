@@ -30,7 +30,7 @@ function defaultState() {
         myMyWorkoutSessionsPagesAllLoaded: false,
         exercisesPreviousEntries: {}, // Previous entries of exercises keyed by exercise uuid.
         inProgressWorkouts: [], // An array of workouts.
-        restPeriodTimeout: null,
+        timerTimeout: null,
         /**
          * A map of workout session ids to boolean, indicating if a session is open for retrospective editing.
          * Note this is only relevant to finished workouts.
@@ -55,6 +55,10 @@ export const getters = {
     },
 
     isInProgressWorkout: (state, getters) => (workoutSessionUuid) => {
+        if (!getters.inProgressWorkouts) {
+            return false;
+        }
+
         return UuidHelper.findIn(
             getters.inProgressWorkouts,
             workoutSessionUuid
@@ -98,6 +102,10 @@ export const getters = {
 
     currentSetForInProgressWorkout:
         (state, getters) => (workoutSessionUuid) => {
+            if (!getters.inProgressWorkouts) {
+                return null;
+            }
+
             const workout = UuidHelper.findIn(
                 getters.inProgressWorkouts,
                 workoutSessionUuid
@@ -266,6 +274,16 @@ export const getters = {
         return actualSet.weight;
     },
 
+    warmUpForCurrentExercise: (state, getters) => (exerciseUuid) => {
+        const actualExercise = getters.exercise(exerciseUuid);
+
+        if (actualExercise.warmUpDuration !== null) {
+            return actualExercise.warmUpDuration;
+        }
+
+        return actualExercise.plannedWarmUp;
+    },
+
     restPeriodForCurrentSet: (state, getters) => (uuid) => {
         const actualSet = getters.set(uuid);
 
@@ -278,8 +296,8 @@ export const getters = {
         return exercise.plannedRestPeriodDuration;
     },
 
-    repsForCurrentSet: (state, getters) => (uuid) => {
-        const actualSet = getters.set(uuid);
+    repsForCurrentSet: (state, getters) => (setUuid) => {
+        const actualSet = getters.set(setUuid);
 
         if (actualSet.reps !== null) {
             return actualSet.reps;
@@ -311,6 +329,14 @@ export const getters = {
         return actualSet.uuid === lastSet.uuid;
     },
 
+    isFirstSetOfExercise: (state, getters) => (setUuid) => {
+        const exercise = getters.exerciseBySet(setUuid);
+
+        const firstExerciseOfSet = exercise.sessionSets[0];
+
+        return setUuid === firstExerciseOfSet.uuid;
+    },
+
     isLastSetOfExercise: (state, getters) => (setUuid) => {
         const exercise = getters.exerciseBySet(setUuid);
 
@@ -318,6 +344,18 @@ export const getters = {
             exercise.sessionSets[exercise.sessionSets.length - 1];
 
         return setUuid === lastExerciseOfSet.uuid;
+    },
+
+    warmUpStarted: (state, getters) => (uuid) => {
+        const exercise = getters.exercise(uuid);
+
+        return exercise.warmUpStartedAt !== null;
+    },
+
+    warmUpEnded: (state, getters) => (uuid) => {
+        const exercise = getters.exercise(uuid);
+
+        return exercise.warmUpEndedAt !== null;
     },
 
     restPeriodStarted: (state, getters) => (uuid) => {
@@ -330,6 +368,13 @@ export const getters = {
         const set = getters.set(uuid);
 
         return set.restPeriodStartedAt === null;
+    },
+
+    isDuringWarmUp: (state, getters) => (exerciseUuid) => {
+        const exercise = getters.exercise(exerciseUuid);
+        return (
+            exercise.warmUpStartedAt !== null && exercise.warmUpEndedAt === null
+        );
     },
 
     isDuringRestPeriod: (state, getters) => (uuid) => {
@@ -347,30 +392,28 @@ export const getters = {
         );
     },
 
+    warmUpTimeRemaining: (state, getters) => (exerciseUuid) => {
+        if (!getters.isDuringWarmUp(exerciseUuid)) {
+            return null;
+        }
+
+        const expectedDuration = getters.warmUpForCurrentExercise(exerciseUuid);
+
+        const exercise = getters.exercise(exerciseUuid);
+        let startTime = new Date(exercise.warmUpStartedAt);
+
+        return getSecondsRemaining({ expectedDuration, startTime });
+    },
+
     restPeriodTimeRemaining: (state, getters) => (uuid) => {
         if (!getters.isDuringRestPeriod(uuid)) {
             return null;
         }
 
-        // In seconds.
         const expectedDuration = getters.restPeriodForCurrentSet(uuid);
-
-        const minutesToAdd = Math.floor(expectedDuration / 60);
-        const secondsToAdd = expectedDuration - minutesToAdd * 60;
-
         let startTime = new Date(getters.set(uuid).restPeriodStartedAt);
 
-        const finishTimeMinutes = minutesToAdd + startTime.getMinutes();
-        const finishTimeSeconds = secondsToAdd + startTime.getSeconds();
-
-        let finishTime = new Date(getters.set(uuid).restPeriodStartedAt);
-        finishTime.setMinutes(finishTimeMinutes);
-        finishTime.setSeconds(finishTimeSeconds);
-
-        const now = Math.round(new Date(utcNow()).getTime() / 1000);
-        const finishInSeconds = Math.round(finishTime.getTime() / 1000);
-
-        return finishInSeconds - now;
+        return getSecondsRemaining({ expectedDuration, startTime });
     },
 
     hasLoadedExercisePreviousEntries: (state) => (exerciseUuid) => {
@@ -414,6 +457,15 @@ export const actions = {
         }
     },
 
+    updateExerciseWarmUpDuration(
+        { commit, dispatch },
+        { uuid, warmUpDuration }
+    ) {
+        commit('updateExercise', { uuid, warmUpDuration });
+
+        dispatch('saveExercise', uuid);
+    },
+
     updateSetRestPeriodDuration(
         { commit, dispatch },
         { uuid, restPeriodDuration }
@@ -455,6 +507,18 @@ export const actions = {
         dispatch('saveExercise', uuid);
     },
 
+    startWarmUp({ commit, dispatch }, { uuid }) {
+        const warmUpStartedAt = utcNow();
+
+        commit('updateExercise', {
+            uuid,
+            warmUpStartedAt,
+            warmUpEndedAt: null,
+        });
+
+        dispatch('saveExercise', uuid);
+    },
+
     startRestPeriod({ commit, dispatch }, { uuid }) {
         const restPeriodStartedAt = utcNow();
 
@@ -467,6 +531,17 @@ export const actions = {
         dispatch('saveSet', uuid);
     },
 
+    resetWarmUp({ commit, dispatch }, { uuid }) {
+        commit('updateExercise', {
+            uuid,
+            warmUpStartedAt: null,
+            warmUpEndedAt: null,
+            warmUpDuration: null,
+        });
+
+        dispatch('saveExercise', uuid);
+    },
+
     resetRestPeriod({ commit, dispatch }, { uuid }) {
         commit('updateSet', {
             uuid,
@@ -476,6 +551,23 @@ export const actions = {
         });
 
         dispatch('saveSet', uuid);
+    },
+
+    endWarmUp({ commit, dispatch, getters }, { uuid }) {
+        const exercise = getters.exercise(uuid);
+
+        const warmUpEndedAt = utcNow();
+        const warmUpDuration = differenceInSeconds(
+            new Date(warmUpEndedAt),
+            new Date(exercise.warmUpStartedAt)
+        );
+        commit('endWarmUp', {
+            uuid,
+            warmUpEndedAt,
+            warmUpDuration,
+        });
+
+        dispatch('saveExercise', uuid);
     },
 
     endRestPeriod({ commit, dispatch, getters }, { uuid }) {
@@ -855,6 +947,19 @@ const mutations = {
         inProgressSet.endedAt = endedAt;
     },
 
+    endWarmUp(state, { uuid, warmUpEndedAt, warmUpDuration }) {
+        const exercise = UuidHelper.findIn(
+            state.workoutSession.sessionExercises,
+            uuid
+        );
+
+        exercise.warmUpEndedAt = warmUpEndedAt;
+        exercise.warmUpDuration = warmUpDuration;
+
+        clearTimeout(state.timerTimeout);
+        state.timerTimeout = null;
+    },
+
     endRestPeriod(state, { uuid, restPeriodEndedAt, restPeriodDuration }) {
         const set = UuidHelper.findDeep(
             state.workoutSession.sessionExercises,
@@ -863,8 +968,8 @@ const mutations = {
         set.restPeriodEndedAt = restPeriodEndedAt;
         set.restPeriodDuration = restPeriodDuration;
 
-        clearTimeout(state.restPeriodTimeout);
-        state.restPeriodTimeout = null;
+        clearTimeout(state.timerTimeout);
+        state.timerTimeout = null;
     },
 
     endWorkout(state, { endedAt }) {
@@ -879,3 +984,20 @@ export default {
     actions,
     mutations,
 };
+
+function getSecondsRemaining({ expectedDuration, startTime }) {
+    const minutesToAdd = Math.floor(expectedDuration / 60);
+    const secondsToAdd = expectedDuration - minutesToAdd * 60;
+
+    const finishTimeMinutes = minutesToAdd + startTime.getMinutes();
+    const finishTimeSeconds = secondsToAdd + startTime.getSeconds();
+
+    let finishTime = new Date(startTime);
+    finishTime.setMinutes(finishTimeMinutes);
+    finishTime.setSeconds(finishTimeSeconds);
+
+    const now = Math.round(new Date(utcNow()).getTime() / 1000);
+    const finishInSeconds = Math.round(finishTime.getTime() / 1000);
+
+    return finishInSeconds - now;
+}

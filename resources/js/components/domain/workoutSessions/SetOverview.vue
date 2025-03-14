@@ -31,6 +31,12 @@
                             <VListItemTitle>View next</VListItemTitle>
                         </VListItem>
                         <VListItem
+                            :disabled="!warmUpStarted"
+                            @click="resetWarmUp"
+                        >
+                            <VListItemTitle>Reset warm-up</VListItemTitle>
+                        </VListItem>
+                        <VListItem
                             :disabled="!restPeriodStarted"
                             @click="resetRestPeriod"
                         >
@@ -264,10 +270,9 @@
                         <VCol class="pt-0" cols="6">
                             <RestPeriodInput
                                 v-if="!isLastSetOfExercise"
-                                v-model="restPeriod"
-                                :disabled="
-                                    !isOpenForEdits || isDuringRestPeriod
-                                "
+                                :label="activeTimerLabel"
+                                v-model="activeTimer"
+                                :disabled="!isOpenForEdits || isTimerRunning"
                             />
                         </VCol>
                     </VRow>
@@ -332,8 +337,7 @@
                         >
                             <RestPeriodTimer
                                 :session-set-uuid="sessionSetUuid"
-                                label="Rest period remaining"
-                                overdue-label="Rest period overdue"
+                                :label="activeTimerLabel"
                             />
                         </VCol>
 
@@ -345,12 +349,12 @@
                                 :width="
                                     $vuetify.breakpoint.xsOnly ? '100%' : null
                                 "
-                                @click="endRestPeriod"
+                                @click="endActiveTimer"
                                 class="mt-2"
                                 color="error"
                             >
                                 <VIcon left>{{ $svgIcons.mdiStop }}</VIcon>
-                                End rest
+                                End {{ activeTimerLabel }}
                             </VBtn>
                         </VCol>
                     </VRow>
@@ -441,7 +445,8 @@
                     class="justify-center"
                     v-if="
                         isInProgressSet &&
-                        restPeriodNotStarted &&
+                        (!warmUpStarted ||
+                            (warmUpEnded && !restPeriodStarted)) &&
                         !isLastSetOfExercise
                     "
                     width="100%"
@@ -449,12 +454,12 @@
                     <VBtn
                         :height="$vuetify.breakpoint.xs ? '4rem' : null"
                         large
-                        @click="startRestPeriod"
+                        @click="startActiveTimer"
                         class="start-rest-button"
                         color="primary"
                     >
                         <VIcon left>{{ $svgIcons.restPeriodStart }}</VIcon>
-                        Start rest period
+                        Start {{ activeTimerLabel }}
                     </VBtn>
                 </VCardActions>
             </VCardText>
@@ -558,7 +563,7 @@ export default {
         shouldShowRestPeriodActions() {
             return (
                 this.isInProgressSet &&
-                this.isDuringRestPeriod &&
+                this.isTimerRunning &&
                 !this.isLastSetOfExercise
             );
         },
@@ -645,6 +650,16 @@ export default {
                 this.sessionSetUuid
             );
         },
+        warmUpStarted() {
+            return this.$store.getters['workoutSession/warmUpStarted'](
+                this.exercise.uuid
+            );
+        },
+        warmUpEnded() {
+            return this.$store.getters['workoutSession/warmUpEnded'](
+                this.exercise.uuid
+            );
+        },
         restPeriodStarted() {
             return this.$store.getters['workoutSession/restPeriodStarted'](
                 this.sessionSetUuid
@@ -655,9 +670,17 @@ export default {
                 this.sessionSetUuid
             );
         },
-        isDuringRestPeriod() {
-            return this.$store.getters['workoutSession/isDuringRestPeriod'](
-                this.sessionSetUuid
+        activeTimerLabel() {
+            return this.warmUpEnded ? 'Rest period' : 'Warm-up';
+        },
+        isTimerRunning() {
+            return (
+                this.$store.getters['workoutSession/isDuringWarmUp'](
+                    this.exercise.uuid
+                ) ||
+                this.$store.getters['workoutSession/isDuringRestPeriod'](
+                    this.sessionSetUuid
+                )
             );
         },
         restPeriodIsFinished() {
@@ -676,6 +699,11 @@ export default {
         },
         isLastSetOfWorkout() {
             return this.$store.getters['workoutSession/isLastSetOfWorkout'](
+                this.sessionSetUuid
+            );
+        },
+        isFirstSetOfExercise() {
+            return this.$store.getters['workoutSession/isFirstSetOfExercise'](
                 this.sessionSetUuid
             );
         },
@@ -715,18 +743,51 @@ export default {
                 });
             },
         },
-        restPeriod: {
+        warmUp: {
             get() {
+                return this.$store.getters[
+                    'workoutSession/warmUpForCurrentExercise'
+                ](this.this.exercise.uuid);
+            },
+            set(warmUpDuration) {
+                this.$store.dispatch(
+                    'workoutSession/updateExerciseWarmUpDuration',
+                    {
+                        uuid: this.exercise.uuid,
+                        warmUpDuration,
+                    }
+                );
+            },
+        },
+        activeTimer: {
+            get() {
+                if (!this.warmUpEnded) {
+                    return this.$store.getters[
+                        'workoutSession/warmUpForCurrentExercise'
+                    ](this.exercise.uuid);
+                }
+
                 return this.$store.getters[
                     'workoutSession/restPeriodForCurrentSet'
                 ](this.sessionSetUuid);
             },
-            set(restPeriodDuration) {
+            set(duration) {
+                if (!this.warmUpEnded) {
+                    this.$store.dispatch(
+                        'workoutSession/updateExerciseWarmUpDuration',
+                        {
+                            uuid: this.sessionSetUuid,
+                            warmUpDuration: duration,
+                        }
+                    );
+                    return;
+                }
+
                 this.$store.dispatch(
                     'workoutSession/updateSetRestPeriodDuration',
                     {
                         uuid: this.sessionSetUuid,
-                        restPeriodDuration,
+                        restPeriodDuration: duration,
                     }
                 );
             },
@@ -827,6 +888,12 @@ export default {
                 this.$vuetify.breakpoint.xsOnly ? 250 : 0
             );
         },
+        resetWarmUp() {
+            const uuid = this.exercise.uuid;
+            this.$store.dispatch('workoutSession/resetWarmUp', {
+                uuid,
+            });
+        },
         resetRestPeriod() {
             const uuid = this.set.uuid;
             this.$store.dispatch('workoutSession/resetRestPeriod', {
@@ -877,15 +944,27 @@ export default {
 
             this.isChangingSet = false;
         },
-        startRestPeriod() {
-            this.$store.dispatch('workoutSession/startRestPeriod', {
-                uuid: this.sessionSetUuid,
-            });
+        startActiveTimer() {
+            if (this.warmUpEnded) {
+                this.$store.dispatch('workoutSession/startRestPeriod', {
+                    uuid: this.sessionSetUuid,
+                });
+            } else {
+                this.$store.dispatch('workoutSession/startWarmUp', {
+                    uuid: this.exercise.uuid,
+                });
+            }
         },
-        endRestPeriod() {
-            this.$store.dispatch('workoutSession/endRestPeriod', {
-                uuid: this.sessionSetUuid,
-            });
+        endActiveTimer() {
+            if (this.warmUpEnded) {
+                this.$store.dispatch('workoutSession/endRestPeriod', {
+                    uuid: this.sessionSetUuid,
+                });
+            } else {
+                this.$store.dispatch('workoutSession/endWarmUp', {
+                    uuid: this.exercise.uuid,
+                });
+            }
         },
         endSet() {
             this.$store.dispatch('workoutSession/endSet', {

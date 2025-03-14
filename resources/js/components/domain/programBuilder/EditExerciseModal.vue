@@ -39,6 +39,12 @@
                             </VCol>
                             <VCol cols="12">
                                 <RestPeriodSlider
+                                    label="Warm-up"
+                                    v-model="localState.warmUp"
+                                />
+                            </VCol>
+                            <VCol cols="12">
+                                <RestPeriodSlider
                                     v-model="localState.restPeriod"
                                 />
                             </VCol>

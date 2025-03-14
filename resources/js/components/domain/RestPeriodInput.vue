@@ -3,7 +3,7 @@
         <VTextField
             :disabled="disabled"
             :value="minsSecDuration"
-            label="Rest period"
+            :label="label"
             type="text"
             v-if="disabled"
         />
@@ -14,7 +14,7 @@
                     'rest-period-input__input--small':
                         this.$vuetify.breakpoint.xsOnly,
                 }"
-                label="Rest period"
+                :label="label"
                 type="number"
                 min="0"
                 v-model.number="mins"
@@ -58,6 +58,9 @@ import { minsSecDuration } from '../../dates';
 
 export default {
     props: {
+        label: {
+            type: String,
+        },
         value: {
             type: Number,
             required: false,
