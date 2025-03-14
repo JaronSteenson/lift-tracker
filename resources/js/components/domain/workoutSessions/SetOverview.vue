@@ -279,7 +279,7 @@
                     <VRow v-if="!wasAddedOnTheFly" class="pt-0 mt-0">
                         <VCol class="pt-0 mt-0" cols="12" sm="6">
                             <span v-if="!hasLoadedExercisePreviousEntries">
-                                Loading previous entry overviews...
+                                Loading history...
                                 <VProgressLinear indeterminate />
                             </span>
                             <template v-else>
@@ -294,7 +294,7 @@
                                             },
                                         }"
                                     >
-                                        Previous entry overviews
+                                        History
                                     </RouterLink>
 
                                     <SessionExerciseStatsModal

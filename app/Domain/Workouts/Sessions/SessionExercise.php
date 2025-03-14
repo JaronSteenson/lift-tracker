@@ -166,13 +166,13 @@ class SessionExercise extends AbstractModel implements UserOwnershipInterface
         $userId = $this->workoutSession->userId;
 
         return $this->select('SessionExercises.*')
-            ->with('workoutSession')
             ->where('routineExerciseId', $this->routineExerciseId)
             ->join('WorkoutSessions','WorkoutSessions.id','=','workoutSessionId')
             ->where('WorkoutSessions.userId', $userId)
             ->where('SessionExercises.id', '!=', $this->id)
             ->where('SessionExercises.skipped', '=', false)
-            ->orderBy('WorkoutSessions.startedAt')
+            ->orderBy('WorkoutSessions.createdAt')
+            ->limit(10)
             ->get();
     }
 
