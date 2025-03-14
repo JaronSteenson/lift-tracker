@@ -48,6 +48,7 @@ pipelines:
                     COMMAND: >
                       tar -xvf /tmp/deploy-backend/artifacts-backend.tar.gz -C /var/www/html/lift-tracker
                       && cd /var/www/html/lift-tracker
+                      && php artisan view:clear
                       && php artisan optimize:clear
                       && php artisan migrate
               services:
