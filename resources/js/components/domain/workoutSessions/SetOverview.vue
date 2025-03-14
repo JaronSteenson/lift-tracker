@@ -679,7 +679,10 @@ export default {
             );
         },
         activeTimerLabel() {
-            return this.warmUpEnded ? 'Rest period' : 'Warm-up';
+            if (this.set.endedAt || this.warmUpEnded) {
+                return 'Rest period';
+            }
+            return 'Warm-up';
         },
         isTimerRunning() {
             return (
@@ -769,33 +772,33 @@ export default {
         },
         activeTimer: {
             get() {
-                if (!this.warmUpEnded) {
+                if (this.set.endedAt || this.warmUpEnded) {
                     return this.$store.getters[
-                        'workoutSession/warmUpForCurrentExercise'
-                    ](this.exercise.uuid);
+                        'workoutSession/restPeriodForCurrentSet'
+                    ](this.sessionSetUuid);
                 }
 
                 return this.$store.getters[
-                    'workoutSession/restPeriodForCurrentSet'
-                ](this.sessionSetUuid);
+                    'workoutSession/warmUpForCurrentExercise'
+                ](this.exercise.uuid);
             },
             set(duration) {
-                if (!this.warmUpEnded) {
+                if (this.set.endedAt || this.warmUpEnded) {
                     this.$store.dispatch(
-                        'workoutSession/updateExerciseWarmUpDuration',
+                        'workoutSession/updateSetRestPeriodDuration',
                         {
                             uuid: this.sessionSetUuid,
-                            warmUpDuration: duration,
+                            restPeriodDuration: duration,
                         }
                     );
                     return;
                 }
 
                 this.$store.dispatch(
-                    'workoutSession/updateSetRestPeriodDuration',
+                    'workoutSession/updateExerciseWarmUpDuration',
                     {
                         uuid: this.sessionSetUuid,
-                        restPeriodDuration: duration,
+                        warmUpDuration: duration,
                     }
                 );
             },

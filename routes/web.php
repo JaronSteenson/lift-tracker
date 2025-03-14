@@ -62,7 +62,6 @@ Route::apiResource('api/sessions-sets', 'Api\SessionSetController')
  * @see \LiftTracker\Http\Controllers\Api\SessionExercisePreviousEntries
  */
 Route::get('api/session-exercise-previous-entries/{sessionExerciseUuid}', 'Api\SessionExercisePreviousEntries')
-    ->middleware('verified')
     ->middleware('auth');
 
 /**
