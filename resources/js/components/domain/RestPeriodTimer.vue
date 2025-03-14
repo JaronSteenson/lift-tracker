@@ -168,7 +168,6 @@ export default {
         playAlarm(i) {
             /** @type HTMLAudioElement */
             const audio = this.$refs['alarm-audio-' + i];
-            audio.volume = 0.3; // Set a hard volume or else android will default to max volume sometimes.
             audio.play();
         },
         stopAudio() {
