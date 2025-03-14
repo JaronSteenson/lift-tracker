@@ -172,7 +172,7 @@ class SessionExercise extends AbstractModel implements UserOwnershipInterface
             ->where('SessionExercises.id', '!=', $this->id)
             ->where('SessionExercises.skipped', '=', false)
             ->orderBy('WorkoutSessions.createdAt')
-            ->limit(50)
+            ->limit(10)
             ->get();
 
         $workoutSessionIds = $sessionExercises->map(function (SessionExercise $sessionExercise) {
