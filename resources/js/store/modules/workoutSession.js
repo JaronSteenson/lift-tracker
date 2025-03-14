@@ -487,6 +487,12 @@ export const actions = {
         dispatch('saveExercise', uuid);
     },
 
+    updateExerciseSkipped({ commit, dispatch }, { uuid, skipped }) {
+        commit('updateExercise', { uuid, skipped });
+
+        dispatch('saveExercise', uuid);
+    },
+
     startSet({ commit, dispatch }, { uuid }) {
         const now = utcNow();
 

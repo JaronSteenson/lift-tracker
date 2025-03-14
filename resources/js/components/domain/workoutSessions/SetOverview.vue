@@ -55,6 +55,14 @@
                             <VListItemTitle>Skip exercise</VListItemTitle>
                         </VListItem>
                         <VListItem
+                            v-if="isSkippedExercise"
+                            @click="markExerciseNotSkipped"
+                        >
+                            <VListItemTitle
+                                >Un-mark exercise skipped</VListItemTitle
+                            >
+                        </VListItem>
+                        <VListItem
                             :disabled="!isInProgressWorkout"
                             @click="tryEndWorkout"
                         >
@@ -943,6 +951,12 @@ export default {
             }
 
             this.isChangingSet = false;
+        },
+        async markExerciseNotSkipped() {
+            await this.$store.dispatch('workoutSession/updateExerciseSkipped', {
+                uuid: this.exercise.uuid,
+                skipped: false,
+            });
         },
         startActiveTimer() {
             if (this.warmUpEnded) {
