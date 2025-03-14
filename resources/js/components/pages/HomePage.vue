@@ -15,9 +15,10 @@
             right
             bottom
             title="Resume set"
+            large
         >
             <span class="text--primary">Resume workout</span>
-            <VIcon color="green">{{ $svgIcons.mdiPlayPause }}</VIcon>
+            <VIcon color="green" large>{{ $svgIcons.mdiPlayPause }}</VIcon>
         </VBtn>
         <VBtn
             v-else
