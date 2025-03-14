@@ -43,7 +43,7 @@
                 >
                     <VListItemAction>
                         <VIcon color="success">
-                            {{ $svgIcons.mdiPlay }}
+                            {{ $svgIcons.mdiPlayPause }}
                         </VIcon>
                     </VListItemAction>
                     <VListItemContent>

@@ -54,20 +54,7 @@ function checkPwaStart(to, from, next) {
         return;
     }
 
-    const inProgressWorkouts =
-        store.getters['workoutSession/inProgressWorkouts'];
-    if (inProgressWorkouts === null || inProgressWorkouts.length === 0) {
-        next({ name: 'HomePage' });
-        return;
-    }
-
-    const inProgressSet = store.getters[
-        'workoutSession/currentSetForInProgressWorkout'
-    ](inProgressWorkouts[0].uuid);
-    next({
-        name: 'SetOverviewPage',
-        params: { sessionSetUuid: inProgressSet.uuid },
-    });
+    next({ name: 'HomePage' });
 }
 
 function checkForceDrawerHide(to, from, next) {

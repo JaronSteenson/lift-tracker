@@ -10,14 +10,14 @@
                 name: 'SetOverviewPage',
                 params: { sessionSetUuid: inProgressSet.uuid },
             }"
-            fab
             color="secondary"
             fixed
             right
             bottom
             title="Resume set"
         >
-            <VIcon color="green">{{ $svgIcons.mdiPlay }}</VIcon>
+            <span class="text--primary">Resume workout</span>
+            <VIcon color="green">{{ $svgIcons.mdiPlayPause }}</VIcon>
         </VBtn>
         <VBtn
             v-else
