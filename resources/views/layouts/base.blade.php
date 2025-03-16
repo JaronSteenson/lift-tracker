@@ -23,7 +23,7 @@
 
         <!-- Progressive web app manifest -->
         <link rel="manifest" href="/manifest.json">
-        <<meta name="theme-color" content="{{ config('app.app_icon_background_color') }}"/>
+        <meta name="theme-color" content="{{ config('app.app_icon_background_color') }}"/>
         <meta name="color-scheme" content="dark" />
         <meta name="msapplication-TileColor" content="{{ config('app.app_icon_background_color') }}">
         <meta name="msapplication-TileImage" content="/ms-icon-144x144.png">
