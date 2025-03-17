@@ -24,7 +24,7 @@ pipelines:
                 - php artisan migrate --database=mysql_test
                 - ./vendor/bin/phpunit --log-junit ./test-reports/junit.xml
                 - echo 'Starting deploy';
-                - tar -czvf artifacts-backend.tar.gz app composer.json composer.lock config database routes vendor;
+                - tar -czf artifacts-backend.tar.gz app composer.json composer.lock config database routes vendor;
                 - pipe: atlassian/ssh-run:0.4.1
                   variables:
                     SSH_USER: $PROD_USER
@@ -46,7 +46,7 @@ pipelines:
                     SERVER: $PROD_IP
                     MODE: "command"
                     COMMAND: >
-                      tar -xvf /tmp/deploy-backend/artifacts-backend.tar.gz -C /var/www/html/lift-tracker
+                      tar -xf /tmp/deploy-backend/artifacts-backend.tar.gz -C /var/www/html/lift-tracker
                       && cd /var/www/html/lift-tracker
                       && php artisan view:clear
                       && php artisan optimize:clear
@@ -64,7 +64,7 @@ pipelines:
                 - npm test
                 - npm run prod
                 - echo 'Starting deploy';
-                - tar -czvf artifacts-frontend.tar.gz public;
+                - tar -czf artifacts-frontend.tar.gz public;
                 - pipe: atlassian/ssh-run:0.4.1
                   variables:
                     SSH_USER: $PROD_USER
@@ -87,7 +87,7 @@ pipelines:
                     SERVER: $PROD_IP
                     MODE: "command"
                     COMMAND: >
-                      tar -xvf /tmp/deploy-frontend/artifacts-frontend.tar.gz -C /var/www/html/lift-tracker
+                      tar -xf /tmp/deploy-frontend/artifacts-frontend.tar.gz -C /var/www/html/lift-tracker
                 - echo 'Purging CDN cache'
                 - >
                   curl \
