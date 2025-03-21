@@ -23,6 +23,7 @@ pipelines:
                 - ln -f -s .env.pipelines .env
                 - php artisan migrate --database=mysql_test
                 - ./vendor/bin/phpunit --log-junit ./test-reports/junit.xml
+                - rm -rf ./vendor/bin/phpunit
                 - echo 'Starting deploy';
                 - tar -czf artifacts-backend.tar.gz app composer.json composer.lock config database routes vendor;
                 - pipe: atlassian/ssh-run:0.4.1
@@ -49,6 +50,7 @@ pipelines:
                       tar -xf /tmp/deploy-backend/artifacts-backend.tar.gz -C /var/www/html/lift-tracker
                       && cd /var/www/html/lift-tracker
                       && php artisan view:clear
+                      && php artisan cache:clear
                       && php artisan optimize:clear
                       && php artisan migrate
               services:
