@@ -171,7 +171,7 @@ class SessionExercise extends AbstractModel implements UserOwnershipInterface
             ->where('WorkoutSessions.userId', $userId)
             ->where('SessionExercises.id', '!=', $this->id)
             ->where('SessionExercises.skipped', '=', false)
-            ->orderBy('WorkoutSessions.createdAt')
+            ->orderByDesc('WorkoutSessions.startedAt')
             ->limit(10)
             ->get();
 
@@ -179,7 +179,7 @@ class SessionExercise extends AbstractModel implements UserOwnershipInterface
             return $sessionExercise->workoutSessionId;
         });
 
-        $workoutSessions = WorkoutSession::whereIn('id', $workoutSessionIds)->get();
+        $workoutSessions = (new WorkoutSession)->whereIn('id', $workoutSessionIds)->get();
 
         $sessionExercises->each(function (SessionExercise $sessionExercise) use ($workoutSessions) {
             $workoutSession = $workoutSessions->filter(function (WorkoutSession $workoutSession) use($sessionExercise) {

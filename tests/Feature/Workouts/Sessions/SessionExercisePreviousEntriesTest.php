@@ -171,7 +171,7 @@ class SessionExercisePreviousEntriesTest extends TestCase
         $this->actingAs($user)
             ->call('GET', 'api/session-exercise-previous-entries/' . $sessionExercise->uuid)
             ->assertStatus(200)
-            ->assertJson([$timeBeforeLastSessionExercise->toArray(), $previousSessionExercise->toArray()]);
+            ->assertJson([$previousSessionExercise->toArray(), $timeBeforeLastSessionExercise->toArray()]);
     }
 
 }

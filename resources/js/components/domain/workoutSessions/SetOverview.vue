@@ -302,7 +302,7 @@
                                             },
                                         }"
                                     >
-                                        History
+                                        Exercise history
                                     </RouterLink>
 
                                     <SessionExerciseStatsModal
