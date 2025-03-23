@@ -464,10 +464,10 @@
                         large
                         @click="startActiveTimer"
                         class="start-rest-button"
-                        color="primary"
+                        color="success"
                     >
                         <VIcon left>{{ $svgIcons.restPeriodStart }}</VIcon>
-                        Start {{ activeTimerLabel }}
+                        {{ activeTimerLabel }}
                     </VBtn>
                 </VCardActions>
             </VCardText>
