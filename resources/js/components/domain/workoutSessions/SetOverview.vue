@@ -797,7 +797,7 @@ export default {
                 this.$store.dispatch(
                     'workoutSession/updateExerciseWarmUpDuration',
                     {
-                        uuid: this.sessionSetUuid,
+                        uuid: this.exercise.uuid,
                         warmUpDuration: duration,
                     }
                 );
