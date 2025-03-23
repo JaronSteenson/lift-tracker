@@ -362,7 +362,7 @@
                                 color="error"
                             >
                                 <VIcon left>{{ $svgIcons.mdiStop }}</VIcon>
-                                End {{ activeTimerLabel }}
+                                {{ activeTimerLabel }}
                             </VBtn>
                         </VCol>
                     </VRow>

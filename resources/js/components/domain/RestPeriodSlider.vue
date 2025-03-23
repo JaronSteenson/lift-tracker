@@ -4,7 +4,7 @@
         <VSlider
             :disabled="disabled"
             :label="null"
-            :max="5 * 60"
+            :max="10 * 60"
             :min="0"
             :prepend-icon="$svgIcons.restPeriod"
             :value="value"
