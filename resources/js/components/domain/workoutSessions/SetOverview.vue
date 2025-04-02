@@ -460,14 +460,18 @@
                     width="100%"
                 >
                     <VBtn
-                        :height="$vuetify.breakpoint.xs ? '4rem' : null"
-                        large
-                        @click="startActiveTimer"
                         class="start-rest-button"
+                        :height="$vuetify.breakpoint.xs ? '4rem' : null"
+                        x-large
                         color="success"
+                        @click="startActiveTimer"
                     >
-                        <VIcon left>{{ $svgIcons.restPeriodStart }}</VIcon>
-                        {{ activeTimerLabel }}
+                        <VIcon left>
+                            {{ $svgIcons.restPeriodStart }}
+                        </VIcon>
+                        <span class="mr-2">
+                            {{ activeTimerLabel }}
+                        </span>
                     </VBtn>
                 </VCardActions>
             </VCardText>
