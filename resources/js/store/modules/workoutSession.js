@@ -785,7 +785,7 @@ export const actions = {
 
         commit('updateExercisePreviousEntries', {
             exerciseUuid,
-            previousEntries: response.data,
+            previousEntries: response.data.reverse(),
         });
 
         return response;
