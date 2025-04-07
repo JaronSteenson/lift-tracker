@@ -1,76 +1,70 @@
 <template>
     <VCard>
         <VCardTitle>
-            <RouterLink
+            {{ exercise.name }}
+        </VCardTitle>
+        <VCardText class="mb-0 pb-0">
+            <div
+                class="pb-1"
+                :key="index"
+                v-for="(weightGroup, index) in weightGroups"
+            >
+                <VIcon small>
+                    {{ $svgIcons.mdiDumbbell }}
+                </VIcon>
+                {{ weightGroup.weight }} x
+                <template
+                    v-for="(repBreakDown, index) in weightGroup.repBreakDown"
+                >
+                    <RouterLink :key="repBreakDown.uuid" :to="repBreakDown.to">
+                        {{ repBreakDown.text }}</RouterLink
+                    ><template
+                        v-if="index < weightGroup.repBreakDown.length - 1"
+                        >,
+                    </template>
+                </template>
+            </div>
+            <div v-if="totalDuration" class="pb-1">
+                <VIcon small>
+                    {{ $svgIcons.restPeriod }}
+                </VIcon>
+                {{ totalDuration }} total duration
+            </div>
+            <div v-if="totalWarmUp" class="pb-1">
+                <VIcon small>
+                    {{ $svgIcons.duration }}
+                </VIcon>
+                {{ totalWarmUp }} warm-up
+            </div>
+            <div v-if="averageRestPeriod" class="pb-1">
+                <VIcon small>
+                    {{ $svgIcons.duration }}
+                </VIcon>
+                {{ averageRestPeriod }} average rest
+            </div>
+            <div v-if="averageRestPeriod" class="mt-2">
+                <VTextarea
+                    v-if="exercise.notes && exercise.notes.trim().length > 0"
+                    label="Notes"
+                    :value="exercise.notes"
+                    readonly
+                    outlined
+                />
+            </div>
+        </VCardText>
+        <VCardActions class="mt-0 pt-0">
+            <VBtn
+                small
                 :to="{
                     name: 'SetOverviewPage',
                     params: { sessionSetUuid: firstSet.uuid },
                 }"
-            >
-                {{ exercise.name }}
-            </RouterLink>
-        </VCardTitle>
-        <VCardText>
-            <MissingValue v-if="exercise.skipped">Skipped </MissingValue>
-            <VRow v-else>
-                <VCol
-                    class="py-0"
-                    cols="6"
-                    :key="index"
-                    v-for="(weightGroup, index) in weightGroups"
-                >
-                    <VIcon small>
-                        {{ $svgIcons.mdiDumbbell }}
-                    </VIcon>
-                    {{ weightGroup.weight }}:
-                    <template
-                        v-for="(
-                            repBreakDown, index
-                        ) in weightGroup.repBreakDown"
-                    >
-                        <RouterLink
-                            :key="repBreakDown.uuid"
-                            :to="repBreakDown.to"
-                        >
-                            {{ repBreakDown.text }}</RouterLink
-                        ><template
-                            v-if="index < weightGroup.repBreakDown.length - 1"
-                            >,
-                        </template>
-                    </template>
-                </VCol>
-                <VCol class="py-0" cols="6">
-                    <VIcon small>
-                        {{ $svgIcons.duration }}
-                    </VIcon>
-                    {{ totalDuration }}
-                </VCol>
-                <VCol class="py-0" cols="6">
-                    <VIcon small>
-                        {{ $svgIcons.restPeriod }}
-                    </VIcon>
-                    {{ averageRestPeriod }}
-                </VCol>
-                <VCol class="py-0" cols="6">
-                    <VIcon small>
-                        {{ $svgIcons.mdiChartLineVariant }}
-                    </VIcon>
-                    <RouterLink
-                        :to="{
-                            $route,
-                            ...{ query: { 'stats-open': exercise.uuid } },
-                        }"
-                    >
-                        Overview
-                    </RouterLink>
-                </VCol>
-            </VRow>
-        </VCardText>
-        <SessionExerciseStatsModal
-            url-search-param="stats-open"
-            :url-search-show-value="exercise.uuid"
-            :session-exercises="[exercise]"
-        />
+                >View
+                <VIcon small color="success">{{
+                    $svgIcons.mdiClipboardTextOutline
+                }}</VIcon>
+            </VBtn>
+        </VCardActions>
     </VCard>
 </template>
 
@@ -79,14 +73,8 @@ import {
     hoursMinutesSecondsFromStartEnd,
     minsSecDuration,
 } from '../../../dates';
-import SessionExerciseStatsModal from './SessionExerciseStatsModal';
-import MissingValue from '../../util/MissingValue.vue';
 
 export default {
-    components: {
-        MissingValue,
-        SessionExerciseStatsModal,
-    },
     props: {
         exercise: {
             type: Object,
@@ -125,7 +113,7 @@ export default {
             return weightGroups.map((weightGroup) => {
                 const weight = weightGroup[0].weight
                     ? `${weightGroup[0].weight}kg`
-                    : 'Unknown weight';
+                    : '?kg';
 
                 const repBreakDown = weightGroup.map((set) => {
                     return {
@@ -149,13 +137,10 @@ export default {
             const endedAt = this.lastSet.endedAt;
 
             if (!startedAt) {
-                return 'Not started';
+                return undefined;
             }
 
-            return `${hoursMinutesSecondsFromStartEnd(
-                startedAt,
-                endedAt
-            )} total duration`;
+            return hoursMinutesSecondsFromStartEnd(startedAt, endedAt);
         },
         averageRestPeriod() {
             const setsWithoutLast = [...this.exercise.sessionSets];
@@ -171,10 +156,20 @@ export default {
             const average = totalRest / setsWithoutLast.length;
 
             if (average === 0) {
-                return 'No rest';
+                return undefined;
             }
 
-            return `${minsSecDuration(average)} rest on average`;
+            return minsSecDuration(average);
+        },
+        totalWarmUp() {
+            if (!this.exercise.warmUpEnded) {
+                return undefined;
+            }
+
+            return hoursMinutesSecondsFromStartEnd(
+                this.exercise.warmUpStarted,
+                this.exercise.warmUpEnded
+            );
         },
     },
 };

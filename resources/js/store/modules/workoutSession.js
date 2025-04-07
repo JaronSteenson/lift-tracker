@@ -166,6 +166,12 @@ export const getters = {
         return state.workoutSession.sessionExercises;
     },
 
+    notSkippedSessionExercises(state) {
+        return state.workoutSession.sessionExercises.filter(
+            ({ skipped }) => !skipped
+        );
+    },
+
     firstSet(state) {
         return state.workoutSession.sessionExercises[0].sessionSets[0];
     },

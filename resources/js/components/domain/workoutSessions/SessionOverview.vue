@@ -42,11 +42,30 @@
 
             <SessionStatsCard :workout-session="workoutSession" />
 
-            <ExerciseSummaryCard
-                v-for="sessionExercise in sessionExercises"
-                :exercise="sessionExercise"
-                :key="sessionExercise.uuid"
-            />
+            <VTimeline align="start">
+                <VTimelineItem
+                    v-for="(sessionExercise, i) in exercises"
+                    :key="sessionExercise.uuid"
+                    :icon="i === 0 ? $svgIcons.mdiPlay : undefined"
+                    :fill-dot="i === 0"
+                >
+                    <template v-slot:opposite>
+                        <div :class="`pt-1 font-weight-bold text--primary`">
+                            +{{ sessionExercise.duration }}
+                        </div>
+                        <div>{{ sessionExercise.startedAt }}</div>
+                    </template>
+                    <ExerciseSummaryCard :exercise="sessionExercise" />
+                </VTimelineItem>
+                <VTimelineItem :icon="$svgIcons.mdiStop" fill-dot>
+                    <template v-slot:opposite>
+                        <div :class="`pt-1 font-weight-bold text--primary`">
+                            +{{ workoutDuration }}
+                        </div>
+                        <div>{{ workoutEndedAt }}</div>
+                    </template>
+                </VTimelineItem>
+            </VTimeline>
         </NarrowContentContainer>
     </div>
 </template>
@@ -57,6 +76,11 @@ import { mapGetters } from 'vuex';
 import ExerciseSummaryCard from './ExerciseSummaryCard';
 import NarrowContentContainer from '../../layouts/NarrowContentContainer';
 import AppBar from '../../AppBar';
+import {
+    hoursMinutesSecondsFromStartEnd,
+    minsSecDuration,
+    timeDescription,
+} from '../../../dates';
 
 export default {
     components: {
@@ -73,8 +97,21 @@ export default {
         ...mapGetters('workoutSession', [
             'workoutName',
             'workoutSession',
-            'sessionExercises',
+            'notSkippedSessionExercises',
         ]),
+        exercises() {
+            return this.notSkippedSessionExercises.map((exercise, i) => ({
+                ...exercise,
+                startedAt: timeDescription(exercise.sessionSets[0].startedAt),
+                duration:
+                    i === 0
+                        ? minsSecDuration(0, true)
+                        : hoursMinutesSecondsFromStartEnd(
+                              this.workoutSession.startedAt,
+                              exercise.sessionSets[0].startedAt
+                          ),
+            }));
+        },
         isInProgress() {
             return this.$store.getters['workoutSession/isInProgressWorkout'](
                 this.workoutSession.uuid
@@ -84,6 +121,19 @@ export default {
             return this.$store.getters[
                 'workoutSession/currentSetForInProgressWorkout'
             ](this.workoutSession.uuid);
+        },
+        workoutDuration() {
+            return hoursMinutesSecondsFromStartEnd(
+                this.workoutSession.startedAt,
+                this.workoutSession.endedAt
+            );
+        },
+        workoutEndedAt() {
+            if (!this.workoutSession.endedAt) {
+                return undefined;
+            }
+
+            return timeDescription(this.workoutSession.endedAt);
         },
     },
     methods: {
