@@ -42,7 +42,7 @@
 
             <SessionStatsCard :workout-session="workoutSession" />
 
-            <VTimeline align="start">
+            <VTimeline :dense="$vuetify.breakpoint.xsOnly">
                 <VTimelineItem
                     v-for="(sessionExercise, i) in exercises"
                     :key="sessionExercise.uuid"
@@ -64,6 +64,16 @@
                         </div>
                         <div>{{ workoutEndedAt }}</div>
                     </template>
+                    <VCard v-if="$vuetify.breakpoint.xsOnly">
+                        <VCardSubtitle>
+                            <span
+                                :class="`pt-1 font-weight-bold text--primary`"
+                            >
+                                +{{ workoutDuration }},
+                            </span>
+                            <span>{{ workoutEndedAt }}</span>
+                        </VCardSubtitle>
+                    </VCard>
                 </VTimelineItem>
             </VTimeline>
         </NarrowContentContainer>

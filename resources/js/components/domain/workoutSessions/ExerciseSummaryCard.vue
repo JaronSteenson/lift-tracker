@@ -3,6 +3,12 @@
         <VCardTitle>
             {{ exercise.name }}
         </VCardTitle>
+        <VCardSubtitle v-if="$vuetify.breakpoint.xsOnly">
+            <span :class="`pt-1 font-weight-bold text--primary`">
+                +{{ exercise.duration }},
+            </span>
+            <span>{{ exercise.startedAt }}</span>
+        </VCardSubtitle>
         <VCardText class="mb-0 pb-0">
             <div
                 class="pb-1"
@@ -162,13 +168,13 @@ export default {
             return minsSecDuration(average);
         },
         totalWarmUp() {
-            if (!this.exercise.warmUpEnded) {
+            if (!this.exercise.warmUpEndedAt) {
                 return undefined;
             }
 
             return hoursMinutesSecondsFromStartEnd(
-                this.exercise.warmUpStarted,
-                this.exercise.warmUpEnded
+                this.exercise.warmUpStartedAt,
+                this.exercise.warmUpEndedAt
             );
         },
     },
