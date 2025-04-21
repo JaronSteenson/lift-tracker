@@ -34,9 +34,15 @@ const ogPurpleDefinition = {
 };
 
 export function getAvailableThemes() {
-    const activeThemeKey = fetchSelectedThemeKey() || 'calypso';
+    const activeThemeKey = fetchSelectedThemeKey() || 'dark';
 
     return [
+        {
+            displayName: 'Dark',
+            key: 'dark',
+            isDark: true,
+            definition: defaultDarkDefinition,
+        },
         {
             displayName: 'Calypso',
             key: 'calypso',
@@ -58,12 +64,6 @@ export function getAvailableThemes() {
                 primary: '#e0218a',
                 anchor: '#e0218a',
             },
-        },
-        {
-            displayName: 'Dark',
-            key: 'dark',
-            isDark: true,
-            definition: defaultDarkDefinition,
         },
     ].map((theme) => {
         theme.active = theme.key === activeThemeKey;
