@@ -21,6 +21,7 @@ import {
     STATUS_SAVE_IN_PROGRESS,
     STATUS_SAVE_OK,
 } from '../store/modules/saveStatusMixin';
+import { mapGetters } from 'vuex';
 
 export default {
     components: {
@@ -49,9 +50,14 @@ export default {
         this.clearRefreshInterval();
     },
     computed: {
+        ...mapGetters('app', ['userIsLocalOnly']),
         icon() {
             switch (this.status) {
                 case STATUS_SAVE_OK:
+                    if (this.userIsLocalOnly) {
+                        return this.$svgIcons.mdiCheckCircle;
+                    }
+
                     return this.$svgIcons.saveOk;
                 case STATUS_SAVE_IN_PROGRESS:
                     return this.$svgIcons.saveInProgress;
@@ -77,6 +83,10 @@ export default {
                 }
 
                 return 'Saving';
+            }
+
+            if (this.userIsLocalOnly) {
+                return 'Saved locally';
             }
 
             if (this.updatedAt >= 0) {

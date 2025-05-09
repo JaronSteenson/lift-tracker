@@ -16,7 +16,7 @@
             <VListItem :to="{ name: 'AccountPage' }">
                 <VListItemTitle>My account</VListItemTitle>
             </VListItem>
-            <VListItem @click="logout">
+            <VListItem v-if="!userIsLocalOnly" @click="logout">
                 <VListItemTitle>Logout</VListItemTitle>
             </VListItem>
         </VList>
@@ -30,6 +30,7 @@ export default {
         ...mapGetters('app', {
             avatarInitial: 'getUserAvatarInitial',
             userIsAuthenticated: 'userIsAuthenticated',
+            userIsLocalOnly: 'userIsLocalOnly',
         }),
     },
     methods: {

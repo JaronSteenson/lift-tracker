@@ -63,9 +63,11 @@ function createSessionExerciseFromBuilderExercise(builderExercise) {
                     weight: builderExercise.weight,
                     position: index,
                     startedAt: null,
+                    createdAt: utcNow(),
                 };
             }
         ),
         routineExerciseUuid: builderExercise.uuid,
+        createdAt: utcNow(),
     };
 }

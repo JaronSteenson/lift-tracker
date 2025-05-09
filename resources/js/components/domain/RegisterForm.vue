@@ -63,23 +63,14 @@
                 v-model="passwordConfirm"
                 type="password"
             />
-            <VBtn color="primary" width="100%" type="submit" :loading="loading">
-                Register
-            </VBtn>
-            <hr class="mt-4 mb-4" />
             <VBtn
-                dark
-                text
-                small
+                color="white"
+                outlined
                 width="100%"
-                :disabled="loading"
-                @click="$emit('showLoginForm')"
+                type="submit"
+                :loading="loading"
             >
-                {{
-                    $vuetify.breakpoint.smAndUp
-                        ? 'Already a member? Log in instead'
-                        : 'Log in instead'
-                }}
+                Go
             </VBtn>
         </VForm>
     </div>

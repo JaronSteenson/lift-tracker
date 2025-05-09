@@ -1,9 +1,11 @@
 import AppService from '../../api/AppService';
 import { addMinutes, isAfter } from 'date-fns';
 
+export const LOCAL_STORAGE_KEY = 'store-state--App';
+
 const state = {
     isBootstrapped: false,
-    appName: null,
+    appName: 'Lift Tracker',
     authenticatedUser: null,
     csrfToken: null,
     facebookAppId: null,
@@ -20,7 +22,7 @@ const state = {
      */
     sessionExpiryTime: null,
     /**
-     * We can force the session expired modal from either a bad ajax response or from our expiry check interval.
+     * We can force the session-expired modal from either a bad ajax response or from our expiry check interval.
      * @type Boolean
      */
     showSessionExpiredModal: false,
@@ -34,7 +36,15 @@ const getters = {
 
     userIsAuthenticated(state) {
         return Boolean(
-            state.authenticatedUser && state.authenticatedUser.emailVerifiedAt
+            state.authenticatedUser &&
+                (state.authenticatedUser.localOnly ||
+                    state.authenticatedUser.emailVerifiedAt)
+        );
+    },
+
+    userIsLocalOnly(state) {
+        return Boolean(
+            state.authenticatedUser && state.authenticatedUser.localOnly
         );
     },
 
@@ -96,8 +106,30 @@ const getters = {
         return isAfter(new Date(), state.sessionExpiryTime);
     },
 
-    showSessionExpiredModal(state) {
+    showSessionExpiredModal(state, getters) {
+        if (getters.userIsLocalOnly) {
+            return false;
+        }
+
         return state.showSessionExpiredModal;
+    },
+
+    forLocalStorageSave({ authenticatedUser }) {
+        return {
+            authenticatedUser,
+        };
+    },
+
+    fromLocalStorage(state, getters, rootState, rootGetters) {
+        const app = JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY));
+        const programBuilder = rootGetters['programBuilder/fromLocalStorage'];
+        const workoutSession = rootGetters['workoutSession/fromLocalStorage'];
+
+        return {
+            app,
+            programBuilder,
+            workoutSession,
+        };
     },
 };
 
@@ -108,11 +140,29 @@ const actions = {
         });
     },
     async boostrap({ commit, getters }, data = null) {
-        if (!data) {
+        const localStorageData = getters.fromLocalStorage;
+
+        let isAuthed = false;
+        let localOnlyUser = localStorageData.app?.authenticatedUser?.localOnly;
+
+        if (localOnlyUser) {
+            data = localStorageData;
+        } else if (!data) {
             data = (await AppService.getBootstrapData()).data;
+            isAuthed = data.app.authenticatedUser !== null;
         }
 
-        const isAuthed = data.app.authenticatedUser !== null;
+        commit('reset', { ...data.app, isBootstrapped: true });
+
+        if (isAuthed || localOnlyUser) {
+            commit('workoutSession/reset', data.workoutSession, {
+                root: true,
+            });
+            commit('programBuilder/reset', data.programBuilder, {
+                root: true,
+            });
+        }
+
         if (isAuthed) {
             data.app.sessionExpiryTime = addMinutes(
                 new Date(),
@@ -136,22 +186,19 @@ const actions = {
             }, 60 * 1000);
         }
 
-        commit('reset', { ...data.app, isBootstrapped: true });
-
-        if (isAuthed) {
-            commit('workoutSession/reset', data.workoutSession, { root: true });
-            commit('programBuilder/reset', data.programBuilder, { root: true });
-        }
-
         return data;
     },
 
-    async login({ commit }, { email, password }) {
+    async login({ commit, getters }, { email, password }) {
         const response = await AppService.login({ email, password });
 
         const data = response.data;
         if (response.status >= 400) {
             return response;
+        }
+
+        if (getters.userIsLocalOnly) {
+            localStorage.clear();
         }
 
         commit('reset', { ...data.app, isBootstrapped: true });
@@ -236,6 +283,24 @@ const actions = {
             sessionExpiryTime: new Date(),
             showSessionExpiredModal: true,
         });
+    },
+
+    createLocalAccount({ commit, dispatch }) {
+        commit('reset', {
+            authenticatedUser: {
+                firstName: 'M',
+                lastName: 'E',
+                localOnly: true,
+            },
+        });
+        dispatch('saveToLocalStorage');
+    },
+
+    saveToLocalStorage({ getters }) {
+        localStorage.setItem(
+            LOCAL_STORAGE_KEY,
+            JSON.stringify(getters.forLocalStorageSave)
+        );
     },
 };
 

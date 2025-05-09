@@ -1,6 +1,6 @@
 import WorkoutProgramService from '../../api/WorkoutProgramService';
 import UuidHelper from '../../UuidHelper';
-import { dateTimeDescription } from '../../dates';
+import { dateTimeDescription, utcNow } from '../../dates';
 import { debounce, pick } from '../../util/index';
 import {
     mutations as saveStatusMutations,
@@ -9,6 +9,7 @@ import {
 } from './saveStatusMixin';
 
 const SAVE_DEBOUNCE_WAIT = 1000;
+const LOCAL_STORAGE_KEY = 'store-state--ProgramBuilder';
 
 function sortByPosition(a, b) {
     return a.position < b.position ? 1 : 0;
@@ -28,7 +29,8 @@ function defaultState() {
             isDirty: false,
         },
         delayedSavingToServer: false,
-        myWorkoutPrograms: null,
+        myWorkoutPrograms: [],
+        myWorkoutProgramsIsLoading: false,
     };
 }
 
@@ -54,6 +56,32 @@ const exerciseFields = [
 ];
 
 const getters = {
+    myRoutines(state, getters, rootState) {
+        const routines = state.myWorkoutPrograms.reduce(
+            (carry, workoutProgram) => {
+                const withExtraFields =
+                    workoutProgram.workoutProgramRoutines.map((routine) => ({
+                        ...routine,
+                        workoutProgram,
+                        latestSession: rootState[
+                            'workoutSession'
+                        ].myWorkoutSessions.find(
+                            (workoutSession) =>
+                                routine.uuid ===
+                                workoutSession.originRoutineUuid
+                        ),
+                    }));
+
+                return carry.concat(withExtraFields);
+            },
+            []
+        );
+
+        return routines.sort(
+            (a, b) => a?.latestSession?.createdAt - b?.latestSession?.createdAt
+        );
+    },
+
     hasMadeSignificantChangesFromNew(state) {
         return Boolean(
             state.inFocusProgram.uuid || // Has somehow forced a save or uuid assignment.
@@ -70,10 +98,13 @@ const getters = {
     },
 
     getWorkout: (state) => (uuid) => {
-        return UuidHelper.findIn(
-            state.inFocusProgram.workoutProgramRoutines,
-            uuid
-        );
+        return {
+            ...UuidHelper.findIn(
+                state.inFocusProgram.workoutProgramRoutines,
+                uuid
+            ),
+            workoutProgram: state.inFocusProgram,
+        };
     },
 
     getOrderedWorkouts(state) {
@@ -137,13 +168,55 @@ const getters = {
             };
         });
     },
+
+    forLocalStorageSave(state) {
+        return {
+            ...state,
+            myWorkoutPrograms: state.myWorkoutPrograms.slice(0, 10),
+        };
+    },
+
+    fromLocalStorage() {
+        return JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY));
+    },
 };
 
 const actions = {
     ...saveStatusActions,
+    async fetchMyWorkoutPrograms({ commit, rootGetters }) {
+        if (rootGetters['app/userIsLocalOnly']) {
+            return;
+        }
+        commit('reset', { myWorkoutProgramsIsLoading: true });
+        const myWorkoutPrograms = await WorkoutProgramService.getAll();
+
+        commit('reset', {
+            myWorkoutPrograms,
+            myWorkoutProgramsIsLoading: false,
+        });
+    },
+
     startNew({ state, commit }) {
         commit('reset', {
             ...defaultState(),
+            inFocusProgram: {
+                /**  {@link hasMadeSignificantChangesFromNew} */
+                uuid: null,
+                name: 'New Workout Program',
+                workoutProgramRoutines: [
+                    {
+                        uuid: UuidHelper.assign(),
+                        name: 'Workout 1',
+                        normalDay: 'Monday',
+                        position: 0,
+                        routineExercises: [],
+                    },
+                ],
+                /**  {@link markUpdated} */
+                createdAt: null,
+                updatedAt: null,
+                isDirty: false,
+            },
             myWorkoutPrograms: state.myWorkoutPrograms,
         });
     },
@@ -288,7 +361,7 @@ const actions = {
         dispatch('save');
     },
 
-    async archive({ state, commit, dispatch }, uuid) {
+    async delete({ state, commit, dispatch, rootGetters }, uuid) {
         try {
             const uuidToDelete = uuid || state.inFocusProgram.uuid;
             const updatedWorkoutPrograms = UuidHelper.removeFromCopy(
@@ -298,7 +371,9 @@ const actions = {
 
             commit('reset', { myWorkoutPrograms: updatedWorkoutPrograms }); // Optimistically remove from the state.
 
-            await WorkoutProgramService.delete(uuidToDelete);
+            if (!rootGetters['app/userIsLocalOnly']) {
+                await WorkoutProgramService.delete(uuidToDelete);
+            }
         } catch (error) {
             dispatch('finishSavingError');
 
@@ -306,47 +381,67 @@ const actions = {
         }
     },
 
-    save: debounce(async ({ state, commit, dispatch, getters }) => {
-        // Don't actually save anything until there is some decent changes.
-        if (!getters.hasMadeSignificantChangesFromNew) {
+    save: debounce(
+        async ({ state, commit, dispatch, getters, rootGetters }) => {
+            // Don't actually save anything until there are some decent changes.
+            if (!getters.hasMadeSignificantChangesFromNew) {
+                return;
+            }
+
+            dispatch('startSaving');
+
+            // We still don't have a top level uuid, but we have made some changes,
+            // assign a UUID and actually save the program.
+            if (
+                !state.inFocusProgram.uuid &&
+                getters.hasMadeSignificantChangesFromNew
+            ) {
+                commit('assignTopLevelUuid');
+            }
+
+            if (state.delayedSavingToServer) {
+                return;
+            }
+
+            try {
+                if (rootGetters['app/userIsLocalOnly']) {
+                    commit('markUpdated');
+                } else {
+                    const response = await WorkoutProgramService.save(
+                        getters.savePayload
+                    );
+
+                    commit('patchInSaveResponse', response.data);
+                }
+
+                const updatedWorkoutPrograms = UuidHelper.replaceInCopy(
+                    state.myWorkoutPrograms,
+                    state.inFocusProgram
+                );
+
+                commit('reset', { myWorkoutPrograms: updatedWorkoutPrograms });
+                dispatch('saveToLocalStorage');
+
+                dispatch('finishSaving');
+            } catch (error) {
+                dispatch('finishSavingError');
+            }
+        },
+        SAVE_DEBOUNCE_WAIT
+    ),
+
+    saveToLocalStorage({ getters }) {
+        localStorage.setItem(
+            LOCAL_STORAGE_KEY,
+            JSON.stringify(getters.forLocalStorageSave)
+        );
+    },
+
+    async fetch({ commit, rootGetters }, uuid) {
+        if (rootGetters['app/userIsLocalOnly']) {
             return;
         }
 
-        dispatch('startSaving');
-
-        // We still don't have a top level uuid, but we have made some changes,
-        // assign a UUID and actually save the program.
-        if (
-            !state.inFocusProgram.uuid &&
-            getters.hasMadeSignificantChangesFromNew
-        ) {
-            commit('assignTopLevelUuid');
-        }
-
-        if (state.delayedSavingToServer) {
-            return;
-        }
-
-        try {
-            const response = await WorkoutProgramService.save(
-                getters.savePayload
-            );
-            commit('patchInSaveResponse', response.data);
-
-            const updatedWorkoutPrograms = UuidHelper.replaceInCopy(
-                state.myWorkoutPrograms,
-                state.inFocusProgram
-            );
-
-            commit('reset', { myWorkoutPrograms: updatedWorkoutPrograms });
-
-            dispatch('finishSaving');
-        } catch (error) {
-            dispatch('finishSavingError');
-        }
-    }, SAVE_DEBOUNCE_WAIT),
-
-    async fetch({ commit }, uuid) {
         const response = await WorkoutProgramService.get(uuid);
         commit('reset', {
             inFocusProgram: response.data,
@@ -354,7 +449,11 @@ const actions = {
         });
     },
 
-    async prepareForSessionOverview({ commit }, routineUuid) {
+    async prepareForSessionOverview({ commit, rootGetters }, routineUuid) {
+        if (rootGetters['app/userIsLocalOnly']) {
+            return;
+        }
+
         const response = await WorkoutProgramService.getByRoutine(routineUuid);
         commit('reset', {
             inFocusProgram: response.data,
@@ -362,9 +461,13 @@ const actions = {
         });
     },
 
-    saveIfDirty({ state, getters }) {
+    saveIfDirty({ state, getters, rootGetters, dispatch }) {
         if (state.inFocusProgram.isDirty) {
-            return WorkoutProgramService.save(getters.savePayload);
+            if (rootGetters['app/userIsLocalOnly']) {
+                dispatch('saveToLocalStorage');
+            } else {
+                return WorkoutProgramService.save(getters.savePayload);
+            }
         }
 
         return Promise.resolve(state.inFocusProgram);
@@ -518,6 +621,14 @@ const mutations = {
         state.inFocusProgram.uuid = saveResponse.uuid;
         state.inFocusProgram.createdAt = saveResponse.createdAt;
         state.inFocusProgram.updatedAt = saveResponse.updatedAt;
+    },
+
+    markUpdated(state) {
+        const now = utcNow();
+        if (!state.inFocusProgram.createdAt) {
+            state.inFocusProgram.createdAt = now;
+        }
+        state.inFocusProgram.updatedAt = now;
     },
 };
 

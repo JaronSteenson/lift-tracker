@@ -7,12 +7,8 @@
             <VAlert v-if="sessionExpiryWarning" type="warning">
                 Session expired
             </VAlert>
-            <VCardTitle class="d-block text-center">
-                Please log in to continue
-            </VCardTitle>
-            <VCardText class="text-center pl-2 pr-2"> </VCardText>
             <VCardActions class="text-center d-block">
-                <a href="/privacy-policy">Privacy policy</a>
+                <a href="/login">Login</a>
             </VCardActions>
         </VCard>
     </VDialog>

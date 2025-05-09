@@ -12,9 +12,9 @@
                     <VList>
                         <VListItem
                             :disabled="workoutSession.startedAt === null"
-                            @click="showArchiveConfirmation"
+                            @click="showDeleteConfirmation"
                         >
-                            <VListItemTitle>Archive</VListItemTitle>
+                            <VListItemTitle>Delete</VListItemTitle>
                         </VListItem>
                     </VList>
                 </VMenu>
@@ -147,14 +147,14 @@ export default {
         },
     },
     methods: {
-        showArchiveConfirmation() {
-            const archiveConfirmed = window.confirm(
-                'Are you sure you want to archive this workout?'
+        showDeleteConfirmation() {
+            const deleteConfirmed = window.confirm(
+                'Are you sure you want to delete this workout?'
             );
 
-            if (archiveConfirmed) {
+            if (deleteConfirmed) {
                 this.$store.dispatch(
-                    'workoutSession/archive',
+                    'workoutSession/delete',
                     this.workoutSession.uuid
                 );
                 this.$router.replace({ name: 'HomePage' });

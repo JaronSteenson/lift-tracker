@@ -28,14 +28,14 @@
                             <VListItemTitle>Edit</VListItemTitle>
                         </VListItem>
                         <VListItem @click="showNewSessionModal(program.uuid)">
-                            <VListItemTitle
-                                >New session from this program</VListItemTitle
-                            >
+                            <VListItemTitle>
+                                New session from this program
+                            </VListItemTitle>
                         </VListItem>
                         <VListItem
-                            @click="showArchiveConfirmation(program.uuid)"
+                            @click="showDeleteConfirmation(program.uuid)"
                         >
-                            <VListItemTitle>Archive</VListItemTitle>
+                            <VListItemTitle>Delete</VListItemTitle>
                         </VListItem>
                     </VList>
                 </VMenu>
@@ -88,17 +88,17 @@ export default {
         },
     },
     methods: {
-        ...mapActions('programBuilder', ['archive']),
+        ...mapActions('programBuilder', ['delete']),
         showNewSessionModal(programUuid) {
             this.newSessionModalProgramUuid = programUuid;
         },
-        async showArchiveConfirmation(programUuid) {
-            const archiveConfirmed = window.confirm(
-                'Are you sure you want to archive this program?'
+        async showDeleteConfirmation(programUuid) {
+            const deleteConfirmed = window.confirm(
+                'Are you sure you want to delete this program?'
             );
 
-            if (archiveConfirmed) {
-                await this.archive(programUuid);
+            if (deleteConfirmed) {
+                await this.delete(programUuid);
             }
         },
     },

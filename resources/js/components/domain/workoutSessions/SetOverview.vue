@@ -277,7 +277,7 @@
                         </VCol>
                         <VCol class="pt-0" cols="6">
                             <RestPeriodInput
-                                v-if="!isLastSetOfExercise"
+                                v-if="!isLastSetOfExercise || !warmUpStarted"
                                 :label="activeTimerLabel"
                                 v-model="activeTimer"
                                 :disabled="!isOpenForEdits || isTimerRunning"
@@ -451,12 +451,7 @@
 
                 <VCardActions
                     class="justify-center"
-                    v-if="
-                        isInProgressSet &&
-                        (!warmUpStarted ||
-                            (warmUpEnded && !restPeriodStarted)) &&
-                        !isLastSetOfExercise
-                    "
+                    v-if="showStartTimerButton"
                     width="100%"
                 >
                     <VBtn
@@ -513,10 +508,12 @@ export default {
             hasLoadedExercisePreviousEntries: false,
             isChangingSet: false,
             isEndingWorkout: false,
+            forceUpdate: 0,
         };
     },
     computed: {
         ...mapState('workoutSession', ['saveStatus']),
+        ...mapGetters('app', ['userIsLocalOnly']),
         ...mapGetters('workoutSession', [
             'workoutName',
             'workoutSession',
@@ -566,17 +563,14 @@ export default {
             return this.workoutSession.endedAt !== null;
         },
         shouldShowFinishActions() {
+            if (!this.warmUpEnded) {
+                return false;
+            }
+
             return (
                 this.isInProgressSet ||
                 this.isEndingWorkout ||
                 this.isLastSetOfExercise
-            );
-        },
-        shouldShowRestPeriodActions() {
-            return (
-                this.isInProgressSet &&
-                this.isTimerRunning &&
-                !this.isLastSetOfExercise
             );
         },
         allowInstanceEndWorkout() {
@@ -677,9 +671,37 @@ export default {
                 this.sessionSetUuid
             );
         },
-        restPeriodNotStarted() {
-            return this.$store.getters['workoutSession/restPeriodNotStarted'](
-                this.sessionSetUuid
+        shouldShowRestPeriodActions() {
+            if (!this.isInProgressSet) {
+                return false;
+            }
+
+            if (!this.isTimerRunning) {
+                return false;
+            }
+
+            if (this.isLastSetOfExercise && this.setsForStepper.length !== 1) {
+                return false;
+            }
+
+            return true;
+        },
+        showStartTimerButton() {
+            if (!this.isInProgressSet) {
+                return false;
+            }
+
+            if (this.isLastSetOfExercise && this.setsForStepper.length !== 1) {
+                return false;
+            }
+
+            if (this.isLastSetOfExercise && this.setsForStepper.length === 1) {
+                return !this.warmUpStarted;
+            }
+
+            return (
+                !this.warmUpStarted ||
+                (this.warmUpEnded && !this.restPeriodStarted)
             );
         },
         activeTimerLabel() {
@@ -999,7 +1021,7 @@ export default {
             }
 
             // We must wait for the workout to be created on the server first.
-            if (this.createdAt === null) {
+            if (!this.userIsLocalOnly && this.createdAt === null) {
                 return;
             }
 

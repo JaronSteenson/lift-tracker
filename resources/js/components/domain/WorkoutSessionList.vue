@@ -74,9 +74,9 @@
                                 <VListItemTitle>Repeat now</VListItemTitle>
                             </VListItem>
                             <VListItem
-                                @click="showArchiveConfirmation(session.uuid)"
+                                @click="showDeleteConfirmation(session.uuid)"
                             >
-                                <VListItemTitle>Archive</VListItemTitle>
+                                <VListItemTitle>Delete</VListItemTitle>
                             </VListItem>
                         </VList>
                     </VMenu>
@@ -198,14 +198,14 @@ export default {
             await this.$store.dispatch('workoutSession/fetchNextPage');
             this.loadingNextPage = false;
         },
-        showArchiveConfirmation(workoutSessionUuid) {
-            const archiveConfirmed = window.confirm(
-                'Are you sure you want to archive this workout?'
+        showDeleteConfirmation(workoutSessionUuid) {
+            const deleteConfirmed = window.confirm(
+                'Are you sure you want to delete this workout?'
             );
 
-            if (archiveConfirmed) {
+            if (deleteConfirmed) {
                 this.$store.dispatch(
-                    'workoutSession/archive',
+                    'workoutSession/delete',
                     workoutSessionUuid
                 );
             }

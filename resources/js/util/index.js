@@ -4,6 +4,8 @@
  * and babble covers a lot of it's offerings these days (2021).
  */
 
+import { LOCAL_STORAGE_KEY } from '../store/modules/app';
+
 /**
  * @param original {function}
  * @param wait {int} In milliseconds
@@ -31,6 +33,11 @@ export function memoizeDebounceAction(original, wait) {
     let cache = {};
 
     return function (vuexContext, arg1) {
+        // Noop the local only actions, this only exists to not hammer my server.
+        if (isLocalOnlyUser()) {
+            return original(vuexContext, arg1);
+        }
+
         if (typeof cache[arg1] !== 'function') {
             cache[arg1] = debounce(
                 original.bind(this, vuexContext, arg1),
@@ -40,6 +47,19 @@ export function memoizeDebounceAction(original, wait) {
 
         return cache[arg1].call();
     };
+}
+
+/**
+ * Query the local storage directly to avoid circular dependencies.
+ */
+function isLocalOnlyUser() {
+    const json = localStorage.getItem(LOCAL_STORAGE_KEY);
+
+    if (!json) {
+        return false;
+    }
+
+    return JSON.parse(json)?.authenticatedUser?.localOnly;
 }
 
 /**

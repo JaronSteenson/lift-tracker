@@ -11,6 +11,7 @@ import {
 import createSessionFromBuilderWorkout from '../../domain/createSessionFromBuilderWorkout';
 
 const SAVE_DEBOUNCE_WAIT = 1000;
+const LOCAL_STORAGE_KEY = 'store-state--WorkoutSession';
 
 function defaultState() {
     return {
@@ -35,7 +36,7 @@ function defaultState() {
          * A map of workout session ids to boolean, indicating if a session is open for retrospective editing.
          * Note this is only relevant to finished workouts.
          */
-        openForEdits: new Map(),
+        openForEdits: {},
     };
 }
 
@@ -43,7 +44,7 @@ const state = defaultState();
 
 export const getters = {
     hasLoadedInProgressWorkouts(state, getters) {
-        return getters.inProgressWorkouts !== null;
+        return Boolean(getters.inProgressWorkouts);
     },
 
     isOpenForEdits: (state, getters) => (workoutSessionUuid) => {
@@ -51,7 +52,7 @@ export const getters = {
             return true;
         }
 
-        return state.openForEdits.get(workoutSessionUuid) === true;
+        return state?.openForEdits?.[workoutSessionUuid];
     },
 
     isInProgressWorkout: (state, getters) => (workoutSessionUuid) => {
@@ -283,7 +284,7 @@ export const getters = {
     warmUpForCurrentExercise: (state, getters) => (exerciseUuid) => {
         const actualExercise = getters.exercise(exerciseUuid);
 
-        if (actualExercise.warmUpDuration !== null) {
+        if (actualExercise.warmUpDuration) {
             return actualExercise.warmUpDuration;
         }
 
@@ -293,7 +294,7 @@ export const getters = {
     restPeriodForCurrentSet: (state, getters) => (uuid) => {
         const actualSet = getters.set(uuid);
 
-        if (actualSet.restPeriodDuration !== null) {
+        if (actualSet.restPeriodDuration) {
             return actualSet.restPeriodDuration;
         }
 
@@ -305,7 +306,7 @@ export const getters = {
     repsForCurrentSet: (state, getters) => (setUuid) => {
         const actualSet = getters.set(setUuid);
 
-        if (actualSet.reps !== null) {
+        if (actualSet.reps) {
             return actualSet.reps;
         }
 
@@ -355,47 +356,35 @@ export const getters = {
     warmUpStarted: (state, getters) => (uuid) => {
         const exercise = getters.exercise(uuid);
 
-        return exercise.warmUpStartedAt !== null;
+        return Boolean(exercise.warmUpStartedAt);
     },
 
     warmUpEnded: (state, getters) => (uuid) => {
         const exercise = getters.exercise(uuid);
 
-        return exercise.warmUpEndedAt !== null;
+        return Boolean(exercise.warmUpEndedAt);
     },
 
     restPeriodStarted: (state, getters) => (uuid) => {
         const set = getters.set(uuid);
 
-        return set.restPeriodStartedAt !== null;
-    },
-
-    restPeriodNotStarted: (state, getters) => (uuid) => {
-        const set = getters.set(uuid);
-
-        return set.restPeriodStartedAt === null;
+        return Boolean(set.restPeriodStartedAt);
     },
 
     isDuringWarmUp: (state, getters) => (exerciseUuid) => {
         const exercise = getters.exercise(exerciseUuid);
-        return (
-            exercise.warmUpStartedAt !== null && exercise.warmUpEndedAt === null
-        );
+        return exercise.warmUpStartedAt && !exercise.warmUpEndedAt;
     },
 
     isDuringRestPeriod: (state, getters) => (uuid) => {
         const set = getters.set(uuid);
-        return (
-            set.restPeriodStartedAt !== null && set.restPeriodEndedAt === null
-        );
+        return set.restPeriodStartedAt && !set.restPeriodEndedAt;
     },
 
     restPeriodIsFinished: (state, getters) => (uuid) => {
         const set = getters.set(uuid);
 
-        return (
-            set.restPeriodStartedAt !== null && set.restPeriodEndedAt !== null
-        );
+        return set.restPeriodStartedAt && set.restPeriodEndedAt;
     },
 
     warmUpTimeRemaining: (state, getters) => (exerciseUuid) => {
@@ -434,6 +423,17 @@ export const getters = {
 
     updatedAt(state) {
         return state.workoutSession.updatedAt;
+    },
+
+    forLocalStorageSave(state) {
+        return {
+            ...state,
+            myWorkoutSessions: state.myWorkoutSessions.slice(0, 50),
+        };
+    },
+
+    fromLocalStorage() {
+        return JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY));
     },
 };
 
@@ -600,14 +600,15 @@ export const actions = {
     },
 
     updateOpenForEditsStatus({ state, commit }, { workoutSessionUuid, value }) {
-        const openForEdits = new Map(state.openForEdits);
-
-        openForEdits.set(workoutSessionUuid, value);
-
-        commit('reset', { openForEdits });
+        commit('reset', {
+            openForEdits: {
+                ...state.openForEdits,
+                [workoutSessionUuid]: value,
+            },
+        });
     },
 
-    async archive({ state, commit, dispatch }, uuidToDelete) {
+    async delete({ state, commit, dispatch, rootGetters }, uuidToDelete) {
         try {
             const updatedWorkoutSessions = UuidHelper.removeFromCopy(
                 state.myWorkoutSessions,
@@ -624,7 +625,9 @@ export const actions = {
                 inProgressWorkouts: updatedInProgressWorkouts,
             });
 
-            await WorkoutSessionService.delete(uuidToDelete);
+            if (!rootGetters['app/userIsLocalOnly']) {
+                await WorkoutSessionService.delete(uuidToDelete);
+            }
         } catch (error) {
             console.error(error);
             dispatch('finishSavingError');
@@ -647,7 +650,7 @@ export const actions = {
      * @return {Promise<void>}
      */
     saveSet: memoizeDebounceAction(
-        async ({ commit, getters, dispatch }, uuid) => {
+        async ({ commit, getters, dispatch, rootGetters }, uuid) => {
             try {
                 dispatch('startSaving');
 
@@ -655,21 +658,29 @@ export const actions = {
                     uuid,
                     updatedAt: utcNow(),
                 });
-
-                const set = getters.set(uuid);
-                const response = await WorkoutSessionService.saveSet(set);
-
                 commit('updateWorkoutSession', {
                     uuid: getters.uuid,
-                    updatedAt: response.data.updatedAt,
+                    updatedAt: utcNow(),
                 });
 
-                commit('updateSet', {
-                    uuid,
-                    updatedAt: response.data.updatedAt,
-                    createdAt: response.data.createdAt,
-                });
+                const set = getters.set(uuid);
 
+                if (!rootGetters['app/userIsLocalOnly']) {
+                    const response = await WorkoutSessionService.saveSet(set);
+
+                    commit('updateWorkoutSession', {
+                        uuid: getters.uuid,
+                        updatedAt: response.data.updatedAt,
+                    });
+
+                    commit('updateSet', {
+                        uuid,
+                        updatedAt: response.data.updatedAt,
+                        createdAt: response.data.createdAt,
+                    });
+                }
+
+                dispatch('saveToLocalStorage');
                 dispatch('finishSaving');
             } catch (error) {
                 dispatch('finishSavingError');
@@ -680,30 +691,31 @@ export const actions = {
     ),
 
     saveExercise: memoizeDebounceAction(
-        async ({ commit, getters, dispatch }, uuid) => {
+        async ({ commit, getters, dispatch, rootGetters }, uuid) => {
             try {
                 dispatch('startSaving');
 
                 commit('updateExercise', {
                     uuid,
-                    updatedAt: utcNow(),
                 });
 
-                const response = await WorkoutSessionService.saveExercise(
-                    getters.exercise(uuid)
-                );
+                if (!rootGetters['app/userIsLocalOnly']) {
+                    const response = await WorkoutSessionService.saveExercise(
+                        getters.exercise(uuid)
+                    );
 
-                commit('updateWorkoutSession', {
-                    uuid: getters.uuid,
-                    updatedAt: response.data.updatedAt,
-                });
+                    commit('updateWorkoutSession', {
+                        updatedAt: response.data.updatedAt,
+                    });
 
-                commit('updateExercise', {
-                    uuid,
-                    updatedAt: response.data.updatedAt,
-                    createdAt: response.data.createdAt,
-                });
+                    commit('updateExercise', {
+                        uuid,
+                        updatedAt: response.data.updatedAt,
+                        createdAt: response.data.createdAt,
+                    });
+                }
 
+                dispatch('saveToLocalStorage');
                 dispatch('finishSaving');
             } catch (error) {
                 dispatch('finishSavingError');
@@ -713,26 +725,24 @@ export const actions = {
         SAVE_DEBOUNCE_WAIT
     ),
 
-    async saveWorkout({ commit, state, dispatch }) {
+    async saveWorkout({ commit, state, dispatch, rootGetters }) {
         try {
             dispatch('startSaving');
 
-            const uuid = state.workoutSession.uuid;
+            commit('updateWorkoutSession', {});
 
-            commit('updateWorkoutSession', {
-                uuid,
-                updatedAt: utcNow(),
-            });
+            dispatch('saveToLocalStorage');
 
-            const response = await WorkoutSessionService.save(
-                state.workoutSession
-            );
+            if (!rootGetters['app/userIsLocalOnly']) {
+                const response = await WorkoutSessionService.save(
+                    state.workoutSession
+                );
 
-            commit('updateWorkoutSession', {
-                uuid,
-                updatedAt: response.data.updatedAt,
-                createdAt: response.data.createdAt,
-            });
+                commit('updateWorkoutSession', {
+                    updatedAt: response.data.updatedAt,
+                    createdAt: response.data.createdAt,
+                });
+            }
 
             dispatch('finishSaving');
         } catch (error) {
@@ -741,7 +751,18 @@ export const actions = {
         }
     },
 
-    async fetch({ commit }, uuid) {
+    saveToLocalStorage({ getters }) {
+        localStorage.setItem(
+            LOCAL_STORAGE_KEY,
+            JSON.stringify(getters.forLocalStorageSave)
+        );
+    },
+
+    async fetch({ commit, rootGetters }, uuid) {
+        if (rootGetters['app/userIsLocalOnly']) {
+            return undefined;
+        }
+
         const response = await WorkoutSessionService.get(uuid);
         commit('reset', { workoutSession: response.data });
 
@@ -749,11 +770,16 @@ export const actions = {
     },
 
     /**
-     * @param commit
-     * @param state
      * @return {Promise<*>}
      */
-    async fetchNextPage({ commit, state }) {
+    async fetchNextPage({ commit, state, rootGetters }) {
+        if (rootGetters['app/userIsLocalOnly']) {
+            commit('reset', {
+                myMyWorkoutSessionsPagesAllLoaded: true,
+            });
+            return [];
+        }
+
         const nextPage = state.myMyWorkoutSessionsPagesLoaded + 1;
         const response = await WorkoutSessionService.index(nextPage);
 
@@ -767,37 +793,65 @@ export const actions = {
         return response;
     },
 
-    async fetchBySet({ commit }, sessionSetUuid) {
+    async fetchBySet({ commit, rootGetters }, sessionSetUuid) {
+        if (rootGetters['app/userIsLocalOnly']) {
+            return undefined;
+        }
+
         const response = await WorkoutSessionService.getBySet(sessionSetUuid);
         commit('reset', { workoutSession: response.data });
 
         return response;
     },
 
-    async fetchInProgressWorkouts({ commit }) {
+    async fetchInProgressWorkouts({ commit, rootGetters }) {
+        if (rootGetters['app/userIsLocalOnly']) {
+            return [];
+        }
+
         const response = await WorkoutSessionService.getInProgressWorkouts();
         commit('reset', { inProgressWorkouts: response.data });
         return response;
     },
 
-    async fetchExercisePreviousEntries({ commit }, exerciseUuid) {
-        const response = await WorkoutSessionService.getExercisePreviousEntries(
-            exerciseUuid
-        );
+    async fetchExercisePreviousEntries(
+        { state, commit, rootGetters },
+        exerciseUuid
+    ) {
+        let previousEntries;
+        if (rootGetters['app/userIsLocalOnly']) {
+            previousEntries = state.myWorkoutSessions
+                .reduce((carry, workoutSession) => {
+                    const matchingExercises =
+                        workoutSession.sessionExercises.filter(
+                            (exercise) => exercise.uuid === exerciseUuid
+                        );
 
-        if (response.data === '') {
-            response.data = [];
+                    return [...carry, ...matchingExercises];
+                }, [])
+                .sort(
+                    (a, b) =>
+                        a.sessionSets[0].startedAt - b.sessionSets[0].startedAt
+                );
+        } else {
+            const response =
+                await WorkoutSessionService.getExercisePreviousEntries(
+                    exerciseUuid
+                );
+
+            previousEntries = response.data.reverse();
         }
 
         commit('updateExercisePreviousEntries', {
             exerciseUuid,
-            previousEntries: response.data.reverse(),
+            previousEntries,
         });
-
-        return response;
     },
 
-    async startWorkout({ commit, state, dispatch }, { originWorkout }) {
+    async startWorkout(
+        { commit, state, dispatch, rootGetters },
+        { originWorkout }
+    ) {
         let workoutSession = createSessionFromBuilderWorkout({
             originWorkout,
         });
@@ -816,8 +870,10 @@ export const actions = {
 
         // We must wait for the master routine to be updated,
         // so we can link any new session exercises to their builder counterparts.
-        workoutSession = (await WorkoutSessionService.save(workoutSession))
-            .data;
+        if (!rootGetters['app/userIsLocalOnly']) {
+            workoutSession = (await WorkoutSessionService.save(workoutSession))
+                .data;
+        }
 
         const updateFromServer = {
             workoutSession,
@@ -830,7 +886,8 @@ export const actions = {
                 workoutSession
             ),
         };
-        return commit('reset', updateFromServer);
+        commit('reset', updateFromServer);
+        dispatch('saveToLocalStorage');
     },
 
     async endWorkout({ commit, dispatch, getters }) {
@@ -881,10 +938,18 @@ const mutations = {
         });
     },
 
-    updateWorkoutSession(state, newSetState) {
-        Object.keys(newSetState).forEach((key) => {
-            state.workoutSession[key] = newSetState[key];
+    updateWorkoutSession(state, newWorkoutSessionState) {
+        Object.keys(newWorkoutSessionState).forEach((key) => {
+            state.workoutSession[key] = newWorkoutSessionState[key];
         });
+
+        if (!newWorkoutSessionState.updatedAt) {
+            state.workoutSession.updatedAt = utcNow();
+            state.workoutSession.createdAt =
+                state.workoutSession.createdAt || utcNow();
+        }
+
+        state.workoutSession = { ...state.workoutSession };
     },
 
     updateSet(state, newSetState) {
@@ -896,6 +961,13 @@ const mutations = {
         Object.keys(newSetState).forEach((key) => {
             set[key] = newSetState[key];
         });
+
+        if (!newSetState.updatedAt) {
+            set.updatedAt = utcNow();
+            set.createdAt = set.createdAt || utcNow();
+        }
+
+        state.workoutSession = { ...state.workoutSession };
     },
 
     updateExercise(state, newExerciseState) {
@@ -907,6 +979,13 @@ const mutations = {
         Object.keys(newExerciseState).forEach((key) => {
             exercise[key] = newExerciseState[key];
         });
+
+        if (!newExerciseState.updatedAt) {
+            exercise.updatedAt = utcNow();
+            exercise.createdAt = exercise.createdAt || utcNow();
+        }
+
+        state.workoutSession = { ...state.workoutSession };
     },
 
     skipExercise(state, { uuid }) {

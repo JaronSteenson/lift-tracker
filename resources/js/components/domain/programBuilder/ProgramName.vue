@@ -19,7 +19,7 @@
         </span>
         <MissingValue v-else full-opacity>Unnamed program</MissingValue>
     </RouterLink>
-    <MissingValue v-else>(Archived program)</MissingValue>
+    <MissingValue v-else>(Deleted program)</MissingValue>
 </template>
 
 <script>

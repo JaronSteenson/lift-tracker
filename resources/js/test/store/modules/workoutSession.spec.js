@@ -112,13 +112,16 @@ describe('workout session store', () => {
                     myWorkoutSessions: [inProgressSession, olderWorkoutSession],
                     inProgressWorkouts: [inProgressSession],
                 };
+                const rootGetters = {
+                    ['app/userIsLocalOnly']: false,
+                };
 
                 WorkoutSessionService.save.mockResolvedValue({
                     data: mockSaveResponse,
                 });
 
                 await actions.startWorkout(
-                    { commit, dispatch, state },
+                    { commit, dispatch, state, rootGetters },
                     {
                         originWorkout: {
                             uuid: '8dabae09-e749-43b5-a1c5-109942ef2a4b',

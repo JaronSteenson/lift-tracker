@@ -3,23 +3,14 @@
         <VTextField dark label="Email" v-model="email" type="text" />
         <VTextField dark label="Password" v-model="password" type="password" />
         <div v-if="serverError" class="login-error">{{ serverError }}</div>
-        <VBtn color="primary" width="100%" type="submit" :loading="loading">
-            Login
-        </VBtn>
-        <hr class="mt-4 mb-4" />
         <VBtn
-            dark
-            text
-            small
+            color="white"
+            outlined
             width="100%"
-            :disabled="loading"
-            @click="$emit('showRegisterForm')"
+            type="submit"
+            :loading="loading"
         >
-            {{
-                $vuetify.breakpoint.smAndUp
-                    ? 'New here? Create an account instead'
-                    : 'Create account'
-            }}
+            Go
         </VBtn>
     </VForm>
 </template>

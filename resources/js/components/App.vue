@@ -4,7 +4,7 @@
 
         <LoginModal v-if="showSessionExpiredModal" session-expiry-warning />
 
-        <VMain :class="{ 'v-main--not-logged-in': !userIsAuthenticated }">
+        <VMain>
             <KeepAlive include="HomePage">
                 <RouterView />
             </KeepAlive>
@@ -67,6 +67,14 @@ export default {
 </script>
 
 <style lang="scss">
+.w-100 {
+    width: 100%;
+}
+
+.v-hidden {
+    visibility: hidden;
+}
+
 .app-name {
     text-decoration: none;
     color: var(--v-accent-base) !important;

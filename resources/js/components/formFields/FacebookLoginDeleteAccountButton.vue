@@ -1,8 +1,8 @@
 <template>
     <VBtn
-        class="white--text"
         :href="href"
         color="red"
+        dark
         :loading="loading"
         @click="loading = true"
     >

@@ -51,8 +51,8 @@
                             </template>
 
                             <VList>
-                                <VList-item @click="showArchiveConfirmation">
-                                    <VListItemTitle>Archive</VListItemTitle>
+                                <VList-item @click="showDeleteConfirmation">
+                                    <VListItemTitle>Delete</VListItemTitle>
                                 </VList-item>
                             </VList>
                         </VMenu>
@@ -196,7 +196,7 @@ export default {
         },
     },
     methods: {
-        ...mapActions('programBuilder', ['addWorkoutToProgram', 'archive']),
+        ...mapActions('programBuilder', ['addWorkoutToProgram', 'delete']),
         async loadProgram() {
             if (!this.workoutProgramUuid) {
                 await this.$store.dispatch('programBuilder/startNew');
@@ -216,13 +216,13 @@ export default {
             }
             this.loading = false;
         },
-        async showArchiveConfirmation() {
-            const archiveConfirmed = window.confirm(
-                'Are you sure you want to archive this program?'
+        async showDeleteConfirmation() {
+            const deleteConfirmed = window.confirm(
+                'Are you sure you want to delete this program?'
             );
 
-            if (archiveConfirmed) {
-                await this.archive();
+            if (deleteConfirmed) {
+                await this.delete();
                 await this.$router.push({ name: 'MyWorkoutProgramsPage' });
             }
         },

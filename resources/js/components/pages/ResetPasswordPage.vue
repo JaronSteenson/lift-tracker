@@ -27,7 +27,8 @@
                     {{ serverError }}
                 </div>
                 <VBtn
-                    color="primary"
+                    color="white"
+                    outlined
                     width="100%"
                     type="submit"
                     :loading="loading"
@@ -35,7 +36,6 @@
                     Send password reset email
                 </VBtn>
                 <template v-if="!authenticatedUser">
-                    <hr class="form mt-4 mb-4" />
                     <div class="d-flex justify-space-around">
                         <RouterLink
                             class="small-login-page-link pa-2 d-block"

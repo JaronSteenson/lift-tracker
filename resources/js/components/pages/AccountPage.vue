@@ -26,11 +26,15 @@
                     This will permanently delete all data associated with your
                     account, and is not reversible.
                 </p>
-                <p>
-                    You will be prompted to login to Facebook again, doing so
-                    confirms the deletion of your account.
-                </p>
-                <FacebookLoginDeleteAccountButton />
+                <VBtn
+                    v-if="userIsLocalOnly"
+                    dark
+                    color="red"
+                    @click="deleteLocalData"
+                >
+                    Delete account
+                </VBtn>
+                <FacebookLoginDeleteAccountButton v-else />
             </VCardText>
         </VCard>
     </NarrowContentContainer>
@@ -41,6 +45,7 @@ import AppBar from '../AppBar';
 import FacebookLoginDeleteAccountButton from '../formFields/FacebookLoginDeleteAccountButton';
 import ThemePicker from '../formFields/ThemePicker';
 import NarrowContentContainer from '../layouts/NarrowContentContainer';
+import { mapGetters } from 'vuex';
 
 export default {
     components: {
@@ -48,6 +53,21 @@ export default {
         ThemePicker,
         AppBar,
         FacebookLoginDeleteAccountButton,
+    },
+    computed: {
+        ...mapGetters('app', ['userIsLocalOnly']),
+    },
+    methods: {
+        deleteLocalData() {
+            const confirmed = confirm(
+                'Are you sure you want to delete your account?'
+            );
+
+            if (confirmed) {
+                localStorage.clear();
+                window.location.reload();
+            }
+        },
     },
 };
 </script>
