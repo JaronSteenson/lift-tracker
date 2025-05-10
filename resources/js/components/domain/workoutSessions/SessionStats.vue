@@ -12,7 +12,10 @@
     </VRow>
 </template>
 <script>
-import { dateDescription } from '../../../dates';
+import {
+    dateDescription,
+    hoursMinutesSecondsFromStartEnd,
+} from '../../../dates';
 
 export default {
     props: {
@@ -25,17 +28,26 @@ export default {
         stats() {
             return [
                 {
+                    icon: this.$svgIcons.sessionDate,
+                    value: dateDescription(this.workoutSession.startedAt),
+                    cols: 6,
+                },
+                {
+                    icon: this.$svgIcons.restPeriod,
+                    value:
+                        hoursMinutesSecondsFromStartEnd(
+                            this.workoutSession.startedAt,
+                            this.workoutSession.endedAt
+                        ) + ' total duration',
+                    cols: 6,
+                },
+                {
                     icon: this.$svgIcons.bodyWeight,
                     value: this.workoutSession.bodyWeight
                         ? `${Number(this.workoutSession.bodyWeight)
                               .toFixed(2)
                               .replace(/\.00$/, '')}kg body weight`
                         : 'Unknown body weight',
-                    cols: 6,
-                },
-                {
-                    icon: this.$svgIcons.sessionDate,
-                    value: dateDescription(this.workoutSession.startedAt),
                     cols: 6,
                 },
             ];

@@ -78,7 +78,7 @@
 
 <script>
 import WorkoutProgramService from '../../../api/WorkoutProgramService';
-import { mapActions, mapGetters } from 'vuex';
+import { mapGetters } from 'vuex';
 
 export default {
     props: {

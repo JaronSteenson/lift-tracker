@@ -39,6 +39,14 @@
                 <template v-slot:item.bodyWeight="{ item: session }">
                     {{ session.bodyWeight ? `${session.bodyWeight}kg` : '' }}
                 </template>
+                <template v-slot:item.duration="{ item: session }">
+                    {{
+                        hoursMinutesSecondsFromStartEnd(
+                            session.startedAt,
+                            session.endedAt
+                        )
+                    }}
+                </template>
                 <template v-slot:item.menu="{ item: session }">
                     <VMenu bottom left>
                         <template v-slot:activator="{ on }">
@@ -114,7 +122,7 @@
 import NarrowContentContainer from '../layouts/NarrowContentContainer';
 import { mapState, mapGetters } from 'vuex';
 import SessionStatsCard from '../domain/workoutSessions/SessionStatsCard';
-import { dateDescription } from '../../dates';
+import { dateDescription, hoursMinutesSecondsFromStartEnd } from '../../dates';
 import ProgramName from '../domain/programBuilder/ProgramName';
 
 export default {
@@ -154,13 +162,13 @@ export default {
                 {
                     text: 'Routine',
                     value: 'name',
-                    width: '30%',
+                    width: '20%',
                     sortable: false,
                 },
                 {
                     text: 'Program',
                     value: 'programName',
-                    width: '30%',
+                    width: '20%',
                     sortable: false,
                 },
                 {
@@ -170,7 +178,13 @@ export default {
                     sortable: false,
                 },
                 {
-                    text: 'Actions',
+                    text: 'Total duration',
+                    value: 'duration',
+                    width: '20%',
+                    sortable: false,
+                },
+                {
+                    text: '',
                     value: 'menu',
                     align: 'end',
                     sortable: false,
@@ -179,6 +193,7 @@ export default {
         },
     },
     methods: {
+        hoursMinutesSecondsFromStartEnd,
         setHomePageShowTable(value) {
             localStorage.setItem(
                 'homePageShowTable',
