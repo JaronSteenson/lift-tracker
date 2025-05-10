@@ -1,58 +1,7 @@
 <template>
     <div>
         <AppBar />
-        <div v-if="$vuetify.breakpoint.xsOnly" class="d-flex justify-center">
-            <div
-                class="left-column d-flex flex-column justify-center align-center"
-            >
-                <img
-                    v-show="imageHasLoaded"
-                    ref="image"
-                    class="banner-image banner-image--small"
-                    :class="{
-                        'banner-image--fade-in': fadeImageIn,
-                    }"
-                    src="images/phone-gym-floor.jpg"
-                    alt="Banner image"
-                />
-                <VSkeletonLoader
-                    v-if="!imageHasLoaded"
-                    class="banner-image-skeleton-small"
-                    type="image"
-                />
-                <h1 class="heading heading--small mt-4">Returning</h1>
-                <div class="pa-2">
-                    <LoginForm
-                        v-if="showingLoginForm"
-                        v-model="user"
-                        class="full-page-form"
-                        @showRegisterForm="showRegisterForm"
-                    />
-                    <RegisterForm
-                        v-else-if="showRegisterForm"
-                        v-model="user"
-                        class="full-page-form"
-                        @showLoginForm="showLoginForm"
-                    />
-                </div>
-                <div class="d-flex justify-space-around">
-                    <RouterLink
-                        class="small-login-page-link pa-2 d-block"
-                        :to="`/reset-password?email=${user.email}`"
-                    >
-                        Reset password
-                    </RouterLink>
-                    <RouterLink
-                        class="small-login-page-link pa-2 d-block"
-                        :to="{ name: 'PrivacyPolicy' }"
-                    >
-                        Privacy policy
-                    </RouterLink>
-                </div>
-            </div>
-        </div>
         <div
-            v-else
             class="d-flex flex-wrap justify-center gap-4"
             :class="$vuetify.breakpoint.mdAndUp ? 'mt-16' : 'mt-8'"
         >
