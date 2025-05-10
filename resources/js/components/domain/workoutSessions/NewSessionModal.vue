@@ -78,6 +78,7 @@
 
 <script>
 import WorkoutProgramService from '../../../api/WorkoutProgramService';
+import { mapActions, mapGetters } from 'vuex';
 
 export default {
     props: {
@@ -97,6 +98,14 @@ export default {
             deep: true,
             async handler(newValue) {
                 if (newValue !== null) {
+                    if (this.userIsLocalOnly) {
+                        this.workoutProgram = this.myWorkoutPrograms.find(
+                            ({ uuid }) => uuid === this.programUuid
+                        );
+                        this.loading = false;
+                        return;
+                    }
+
                     this.loading = true;
                     const response = await WorkoutProgramService.get(
                         this.programUuid
@@ -108,6 +117,8 @@ export default {
         },
     },
     computed: {
+        ...mapGetters('app', ['userIsLocalOnly']),
+        ...mapGetters('programBuilder', ['myWorkoutPrograms']),
         routines() {
             if (!this.workoutProgram) {
                 return [];
