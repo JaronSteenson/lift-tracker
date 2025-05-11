@@ -730,7 +730,6 @@ export const actions = {
             dispatch('startSaving');
 
             commit('updateWorkoutSession', {});
-
             dispatch('saveToLocalStorage');
 
             if (!rootGetters['app/userIsLocalOnly']) {
@@ -904,15 +903,8 @@ export const actions = {
         commit('endSet', { uuid: lastSet.uuid, endedAt });
         dispatch('saveSet', lastSet.uuid);
 
-        // Remove this workout from the in progress list.
-        const inProgressWorkouts = getters.inProgressWorkouts.filter(
-            (inProgressWorkout) => {
-                return getters.workoutSession.uuid !== inProgressWorkout.uuid;
-            }
-        );
-
         const workoutSession = { ...getters.workoutSession, endedAt };
-        commit('reset', { workoutSession, inProgressWorkouts });
+        commit('reset', { workoutSession });
 
         const save = await dispatch('saveWorkout');
         dispatch('fetchInProgressWorkouts');
@@ -950,6 +942,20 @@ const mutations = {
         }
 
         state.workoutSession = { ...state.workoutSession };
+
+        state.inProgressWorkouts = !state.workoutSession.endedAt
+            ? UuidHelper.replaceInCopy(
+                  state.inProgressWorkouts,
+                  state.workoutSession
+              )
+            : state.inProgressWorkouts.filter((inProgressWorkout) => {
+                  return state.workoutSession.uuid !== inProgressWorkout.uuid;
+              });
+
+        state.myWorkoutSessions = UuidHelper.replaceInCopy(
+            state.myWorkoutSessions,
+            state.workoutSession
+        );
     },
 
     updateSet(state, newSetState) {

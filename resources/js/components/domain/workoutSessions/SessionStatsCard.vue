@@ -69,7 +69,7 @@
     </VCard>
 </template>
 <script>
-import { dateDescription } from '../../../dates';
+import { dateDescription, utcNow } from '../../../dates';
 import { differenceInSeconds } from 'date-fns';
 import SessionStats from '../workoutSessions/SessionStats.vue';
 
@@ -88,7 +88,7 @@ export default {
         },
         timeStats() {
             const total = differenceInSeconds(
-                new Date(this.workoutSession.endedAt),
+                new Date(this.workoutSession.endedAt || utcNow()),
                 new Date(this.workoutSession.startedAt)
             );
 
