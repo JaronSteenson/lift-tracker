@@ -15,15 +15,13 @@
             <template v-else>{{ workoutSession.name }}</template>
         </VCardTitle>
         <VCardSubtitle v-if="workoutSession.workoutProgramRoutine">
-            From
-            <ProgramName
-                :workoutProgram="
-                    workoutSession.workoutProgramRoutine.workoutProgram
-                "
-            />
+            {{ date }}
         </VCardSubtitle>
         <VCardText>
-            <SessionStats :workoutSession="workoutSession" />
+            <SessionStats
+                :workoutSession="workoutSession"
+                :timeStats="timeStats"
+            />
         </VCardText>
         <VCardActions v-if="workoutSession.workoutProgramRoutine">
             <VBtn
@@ -41,27 +39,85 @@
                     {{ $svgIcons.repeat }}
                 </VIcon>
             </VBtn>
+            <VBtn
+                v-if="
+                    workoutSession.workoutProgramRoutine &&
+                    workoutSession.workoutProgramRoutine.workoutProgram
+                "
+                small
+                :to="{
+                    name: 'ProgramBuilderPage',
+                    params: {
+                        workoutProgramUuid:
+                            workoutSession.workoutProgramRoutine.workoutProgram
+                                .uuid,
+                    },
+                    query:
+                        $route.name === 'MyWorkoutProgramsPage'
+                            ? undefined
+                            : {
+                                  returnTo: $route.path,
+                              },
+                }"
+            >
+                Program
+                <VIcon small color="primary">
+                    {{ $svgIcons.workoutProgram }}
+                </VIcon>
+            </VBtn>
         </VCardActions>
     </VCard>
 </template>
-
 <script>
-import ProgramName from '../../domain/programBuilder/ProgramName';
-import SessionStats from './SessionStats';
+import { dateDescription } from '../../../dates';
+import { differenceInSeconds } from 'date-fns';
+import SessionStats from '../workoutSessions/SessionStats.vue';
 
 export default {
-    components: {
-        SessionStats,
-        ProgramName,
-    },
+    components: { SessionStats },
     props: {
+        linkTitle: Boolean,
         workoutSession: {
             type: Object,
             required: true,
         },
-        linkTitle: {
-            type: Boolean,
-            required: false,
+    },
+    computed: {
+        date() {
+            return dateDescription(this.workoutSession.startedAt);
+        },
+        timeStats() {
+            const total = differenceInSeconds(
+                new Date(this.workoutSession.endedAt),
+                new Date(this.workoutSession.startedAt)
+            );
+
+            let rest = 0;
+            let warmUp = 0;
+
+            this.workoutSession.sessionExercises.forEach((exercise) => {
+                warmUp +=
+                    exercise.warmUpEndedAt && exercise.warmUpStartedAt
+                        ? differenceInSeconds(
+                              new Date(exercise.warmUpEndedAt),
+                              new Date(exercise.warmUpStartedAt)
+                          )
+                        : 0;
+
+                exercise.sessionSets.forEach((set) => {
+                    rest +=
+                        set.restPeriodStartedAt && set.restPeriodEndedAt
+                            ? differenceInSeconds(
+                                  new Date(set.restPeriodEndedAt),
+                                  new Date(set.restPeriodStartedAt)
+                              )
+                            : 0;
+                });
+            });
+
+            const working = total - rest - warmUp;
+
+            return { total, working, warmUp, rest };
         },
     },
 };

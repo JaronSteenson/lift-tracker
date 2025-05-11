@@ -40,7 +40,10 @@
                 </div>
             </VAlert>
 
-            <SessionStatsCard :workout-session="workoutSession" />
+            <SessionStatsCard
+                :workout-session="workoutSession"
+                :time-stats="timeStats"
+            />
 
             <VTimeline :dense="$vuetify.breakpoint.xsOnly">
                 <VTimelineItem
@@ -87,6 +90,7 @@ import ExerciseSummaryCard from './ExerciseSummaryCard';
 import NarrowContentContainer from '../../layouts/NarrowContentContainer';
 import AppBar from '../../AppBar';
 import {
+    hoursMinutesSecondsDuration,
     hoursMinutesSecondsFromStartEnd,
     minsSecDuration,
     timeDescription,
@@ -108,6 +112,7 @@ export default {
             'workoutName',
             'workoutSession',
             'notSkippedSessionExercises',
+            'timeStats',
         ]),
         exercises() {
             return this.notSkippedSessionExercises.map((exercise, i) => ({
@@ -133,10 +138,7 @@ export default {
             ](this.workoutSession.uuid);
         },
         workoutDuration() {
-            return hoursMinutesSecondsFromStartEnd(
-                this.workoutSession.startedAt,
-                this.workoutSession.endedAt
-            );
+            return hoursMinutesSecondsDuration(this.timeStats.total);
         },
         workoutEndedAt() {
             if (!this.workoutSession.endedAt) {

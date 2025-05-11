@@ -1,5 +1,5 @@
 // Tree shaking is not working reliably with @mdi/js.
-// Svg strings can be found at https://fonts.google.com/icons (optical size 24, second notch on slider) and https://materialdesignicons.com/.
+// Svg strings can be found at https://fonts.google.com/icons (some won't work...) and https://materialdesignicons.com/.
 // Each svg path is wrapped in a VIcon component and registered globally as VIcon{Name} i.e VIconHome.
 // Where an icon is required by means of a prop, for example "prepend-icon",
 // the svg path string is to be used for the prop value.
@@ -7,6 +7,8 @@
 const icons = {
     mdiArrowLeft:
         'M20,11V13H8L13.5,18.5L12.08,19.92L4.16,12L12.08,4.08L13.5,5.5L8,11H20Z',
+    mdiBatteryClockOutline:
+        'M18 9.29V5.33C18 4.6 17.4 4 16.67 4H15V2H9V4H7.33C6.6 4 6 4.6 6 5.33V20.67C6 21.4 6.6 22 7.33 22H12.41C13.46 22.63 14.69 23 16 23C19.87 23 23 19.87 23 16C23 12.83 20.89 10.15 18 9.29M8 6H16V9C12.13 9 9 12.13 9 16C9 17.5 9.47 18.87 10.26 20H8V6M16 21C13.24 21 11 18.76 11 16S13.24 11 16 11 21 13.24 21 16 18.76 21 16 21M16.5 16.25L19.36 17.94L18.61 19.16L15 17V12H16.5V16.25Z',
     mdiCalendarCheck:
         'M19,19H5V8H19M19,3H18V1H16V3H8V1H6V3H5C3.89,3 3,3.9 3,5V19A2,2 0 0,0 5,21H19A2,2 0 0,0 21,19V5A2,2 0 0,0 19,3M16.53,11.06L15.47,10L10.59,14.88L8.47,12.76L7.41,13.82L10.59,17L16.53,11.06Z',
     mdiChartLineVariant:
@@ -43,6 +45,8 @@ const icons = {
     mdiDumbbell:
         'M20.57,14.86L22,13.43L20.57,12L17,15.57L8.43,7L12,3.43L10.57,2L9.14,3.43L7.71,2L5.57,4.14L4.14,2.71L2.71,4.14L4.14,5.57L2,7.71L3.43,9.14L2,10.57L3.43,12L7,8.43L15.57,17L12,20.57L13.43,22L14.86,20.57L16.29,22L18.43,19.86L19.86,21.29L21.29,19.86L19.86,18.43L22,16.29L20.57,14.86Z',
     mdiHome: 'M10,20V14H14V20H19V12H22L12,3L2,12H5V20H10Z',
+    mdiGymnastics:
+        'M13 2C11.9 2 11 2.9 11 4C11 5.11 11.9 6 13 6C14.11 6 15 5.11 15 4C15 2.9 14.11 2 13 2M4 7V9H10V15L4.93 20.07L6.34 21.5L13.06 14.77L17 17.13V21H19V16.57C19 16.21 18.82 15.89 18.5 15.71L15 13.6V9H21V7H4Z',
     mdiPlay: 'M8,5.14V19.14L19,12.14L8,5.14Z',
     mdiPlayPause: 'M3,5V19L11,12M13,19H16V5H13M18,5V19H21V5',
     mdiPlus: 'M19,13H13V19H11V13H5V11H11V5H13V11H19V13Z',
@@ -51,23 +55,29 @@ const icons = {
     mdiStop: 'M18,18H6V6H18V18Z',
     mdiSyncProblem:
         'M11 13V7H13V13ZM12 17Q11.575 17 11.288 16.712Q11 16.425 11 16Q11 15.575 11.288 15.287Q11.575 15 12 15Q12.425 15 12.713 15.287Q13 15.575 13 16Q13 16.425 12.713 16.712Q12.425 17 12 17ZM15 4H21V6H18.25L18.65 6.35Q19.875 7.575 20.438 9.012Q21 10.45 21 11.95Q21 14.725 19.337 16.887Q17.675 19.05 15 19.75V17.65Q16.8 17 17.9 15.438Q19 13.875 19 11.95Q19 10.825 18.575 9.762Q18.15 8.7 17.25 7.8L17 7.55V10H15ZM9 20H3V18H5.75L5.35 17.65Q4.05 16.5 3.525 15.025Q3 13.55 3 12.05Q3 9.275 4.662 7.112Q6.325 4.95 9 4.25V6.35Q7.2 7 6.1 8.562Q5 10.125 5 12.05Q5 13.175 5.425 14.237Q5.85 15.3 6.75 16.2L7 16.45V14H9Z',
+    mdiScaleBathroom:
+        'M5,2H19A2,2 0 0,1 21,4V20A2,2 0 0,1 19,22H5A2,2 0 0,1 3,20V4A2,2 0 0,1 5,2M12,4A4,4 0 0,0 8,8H11.26L10.85,5.23L12.9,8H16A4,4 0 0,0 12,4M5,10V20H19V10H5Z',
     mdiTable:
         'M5,4H19A2,2 0 0,1 21,6V18A2,2 0 0,1 19,20H5A2,2 0 0,1 3,18V6A2,2 0 0,1 5,4M5,8V12H11V8H5M13,8V12H19V8H13M5,14V18H11V14H5M13,14V18H19V14H13Z',
+    mdiWeightLifter:
+        'M12 5C10.89 5 10 5.89 10 7S10.89 9 12 9 14 8.11 14 7 13.11 5 12 5M22 1V6H20V4H4V6H2V1H4V3H20V1H22M15 11.26V23H13V18H11V23H9V11.26C6.93 10.17 5.5 8 5.5 5.5L5.5 5H7.5L7.5 5.5C7.5 8 9.5 10 12 10S16.5 8 16.5 5.5L16.5 5H18.5L18.5 5.5C18.5 8 17.07 10.17 15 11.26Z',
 };
 
 icons.backNavigation = icons.mdiArrowLeft;
-icons.bodyWeight = icons.mdiDumbbell;
+icons.bodyWeight = icons.mdiScaleBathroom;
 icons.duration = icons.mdiClockOutline;
 icons.repeat = icons.mdiRepeat;
-icons.restPeriod = icons.mdiClock;
+icons.restPeriod = icons.mdiBatteryClockOutline;
 icons.restPeriodStart = icons.mdiClockStart;
 icons.saveFailed = icons.mdiSyncProblem;
 icons.saveInProgress = icons.mdiCloudSync;
 icons.saveOk = icons.mdiCloudDone;
 icons.sessionDate = icons.mdiCalendarCheck;
+icons.warmUp = icons.mdiGymnastics;
 icons.workoutProgram = icons.mdiClipboardOutline;
 icons.workoutSession = icons.mdiClipboardTextOutline;
 icons.workoutSessionnInProgress = icons.mdiClipboardTextPlayOutline;
+icons.working = icons.mdiWeightLifter;
 
 Object.freeze(icons);
 

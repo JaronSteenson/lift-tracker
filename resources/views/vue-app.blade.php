@@ -5,6 +5,8 @@
 @stop
 
 @section('assets')
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons"
+          rel="stylesheet">
     <link href="{{ asset('js/app.css') }}" rel="stylesheet">
     <link href="{{ asset('js/app-custom.css') }}" rel="stylesheet">
     <script src="{{ mix('js/app.js') }}" defer></script>
