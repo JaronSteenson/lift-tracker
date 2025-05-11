@@ -92,7 +92,6 @@ class User extends AbstractModel implements Authenticatable, MustVerifyEmail, Ca
     {
         return $this->workoutSessions()
             ->with('workoutProgramRoutine.workoutProgram')
-            ->without('sessionExercises', 'sessionExercises.sessionSets')
             ->orderBy('createdAt', 'desc')
             ->simplePaginate(50, ['*'], 'page', $page)
             ->items();
