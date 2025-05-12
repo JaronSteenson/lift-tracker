@@ -66,7 +66,7 @@ pipelines:
                 - npm test
                 - npm run prod
                 - echo 'Starting deploy';
-                - tar -czf artifacts-frontend.tar.gz public;
+                - tar -czf artifacts-frontend.tar.gz public resources;
                 - pipe: atlassian/ssh-run:0.4.1
                   variables:
                     SSH_USER: $PROD_USER
