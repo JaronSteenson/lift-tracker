@@ -34,7 +34,7 @@
                 <VIcon small>
                     {{ $svgIcons.mdiClockOutline }}
                 </VIcon>
-                {{ totalDuration }} total duration
+                {{ totalDuration }}
             </div>
             <div v-if="totalWarmUp" class="pb-1">
                 <VIcon small>
@@ -46,7 +46,7 @@
                 <VIcon small>
                     {{ $svgIcons.restPeriod }}
                 </VIcon>
-                {{ averageRestPeriod }} average rest
+                {{ averageRestPeriod }} avg rest
             </div>
             <div v-if="averageRestPeriod" class="mt-2">
                 <VTextarea

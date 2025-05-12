@@ -31,38 +31,39 @@ export default {
                 {
                     icon: this.$svgIcons.bodyWeight,
                     value: this.workoutSession.bodyWeight
-                        ? `${Number(this.workoutSession.bodyWeight)
-                              .toFixed(2)
-                              .replace(/\.00$/, '')}kg body weight`
-                        : 'Unknown body weight',
+                        ? `${Number(
+                              this.workoutSession.bodyWeight
+                          ).toLocaleString('en-US', {
+                              minimumFractionDigits: 1,
+                              maximumFractionDigits: 4,
+                          })}kg`
+                        : 'Not recorded',
                     cols: 6,
                 },
                 {
                     icon: this.$svgIcons.mdiClockOutline,
-                    value:
-                        hoursMinutesSecondsDuration(this.timeStats.total) +
-                        ' total duration',
+                    value: hoursMinutesSecondsDuration(this.timeStats.total),
                     cols: 6,
                 },
                 {
                     icon: this.$svgIcons.working,
                     value:
                         hoursMinutesSecondsDuration(this.timeStats.working) +
-                        ' total working',
+                        ' working',
                     cols: 6,
                 },
                 {
                     icon: this.$svgIcons.warmUp,
                     value:
                         hoursMinutesSecondsDuration(this.timeStats.warmUp) +
-                        ' total warm-up',
+                        ' warm-up',
                     cols: 6,
                 },
                 {
                     icon: this.$svgIcons.restPeriod,
                     value:
                         hoursMinutesSecondsDuration(this.timeStats.rest) +
-                        ' total rest',
+                        ' rest',
                     cols: 6,
                 },
             ];

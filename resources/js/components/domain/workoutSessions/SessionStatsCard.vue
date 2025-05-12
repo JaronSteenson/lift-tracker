@@ -115,9 +115,10 @@ export default {
                 });
             });
 
-            const working = total - rest - warmUp;
+            const nonWorking = rest + warmUp;
+            const working = nonWorking >= total ? 0 : total - nonWorking;
 
-            return { total, working, warmUp, rest };
+            return { total, working, nonWorking, warmUp, rest };
         },
     },
 };
