@@ -15,7 +15,9 @@
 @section('inline-styles')
     <style>
         .initial-loading {
-            margin-top: 40vh;
+            background: black;
+            height: 100vh;
+            padding-top: 40vh;
             text-align: center;
             color: {{ config('app.app_icon_background_color') }};
             font-size: 2em;
