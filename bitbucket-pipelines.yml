@@ -49,7 +49,6 @@ pipelines:
                     COMMAND: >
                       tar -xf /tmp/deploy-backend/artifacts-backend.tar.gz -C /var/www/html/lift-tracker
                       && cd /var/www/html/lift-tracker
-                      && php artisan view:clear
                       && php artisan cache:clear
                       && php artisan optimize:clear
                       && php artisan migrate
@@ -90,6 +89,8 @@ pipelines:
                     MODE: "command"
                     COMMAND: >
                       tar -xf /tmp/deploy-frontend/artifacts-frontend.tar.gz -C /var/www/html/lift-tracker
+                      && cd /var/www/html/lift-tracker
+                      && php artisan view:clear
                 - echo 'Purging CDN cache'
                 - >
                   curl \
