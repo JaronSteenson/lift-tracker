@@ -103,6 +103,7 @@ class User extends AbstractModel implements Authenticatable, MustVerifyEmail, Ca
     public function getWorkoutPrograms(): Collection
     {
         return $this->workoutPrograms()
+            ->with('workoutProgramRoutines.routineExercises')
             ->orderBy('name')
             ->orderBy('createdAt', 'desc')
             ->get();
