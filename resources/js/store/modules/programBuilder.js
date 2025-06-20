@@ -188,10 +188,10 @@ const actions = {
             return;
         }
         commit('reset', { myWorkoutProgramsIsLoading: true });
-        const myWorkoutPrograms = await WorkoutProgramService.getAll();
+        const response = await WorkoutProgramService.getAll();
 
         commit('reset', {
-            myWorkoutPrograms,
+            myWorkoutPrograms: response.data,
             myWorkoutProgramsIsLoading: false,
         });
     },
