@@ -1,0 +1,22 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LiftTrackerApi", "LiftTrackerApi.csproj", "{B1697C4B-6B0C-4CE1-B091-5387D1403FBE}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LiftTrackerApi.Tests", "..\LiftTrackerApi.Tests\LiftTrackerApi.Tests.csproj", "{E3327844-4C7D-421F-9929-E480C4A1FA6B}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{B1697C4B-6B0C-4CE1-B091-5387D1403FBE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B1697C4B-6B0C-4CE1-B091-5387D1403FBE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B1697C4B-6B0C-4CE1-B091-5387D1403FBE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B1697C4B-6B0C-4CE1-B091-5387D1403FBE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E3327844-4C7D-421F-9929-E480C4A1FA6B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E3327844-4C7D-421F-9929-E480C4A1FA6B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E3327844-4C7D-421F-9929-E480C4A1FA6B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E3327844-4C7D-421F-9929-E480C4A1FA6B}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
