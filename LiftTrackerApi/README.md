@@ -11,7 +11,7 @@ sudo apt-get update && sudo apt-get install -y dotnet-sdk-9.0
 
 Local dev env database
 ```shell
-docker run -d -p 3306:3306 --name lt-mysql lift-tracker-api-mysql 
+docker restart lt-mysql
 
 # Build/Run
 cd Docker/mysql

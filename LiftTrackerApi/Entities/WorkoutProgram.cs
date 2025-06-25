@@ -1,18 +1,10 @@
 ﻿namespace LiftTrackerApi.Entities;
 
-public partial class WorkoutProgram
+public partial class WorkoutProgram : DomainEntity
 {
     public string? Name { get; set; }
 
-    public DateTime? CreatedAt { get; set; }
-
-    public DateTime? UpdatedAt { get; set; }
-
-    public Guid Uuid { get; set; }
-
     public int? UserId { get; set; }
-
-    public int Id { get; }
 
     public DateTime? DeletedAt { get; set; }
 

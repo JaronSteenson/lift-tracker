@@ -1,6 +1,6 @@
 ﻿namespace LiftTrackerApi.Entities;
 
-public partial class RoutineExercise
+public partial class RoutineExercise : DomainEntity
 {
     public int Id { get; }
 

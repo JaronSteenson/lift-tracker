@@ -57,6 +57,17 @@ public class WorkoutProgramDbFixture  : IClassFixture<WorkoutProgramDbFixture>
                             Weight = 50,
                             RestPeriod = 120,
                             WarmUp = 60
+                        },
+                        new()
+                        {
+                            Uuid = Guid.Parse("21ba1db3-8045-473c-901d-18b19ba33fe5"),
+                            Name = "Deleted Exercise",
+                            NumberOfSets = 3,
+                            Position = 0,
+                            Weight = 50,
+                            RestPeriod = 120,
+                            WarmUp = 60,
+                            DeletedAt = DateTime.UtcNow
                         }
                     }
                 },
@@ -66,6 +77,15 @@ public class WorkoutProgramDbFixture  : IClassFixture<WorkoutProgramDbFixture>
                     Name = "Empty Last Routine",
                     NormalDay = "any",
                     Position = 2,
+                    RoutineExercises = new List<RoutineExercise>()
+                },
+                new()
+                {
+                    Uuid = Guid.Parse("6dd31c4f-15aa-4036-b959-4ded8990fb9d"),
+                    Name = "Deleted Routine",
+                    NormalDay = "any",
+                    Position = 2,
+                    DeletedAt = DateTime.UtcNow,
                     RoutineExercises = new List<RoutineExercise>()
                 }
             }

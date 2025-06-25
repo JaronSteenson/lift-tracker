@@ -1,17 +1,11 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using System.Linq.Expressions;
+using Microsoft.EntityFrameworkCore;
 
 namespace LiftTrackerApi.Entities;
 
-public partial class LiftTrackerDbContext : DbContext
+public partial class LiftTrackerDbContext(DbContextOptions<LiftTrackerDbContext> options, IConfiguration config)
+    : DbContext(options)
 {
-    private readonly IConfiguration _config;
-
-    public LiftTrackerDbContext(DbContextOptions<LiftTrackerDbContext> options, IConfiguration config)
-        : base(options)
-    {
-        _config = config;
-    }
-
     public virtual DbSet<Exercise> Exercises { get; set; }
 
     public virtual DbSet<Migration> Migrations { get; set; }
@@ -32,12 +26,82 @@ public partial class LiftTrackerDbContext : DbContext
 
     public virtual DbSet<WorkoutSession> WorkoutSessions { get; set; }
 
+    public override int SaveChanges()
+    {
+        UpdateTimestamps();
+        return base.SaveChanges();
+    }
+
+    public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
+    {
+        UpdateTimestamps();
+        return base.SaveChangesAsync(cancellationToken);
+    }
+
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
         optionsBuilder.UseMySQL(
-            _config.GetConnectionString("LiftTrackerDatabase") ??
+            config.GetConnectionString("LiftTrackerDatabase") ??
             throw new InvalidOperationException("LiftTrackerDatabase connection string is not configured.")
         );
+    }
+
+    private void UpdateTimestamps()
+    {
+        var now = DateTime.UtcNow;
+        foreach (var entry in ChangeTracker.Entries())
+        {
+            if (entry.Entity is not DomainEntity entity)
+            {
+                continue;
+            }
+
+            switch (entry.State)
+            {
+                case EntityState.Added:
+                    entity.CreatedAt = now;
+                    break;
+                case EntityState.Modified:
+                    entity.UpdatedAt = now;
+                    break;
+                case EntityState.Deleted:
+                    entity.DeletedAt = now;
+
+                    // Soft delete instead of hard delete
+                    entry.State = EntityState.Modified;
+                    break;
+            }
+        }
+    }
+
+    private void OnModelCreatingPartial(ModelBuilder modelBuilder)
+    {
+        FilterSoftDeletedEntities(modelBuilder);
+    }
+
+    private void FilterSoftDeletedEntities(ModelBuilder modelBuilder)
+    {
+        foreach (var entityType in modelBuilder.Model.GetEntityTypes())
+        {
+            var clrType = entityType.ClrType;
+            if (!clrType.IsAssignableTo(typeof(DomainEntity)))
+            {
+                continue;
+            }
+
+            var parameter = Expression.Parameter(clrType, "e");
+
+            var deletedAtProperty = Expression.Property(
+                Expression.Convert(parameter, typeof(DomainEntity)),
+                nameof(DomainEntity.DeletedAt)
+            );
+
+            var nullConstant = Expression.Constant(null, typeof(DateTime?));
+            var body = Expression.Equal(deletedAtProperty, nullConstant);
+            var lambda = Expression.Lambda(body, parameter);
+
+            modelBuilder.Entity(clrType).HasQueryFilter(lambda);
+        }
     }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -364,6 +428,4 @@ public partial class LiftTrackerDbContext : DbContext
 
         OnModelCreatingPartial(modelBuilder);
     }
-
-    partial void OnModelCreatingPartial(ModelBuilder modelBuilder);
 }
