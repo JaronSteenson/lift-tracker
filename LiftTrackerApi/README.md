@@ -57,7 +57,6 @@ dotnet run
 run tests from cli
 
 ```shell
-cd LiftTrackerApi.Tests
 dotnet test
 ```
 
@@ -74,6 +73,12 @@ run from rider
 # Set the path to the dotnet sdk in rider
 # File -> Settings -> Build, Execution, Deployment -> Toolset and Build
 /home/jaron/.dotnet
+```
+
+curl sanity check
+
+```shell
+curl https://localhost:7023/workout-programs -k
 ```
 
 code formatting
