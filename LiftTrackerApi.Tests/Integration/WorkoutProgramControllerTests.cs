@@ -1,8 +1,9 @@
 ﻿using LiftTrackerApi.Controllers;
 using LiftTrackerApi.Entities;
-using LiftTrackerApi.Tests.Integration;
 using LiftTrackerApi.Tests.Integration.Fixtures;
 using Newtonsoft.Json;
+
+namespace LiftTrackerApi.Tests.Integration;
 
 public class WorkoutProgramControllerTests : IClassFixture<WorkoutProgramDbFixture>
 {
@@ -13,9 +14,7 @@ public class WorkoutProgramControllerTests : IClassFixture<WorkoutProgramDbFixtu
         _client = fixture.Client;
     }
 
-    /**
-     * <see cref="WorkoutProgramController.Index" />
-     */
+    /// <see cref="WorkoutProgramController.Index" />
     [Fact]
     public async Task Get_EndpointsReturnsEntities()
     {
@@ -26,14 +25,14 @@ public class WorkoutProgramControllerTests : IClassFixture<WorkoutProgramDbFixtu
         response.EnsureSuccessStatusCode();
         Assert.Equal(
             "application/json; charset=utf-8",
-            response.Content.Headers.ContentType.ToString()
+            response.Content.Headers.ContentType!.ToString()
         );
         var json = await response.Content.ReadAsStringAsync();
 
         var workoutPrograms = JsonConvert.DeserializeObject<List<WorkoutProgram>>(json);
-        Assert.Equal(1, workoutPrograms.Count);
+        Assert.Single(workoutPrograms!);
 
-        var workoutProgram = workoutPrograms.First();
+        var workoutProgram = workoutPrograms!.First();
         Assert.Equal(Guid.Parse("186383a6-e369-4071-b80d-70c82d2495d1"), workoutProgram.Uuid);
         Assert.Equal("Test Workout Program", workoutProgram.Name);
         Assert.Equal(1, workoutProgram.UserId);
@@ -74,9 +73,7 @@ public class WorkoutProgramControllerTests : IClassFixture<WorkoutProgramDbFixtu
         Assert.Empty(emptyLastRoutine.RoutineExercises);
     }
 
-    /**
-     * <see cref="WorkoutProgramController.Index" />
-     */
+    /// <see cref="WorkoutProgramController.Index" />
     [Fact]
     public async Task Get_ByRoutineUuid_EndpointsReturnsEntity()
     {
@@ -89,12 +86,12 @@ public class WorkoutProgramControllerTests : IClassFixture<WorkoutProgramDbFixtu
         response.EnsureSuccessStatusCode();
         Assert.Equal(
             "application/json; charset=utf-8",
-            response.Content.Headers.ContentType.ToString()
+            response.Content.Headers.ContentType!.ToString()
         );
         var json = await response.Content.ReadAsStringAsync();
 
         var workoutProgram = JsonConvert.DeserializeObject<WorkoutProgram>(json);
-        Assert.Equal(Guid.Parse("186383a6-e369-4071-b80d-70c82d2495d1"), workoutProgram.Uuid);
+        Assert.Equal(Guid.Parse("186383a6-e369-4071-b80d-70c82d2495d1"), workoutProgram!.Uuid);
         Assert.Equal("Test Workout Program", workoutProgram.Name);
         Assert.Equal(1, workoutProgram.UserId);
 

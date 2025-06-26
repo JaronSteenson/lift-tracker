@@ -17,7 +17,7 @@ public class WorkoutProgramDbFixture : IClassFixture<WorkoutProgramDbFixture>
         Client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Test");
 
         var db = factory.Services.GetService<LiftTrackerDbContext>();
-        db.Database.ExecuteSqlRaw(
+        db!.Database.ExecuteSqlRaw(
             """
                   SET FOREIGN_KEY_CHECKS = 0;
                   truncate table WorkoutPrograms;

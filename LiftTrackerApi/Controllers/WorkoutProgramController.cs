@@ -20,7 +20,7 @@ public class WorkoutProgramController(
         var userId = int.Parse(
             HttpContext
                 .User?.Claims?.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)
-                ?.Value
+                ?.Value ?? "-1"
         );
 
         if (routineUuid != null)
@@ -37,6 +37,9 @@ public class WorkoutProgramController(
                 .Where(joined => joined.workoutProgram.UserId == userId)
                 .Where(joined => joined.routine.Uuid == routineUuid)
                 .FirstOrDefaultAsync();
+
+            if (joined == null)
+                return NotFound();
 
             SortChildren(joined.workoutProgram);
 

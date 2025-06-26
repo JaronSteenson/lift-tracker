@@ -5,8 +5,13 @@
         <ImplicitUsings>enable</ImplicitUsings>
         <RootNamespace>LiftTrackerApi</RootNamespace>
     </PropertyGroup>
+    <PropertyGroup>
+        <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
+        <_SkipUpgradeNetAnalyzersNuGetWarning>true</_SkipUpgradeNetAnalyzersNuGetWarning>
+        <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    </PropertyGroup>
     <ItemGroup>
-        <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="9.0.5">
+        <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="9.0.3">
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
             <PrivateAssets>all</PrivateAssets>
         </PackageReference>

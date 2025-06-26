@@ -4,10 +4,6 @@ namespace LiftTrackerApi.Entities;
 
 public partial class SessionExercise : DomainEntity, IPositionable
 {
-    public int Id { get; set; }
-
-    public Guid Uuid { get; set; }
-
     public string Name { get; set; } = null!;
 
     public int WorkoutSessionId { get; set; }
@@ -22,12 +18,6 @@ public partial class SessionExercise : DomainEntity, IPositionable
 
     /// <inheritdoc/>
     public int Position { get; set; }
-
-    public DateTime? CreatedAt { get; set; }
-
-    public DateTime? UpdatedAt { get; set; }
-
-    public DateTime? DeletedAt { get; set; }
 
     public bool Skipped { get; set; }
 
