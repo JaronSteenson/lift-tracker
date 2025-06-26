@@ -1,6 +1,7 @@
 using System.Diagnostics;
 using System.Security.Claims;
 using LiftTrackerApi.Entities;
+using LiftTrackerApi.Extensions;
 using LiftTrackerApi.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -29,8 +30,6 @@ public class WorkoutProgramController(ILogger<WorkoutProgramController> logger, 
                 )
                 .Where(joined => joined.workoutProgram.UserId == userId)
                 .Where(joined => joined.routine.Uuid == routineUuid)
-                .Where(joined => joined.workoutProgram.DeletedAt == null)
-                .Where(joined => joined.routine.DeletedAt == null)
                 .FirstOrDefaultAsync();
 
             SortChildren(joined.workoutProgram);
@@ -42,7 +41,6 @@ public class WorkoutProgramController(ILogger<WorkoutProgramController> logger, 
             .Include(workoutProgram => workoutProgram.WorkoutProgramRoutines)
             .ThenInclude(routine => routine.RoutineExercises)
             .Where(workoutProgram => workoutProgram.UserId == userId)
-            .Where(workoutProgram => workoutProgram.DeletedAt == null)
             .ToListAsync();
 
         SortChildren(workoutPrograms);
@@ -58,11 +56,11 @@ public class WorkoutProgramController(ILogger<WorkoutProgramController> logger, 
     private void SortChildren(WorkoutProgram workoutProgram)
     {
         workoutProgram.WorkoutProgramRoutines =
-            workoutProgram.WorkoutProgramRoutines.OrderBy(pr => pr.Position).ToList();
+            workoutProgram.WorkoutProgramRoutines.OrderByPosition().ToList();
 
         foreach (var workoutProgramRoutine in workoutProgram.WorkoutProgramRoutines)
             workoutProgramRoutine.RoutineExercises =
-                workoutProgramRoutine.RoutineExercises.OrderBy(re => re.Position).ToList();
+                workoutProgramRoutine.RoutineExercises.OrderByPosition().ToList();
     }
 
     [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]

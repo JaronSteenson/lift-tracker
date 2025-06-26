@@ -1,6 +1,8 @@
-﻿namespace LiftTrackerApi.Entities;
+﻿using LiftTrackerApi.Entities.Interfaces;
 
-public partial class RoutineExercise : DomainEntity
+namespace LiftTrackerApi.Entities;
+
+public partial class RoutineExercise : DomainEntity, IPositionable
 {
     public int Id { get; }
 
@@ -16,6 +18,7 @@ public partial class RoutineExercise : DomainEntity
 
     public int? WorkoutProgramRoutineId { get; set; }
 
+    /// <inheritdoc/>
     public int Position { get; set; }
 
     public decimal? Weight { get; set; }

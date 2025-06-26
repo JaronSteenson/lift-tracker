@@ -1,6 +1,8 @@
-﻿namespace LiftTrackerApi.Entities;
+﻿using LiftTrackerApi.Entities.Interfaces;
 
-public partial class SessionExercise : DomainEntity
+namespace LiftTrackerApi.Entities;
+
+public partial class SessionExercise : DomainEntity, IPositionable
 {
     public int Id { get; set; }
 
@@ -18,6 +20,7 @@ public partial class SessionExercise : DomainEntity
 
     public string? Notes { get; set; }
 
+    /// <inheritdoc/>
     public int Position { get; set; }
 
     public DateTime? CreatedAt { get; set; }

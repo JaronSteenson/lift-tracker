@@ -1,6 +1,8 @@
-﻿namespace LiftTrackerApi.Entities;
+﻿using LiftTrackerApi.Entities.Interfaces;
 
-public partial class WorkoutProgramRoutine : DomainEntity
+namespace LiftTrackerApi.Entities;
+
+public partial class WorkoutProgramRoutine : DomainEntity, IPositionable
 {
     public string? Name { get; set; }
 
@@ -8,6 +10,7 @@ public partial class WorkoutProgramRoutine : DomainEntity
 
     public int? WorkoutProgramId { get; set; }
 
+    /// <inheritdoc/>
     public int Position { get; set; }
 
     public virtual ICollection<RoutineExercise> RoutineExercises { get; set; } = new List<RoutineExercise>();

@@ -1,6 +1,8 @@
-﻿namespace LiftTrackerApi.Entities;
+﻿using LiftTrackerApi.Entities.Interfaces;
 
-public partial class SessionSet : DomainEntity
+namespace LiftTrackerApi.Entities;
+
+public partial class SessionSet : DomainEntity, IPositionable
 {
     public int SessionExerciseId { get; set; }
 
@@ -14,7 +16,9 @@ public partial class SessionSet : DomainEntity
 
     public DateTime? RestPeriodEndedAt { get; set; }
 
+    /// <inheritdoc/>
     public int Position { get; set; }
+
     public DateTime? StartedAt { get; set; }
 
     public DateTime? EndedAt { get; set; }
