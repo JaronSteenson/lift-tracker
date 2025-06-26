@@ -75,7 +75,7 @@ pipelines:
                 - echo 'Migrating test database'
                 - ASPNETCORE_ENVIRONMENT=Test dotnet ef database update
                 - echo 'Running tests'
-                - (cd ../LiftTrackerApi.Tests && dotnet test)
+                - dotnet test
               services:
                 - mysql
       - step:
