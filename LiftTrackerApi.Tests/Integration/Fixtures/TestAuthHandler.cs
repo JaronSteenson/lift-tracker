@@ -16,7 +16,9 @@ public class TestAuthHandler : AuthenticationHandler<TestAuthHandlerOptions>
         IOptionsMonitor<TestAuthHandlerOptions> options,
         ILoggerFactory logger,
         UrlEncoder encoder,
-        ISystemClock clock) : base(options, logger, encoder, clock)
+        ISystemClock clock
+    )
+        : base(options, logger, encoder, clock)
     {
         _defaultUserId = options.CurrentValue.DefaultUserId;
     }

@@ -5,7 +5,7 @@ namespace LiftTrackerApi.Tests.Integration.Fixtures;
 using Entities;
 using Microsoft.EntityFrameworkCore;
 
-public class WorkoutProgramDbFixture  : IClassFixture<WorkoutProgramDbFixture>
+public class WorkoutProgramDbFixture : IClassFixture<WorkoutProgramDbFixture>
 {
     public HttpClient Client { get; private set; }
 
@@ -17,13 +17,15 @@ public class WorkoutProgramDbFixture  : IClassFixture<WorkoutProgramDbFixture>
         Client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Test");
 
         var db = factory.Services.GetService<LiftTrackerDbContext>();
-        db.Database.ExecuteSqlRaw("""
-                                        SET FOREIGN_KEY_CHECKS = 0;
-                                        truncate table WorkoutPrograms;
-                                        truncate table WorkoutProgramRoutines;
-                                        truncate table RoutineExercises;
-                                        SET FOREIGN_KEY_CHECKS = 1;
-                                  """);
+        db.Database.ExecuteSqlRaw(
+            """
+                  SET FOREIGN_KEY_CHECKS = 0;
+                  truncate table WorkoutPrograms;
+                  truncate table WorkoutProgramRoutines;
+                  truncate table RoutineExercises;
+                  SET FOREIGN_KEY_CHECKS = 1;
+            """
+        );
 
         var workoutProgram = new WorkoutProgram
         {
@@ -38,7 +40,7 @@ public class WorkoutProgramDbFixture  : IClassFixture<WorkoutProgramDbFixture>
                     Name = "Empty First Routine",
                     NormalDay = "any",
                     Position = 0,
-                    RoutineExercises = new List<RoutineExercise>()
+                    RoutineExercises = new List<RoutineExercise>(),
                 },
                 new()
                 {
@@ -56,7 +58,7 @@ public class WorkoutProgramDbFixture  : IClassFixture<WorkoutProgramDbFixture>
                             Position = 0,
                             Weight = 50,
                             RestPeriod = 120,
-                            WarmUp = 60
+                            WarmUp = 60,
                         },
                         new()
                         {
@@ -67,9 +69,9 @@ public class WorkoutProgramDbFixture  : IClassFixture<WorkoutProgramDbFixture>
                             Weight = 50,
                             RestPeriod = 120,
                             WarmUp = 60,
-                            DeletedAt = DateTime.UtcNow
-                        }
-                    }
+                            DeletedAt = DateTime.UtcNow,
+                        },
+                    },
                 },
                 new()
                 {
@@ -77,7 +79,7 @@ public class WorkoutProgramDbFixture  : IClassFixture<WorkoutProgramDbFixture>
                     Name = "Empty Last Routine",
                     NormalDay = "any",
                     Position = 2,
-                    RoutineExercises = new List<RoutineExercise>()
+                    RoutineExercises = new List<RoutineExercise>(),
                 },
                 new()
                 {
@@ -86,9 +88,9 @@ public class WorkoutProgramDbFixture  : IClassFixture<WorkoutProgramDbFixture>
                     NormalDay = "any",
                     Position = 2,
                     DeletedAt = DateTime.UtcNow,
-                    RoutineExercises = new List<RoutineExercise>()
-                }
-            }
+                    RoutineExercises = new List<RoutineExercise>(),
+                },
+            },
         };
 
         db.Add(workoutProgram);

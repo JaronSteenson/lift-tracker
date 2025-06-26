@@ -13,7 +13,8 @@ public partial class WorkoutProgramRoutine : DomainEntity, IPositionable
     /// <inheritdoc/>
     public int Position { get; set; }
 
-    public virtual ICollection<RoutineExercise> RoutineExercises { get; set; } = new List<RoutineExercise>();
+    public virtual ICollection<RoutineExercise> RoutineExercises { get; set; } =
+        new List<RoutineExercise>();
 
     public virtual WorkoutProgram? WorkoutProgram { get; set; }
 }

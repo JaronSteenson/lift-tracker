@@ -2,7 +2,6 @@
 
 public partial class WorkoutSession : DomainEntity
 {
-
     public int? WorkoutProgramRoutineId { get; set; }
 
     public int? UserId { get; set; }
@@ -17,5 +16,6 @@ public partial class WorkoutSession : DomainEntity
 
     public decimal? BodyWeight { get; set; }
 
-    public virtual ICollection<SessionExercise> SessionExercises { get; set; } = new List<SessionExercise>();
+    public virtual ICollection<SessionExercise> SessionExercises { get; set; } =
+        new List<SessionExercise>();
 }

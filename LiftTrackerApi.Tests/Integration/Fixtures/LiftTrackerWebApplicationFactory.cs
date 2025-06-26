@@ -13,10 +13,16 @@ public class LiftTrackerWebApplicationFactory : WebApplicationFactory<Program>
 
         builder.ConfigureTestServices(services =>
         {
-            services.Configure<TestAuthHandlerOptions>(options => options.DefaultUserId = DefaultUserId);
+            services.Configure<TestAuthHandlerOptions>(options =>
+                options.DefaultUserId = DefaultUserId
+            );
 
-            services.AddAuthentication(TestAuthHandler.AuthenticationScheme)
-                .AddScheme<TestAuthHandlerOptions, TestAuthHandler>(TestAuthHandler.AuthenticationScheme, options => { });
+            services
+                .AddAuthentication(TestAuthHandler.AuthenticationScheme)
+                .AddScheme<TestAuthHandlerOptions, TestAuthHandler>(
+                    TestAuthHandler.AuthenticationScheme,
+                    options => { }
+                );
         });
     }
 }

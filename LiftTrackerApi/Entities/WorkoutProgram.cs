@@ -8,5 +8,6 @@ public partial class WorkoutProgram : DomainEntity
 
     public DateTime? DeletedAt { get; set; }
 
-    public virtual ICollection<WorkoutProgramRoutine> WorkoutProgramRoutines { get; set; } = new List<WorkoutProgramRoutine>();
+    public virtual ICollection<WorkoutProgramRoutine> WorkoutProgramRoutines { get; set; } =
+        new List<WorkoutProgramRoutine>();
 }

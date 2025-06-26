@@ -10,11 +10,13 @@ builder.Services.AddControllersWithViews();
 builder.Services.AddDbContext<LiftTrackerDbContext>();
 
 // Add default JSON options.
-builder.Services.AddControllers().AddJsonOptions(options =>
-{
-    options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
-    options.JsonSerializerOptions.IgnoreReadOnlyProperties = true;
-});
+builder
+    .Services.AddControllers()
+    .AddJsonOptions(options =>
+    {
+        options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
+        options.JsonSerializerOptions.IgnoreReadOnlyProperties = true;
+    });
 
 var app = builder.Build();
 
@@ -32,12 +34,12 @@ app.UseRouting();
 app.UseAuthorization();
 
 app.MapControllerRoute(
-    "workout-programs",
-    "{workout-programs}/{action=Index}/{routine-uuid?}",
-    new { controller = "WorkoutProgram", action = "Index" }
-).RequireAuthorization();
+        "workout-programs",
+        "{workout-programs}/{action=Index}/{routine-uuid?}",
+        new { controller = "WorkoutProgram", action = "Index" }
+    )
+    .RequireAuthorization();
 
 app.Run();
-
 
 public partial class Program { }

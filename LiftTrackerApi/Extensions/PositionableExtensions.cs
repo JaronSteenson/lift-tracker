@@ -11,7 +11,6 @@ namespace LiftTrackerApi.Extensions;
 /// </summary>
 public static class PositionableExtensions
 {
-
     public static IQueryable<IPositionable> OrderByPosition(this IQueryable<IPositionable> query)
     {
         return query.OrderBy(p => p.Position);

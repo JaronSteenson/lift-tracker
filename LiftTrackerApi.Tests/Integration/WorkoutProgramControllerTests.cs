@@ -24,7 +24,10 @@ public class WorkoutProgramControllerTests : IClassFixture<WorkoutProgramDbFixtu
 
         // Assert
         response.EnsureSuccessStatusCode();
-        Assert.Equal("application/json; charset=utf-8", response.Content.Headers.ContentType.ToString());
+        Assert.Equal(
+            "application/json; charset=utf-8",
+            response.Content.Headers.ContentType.ToString()
+        );
         var json = await response.Content.ReadAsStringAsync();
 
         var workoutPrograms = JsonConvert.DeserializeObject<List<WorkoutProgram>>(json);
@@ -78,11 +81,16 @@ public class WorkoutProgramControllerTests : IClassFixture<WorkoutProgramDbFixtu
     public async Task Get_ByRoutineUuid_EndpointsReturnsEntity()
     {
         // Act
-        var response = await _client.GetAsync("/workout-programs?routineUuid=cd218127-b60d-46a7-bbc1-a17332bea15f");
+        var response = await _client.GetAsync(
+            "/workout-programs?routineUuid=cd218127-b60d-46a7-bbc1-a17332bea15f"
+        );
 
         // Assert
         response.EnsureSuccessStatusCode();
-        Assert.Equal("application/json; charset=utf-8", response.Content.Headers.ContentType.ToString());
+        Assert.Equal(
+            "application/json; charset=utf-8",
+            response.Content.Headers.ContentType.ToString()
+        );
         var json = await response.Content.ReadAsStringAsync();
 
         var workoutProgram = JsonConvert.DeserializeObject<WorkoutProgram>(json);

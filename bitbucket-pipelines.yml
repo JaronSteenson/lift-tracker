@@ -65,11 +65,17 @@ pipelines:
               caches:
                 - dotnetcore
               script:
-                - dotnet tool install --global dotnet-ef
-                - export PATH="~/.dotnet/tools:$PATH";
-                - (cd LiftTrackerApi && dotnet build)
-                - (cd LiftTrackerApi && ASPNETCORE_ENVIRONMENT=Test dotnet ef database update)
-                - (cd LiftTrackerApi.Tests && dotnet test)
+                - cd LiftTrackerApi
+                - echo 'Installing dependencies'
+                - dotnet tool restore
+                - echo 'Checking formatting'
+                - dotnet csharpier check . && dotnet csharpier check ../LiftTrackerApi.Tests
+                - echo 'Building solution'
+                - dotnet build
+                - echo 'Migrating test database'
+                - ASPNETCORE_ENVIRONMENT=Test dotnet ef database update
+                - echo 'Running tests'
+                - (cd ../LiftTrackerApi.Tests && dotnet test)
               services:
                 - mysql
       - step:

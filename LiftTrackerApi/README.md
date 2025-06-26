@@ -1,15 +1,18 @@
 Runtime and sdk were installed by rider IDE
+
 ```shell
 sudo snap install rider --classic
 ```
 
 Sdk/cli
 https://learn.microsoft.com/en-us/dotnet/core/install/linux-ubuntu-install?tabs=dotnet9&pivots=os-linux-ubuntu-2410
+
 ```shell
 sudo apt-get update && sudo apt-get install -y dotnet-sdk-9.0
 ```
 
 Local dev env database
+
 ```shell
 docker restart lt-mysql
 
@@ -34,6 +37,7 @@ docker run -p 3306:3306 --name lt-mysql lift-tracker-api-mysql
 ```
 
 EF
+
 ```shell
 dotnet tool install --global dotnet-ef
 dotnet add package Microsoft.EntityFrameworkCore.Design
@@ -44,26 +48,47 @@ export PATH="~/.dotnet/tools:$PATH";
 export DOTNET_ROOT=~/.dotnet
 ```
 
-run from cli 
+run from cli
+
 ```shell
 dotnet run
 ```
 
 run tests from cli
+
 ```shell
 cd LiftTrackerApi.Tests
 dotnet test
 ```
 
 run migrations from cli
+
 ```shell
 ASPNETCORE_ENVIRONMENT=Development dotnet ef database update # development database
 ASPNETCORE_ENVIRONMENT=Test dotnet ef database update # test database
 ```
 
 run from rider
+
 ```shell
 # Set the path to the dotnet sdk in rider
 # File -> Settings -> Build, Execution, Deployment -> Toolset and Build
 /home/jaron/.dotnet
+```
+
+code formatting
+
+```shell
+# Install csharpier cli tool
+dotnet tool restore
+
+# Install csharpier rider plugin
+`ctrl + alt + s` -> Plugins -> Marketplace -> Search for CSharpier -> Install
+Tools -> CSharpier -> Run on save
+
+# Format the code
+dotnet csharpier format . && dotnet csharpier format ../LiftTrackerApi.Tests
+
+# Check formatting
+dotnet csharpier check . && dotnet csharpier check ../LiftTrackerApi.Tests
 ```

@@ -12,4 +12,3 @@ public abstract class DomainEntity
 
     public DateTime? DeletedAt { get; set; }
 }
-
