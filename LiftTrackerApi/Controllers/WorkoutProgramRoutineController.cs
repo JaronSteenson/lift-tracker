@@ -1,12 +1,11 @@
 using System.Security.Claims;
-using LiftTrackerApi.Entities;
-using LiftTrackerApi.Extensions;
+using LiftTrackerApi.Services;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
 namespace LiftTrackerApi.Controllers;
 
-public class WorkoutProgramRoutineController(LiftTrackerDbContext db) : Controller
+public class WorkoutProgramRoutineController(WorkoutProgramService workoutProgramService)
+    : Controller
 {
     public async Task<IActionResult> Index()
     {
@@ -16,26 +15,8 @@ public class WorkoutProgramRoutineController(LiftTrackerDbContext db) : Controll
                 ?.Value ?? "-1"
         );
 
-        var query = db
-            .WorkoutProgramRoutines.Include(routine => routine.WorkoutProgram)
-            .Include(routine => routine.RoutineExercises)
-            .Where(routine =>
-                routine.WorkoutProgram != null && routine.WorkoutProgram.UserId == userId
-            )
-            // Ordered by last "touched" rather than position, so that most recently used or updated are shown first.
-            .OrderByDescending(routine => routine.UpdatedAt ?? routine.CreatedAt);
-
-        var routines = await query.ToListAsync();
-        SortChildren(routines);
+        var routines = await workoutProgramService.FindRoutinesForUserId(userId);
 
         return Json(routines);
-    }
-
-    private void SortChildren(List<WorkoutProgramRoutine> workoutProgramRoutines)
-    {
-        foreach (var workoutProgramRoutine in workoutProgramRoutines)
-            workoutProgramRoutine.RoutineExercises = workoutProgramRoutine
-                .RoutineExercises.OrderByPosition()
-                .ToList();
     }
 }

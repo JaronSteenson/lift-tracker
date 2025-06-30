@@ -1,6 +1,7 @@
 using System.Text.Json.Serialization;
 using LiftTrackerApi.Entities;
 using LiftTrackerApi.Middleware;
+using LiftTrackerApi.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -9,6 +10,9 @@ builder.Services.AddControllersWithViews();
 
 // Add the database context.
 builder.Services.AddDbContext<LiftTrackerDbContext>();
+
+// Add the service layer.
+builder.Services.AddScoped<WorkoutProgramService>();
 
 // Add default JSON options.
 builder
