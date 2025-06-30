@@ -1,9 +1,7 @@
-using System.Security.Claims;
 using LiftTrackerApi.Entities;
-using LiftTrackerApi.Extensions;
+using LiftTrackerApi.Exceptions;
 using LiftTrackerApi.Services;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
 namespace LiftTrackerApi.Controllers;
 
@@ -11,11 +9,7 @@ public class WorkoutProgramController(WorkoutProgramService workoutProgramServic
 {
     public async Task<IActionResult> Index(Guid? routineUuid)
     {
-        var userId = int.Parse(
-            HttpContext
-                .User?.Claims?.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)
-                ?.Value ?? "-1"
-        );
+        var userId = (int)(HttpContext.Items["UserId"] ?? -1);
 
         if (routineUuid != null)
         {
@@ -28,5 +22,19 @@ public class WorkoutProgramController(WorkoutProgramService workoutProgramServic
 
         var workoutPrograms = await workoutProgramService.FindWorkoutProgramsForUserId(userId);
         return Json(workoutPrograms);
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> Index([FromBody] WorkoutProgram workoutProgram)
+    {
+        var userId = (int)(HttpContext.Items["UserId"] ?? -1);
+
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(ModelState);
+        }
+
+        var created = await workoutProgramService.CreateWithChildren(workoutProgram, userId);
+        return Json(created);
     }
 }

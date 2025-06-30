@@ -9,11 +9,7 @@ public class WorkoutProgramRoutineController(WorkoutProgramService workoutProgra
 {
     public async Task<IActionResult> Index()
     {
-        var userId = int.Parse(
-            HttpContext
-                .User?.Claims?.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)
-                ?.Value ?? "-1"
-        );
+        var userId = (int)(HttpContext.Items["UserId"] ?? -1);
 
         var routines = await workoutProgramService.FindRoutinesForUserId(userId);
 

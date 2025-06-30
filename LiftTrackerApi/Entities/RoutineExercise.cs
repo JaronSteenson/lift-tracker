@@ -1,9 +1,16 @@
-﻿using LiftTrackerApi.Entities.Interfaces;
+﻿using System.ComponentModel.DataAnnotations;
+using LiftTrackerApi.Entities.Interfaces;
 
 namespace LiftTrackerApi.Entities;
 
 public partial class RoutineExercise : DomainEntity, IPositionable
 {
+    [Required(ErrorMessage = "Name is required")]
+    [StringLength(
+        100,
+        MinimumLength = 1,
+        ErrorMessage = "Name must be between 1 and 100 characters"
+    )]
     public string? Name { get; set; }
 
     public int? NumberOfSets { get; set; }

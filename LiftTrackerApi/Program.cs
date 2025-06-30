@@ -12,6 +12,7 @@ builder.Services.AddControllersWithViews();
 builder.Services.AddDbContext<LiftTrackerDbContext>();
 
 // Add the service layer.
+builder.Services.AddScoped<UuidService>();
 builder.Services.AddScoped<WorkoutProgramService>();
 
 // Add default JSON options.
@@ -38,11 +39,12 @@ app.UseHttpsRedirection();
 app.UseRouting();
 
 app.UseAuthorization();
+app.UseMiddleware<UserIdMiddleware>();
 
 app.MapControllerRoute(
         "workout-programs",
         "workout-programs/{action=Index}/{routine-uuid?}",
-        new { controller = "WorkoutProgram", action = "Index" }
+        new { controller = "WorkoutProgram" }
     )
     .RequireAuthorization();
 

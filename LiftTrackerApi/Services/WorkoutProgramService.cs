@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace LiftTrackerApi.Services;
 
-public class WorkoutProgramService(LiftTrackerDbContext db)
+public class WorkoutProgramService(LiftTrackerDbContext db, UuidService uuidService)
 {
     public async Task<object?> FindWorkoutProgramByRoutineUuid(int userId, Guid routineUuid)
     {
@@ -57,6 +57,34 @@ public class WorkoutProgramService(LiftTrackerDbContext db)
         SortChildren(routines);
 
         return routines;
+    }
+
+    public async Task<WorkoutProgram> CreateWithChildren(
+        WorkoutProgram newWorkoutProgram,
+        int userId
+    )
+    {
+        newWorkoutProgram.UserId = userId;
+        await VerifyOrAssignNewUuids(newWorkoutProgram);
+
+        await db.AddAsync(newWorkoutProgram);
+        await db.SaveChangesAsync();
+
+        SortChildren(newWorkoutProgram);
+        return newWorkoutProgram;
+    }
+
+    private async Task VerifyOrAssignNewUuids(WorkoutProgram workoutProgram)
+    {
+        await uuidService.VerifyOrAssignNewEntityUuid(workoutProgram);
+        foreach (var routine in workoutProgram.WorkoutProgramRoutines)
+        {
+            await uuidService.VerifyOrAssignNewEntityUuid(routine);
+            foreach (var exercise in routine.RoutineExercises)
+            {
+                await uuidService.VerifyOrAssignNewEntityUuid(exercise);
+            }
+        }
     }
 
     private void SortChildren(ICollection<WorkoutProgram> workoutPrograms)

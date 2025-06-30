@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using LiftTrackerApi.Exceptions;
 
 namespace LiftTrackerApi.Middleware;
 
@@ -32,17 +33,32 @@ public class JsonExceptionMiddleware(
         context.Response.ContentType = "application/json";
         context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
 
-        var result = JsonSerializer.Serialize(
-            new
-            {
-                error = "An unexpected error occurred.",
-                requestId = Activity.Current?.Id ?? context.TraceIdentifier,
-                detail = configuration.GetValue<bool>("ShowExceptionMessageInResponse")
-                    ? exception.Message
-                    : "Please try again later.",
-            }
-        );
+        if (exception is UuidAlreadyExistsException)
+        {
+            context.Response.StatusCode = 400; // Bad Request
+            return context.Response.WriteAsync(
+                JsonSerializer.Serialize(
+                    new
+                    {
+                        error = "An unexpected error occurred.",
+                        requestId = Activity.Current?.Id ?? context.TraceIdentifier,
+                        detail = exception.Message,
+                    }
+                )
+            );
+        }
 
-        return context.Response.WriteAsync(result);
+        return context.Response.WriteAsync(
+            JsonSerializer.Serialize(
+                new
+                {
+                    error = "An unexpected error occurred.",
+                    requestId = Activity.Current?.Id ?? context.TraceIdentifier,
+                    detail = configuration.GetValue<bool>("ShowExceptionMessageInResponse")
+                        ? exception.Message
+                        : "Please try again later.",
+                }
+            )
+        );
     }
 }
