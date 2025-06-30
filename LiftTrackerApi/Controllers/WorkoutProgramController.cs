@@ -1,20 +1,13 @@
-using System.Diagnostics;
 using System.Security.Claims;
 using LiftTrackerApi.Entities;
 using LiftTrackerApi.Extensions;
-using LiftTrackerApi.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 namespace LiftTrackerApi.Controllers;
 
-public class WorkoutProgramController(
-    ILogger<WorkoutProgramController> logger,
-    LiftTrackerDbContext db
-) : Controller
+public class WorkoutProgramController(LiftTrackerDbContext db) : Controller
 {
-    private readonly ILogger<WorkoutProgramController> _logger = logger;
-
     public async Task<IActionResult> Index(Guid? routineUuid)
     {
         var userId = int.Parse(
@@ -46,12 +39,12 @@ public class WorkoutProgramController(
             return Json(joined.workoutProgram);
         }
 
-        var workoutPrograms = await db
+        var query = db
             .WorkoutPrograms.Include(workoutProgram => workoutProgram.WorkoutProgramRoutines)
             .ThenInclude(routine => routine.RoutineExercises)
-            .Where(workoutProgram => workoutProgram.UserId == userId)
-            .ToListAsync();
+            .Where(workoutProgram => workoutProgram.UserId == userId);
 
+        var workoutPrograms = await query.ToListAsync();
         SortChildren(workoutPrograms);
 
         return Json(workoutPrograms);

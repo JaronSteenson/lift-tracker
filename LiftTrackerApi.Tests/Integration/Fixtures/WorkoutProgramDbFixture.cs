@@ -5,7 +5,8 @@ namespace LiftTrackerApi.Tests.Integration.Fixtures;
 using Entities;
 using Microsoft.EntityFrameworkCore;
 
-public class WorkoutProgramDbFixture : IClassFixture<WorkoutProgramDbFixture>
+[CollectionDefinition("WorkoutProgramTestCollection")]
+public class WorkoutProgramDbFixture : ICollectionFixture<WorkoutProgramDbFixture>
 {
     public HttpClient Client { get; private set; }
 
@@ -27,6 +28,9 @@ public class WorkoutProgramDbFixture : IClassFixture<WorkoutProgramDbFixture>
             """
         );
 
+        var yesterday = DateTime.UtcNow.AddDays(-1);
+        var now = DateTime.UtcNow;
+
         var workoutProgram = new WorkoutProgram
         {
             Uuid = Guid.Parse("186383a6-e369-4071-b80d-70c82d2495d1"),
@@ -40,6 +44,8 @@ public class WorkoutProgramDbFixture : IClassFixture<WorkoutProgramDbFixture>
                     Name = "Empty First Routine",
                     NormalDay = "any",
                     Position = 0,
+                    UpdatedAt = yesterday,
+                    CreatedAt = yesterday,
                     RoutineExercises = new List<RoutineExercise>(),
                 },
                 new()
@@ -48,6 +54,8 @@ public class WorkoutProgramDbFixture : IClassFixture<WorkoutProgramDbFixture>
                     Name = "Populated Routine",
                     NormalDay = "any",
                     Position = 1,
+                    UpdatedAt = yesterday,
+                    CreatedAt = yesterday,
                     RoutineExercises = new List<RoutineExercise>
                     {
                         new()
@@ -69,16 +77,18 @@ public class WorkoutProgramDbFixture : IClassFixture<WorkoutProgramDbFixture>
                             Weight = 50,
                             RestPeriod = 120,
                             WarmUp = 60,
-                            DeletedAt = DateTime.UtcNow,
+                            DeletedAt = yesterday,
                         },
                     },
                 },
                 new()
                 {
                     Uuid = Guid.Parse("8a94625e-88be-4750-ade2-262cf14aa921"),
-                    Name = "Empty Last Routine",
+                    Name = "Empty First Routine (last touched)",
                     NormalDay = "any",
                     Position = 2,
+                    UpdatedAt = now,
+                    CreatedAt = now,
                     RoutineExercises = new List<RoutineExercise>(),
                 },
                 new()
@@ -87,7 +97,7 @@ public class WorkoutProgramDbFixture : IClassFixture<WorkoutProgramDbFixture>
                     Name = "Deleted Routine",
                     NormalDay = "any",
                     Position = 2,
-                    DeletedAt = DateTime.UtcNow,
+                    DeletedAt = yesterday,
                     RoutineExercises = new List<RoutineExercise>(),
                 },
             },

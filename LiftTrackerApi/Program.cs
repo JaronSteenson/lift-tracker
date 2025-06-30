@@ -37,8 +37,15 @@ app.UseAuthorization();
 
 app.MapControllerRoute(
         "workout-programs",
-        "{workout-programs}/{action=Index}/{routine-uuid?}",
+        "workout-programs/{action=Index}/{routine-uuid?}",
         new { controller = "WorkoutProgram", action = "Index" }
+    )
+    .RequireAuthorization();
+
+app.MapControllerRoute(
+        "routines",
+        "routines/{action=Index}",
+        new { controller = "WorkoutProgramRoutine", action = "Index" }
     )
     .RequireAuthorization();
 

@@ -5,14 +5,11 @@ using Newtonsoft.Json;
 
 namespace LiftTrackerApi.Tests.Integration;
 
-public class WorkoutProgramControllerTests : IClassFixture<WorkoutProgramDbFixture>
+[Collection("WorkoutProgramTestCollection")]
+public class WorkoutProgramControllerTests(WorkoutProgramDbFixture fixture)
+    : IClassFixture<WorkoutProgramDbFixture>
 {
-    private readonly HttpClient _client;
-
-    public WorkoutProgramControllerTests(WorkoutProgramDbFixture fixture)
-    {
-        _client = fixture.Client;
-    }
+    private readonly HttpClient _client = fixture.Client;
 
     /// <see cref="WorkoutProgramController.Index" />
     [Fact]
@@ -67,7 +64,7 @@ public class WorkoutProgramControllerTests : IClassFixture<WorkoutProgramDbFixtu
 
         var emptyLastRoutine = routines.Last();
         Assert.Equal(Guid.Parse("8a94625e-88be-4750-ade2-262cf14aa921"), emptyLastRoutine.Uuid);
-        Assert.Equal("Empty Last Routine", emptyLastRoutine.Name);
+        Assert.Equal("Empty First Routine (last touched)", emptyLastRoutine.Name);
         Assert.Equal("any", emptyLastRoutine.NormalDay);
         Assert.Equal(2, emptyLastRoutine.Position);
         Assert.Empty(emptyLastRoutine.RoutineExercises);
@@ -125,7 +122,7 @@ public class WorkoutProgramControllerTests : IClassFixture<WorkoutProgramDbFixtu
 
         var emptyLastRoutine = routines.Last();
         Assert.Equal(Guid.Parse("8a94625e-88be-4750-ade2-262cf14aa921"), emptyLastRoutine.Uuid);
-        Assert.Equal("Empty Last Routine", emptyLastRoutine.Name);
+        Assert.Equal("Empty First Routine (last touched)", emptyLastRoutine.Name);
         Assert.Equal("any", emptyLastRoutine.NormalDay);
         Assert.Equal(2, emptyLastRoutine.Position);
         Assert.Empty(emptyLastRoutine.RoutineExercises);
