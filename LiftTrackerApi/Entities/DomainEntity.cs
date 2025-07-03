@@ -2,7 +2,7 @@ namespace LiftTrackerApi.Entities;
 
 public abstract class DomainEntity
 {
-    public int Id { get; set; }
+    public int? Id { get; set; }
 
     public Guid? Uuid { get; set; }
 

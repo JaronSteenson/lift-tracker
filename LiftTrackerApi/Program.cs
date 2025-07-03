@@ -2,6 +2,8 @@ using System.Text.Json.Serialization;
 using LiftTrackerApi.Entities;
 using LiftTrackerApi.Middleware;
 using LiftTrackerApi.Services;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc.Authorization;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -24,9 +26,15 @@ builder
         options.JsonSerializerOptions.IgnoreReadOnlyProperties = true;
     });
 
-var app = builder.Build();
+// Add authorization policies to every controller by default.
+builder.Services.AddControllers(options =>
+{
+    var policy = new AuthorizationPolicyBuilder().RequireAuthenticatedUser().Build();
 
-app.UseMiddleware<JsonExceptionMiddleware>();
+    options.Filters.Add(new AuthorizeFilter(policy));
+});
+
+var app = builder.Build();
 
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
@@ -37,23 +45,11 @@ if (!app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 app.UseRouting();
+app.MapControllers();
 
 app.UseAuthorization();
 app.UseMiddleware<UserIdMiddleware>();
-
-app.MapControllerRoute(
-        "workout-programs",
-        "workout-programs/{action=Index}/{routine-uuid?}",
-        new { controller = "WorkoutProgram" }
-    )
-    .RequireAuthorization();
-
-app.MapControllerRoute(
-        "routines",
-        "routines/{action=Index}",
-        new { controller = "WorkoutProgramRoutine", action = "Index" }
-    )
-    .RequireAuthorization();
+app.UseMiddleware<JsonExceptionMiddleware>();
 
 app.Run();
 

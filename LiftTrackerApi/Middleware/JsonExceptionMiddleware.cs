@@ -33,32 +33,45 @@ public class JsonExceptionMiddleware(
         context.Response.ContentType = "application/json";
         context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
 
-        if (exception is UuidAlreadyExistsException)
+        switch (exception)
         {
-            context.Response.StatusCode = 400; // Bad Request
-            return context.Response.WriteAsync(
-                JsonSerializer.Serialize(
-                    new
-                    {
-                        error = "An unexpected error occurred.",
-                        requestId = Activity.Current?.Id ?? context.TraceIdentifier,
-                        detail = exception.Message,
-                    }
-                )
-            );
+            case NotFoundException:
+                context.Response.StatusCode = 404; // Not found
+                return context.Response.WriteAsync(
+                    JsonSerializer.Serialize(
+                        new
+                        {
+                            error = "Entity not found.",
+                            requestId = Activity.Current?.Id ?? context.TraceIdentifier,
+                            detail = exception.Message,
+                        }
+                    )
+                );
+            case UuidAlreadyExistsException:
+                context.Response.StatusCode = 400; // Bad Request
+                return context.Response.WriteAsync(
+                    JsonSerializer.Serialize(
+                        new
+                        {
+                            error = "Uuid already assigned.",
+                            requestId = Activity.Current?.Id ?? context.TraceIdentifier,
+                            detail = exception.Message,
+                        }
+                    )
+                );
+            default:
+                return context.Response.WriteAsync(
+                    JsonSerializer.Serialize(
+                        new
+                        {
+                            error = "An unexpected error occurred.",
+                            requestId = Activity.Current?.Id ?? context.TraceIdentifier,
+                            detail = configuration.GetValue<bool>("ShowExceptionMessageInResponse")
+                                ? exception.Message
+                                : "Please try again later.",
+                        }
+                    )
+                );
         }
-
-        return context.Response.WriteAsync(
-            JsonSerializer.Serialize(
-                new
-                {
-                    error = "An unexpected error occurred.",
-                    requestId = Activity.Current?.Id ?? context.TraceIdentifier,
-                    detail = configuration.GetValue<bool>("ShowExceptionMessageInResponse")
-                        ? exception.Message
-                        : "Please try again later.",
-                }
-            )
-        );
     }
 }

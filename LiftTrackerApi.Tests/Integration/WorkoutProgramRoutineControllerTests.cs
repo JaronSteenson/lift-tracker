@@ -36,14 +36,15 @@ public class WorkoutProgramRoutineControllerTests(WorkoutProgramDbFixture fixtur
         Assert.Equal("any", lastTouchedRoutine.NormalDay);
         Assert.Equal(2, lastTouchedRoutine.Position);
         Assert.Empty(lastTouchedRoutine.RoutineExercises);
-        Assert.Equal("Test Workout Program", lastTouchedRoutine!.WorkoutProgram!.Name);
+        if (lastTouchedRoutine != null)
+            Assert.Equal("Test Workout Program", lastTouchedRoutine!.WorkoutProgram!.Name);
 
         var emptyRoutineSecond = routines.ElementAt(1);
         Assert.Equal(Guid.Parse("073379e9-0bc1-4f69-9cd5-1b0e7074d1a3"), emptyRoutineSecond.Uuid);
         Assert.Equal("Empty First Routine", emptyRoutineSecond.Name);
         Assert.Equal("any", emptyRoutineSecond.NormalDay);
         Assert.Equal(0, emptyRoutineSecond.Position);
-        Assert.Equal("Test Workout Program", emptyRoutineSecond!.WorkoutProgram!.Name);
+        Assert.Equal("Test Workout Program", emptyRoutineSecond.WorkoutProgram!.Name);
         Assert.Empty(emptyRoutineSecond.RoutineExercises);
 
         var populatedLastRoutine = routines.Last();

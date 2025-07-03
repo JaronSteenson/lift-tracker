@@ -4,9 +4,12 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace LiftTrackerApi.Controllers;
 
+[ApiController]
+[Route("/routines")]
 public class WorkoutProgramRoutineController(WorkoutProgramService workoutProgramService)
     : Controller
 {
+    [HttpGet]
     public async Task<IActionResult> Index()
     {
         var userId = (int)(HttpContext.Items["UserId"] ?? -1);

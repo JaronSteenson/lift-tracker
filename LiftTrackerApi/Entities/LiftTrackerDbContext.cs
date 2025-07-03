@@ -48,6 +48,7 @@ public partial class LiftTrackerDbContext(
                     "LiftTrackerDatabase connection string is not configured."
                 )
         );
+        optionsBuilder.EnableSensitiveDataLogging();
     }
 
     private void UpdateTimestamps()

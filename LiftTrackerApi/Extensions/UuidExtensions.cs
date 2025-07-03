@@ -5,10 +5,8 @@ namespace LiftTrackerApi.Extensions;
 
 public static class UuidExtensions
 {
-    public static IQueryable<DomainEntity> WhereUuid(
-        this IQueryable<DomainEntity> query,
-        Guid? uuid
-    )
+    public static IQueryable<T> WhereUuid<T>(this IQueryable<T> query, Guid? uuid)
+        where T : DomainEntity
     {
         if (uuid == null)
             return query;
