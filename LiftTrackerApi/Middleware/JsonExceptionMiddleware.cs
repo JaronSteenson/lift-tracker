@@ -67,7 +67,7 @@ public class JsonExceptionMiddleware(
                             error = "An unexpected error occurred.",
                             requestId = Activity.Current?.Id ?? context.TraceIdentifier,
                             detail = configuration.GetValue<bool>("ShowExceptionMessageInResponse")
-                                ? exception.Message
+                                ? exception?.InnerException?.Message ?? exception?.Message
                                 : "Please try again later.",
                         }
                     )

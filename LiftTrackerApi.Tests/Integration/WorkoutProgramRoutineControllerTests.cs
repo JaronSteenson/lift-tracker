@@ -6,8 +6,8 @@ using Newtonsoft.Json;
 namespace LiftTrackerApi.Tests.Integration;
 
 [Collection("WorkoutProgramTestCollection")]
-public class WorkoutProgramRoutineControllerTests(WorkoutProgramDbFixture fixture)
-    : IClassFixture<WorkoutProgramDbFixture>
+public class WorkoutProgramRoutineControllerTests(WorkoutDbFixture fixture)
+    : IClassFixture<WorkoutDbFixture>
 {
     private readonly HttpClient _client = fixture.Client;
 
@@ -29,7 +29,7 @@ public class WorkoutProgramRoutineControllerTests(WorkoutProgramDbFixture fixtur
         var routines = JsonConvert.DeserializeObject<List<WorkoutProgramRoutine>>(json);
         Assert.Equal(3, routines!.Count);
 
-        // Last-touched routine should be the first one in the list, rather than the typical first position.
+        // The last-touched routine should be the first one in the list, rather than the typical first position.
         var lastTouchedRoutine = routines.First();
         Assert.Equal(Guid.Parse("8a94625e-88be-4750-ade2-262cf14aa921"), lastTouchedRoutine.Uuid);
         Assert.Equal("Empty First Routine (last touched)", lastTouchedRoutine.Name);

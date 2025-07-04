@@ -11,8 +11,8 @@ using Newtonsoft.Json;
 namespace LiftTrackerApi.Tests.Integration;
 
 [Collection("WorkoutProgramTestCollection")]
-public class WorkoutProgramControllerTests(WorkoutProgramDbFixture fixture)
-    : IClassFixture<WorkoutProgramDbFixture>
+public class WorkoutProgramControllerTests(WorkoutDbFixture fixture)
+    : IClassFixture<WorkoutDbFixture>
 {
     private readonly HttpClient _client = fixture.Client;
 
@@ -37,6 +37,33 @@ public class WorkoutProgramControllerTests(WorkoutProgramDbFixture fixture)
             .WhereUuid("186383a6-e369-4071-b80d-70c82d2495d1")
             .First();
 
+        AssertTestProgramStructure(workoutProgram);
+    }
+
+    [Fact]
+    public async Task Get_EndpointsReturnsSingleByUuid()
+    {
+        // Act
+        var response = await _client.GetAsync(
+            "/workout-programs/186383a6-e369-4071-b80d-70c82d2495d1"
+        );
+
+        // Assert
+        response.EnsureSuccessStatusCode();
+        Assert.Equal(
+            "application/json; charset=utf-8",
+            response.Content.Headers.ContentType!.ToString()
+        );
+
+        var json = await response.Content.ReadAsStringAsync();
+        var workoutProgram = JsonConvert.DeserializeObject<WorkoutProgram>(json);
+
+        Assert.NotNull(workoutProgram);
+        AssertTestProgramStructure(workoutProgram);
+    }
+
+    private void AssertTestProgramStructure(WorkoutProgram workoutProgram)
+    {
         Assert.Equal(Guid.Parse("186383a6-e369-4071-b80d-70c82d2495d1"), workoutProgram.Uuid);
         Assert.Equal("Test Workout Program", workoutProgram.Name);
         Assert.Equal(1, workoutProgram.UserId);

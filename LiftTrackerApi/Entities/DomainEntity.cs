@@ -1,3 +1,5 @@
+using System.ComponentModel;
+
 namespace LiftTrackerApi.Entities;
 
 public abstract class DomainEntity
@@ -6,7 +8,7 @@ public abstract class DomainEntity
 
     public Guid? Uuid { get; set; }
 
-    public DateTime CreatedAt { get; set; }
+    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
     public DateTime? UpdatedAt { get; set; }
 

@@ -20,6 +20,7 @@
     </ItemGroup>
     <ItemGroup>
         <Folder Include="Docker\" />
+        <Folder Include="Migrations\" />
         <Folder Include="wwwroot\" />
     </ItemGroup>
     <ItemGroup>

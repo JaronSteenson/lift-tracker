@@ -1,4 +1,5 @@
 ﻿using LiftTrackerApi.Entities.Interfaces;
+using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 
 namespace LiftTrackerApi.Entities;
 
@@ -29,5 +30,6 @@ public partial class SessionSet : DomainEntity, IPositionable
 
     public int? WarmUpDuration { get; set; }
 
+    [ValidateNever]
     public virtual SessionExercise SessionExercise { get; set; } = null!;
 }

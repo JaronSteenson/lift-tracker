@@ -64,7 +64,12 @@ public partial class LiftTrackerDbContext(
             switch (entry.State)
             {
                 case EntityState.Added:
-                    entity.CreatedAt = now;
+                    // Allow tests to set CreatedAt to a specific time.
+                    if (entity.CreatedAt >= now)
+                    {
+                        entity.CreatedAt = now;
+                    }
+
                     break;
                 case EntityState.Modified:
                     entity.UpdatedAt = now;
@@ -182,11 +187,19 @@ public partial class LiftTrackerDbContext(
         {
             entity.HasKey(e => e.Id).HasName("PRIMARY");
 
-            entity.HasIndex(e => e.RoutineExerciseId, "sessionexercises_routineexerciseid_index");
+            // For searching history.
+            entity
+                .HasIndex("RoutineExerciseId", nameof(SessionExercise.CreatedAt))
+                .HasDatabaseName("sessionexercises_routineexerciseid_createdat_index")
+                .IsUnique(false);
+
+            // For foreign key.
+            entity
+                .HasIndex("RoutineExerciseId")
+                .HasDatabaseName("sessionexercises_routineexerciseid_index")
+                .IsUnique(false);
 
             entity.HasIndex(e => e.Uuid, "sessionexercises_uuid_index");
-
-            entity.HasIndex(e => e.WorkoutSessionId, "sessionexercises_workoutsessionid_foreign");
 
             entity.Property(e => e.Id).HasColumnName("id");
             entity.Property(e => e.CreatedAt).HasColumnType("timestamp").HasColumnName("createdAt");
@@ -199,7 +212,6 @@ public partial class LiftTrackerDbContext(
             entity.Property(e => e.PlannedWarmUp).HasColumnName("plannedWarmUp");
             entity.Property(e => e.PlannedWeight).HasPrecision(6).HasColumnName("plannedWeight");
             entity.Property(e => e.Position).HasColumnName("position");
-            entity.Property(e => e.RoutineExerciseId).HasColumnName("routineExerciseId");
             entity.Property(e => e.Skipped).HasColumnName("skipped");
             entity.Property(e => e.UpdatedAt).HasColumnType("timestamp").HasColumnName("updatedAt");
             entity.Property(e => e.Uuid).HasColumnName("uuid");
@@ -212,12 +224,11 @@ public partial class LiftTrackerDbContext(
                 .Property(e => e.WarmUpStartedAt)
                 .HasColumnType("timestamp")
                 .HasColumnName("warmUpStartedAt");
-            entity.Property(e => e.WorkoutSessionId).HasColumnName("workoutSessionId");
 
             entity
                 .HasOne(d => d.WorkoutSession)
                 .WithMany(p => p.SessionExercises)
-                .HasForeignKey(d => d.WorkoutSessionId)
+                .HasForeignKey("WorkoutSessionId")
                 .HasConstraintName("sessionexercises_workoutsessionid_foreign");
         });
 
@@ -272,11 +283,7 @@ public partial class LiftTrackerDbContext(
         modelBuilder.Entity<User>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("PRIMARY");
-
             entity.HasIndex(e => e.Email, "email").IsUnique();
-
-            entity.HasIndex(e => e.Email, "email_2").IsUnique();
-
             entity.Property(e => e.Id).HasColumnName("id");
             entity.Property(e => e.CreatedAt).HasColumnType("timestamp").HasColumnName("createdAt");
             entity.Property(e => e.Email).HasColumnName("email");
@@ -322,7 +329,7 @@ public partial class LiftTrackerDbContext(
                 .Property(e => e.NormalDay)
                 .HasDefaultValueSql("'any'")
                 .HasColumnType(
-                    "enum('any','Monday','Tuesday','Wensday','Thursday','Friday','Saturday','Sunday')"
+                    "enum('any','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday')"
                 )
                 .HasColumnName("normalDay");
             entity.Property(e => e.Position).HasColumnName("position");
@@ -341,18 +348,11 @@ public partial class LiftTrackerDbContext(
         modelBuilder.Entity<WorkoutSession>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("PRIMARY");
-
-            entity.HasIndex(e => e.CreatedAt, "workoutsessions_createdat_index");
-
-            entity.HasIndex(e => e.UserId, "workoutsessions_userid_index");
-
+            entity
+                .HasIndex(w => new { w.UserId, w.CreatedAt })
+                .HasDatabaseName("workoutsessions_userid_createdat_uuid_index")
+                .IsUnique(false);
             entity.HasIndex(e => e.Uuid, "workoutsessions_uuid_index");
-
-            entity.HasIndex(
-                e => e.WorkoutProgramRoutineId,
-                "workoutsessions_workoutprogramroutineid_index"
-            );
-
             entity.Property(e => e.Id).HasColumnName("id");
             entity.Property(e => e.BodyWeight).HasPrecision(6).HasColumnName("bodyWeight");
             entity.Property(e => e.CreatedAt).HasColumnType("timestamp").HasColumnName("createdAt");
@@ -364,9 +364,6 @@ public partial class LiftTrackerDbContext(
             entity.Property(e => e.UpdatedAt).HasColumnType("timestamp").HasColumnName("updatedAt");
             entity.Property(e => e.UserId).HasColumnName("userId");
             entity.Property(e => e.Uuid).HasColumnName("uuid");
-            entity
-                .Property(e => e.WorkoutProgramRoutineId)
-                .HasColumnName("workoutProgramRoutineId");
         });
 
         OnModelCreatingPartial(modelBuilder);

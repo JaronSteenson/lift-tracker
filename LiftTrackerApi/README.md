@@ -67,6 +67,16 @@ ASPNETCORE_ENVIRONMENT=Development dotnet ef database update # development datab
 ASPNETCORE_ENVIRONMENT=Test dotnet ef database update # test database
 ```
 
+create migrations from cli
+
+```shell
+# We are using code first migrations, so alter the entity  classes first then run this command
+dotnet ef migrations add NameOfMigration
+
+# Run migrations
+ASPNETCORE_ENVIRONMENT=Development dotnet ef database update && ASPNETCORE_ENVIRONMENT=Test dotnet ef database update;
+```
+
 run from rider
 
 ```shell

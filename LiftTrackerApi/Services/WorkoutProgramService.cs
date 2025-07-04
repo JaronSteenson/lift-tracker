@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace LiftTrackerApi.Services;
 
-public class WorkoutProgramService(LiftTrackerDbContext db, UuidService uuidService)
+public class WorkoutProgramService(LiftTrackerDbContext db, DomainEntityService domainEntityService)
 {
     public async Task<object?> FindWorkoutProgramByRoutineUuid(Guid routineUuid, int userId)
     {
@@ -35,12 +35,32 @@ public class WorkoutProgramService(LiftTrackerDbContext db, UuidService uuidServ
         var query = db
             .WorkoutPrograms.Include(workoutProgram => workoutProgram.WorkoutProgramRoutines)
             .ThenInclude(routine => routine.RoutineExercises)
-            .Where(workoutProgram => workoutProgram.UserId == userId);
+            .Where(workoutProgram => workoutProgram.UserId == userId)
+            .OrderBy(workoutProgram => workoutProgram.Name);
 
         var workoutPrograms = await query.AsNoTracking().ToListAsync();
         SortChildren(workoutPrograms);
 
         return workoutPrograms;
+    }
+
+    public async Task<WorkoutProgram> FindByUuidAndOwner(Guid workoutProgramUid, int userId)
+    {
+        var workoutProgram =
+            await db
+                .WorkoutPrograms.Include(workoutProgram => workoutProgram.WorkoutProgramRoutines)
+                .ThenInclude(routine => routine.RoutineExercises)
+                .Where(workoutProgram => workoutProgram.UserId == userId)
+                .WhereUuid(workoutProgramUid)
+                .AsNoTracking()
+                .FirstAsync()
+            ?? throw new NotFoundException(
+                $"WorkoutProgram with UUID {workoutProgramUid} not found for user {userId}."
+            );
+
+        SortChildren(workoutProgram);
+
+        return workoutProgram;
     }
 
     public async Task<ICollection<WorkoutProgramRoutine>> FindRoutinesForUserId(int userId)
@@ -74,8 +94,12 @@ public class WorkoutProgramService(LiftTrackerDbContext db, UuidService uuidServ
         await db.AddAsync(newWorkoutProgram);
         await db.SaveChangesAsync();
 
-        SortChildren(newWorkoutProgram);
-        return newWorkoutProgram;
+        var savedWorkoutProgram = await FindByUuidAndOwner(
+            newWorkoutProgram.Uuid ?? Guid.Empty,
+            userId
+        );
+        SortChildren(savedWorkoutProgram);
+        return savedWorkoutProgram;
     }
 
     /// <summary>
@@ -84,119 +108,59 @@ public class WorkoutProgramService(LiftTrackerDbContext db, UuidService uuidServ
     /// </summary>
     public async Task<WorkoutProgram> UpdateWithChildren(WorkoutProgram updated, int userId)
     {
-        if (updated.Uuid is not Guid uuid)
+        if (!updated.Uuid.HasValue)
         {
             throw new ArgumentException("WorkoutProgram UUID must be set for update operations.");
         }
 
-        var existing = await FindByUuidAndOwner(uuid, userId);
-        db.ChangeTracker.Clear();
+        var existing = await FindByUuidAndOwner(updated.Uuid.Value, userId);
 
-        updated.Id = existing.Id;
-        updated.CreatedAt = existing.CreatedAt;
-        db.Entry(updated).State = EntityState.Modified;
-
-        PatchRoutines(updated, existing);
-        PatchExercises(updated, existing);
+        domainEntityService.ReattachRequestEntity(existing: existing, updated: updated);
+        domainEntityService.TrackEntityDiffChanges(
+            existingMap: ToRoutineMap(existing),
+            updatedMap: ToRoutineMap(updated)
+        );
+        domainEntityService.TrackEntityDiffChanges(
+            existingMap: ToExerciseMap(existing),
+            updatedMap: ToExerciseMap(updated)
+        );
 
         await db.SaveChangesAsync();
 
-        updated = await FindByUuidAndOwner(uuid, userId);
-        SortChildren(updated);
-        return updated;
+        var savedWorkoutProgram = await FindByUuidAndOwner(updated.Uuid.Value, userId);
+        SortChildren(savedWorkoutProgram);
+        return savedWorkoutProgram;
     }
 
-    private void PatchRoutines(WorkoutProgram updatedProgram, WorkoutProgram existingProgram)
+    public async Task DeleteWorkoutProgram(Guid workoutProgramUuid, int userId)
     {
-        var updatedMap = updatedProgram.WorkoutProgramRoutines.ToDictionary(r =>
-            r.Uuid ?? Guid.NewGuid()
-        );
-        var existingMap = existingProgram.WorkoutProgramRoutines.ToDictionary(r =>
-            r.Uuid ?? Guid.NewGuid()
-        );
-        foreach (var updated in updatedProgram.WorkoutProgramRoutines)
-        {
-            var existing = existingMap.GetValueOrDefault(updated.Uuid ?? Guid.NewGuid());
+        var found = await FindByUuidAndOwner(workoutProgramUuid, userId);
 
-            if (existing == null)
-            {
-                db.Entry(updated).State = EntityState.Added;
-            }
-            else
-            {
-                updated.Id = existing.Id;
-                updated.CreatedAt = existing.CreatedAt;
-                db.Entry(updated).State = EntityState.Modified;
-            }
-        }
-
-        foreach (var existing in existingProgram.WorkoutProgramRoutines)
-        {
-            var stillExists = updatedMap.ContainsKey(existing.Uuid ?? Guid.NewGuid());
-            if (!stillExists)
-            {
-                db.Entry(existing).State = EntityState.Deleted;
-            }
-        }
+        db.Remove(found);
+        await db.SaveChangesAsync();
     }
 
-    private void PatchExercises(WorkoutProgram updatedProgram, WorkoutProgram existingProgram)
+    private Dictionary<Guid, WorkoutProgramRoutine> ToRoutineMap(WorkoutProgram program)
     {
-        var existingMap = existingProgram
+        return program.WorkoutProgramRoutines.ToDictionary(r => r.Uuid ?? Guid.NewGuid());
+    }
+
+    private Dictionary<Guid, RoutineExercise> ToExerciseMap(WorkoutProgram program)
+    {
+        return program
             .WorkoutProgramRoutines.SelectMany(routine => routine.RoutineExercises)
             .ToDictionary(exercise => exercise.Uuid ?? Guid.Empty);
-        var updatedMap = updatedProgram
-            .WorkoutProgramRoutines.SelectMany(routine => routine.RoutineExercises)
-            .ToDictionary(exercise => exercise.Uuid ?? Guid.Empty);
-
-        foreach (var updated in updatedMap.Values)
-        {
-            var existing = existingMap.GetValueOrDefault(updated.Uuid ?? Guid.NewGuid());
-
-            if (existing == null)
-            {
-                db.Entry(updated).State = EntityState.Added;
-            }
-            else
-            {
-                updated.Id = existing.Id;
-                updated.CreatedAt = existing.CreatedAt;
-                db.Entry(updated).State = EntityState.Modified;
-            }
-        }
-
-        foreach (var existing in existingMap.Values)
-        {
-            var stillExists = updatedMap.ContainsKey(existing.Uuid ?? Guid.NewGuid());
-            if (!stillExists)
-            {
-                db.Entry(existing).State = EntityState.Deleted;
-            }
-        }
-    }
-
-    private Task<WorkoutProgram> FindByUuidAndOwner(Guid workoutProgramUid, int userId)
-    {
-        return db.WorkoutPrograms.Include(workoutProgram => workoutProgram.WorkoutProgramRoutines)
-                .ThenInclude(routine => routine.RoutineExercises)
-                .Where(workoutProgram => workoutProgram.UserId == userId)
-                .WhereUuid(workoutProgramUid)
-                .AsNoTracking()
-                .FirstAsync()
-            ?? throw new NotFoundException(
-                $"WorkoutProgram with UUID {workoutProgramUid} not found for user {userId}."
-            );
     }
 
     private async Task VerifyOrAssignNewUuids(WorkoutProgram workoutProgram)
     {
-        await uuidService.VerifyOrAssignNewEntityUuid(workoutProgram);
+        await domainEntityService.VerifyOrAssignNewEntityUuid(workoutProgram);
         foreach (var routine in workoutProgram.WorkoutProgramRoutines)
         {
-            await uuidService.VerifyOrAssignNewEntityUuid(routine);
+            await domainEntityService.VerifyOrAssignNewEntityUuid(routine);
             foreach (var exercise in routine.RoutineExercises)
             {
-                await uuidService.VerifyOrAssignNewEntityUuid(exercise);
+                await domainEntityService.VerifyOrAssignNewEntityUuid(exercise);
             }
         }
     }
@@ -222,22 +186,5 @@ public class WorkoutProgramService(LiftTrackerDbContext db, UuidService uuidServ
             workoutProgramRoutine.RoutineExercises = workoutProgramRoutine
                 .RoutineExercises.OrderByPosition()
                 .ToList();
-    }
-
-    public Task<int> DeleteWorkoutProgram(Guid workoutProgramUuid, int userId)
-    {
-        var found = FindByUuidAndOwner(workoutProgramUuid, userId);
-
-        try
-        {
-            db.Remove(found);
-            db.SaveChangesAsync();
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine(ex);
-        }
-
-        return Task.FromResult(0);
     }
 }

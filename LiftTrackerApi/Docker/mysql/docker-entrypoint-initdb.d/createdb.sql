@@ -16,6 +16,7 @@
 #     mysql -u root -p < /docker-entrypoint-initdb.d/createdb.sql
 #
 
+
 CREATE USER IF NOT EXISTS lift_tracker_api;
 CREATE USER IF NOT EXISTS lift_tracker_api_test;
 CREATE database IF NOT EXISTS lift_tracker_api;

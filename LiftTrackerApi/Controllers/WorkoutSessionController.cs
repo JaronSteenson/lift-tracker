@@ -5,16 +5,16 @@ using Microsoft.AspNetCore.Mvc;
 namespace LiftTrackerApi.Controllers;
 
 [ApiController]
-[Route("/workout-programs")]
-public class WorkoutProgramController(WorkoutProgramService workoutProgramService) : Controller
+[Route("/workout-sessions")]
+public class WorkoutSessionController(WorkoutSessionService workoutSessionService) : Controller
 {
     [HttpGet]
     public async Task<IActionResult> Index()
     {
         var userId = (int)(HttpContext.Items["UserId"] ?? -1);
 
-        var workoutPrograms = await workoutProgramService.FindWorkoutProgramsForUserId(userId);
-        return Json(workoutPrograms);
+        var workoutSessions = await workoutSessionService.FindWorkoutSessionsForUserId(userId);
+        return Json(workoutSessions);
     }
 
     [HttpGet("{uuid:guid}")]
@@ -22,24 +22,24 @@ public class WorkoutProgramController(WorkoutProgramService workoutProgramServic
     {
         var userId = (int)(HttpContext.Items["UserId"] ?? -1);
 
-        var workoutProgram = await workoutProgramService.FindByUuidAndOwner(uuid, userId);
-        return Json(workoutProgram);
+        var workoutSession = await workoutSessionService.FindByUuidAndOwner(uuid, userId);
+        return Json(workoutSession);
     }
 
-    [HttpGet("by-routine/{routineUuid:guid}")]
-    public async Task<IActionResult> GetByRoutineUuid(Guid routineUuid)
+    [HttpGet("by-set/{sessionSetUuid:guid}")]
+    public async Task<IActionResult> GetBySessionSet(Guid sessionSetUuid)
     {
         var userId = (int)(HttpContext.Items["UserId"] ?? -1);
 
-        var workoutProgram = await workoutProgramService.FindWorkoutProgramByRoutineUuid(
-            routineUuid,
+        var workoutSession = await workoutSessionService.FindBySessionSetAndOwner(
+            sessionSetUuid,
             userId
         );
-        return Json(workoutProgram);
+        return Json(workoutSession);
     }
 
     [HttpPost]
-    public async Task<IActionResult> Create([FromBody] WorkoutProgram workoutProgram)
+    public async Task<IActionResult> Create([FromBody] WorkoutSession workoutSession)
     {
         var userId = (int)(HttpContext.Items["UserId"] ?? -1);
 
@@ -48,12 +48,12 @@ public class WorkoutProgramController(WorkoutProgramService workoutProgramServic
             return BadRequest(ModelState);
         }
 
-        var created = await workoutProgramService.CreateWithChildren(workoutProgram, userId);
+        var created = await workoutSessionService.CreateWithChildren(workoutSession, userId);
         return Json(created);
     }
 
     [HttpPut]
-    public async Task<IActionResult> Update([FromBody] WorkoutProgram workoutProgram)
+    public async Task<IActionResult> Update([FromBody] WorkoutSession workoutSession)
     {
         var userId = (int)(HttpContext.Items["UserId"] ?? -1);
 
@@ -62,7 +62,7 @@ public class WorkoutProgramController(WorkoutProgramService workoutProgramServic
             return BadRequest(ModelState);
         }
 
-        var updated = await workoutProgramService.UpdateWithChildren(workoutProgram, userId);
+        var updated = await workoutSessionService.UpdateWithChildren(workoutSession, userId);
         return Json(updated);
     }
 
@@ -71,6 +71,6 @@ public class WorkoutProgramController(WorkoutProgramService workoutProgramServic
     {
         var userId = (int)(HttpContext.Items["UserId"] ?? -1);
 
-        await workoutProgramService.DeleteWorkoutProgram(uuid, userId);
+        await workoutSessionService.DeleteWorkoutSession(uuid, userId);
     }
 }

@@ -14,8 +14,9 @@ builder.Services.AddControllersWithViews();
 builder.Services.AddDbContext<LiftTrackerDbContext>();
 
 // Add the service layer.
-builder.Services.AddScoped<UuidService>();
+builder.Services.AddScoped<DomainEntityService>();
 builder.Services.AddScoped<WorkoutProgramService>();
+builder.Services.AddScoped<WorkoutSessionService>();
 
 // Add default JSON options.
 builder

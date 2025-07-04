@@ -11,25 +11,28 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace LiftTrackerApi.Migrations
 {
     [DbContext(typeof(LiftTrackerDbContext))]
-    [Migration("20250620000519_LoadOriginalSchemaDump")]
-    partial class LoadOriginalSchemaDump
+    [Migration("20250706044826_ImportLegacyLaravelSchema")]
+    partial class ImportLegacyLaravelSchema
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "9.0.5")
+                .HasAnnotation("ProductVersion", "9.0.3")
                 .HasAnnotation("Relational:MaxIdentifierLength", 64);
 
             modelBuilder.Entity("LiftTrackerApi.Entities.Exercise", b =>
                 {
-                    b.Property<DateTime?>("CreatedAt")
+                    b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp")
                         .HasColumnName("createdAt");
 
-                    b.Property<Guid>("Id")
-                        .HasColumnType("char(36)")
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<int?>("Id")
+                        .HasColumnType("int")
                         .HasColumnName("id");
 
                     b.Property<string>("Name")
@@ -46,14 +49,17 @@ namespace LiftTrackerApi.Migrations
                         .HasColumnType("int")
                         .HasColumnName("userId");
 
+                    b.Property<Guid?>("Uuid")
+                        .HasColumnType("char(36)");
+
                     b.ToTable("Exercises");
                 });
 
             modelBuilder.Entity("LiftTrackerApi.Entities.Migration", b =>
                 {
-                    b.Property<uint>("Id")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int unsigned")
+                        .HasColumnType("int")
                         .HasColumnName("id");
 
                     b.Property<int>("Batch")
@@ -101,7 +107,7 @@ namespace LiftTrackerApi.Migrations
                         .HasColumnType("int")
                         .HasColumnName("id");
 
-                    b.Property<DateTime?>("CreatedAt")
+                    b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp")
                         .HasColumnName("createdAt");
 
@@ -110,6 +116,7 @@ namespace LiftTrackerApi.Migrations
                         .HasColumnName("deletedAt");
 
                     b.Property<string>("Name")
+                        .IsRequired()
                         .HasMaxLength(255)
                         .HasColumnType("varchar(255)")
                         .HasColumnName("name");
@@ -130,7 +137,7 @@ namespace LiftTrackerApi.Migrations
                         .HasColumnType("timestamp")
                         .HasColumnName("updatedAt");
 
-                    b.Property<Guid>("Uuid")
+                    b.Property<Guid?>("Uuid")
                         .HasColumnType("char(36)")
                         .HasColumnName("uuid");
 
@@ -160,12 +167,12 @@ namespace LiftTrackerApi.Migrations
 
             modelBuilder.Entity("LiftTrackerApi.Entities.SessionExercise", b =>
                 {
-                    b.Property<uint>("Id")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int unsigned")
+                        .HasColumnType("int")
                         .HasColumnName("id");
 
-                    b.Property<DateTime?>("CreatedAt")
+                    b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp")
                         .HasColumnName("createdAt");
 
@@ -181,11 +188,12 @@ namespace LiftTrackerApi.Migrations
                         .IsFixedLength();
 
                     b.Property<string>("Notes")
+                        .HasMaxLength(1000)
                         .HasColumnType("text")
                         .HasColumnName("notes");
 
-                    b.Property<uint?>("PlannedRestPeriodDuration")
-                        .HasColumnType("int unsigned")
+                    b.Property<int?>("PlannedRestPeriodDuration")
+                        .HasColumnType("int")
                         .HasColumnName("plannedRestPeriodDuration");
 
                     b.Property<int?>("PlannedWarmUp")
@@ -197,13 +205,12 @@ namespace LiftTrackerApi.Migrations
                         .HasColumnType("decimal(6,2)")
                         .HasColumnName("plannedWeight");
 
-                    b.Property<uint>("Position")
-                        .HasColumnType("int unsigned")
+                    b.Property<int>("Position")
+                        .HasColumnType("int")
                         .HasColumnName("position");
 
-                    b.Property<uint?>("RoutineExerciseId")
-                        .HasColumnType("int unsigned")
-                        .HasColumnName("routineExerciseId");
+                    b.Property<int?>("RoutineExerciseId")
+                        .HasColumnType("int");
 
                     b.Property<bool>("Skipped")
                         .HasColumnType("tinyint(1)")
@@ -213,12 +220,12 @@ namespace LiftTrackerApi.Migrations
                         .HasColumnType("timestamp")
                         .HasColumnName("updatedAt");
 
-                    b.Property<Guid>("Uuid")
+                    b.Property<Guid?>("Uuid")
                         .HasColumnType("char(36)")
                         .HasColumnName("uuid");
 
-                    b.Property<uint?>("WarmUpDuration")
-                        .HasColumnType("int unsigned")
+                    b.Property<int?>("WarmUpDuration")
+                        .HasColumnType("int")
                         .HasColumnName("warmUpDuration");
 
                     b.Property<DateTime?>("WarmUpEndedAt")
@@ -229,30 +236,33 @@ namespace LiftTrackerApi.Migrations
                         .HasColumnType("timestamp")
                         .HasColumnName("warmUpStartedAt");
 
-                    b.Property<uint>("WorkoutSessionId")
-                        .HasColumnType("int unsigned")
-                        .HasColumnName("workoutSessionId");
+                    b.Property<int>("WorkoutSessionId")
+                        .HasColumnType("int");
 
                     b.HasKey("Id")
                         .HasName("PRIMARY");
 
-                    b.HasIndex(new[] { "RoutineExerciseId" }, "sessionexercises_routineexerciseid_index");
+                    b.HasIndex("RoutineExerciseId")
+                        .HasDatabaseName("sessionexercises_routineexerciseid_index");
+
+                    b.HasIndex("WorkoutSessionId");
+
+                    b.HasIndex("RoutineExerciseId", "CreatedAt")
+                        .HasDatabaseName("sessionexercises_routineexerciseid_createdat_index");
 
                     b.HasIndex(new[] { "Uuid" }, "sessionexercises_uuid_index");
-
-                    b.HasIndex(new[] { "WorkoutSessionId" }, "sessionexercises_workoutsessionid_foreign");
 
                     b.ToTable("SessionExercises");
                 });
 
             modelBuilder.Entity("LiftTrackerApi.Entities.SessionSet", b =>
                 {
-                    b.Property<uint>("Id")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int unsigned")
+                        .HasColumnType("int")
                         .HasColumnName("id");
 
-                    b.Property<DateTime?>("CreatedAt")
+                    b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp")
                         .HasColumnName("createdAt");
 
@@ -264,16 +274,16 @@ namespace LiftTrackerApi.Migrations
                         .HasColumnType("timestamp")
                         .HasColumnName("endedAt");
 
-                    b.Property<uint>("Position")
-                        .HasColumnType("int unsigned")
+                    b.Property<int>("Position")
+                        .HasColumnType("int")
                         .HasColumnName("position");
 
                     b.Property<decimal?>("Reps")
                         .HasColumnType("decimal(6,2) unsigned")
                         .HasColumnName("reps");
 
-                    b.Property<uint?>("RestPeriodDuration")
-                        .HasColumnType("int unsigned")
+                    b.Property<int?>("RestPeriodDuration")
+                        .HasColumnType("int")
                         .HasColumnName("restPeriodDuration");
 
                     b.Property<DateTime?>("RestPeriodEndedAt")
@@ -284,8 +294,8 @@ namespace LiftTrackerApi.Migrations
                         .HasColumnType("timestamp")
                         .HasColumnName("restPeriodStartedAt");
 
-                    b.Property<uint>("SessionExerciseId")
-                        .HasColumnType("int unsigned")
+                    b.Property<int>("SessionExerciseId")
+                        .HasColumnType("int")
                         .HasColumnName("sessionExerciseId");
 
                     b.Property<DateTime?>("StartedAt")
@@ -296,12 +306,12 @@ namespace LiftTrackerApi.Migrations
                         .HasColumnType("timestamp")
                         .HasColumnName("updatedAt");
 
-                    b.Property<Guid>("Uuid")
+                    b.Property<Guid?>("Uuid")
                         .HasColumnType("char(36)")
                         .HasColumnName("uuid");
 
-                    b.Property<uint?>("WarmUpDuration")
-                        .HasColumnType("int unsigned")
+                    b.Property<int?>("WarmUpDuration")
+                        .HasColumnType("int")
                         .HasColumnName("warmUpDuration");
 
                     b.Property<DateTime?>("WarmUpEndedAt")
@@ -329,9 +339,9 @@ namespace LiftTrackerApi.Migrations
 
             modelBuilder.Entity("LiftTrackerApi.Entities.User", b =>
                 {
-                    b.Property<uint>("Id")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int unsigned")
+                        .HasColumnType("int")
                         .HasColumnName("id");
 
                     b.Property<DateTime?>("CreatedAt")
@@ -377,9 +387,6 @@ namespace LiftTrackerApi.Migrations
                     b.HasIndex(new[] { "Email" }, "email")
                         .IsUnique();
 
-                    b.HasIndex(new[] { "Email" }, "email_2")
-                        .IsUnique();
-
                     b.ToTable("Users");
                 });
 
@@ -390,7 +397,7 @@ namespace LiftTrackerApi.Migrations
                         .HasColumnType("int")
                         .HasColumnName("id");
 
-                    b.Property<DateTime?>("CreatedAt")
+                    b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp")
                         .HasColumnName("createdAt");
 
@@ -399,6 +406,7 @@ namespace LiftTrackerApi.Migrations
                         .HasColumnName("deletedAt");
 
                     b.Property<string>("Name")
+                        .IsRequired()
                         .HasMaxLength(255)
                         .HasColumnType("varchar(255)")
                         .HasColumnName("name");
@@ -411,7 +419,7 @@ namespace LiftTrackerApi.Migrations
                         .HasColumnType("int")
                         .HasColumnName("userId");
 
-                    b.Property<Guid>("Uuid")
+                    b.Property<Guid?>("Uuid")
                         .HasColumnType("char(36)")
                         .HasColumnName("uuid");
 
@@ -432,7 +440,7 @@ namespace LiftTrackerApi.Migrations
                         .HasColumnType("int")
                         .HasColumnName("id");
 
-                    b.Property<DateTime?>("CreatedAt")
+                    b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp")
                         .HasColumnName("createdAt");
 
@@ -441,13 +449,14 @@ namespace LiftTrackerApi.Migrations
                         .HasColumnName("deletedAt");
 
                     b.Property<string>("Name")
+                        .IsRequired()
                         .HasMaxLength(255)
                         .HasColumnType("varchar(255)")
                         .HasColumnName("name");
 
                     b.Property<string>("NormalDay")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("enum('any','Monday','Tuesday','Wensday','Thursday','Friday','Saturday','Sunday')")
+                        .HasColumnType("enum('any','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday')")
                         .HasColumnName("normalDay")
                         .HasDefaultValueSql("'any'");
 
@@ -459,7 +468,7 @@ namespace LiftTrackerApi.Migrations
                         .HasColumnType("timestamp")
                         .HasColumnName("updatedAt");
 
-                    b.Property<Guid>("Uuid")
+                    b.Property<Guid?>("Uuid")
                         .HasColumnType("char(36)")
                         .HasColumnName("uuid");
 
@@ -481,9 +490,9 @@ namespace LiftTrackerApi.Migrations
 
             modelBuilder.Entity("LiftTrackerApi.Entities.WorkoutSession", b =>
                 {
-                    b.Property<uint>("Id")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int unsigned")
+                        .HasColumnType("int")
                         .HasColumnName("id");
 
                     b.Property<decimal?>("BodyWeight")
@@ -491,7 +500,7 @@ namespace LiftTrackerApi.Migrations
                         .HasColumnType("decimal(6,2)")
                         .HasColumnName("bodyWeight");
 
-                    b.Property<DateTime?>("CreatedAt")
+                    b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp")
                         .HasColumnName("createdAt");
 
@@ -504,11 +513,13 @@ namespace LiftTrackerApi.Migrations
                         .HasColumnName("endedAt");
 
                     b.Property<string>("Name")
+                        .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("varchar(100)")
                         .HasColumnName("name");
 
                     b.Property<string>("Notes")
+                        .HasMaxLength(1000)
                         .HasColumnType("text")
                         .HasColumnName("notes");
 
@@ -520,28 +531,26 @@ namespace LiftTrackerApi.Migrations
                         .HasColumnType("timestamp")
                         .HasColumnName("updatedAt");
 
-                    b.Property<uint?>("UserId")
-                        .HasColumnType("int unsigned")
+                    b.Property<int?>("UserId")
+                        .HasColumnType("int")
                         .HasColumnName("userId");
 
-                    b.Property<Guid>("Uuid")
+                    b.Property<Guid?>("Uuid")
                         .HasColumnType("char(36)")
                         .HasColumnName("uuid");
 
-                    b.Property<uint?>("WorkoutProgramRoutineId")
-                        .HasColumnType("int unsigned")
-                        .HasColumnName("workoutProgramRoutineId");
+                    b.Property<int?>("WorkoutProgramRoutineId")
+                        .HasColumnType("int");
 
                     b.HasKey("Id")
                         .HasName("PRIMARY");
 
-                    b.HasIndex(new[] { "CreatedAt" }, "workoutsessions_createdat_index");
+                    b.HasIndex("WorkoutProgramRoutineId");
 
-                    b.HasIndex(new[] { "UserId" }, "workoutsessions_userid_index");
+                    b.HasIndex("UserId", "CreatedAt")
+                        .HasDatabaseName("workoutsessions_userid_createdat_uuid_index");
 
                     b.HasIndex(new[] { "Uuid" }, "workoutsessions_uuid_index");
-
-                    b.HasIndex(new[] { "WorkoutProgramRoutineId" }, "workoutsessions_workoutprogramroutineid_index");
 
                     b.ToTable("WorkoutSessions");
                 });
@@ -559,12 +568,18 @@ namespace LiftTrackerApi.Migrations
 
             modelBuilder.Entity("LiftTrackerApi.Entities.SessionExercise", b =>
                 {
+                    b.HasOne("LiftTrackerApi.Entities.RoutineExercise", "RoutineExercise")
+                        .WithMany()
+                        .HasForeignKey("RoutineExerciseId");
+
                     b.HasOne("LiftTrackerApi.Entities.WorkoutSession", "WorkoutSession")
                         .WithMany("SessionExercises")
                         .HasForeignKey("WorkoutSessionId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
                         .HasConstraintName("sessionexercises_workoutsessionid_foreign");
+
+                    b.Navigation("RoutineExercise");
 
                     b.Navigation("WorkoutSession");
                 });
@@ -590,6 +605,15 @@ namespace LiftTrackerApi.Migrations
                         .HasConstraintName("WorkoutProgramRoutines_ibfk_1");
 
                     b.Navigation("WorkoutProgram");
+                });
+
+            modelBuilder.Entity("LiftTrackerApi.Entities.WorkoutSession", b =>
+                {
+                    b.HasOne("LiftTrackerApi.Entities.WorkoutProgramRoutine", "WorkoutProgramRoutine")
+                        .WithMany()
+                        .HasForeignKey("WorkoutProgramRoutineId");
+
+                    b.Navigation("WorkoutProgramRoutine");
                 });
 
             modelBuilder.Entity("LiftTrackerApi.Entities.SessionExercise", b =>
