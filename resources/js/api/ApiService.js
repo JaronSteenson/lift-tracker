@@ -1,13 +1,11 @@
-import axios from 'axios';
+import axios from "axios";
 
-axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
+let baseUrl = process.env.API_BASE_URL ?? "/api";
 
-let baseUrl = process.env.BASE_API_URL ?? '/api/';
-
-if (typeof baseUrl === 'string') {
-    baseUrl = baseUrl.replace(/\/+$/, '');
+if (typeof baseUrl === "string") {
+    baseUrl = baseUrl.replace(/\/+$/, "");
 } else {
-    console.error('No api base url configured.');
+    console.error("No api base url configured.");
 }
 
 const ApiService = {
@@ -50,11 +48,6 @@ const ApiService = {
         }
 
         return url;
-    },
-
-    setCsrfToken(csrfToken) {
-        // Register the CSRF Token as a common header with Axios requests.
-        axios.defaults.headers.common['X-CSRF-TOKEN'] = csrfToken;
     },
 
     registerResponseInterceptor(onFulfilled, onRejected) {

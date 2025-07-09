@@ -15,12 +15,13 @@
 #     docker-compose exec mysql bash
 #     mysql -u root -p < /docker-entrypoint-initdb.d/createdb.sql
 #
-
+DROP DATABASE IF EXISTS lift_tracker_api;
+DROP DATABASE IF EXISTS lift_tracker_api_test;
 
 CREATE USER IF NOT EXISTS lift_tracker_api;
 CREATE USER IF NOT EXISTS lift_tracker_api_test;
-CREATE database IF NOT EXISTS lift_tracker_api;
-CREATE database IF NOT EXISTS lift_tracker_api_test;
+CREATE DATABASE IF NOT EXISTS lift_tracker_api;
+CREATE DATABASE IF NOT EXISTS lift_tracker_api_test;
 
 GRANT ALL PRIVILEGES ON *.* TO 'lift_tracker_api'@'%' WITH GRANT OPTION;
 GRANT ALL PRIVILEGES ON lift_tracker_api_test.* TO 'lift_tracker_api_test'@'%' WITH GRANT OPTION;

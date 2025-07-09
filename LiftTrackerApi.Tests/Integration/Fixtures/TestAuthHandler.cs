@@ -1,5 +1,6 @@
 using System.Security.Claims;
 using System.Text.Encodings.Web;
+using LiftTrackerApi.Middleware;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.Extensions.Options;
 
@@ -10,7 +11,6 @@ public class TestAuthHandler : AuthenticationHandler<TestAuthHandlerOptions>
     public const string UserId = "UserId";
 
     public const string AuthenticationScheme = "Test";
-    private readonly string _defaultUserId;
 
     [Obsolete("Obsolete")]
     public TestAuthHandler(
@@ -19,14 +19,11 @@ public class TestAuthHandler : AuthenticationHandler<TestAuthHandlerOptions>
         UrlEncoder encoder,
         ISystemClock clock
     )
-        : base(options, logger, encoder, clock)
-    {
-        _defaultUserId = options.CurrentValue.DefaultUserId;
-    }
+        : base(options, logger, encoder, clock) { }
 
     protected override Task<AuthenticateResult> HandleAuthenticateAsync()
     {
-        var claims = new List<Claim> { new Claim(ClaimTypes.Name, "Test user") };
+        var claims = new List<Claim> { new(ClaimTypes.Name, "Test user") };
 
         // Extract User ID from the request headers if it exists,
         // otherwise use the default User ID from the options.
@@ -36,8 +33,10 @@ public class TestAuthHandler : AuthenticationHandler<TestAuthHandlerOptions>
         }
         else
         {
-            claims.Add(new Claim(ClaimTypes.NameIdentifier, _defaultUserId));
+            claims.Add(new Claim(ClaimTypes.NameIdentifier, "1"));
         }
+        claims.Add(new Claim(UserIdMiddleware.EmailClaim, "jaronsteenson@gmail.com"));
+        claims.Add(new Claim(UserIdMiddleware.EmailVerifiedClaim, "true"));
 
         var identity = new ClaimsIdentity(claims, AuthenticationScheme);
         var principal = new ClaimsPrincipal(identity);

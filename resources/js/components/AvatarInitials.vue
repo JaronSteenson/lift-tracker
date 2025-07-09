@@ -8,7 +8,7 @@
         <template v-slot:activator="{ on }">
             <VBtn icon v-on="on">
                 <VAvatar color="secondary" :size="32">
-                    {{ avatarInitial }}
+                    {{ avatarInitials }}
                 </VAvatar>
             </VBtn>
         </template>
@@ -23,25 +23,25 @@
     </VMenu>
 </template>
 <script>
-import { mapGetters } from 'vuex';
+import { mapGetters } from "vuex";
 
 export default {
     computed: {
-        ...mapGetters('app', {
-            avatarInitial: 'getUserAvatarInitial',
-            userIsAuthenticated: 'userIsAuthenticated',
-            userIsLocalOnly: 'userIsLocalOnly',
-        }),
+        ...mapGetters("app", [
+            "avatarInitials",
+            "userIsAuthenticated",
+            "userIsLocalOnly",
+        ]),
     },
     methods: {
         async logout() {
             if (!this.userIsAuthenticated) {
-                await this.$router.push({ name: 'LoginPage' });
+                await this.$router.push({ name: "LoginPage" });
                 return;
             }
 
-            await this.$store.dispatch('app/logout');
-            await this.$router.push({ name: 'LoginPage' });
+            await this.$store.dispatch("app/logout");
+            await this.$router.push({ name: "LoginPage" });
         },
     },
 };

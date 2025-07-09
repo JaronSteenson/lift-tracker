@@ -10,6 +10,7 @@
         "watch-poll": "mix watch -- --watch-options-poll=1000",
         "hot": "mix watch --hot",
         "prod": "mix --production",
+        "prod-size": "ANALYZE_BUNDLE=1 mix --production",
         "test": "jest",
         "test-watch": "npm run test -- --watch --notify",
         "lint": "eslint --ext .js,.vue resources",
@@ -26,6 +27,7 @@
         "eslint-plugin-jest": "^26.1.4",
         "eslint-plugin-prettier": "^4.0.0",
         "eslint-plugin-vue": "^8.7.1",
+        "html-webpack-plugin": "^5.6.3",
         "jest": "^26.2.2",
         "laravel-mix": "~6.0",
         "prettier": "^2.6.2",
@@ -35,9 +37,11 @@
         "vue-jest": "^3.0.6",
         "vue-loader": "^15.9.8",
         "vue-template-compiler": "^2.6.10",
+        "webpack": "^5.99.9",
         "webpack-bundle-analyzer": "^4.4.2"
     },
     "dependencies": {
+        "@auth0/auth0-spa-js": "^2.2.0",
         "@mdi/js": "^4.9.95",
         "axios": "^0.18.1",
         "date-fns": "^2.15.0",

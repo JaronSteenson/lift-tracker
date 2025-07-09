@@ -341,48 +341,35 @@ namespace LiftTrackerApi.Migrations
                         .HasColumnType("int")
                         .HasColumnName("id");
 
-                    b.Property<DateTime?>("CreatedAt")
+                    b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp")
                         .HasColumnName("createdAt");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp")
+                        .HasColumnName("deletedAt");
 
                     b.Property<string>("Email")
                         .HasColumnType("varchar(255)")
                         .HasColumnName("email");
 
-                    b.Property<DateTime?>("EmailVerifiedAt")
-                        .HasColumnType("timestamp")
-                        .HasColumnName("emailVerifiedAt");
-
-                    b.Property<string>("FirstName")
-                        .HasMaxLength(255)
-                        .HasColumnType("varchar(255)")
-                        .HasColumnName("firstName");
-
-                    b.Property<string>("LastName")
-                        .HasMaxLength(255)
-                        .HasColumnType("varchar(255)")
-                        .HasColumnName("lastName");
-
-                    b.Property<string>("Password")
-                        .IsRequired()
-                        .HasMaxLength(255)
-                        .HasColumnType("varchar(255)")
-                        .HasColumnName("password");
-
-                    b.Property<string>("RememberToken")
-                        .HasMaxLength(100)
-                        .HasColumnType("varchar(100)")
-                        .HasColumnName("rememberToken");
-
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("timestamp")
                         .HasColumnName("updatedAt");
+
+                    b.Property<Guid?>("Uuid")
+                        .HasColumnType("char(36)")
+                        .HasColumnName("uuid");
 
                     b.HasKey("Id")
                         .HasName("PRIMARY");
 
                     b.HasIndex(new[] { "Email" }, "email")
                         .IsUnique();
+
+                    b.HasIndex(new[] { "Uuid" }, "idx_uuid")
+                        .IsUnique()
+                        .HasDatabaseName("idx_uuid1");
 
                     b.ToTable("Users");
                 });
@@ -425,7 +412,7 @@ namespace LiftTrackerApi.Migrations
 
                     b.HasIndex(new[] { "Uuid" }, "idx_uuid")
                         .IsUnique()
-                        .HasDatabaseName("idx_uuid1");
+                        .HasDatabaseName("idx_uuid2");
 
                     b.ToTable("WorkoutPrograms");
                 });
@@ -480,7 +467,7 @@ namespace LiftTrackerApi.Migrations
 
                     b.HasIndex(new[] { "Uuid" }, "idx_uuid")
                         .IsUnique()
-                        .HasDatabaseName("idx_uuid2");
+                        .HasDatabaseName("idx_uuid3");
 
                     b.ToTable("WorkoutProgramRoutines");
                 });

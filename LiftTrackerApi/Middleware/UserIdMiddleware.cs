@@ -1,4 +1,7 @@
+using System.Net.Mail;
 using System.Security.Claims;
+using LiftTrackerApi.Entities;
+using Microsoft.EntityFrameworkCore;
 
 namespace LiftTrackerApi.Middleware;
 
@@ -7,17 +10,34 @@ namespace LiftTrackerApi.Middleware;
  */
 public class UserIdMiddleware(RequestDelegate next)
 {
-    public async Task InvokeAsync(HttpContext context)
-    {
-        var userIdClaim = context
-            .User?.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)
-            ?.Value;
+    public static readonly String EmailClaim = "https://lift-tracker.app/email";
+    public static readonly String EmailVerifiedClaim = "https://lift-tracker.app/email_verified";
 
-        if (int.TryParse(userIdClaim, out int userId))
+    public async Task InvokeAsync(HttpContext context, LiftTrackerDbContext db)
+    {
+        var emailVerified = context
+            .User?.Claims.FirstOrDefault(c => c.Type == EmailVerifiedClaim)
+            ?.Value;
+        if (emailVerified != "true")
         {
-            context.Items["UserId"] = userId;
+            throw new UnauthorizedAccessException("Email not verified.");
         }
 
+        var email = context.User?.Claims.FirstOrDefault(c => c.Type == EmailClaim)?.Value;
+        if (!MailAddress.TryCreate(email ?? String.Empty, out _))
+        {
+            throw new UnauthorizedAccessException("Invalid email address.");
+        }
+
+        var user = await db.Users.Where(user => user.Email == email).FirstOrDefaultAsync();
+        if (user == null)
+        {
+            user = new User { Uuid = Guid.NewGuid(), Email = email };
+            db.Users.Add(user);
+            await db.SaveChangesAsync();
+        }
+
+        context.Items["UserId"] = user.Id;
         await next(context);
     }
 }

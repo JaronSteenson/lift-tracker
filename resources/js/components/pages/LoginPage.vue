@@ -1,6 +1,7 @@
 <template>
     <div>
         <AppBar />
+
         <div
             class="d-flex flex-wrap justify-center gap-4"
             :class="$vuetify.breakpoint.mdAndUp ? 'mt-16' : 'mt-8'"
@@ -21,87 +22,29 @@
                 />
             </div>
             <div class="mx-15 d-flex flex-column justify-center align-center">
-                <template v-if="!showingLoginForm && !showingRegisterForm">
-                    <VBtn
-                        class="small-login-page-link pa-2 d-block mt-2"
-                        color="white"
-                        text
-                        width="100%"
-                        @click="showRegisterForm"
-                    >
-                        Create an account
-                    </VBtn>
-                    <div class="mt-2 heading heading--small">or don't...</div>
-                    <VBtn
-                        class="mt-2"
-                        color="primary"
-                        text
-                        width="100%"
-                        @click="getStartedWithoutAccount"
-                    >
-                        Get started without an account
-                    </VBtn>
-                    <hr class="hr mt-4 mb-4" />
-                </template>
-                <h2
-                    class="heading"
-                    v-if="!showingRegisterForm && !showingLoginForm"
+                <VBtn
+                    class="mt-2"
+                    color="secondary"
+                    width="100%"
+                    @click="login"
                 >
-                    Already have an account?
-                </h2>
-                <template v-if="!showingLoginForm && !showingRegisterForm">
-                    <VBtn
-                        class="mt-2"
-                        color="white"
-                        text
-                        width="100%"
-                        @click="showLoginForm"
-                    >
-                        Login
-                    </VBtn>
-                </template>
-                <div
-                    class="d-flex flex-row justify-space-between align-center w-100"
+                    Login
+                </VBtn>
+                <hr class="hr mt-4 mb-4" />
+                <VBtn color="white" text small width="100%" @click="register">
+                    Create an account
+                </VBtn>
+                <VBtn
+                    class="mt-1"
+                    color="primary"
+                    text
+                    small
+                    width="100%"
+                    @click="createLocalAccount"
                 >
-                    <VBtn
-                        v-if="showingRegisterForm || showingLoginForm"
-                        icon
-                        @click="goBack"
-                    >
-                        <VIcon>{{ $svgIcons.mdiChevronLeft }}</VIcon>
-                    </VBtn>
-                    <h2 class="heading" v-if="showingLoginForm">Login</h2>
-                    <h2 class="heading" v-if="showingRegisterForm">
-                        Create account
-                    </h2>
-                    <VBtn
-                        v-if="showingRegisterForm || showingLoginForm"
-                        class="v-hidden"
-                        icon
-                    >
-                        <VIcon>{{ $svgIcons.mdiChevronLeft }}</VIcon>
-                    </VBtn>
-                </div>
-                <LoginForm
-                    v-if="showingLoginForm"
-                    v-model="user"
-                    class="full-page-form"
-                    @showRegisterForm="showRegisterForm"
-                />
-
-                <RegisterForm
-                    v-if="showingRegisterForm"
-                    v-model="user"
-                    class="full-page-form"
-                    @showLoginForm="showLoginForm"
-                />
+                    Get started without an account
+                </VBtn>
                 <div class="d-flex justify-space-around">
-                    <RouterLink
-                        class="small-login-page-link pa-2 d-block"
-                        :to="`/reset-password?email=${user.email}`"
-                    >
-                        Reset password
-                    </RouterLink>
                     <RouterLink
                         class="small-login-page-link pa-2 d-block"
                         :to="{ name: 'PrivacyPolicy' }"
@@ -115,15 +58,11 @@
 </template>
 
 <script>
-import AppBar from '../AppBar';
-import LoginForm from '../domain/LoginForm';
-import RegisterForm from '../domain/RegisterForm';
-import { mapActions } from 'vuex';
+import AppBar from "../AppBar";
+import { mapActions, mapState } from "vuex";
 
 export default {
     components: {
-        RegisterForm,
-        LoginForm,
         AppBar,
     },
     mounted() {
@@ -134,35 +73,13 @@ export default {
         return {
             imageHasLoaded: false,
             fadeImageIn: false,
-            showingLoginForm: false,
-            showingRegisterForm: false,
-            user: {
-                firstName: '',
-                lastName: '',
-                email: '',
-                password: '',
-                passwordConfirm: '',
-            },
         };
     },
+    computed: {
+        ...mapState("app", ["auth0Client"]),
+    },
     methods: {
-        showLoginForm() {
-            this.showingLoginForm = true;
-            this.showingRegisterForm = false;
-        },
-        showRegisterForm() {
-            this.showingLoginForm = false;
-            this.showingRegisterForm = true;
-        },
-        goBack() {
-            this.showingLoginForm = false;
-            this.showingRegisterForm = false;
-        },
-        getStartedWithoutAccount() {
-            this.createLocalAccount();
-            this.$router.replace('/');
-        },
-        ...mapActions('app', ['createLocalAccount']),
+        ...mapActions("app", ["login", "register", "createLocalAccount"]),
     },
 };
 </script>

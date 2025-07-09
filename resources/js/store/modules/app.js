@@ -1,26 +1,26 @@
-import AppService from '../../api/AppService';
-import { addMinutes, isAfter } from 'date-fns';
+import axios from "axios";
+import { createAuth0Client } from "@auth0/auth0-spa-js";
+import router from "../../router/router";
+import authConfig from "../../../../auth_config.json";
 
-export const LOCAL_STORAGE_KEY = 'store-state--App';
+export const LOCAL_STORAGE_KEY = "store-state--App";
+
+const authorizationParams = {
+    detailedResponse: true,
+    redirect_uri: window.location.origin,
+    audience: "https://dev.lift-tracker.app",
+    scope: "email",
+};
 
 const state = {
     isBootstrapped: false,
-    appName: 'Lift Tracker',
-    authenticatedUser: null,
-    csrfToken: null,
-    facebookAppId: null,
-    afterLoginUrl: null,
-    previousRoute: '/',
-    /**
-     * Session lifetime in minutes.
-     * @type ?number
-     */
-    sessionLifetime: null,
-    /**
-     * Roughly when the session will expire.
-     * @type ?Date
-     */
-    sessionExpiryTime: null,
+    isAuthenticated: false,
+    auth0Client: null,
+    auth0Error: null,
+    localOnlyUser: false,
+    appName: "Lift Tracker",
+    user: null,
+    previousRoute: "/",
     /**
      * We can force the session-expired modal from either a bad ajax response or from our expiry check interval.
      * @type Boolean
@@ -35,36 +35,22 @@ const getters = {
     },
 
     userIsAuthenticated(state) {
-        return Boolean(
-            state.authenticatedUser &&
-                (state.authenticatedUser.localOnly ||
-                    state.authenticatedUser.emailVerifiedAt)
-        );
+        return Boolean(state.localOnlyUser || state.isAuthenticated);
     },
 
     userIsLocalOnly(state) {
-        return Boolean(
-            state.authenticatedUser && state.authenticatedUser.localOnly
-        );
+        return Boolean(state.localOnlyUser);
     },
 
-    getUserAvatarInitial(state) {
-        const f = state?.authenticatedUser?.firstName?.charAt(0) ?? '';
-        const l = state?.authenticatedUser?.lastName?.charAt(0) ?? '';
+    avatarInitials(state) {
+        const f = state?.user?.name?.charAt(0) ?? "";
+        const l = state?.user?.family_name?.charAt(0) ?? "";
 
         return `${f}${l}`.trim();
     },
 
     navigationDrawerOpen(state) {
         return state.navigationDrawerOpen;
-    },
-
-    afterLoginUrl(state) {
-        if (state?.afterLoginUrl?.name === 'logout') {
-            return { name: 'HomePage' };
-        }
-
-        return state.afterLoginUrl ?? { name: 'HomePage' };
     },
 
     shouldShowNoProgramsWelcomeHint(state, getters, rootState, rootGetters) {
@@ -74,7 +60,7 @@ const getters = {
 
         return (
             rootState.workoutSession.myWorkoutSessions.length === 0 &&
-            rootGetters['programBuilder/myWorkoutPrograms'].length === 0
+            rootGetters["programBuilder/myWorkoutPrograms"].length === 0
         );
     },
 
@@ -88,7 +74,7 @@ const getters = {
             return false;
         }
 
-        return rootGetters['programBuilder/myWorkoutPrograms'].length === 0;
+        return rootGetters["programBuilder/myWorkoutPrograms"].length === 0;
     },
 
     shouldShowNoSessionsHint(state, getters, rootState, rootGetters) {
@@ -98,12 +84,8 @@ const getters = {
 
         return (
             rootState.workoutSession.myWorkoutSessions.length === 0 &&
-            rootGetters['programBuilder/myWorkoutPrograms'].length > 0
+            rootGetters["programBuilder/myWorkoutPrograms"].length > 0
         );
-    },
-
-    sessionIsExpired: (state) => () => {
-        return isAfter(new Date(), state.sessionExpiryTime);
     },
 
     showSessionExpiredModal(state, getters) {
@@ -114,16 +96,16 @@ const getters = {
         return state.showSessionExpiredModal;
     },
 
-    forLocalStorageSave({ authenticatedUser }) {
+    forLocalStorageSave({ user }) {
         return {
-            authenticatedUser,
+            user,
         };
     },
 
     fromLocalStorage(state, getters, rootState, rootGetters) {
         const app = JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY));
-        const programBuilder = rootGetters['programBuilder/fromLocalStorage'];
-        const workoutSession = rootGetters['workoutSession/fromLocalStorage'];
+        const programBuilder = rootGetters["programBuilder/fromLocalStorage"];
+        const workoutSession = rootGetters["workoutSession/fromLocalStorage"];
 
         return {
             app,
@@ -135,165 +117,132 @@ const getters = {
 
 const actions = {
     setNavigationDrawerOpen({ commit }, value) {
-        commit('reset', {
+        commit("reset", {
             navigationDrawerOpen: value,
         });
     },
-    async boostrap({ commit, getters }, data = null) {
-        const localStorageData = getters.fromLocalStorage;
+    async boostrap({ state, commit, getters, dispatch }) {
+        await dispatch("boostrapAuth0");
 
-        let isAuthed = false;
-        let localOnlyUser = localStorageData.app?.authenticatedUser?.localOnly;
+        const localStorageData = getters.fromLocalStorage || {};
+        let localOnlyUser = localStorageData?.app?.localOnlyUser ?? false;
 
         if (localOnlyUser) {
-            data = localStorageData;
-        } else if (!data) {
-            data = (await AppService.getBootstrapData()).data;
-            isAuthed = data.app.authenticatedUser !== null;
-        }
-
-        commit('reset', { ...data.app, isBootstrapped: true });
-
-        if (isAuthed || localOnlyUser) {
-            commit('workoutSession/reset', data.workoutSession, {
+            commit("workoutSession/reset", localStorageData.workoutSession, {
                 root: true,
             });
-            commit('programBuilder/reset', data.programBuilder, {
+            commit("programBuilder/reset", localStorageData.programBuilder, {
                 root: true,
             });
         }
 
-        if (isAuthed) {
-            data.app.sessionExpiryTime = addMinutes(
-                new Date(),
-                data.app.sessionLifetime
-            );
-
-            const sessionExpiryCheckInterval = setInterval(async () => {
-                if (getters.sessionIsExpired()) {
-                    // We need to re-fetch the xsrf token before the user trys to re-auth.
-                    const boostrapDataResponse =
-                        await AppService.getBootstrapData();
-                    const csrfToken = boostrapDataResponse.data.app.csrfToken;
-
-                    commit('reset', {
-                        csrfToken,
-                        showSessionExpiredModal: true,
-                    });
-
-                    clearInterval(sessionExpiryCheckInterval);
+        if (state.isAuthenticated) {
+            commit(
+                "workoutSession/reset",
+                {},
+                {
+                    root: true,
                 }
-            }, 60 * 1000);
+            );
+            commit(
+                "programBuilder/reset",
+                {},
+                {
+                    root: true,
+                }
+            );
         }
 
-        return data;
+        commit("reset", { localOnlyUser, isBootstrapped: true });
     },
 
-    async login({ commit, getters }, { email, password }) {
-        const response = await AppService.login({ email, password });
-
-        const data = response.data;
-        if (response.status >= 400) {
-            return response;
-        }
-
-        if (getters.userIsLocalOnly) {
-            localStorage.clear();
-        }
-
-        commit('reset', { ...data.app, isBootstrapped: true });
-        commit('workoutSession/reset', data.workoutSession, { root: true });
-        commit('programBuilder/reset', data.programBuilder, { root: true });
-
-        return response;
-    },
-
-    async register(
-        { commit },
-        { firstName, lastName, email, password, passwordConfirm }
-    ) {
-        const response = await AppService.register({
-            firstName,
-            lastName,
-            email,
-            password,
-            passwordConfirm,
+    async boostrapAuth0({ commit }) {
+        // Create a new instance of the SDK client using members of the given options object
+        const auth0Client = await createAuth0Client({
+            ...authConfig,
         });
-        commit('reset', { ...response.data.app, isBootstrapped: true });
-        return response;
-    },
+        let removeSearchParams = false;
+        let auth0Error;
+        let user;
+        try {
+            // If the user is returning to the app after authentication.
+            if (
+                window.location.search.includes("code=") &&
+                window.location.search.includes("state=")
+            ) {
+                console.log("handleRedirectCallback");
+                // handle the redirect and retrieve tokens
+                await auth0Client.handleRedirectCallback();
+                auth0Error = null;
+                removeSearchParams = true;
+            }
+        } catch (e) {
+            auth0Error = e;
+            console.error({ auth0Error });
+        } finally {
+            // Initialize our internal authentication state
+            const isAuthenticated = await auth0Client.isAuthenticated();
 
-    async sendPasswordResetEmail(_, email) {
-        return await AppService.sendPasswordResetEmail({
-            email,
-        });
-    },
+            if (isAuthenticated) {
+                user = await auth0Client.getUser();
+                const token = await auth0Client.getTokenWithPopup({
+                    authorizationParams,
+                });
+                axios.defaults.headers.common.Authorization = `Bearer ${token}`;
+            }
 
-    async resetPassword(
-        { dispatch },
-        { email, password, passwordConfirm, token }
-    ) {
-        const response = await AppService.resetPassword({
-            email,
-            password,
-            passwordConfirm,
-            token,
-        });
+            commit("reset", {
+                isAuthenticated,
+                user,
+                auth0Client,
+                auth0Error,
+            });
 
-        if (response.status === 200) {
-            dispatch('boostrap', response.data);
+            if (removeSearchParams) {
+                await router.replace("");
+            }
         }
-
-        return response;
-    },
-
-    setAfterLoginUrl({ commit }, to) {
-        commit('setAfterLoginUrl', to);
     },
 
     setPreviousRoute({ commit }, from) {
-        commit('setPreviousRoute', from);
+        commit("setPreviousRoute", from);
     },
 
-    async logout({ commit }) {
-        const response = await AppService.logout();
-
-        commit('reset', { ...response.data.app, isBootstrapped: true });
-
-        commit('workoutSession/restoreDefault', undefined, { root: true });
-        commit('programBuilder/restoreDefault', undefined, { root: true });
-
-        return response;
-    },
-
-    extendSessionExpiry({ state, commit }) {
-        commit('reset', {
-            sessionExpiryTime: addMinutes(new Date(), state.sessionLifetime),
-            showSessionExpiredModal: false,
+    async login({ state }) {
+        await state.auth0Client.loginWithRedirect({
+            authorizationParams: {
+                ...authorizationParams,
+                screen_hint: "login",
+            },
         });
     },
 
-    async expireSession({ commit }) {
-        // We need to re-fetch the xsrf token before the user trys to re-auth.
-        const boostrapDataResponse = await AppService.getBootstrapData();
-        const csrfToken = boostrapDataResponse.data.app.csrfToken;
-
-        commit('reset', {
-            csrfToken,
-            sessionExpiryTime: new Date(),
-            showSessionExpiredModal: true,
+    async register({ state }) {
+        await state.auth0Client.loginWithRedirect({
+            authorizationParams: {
+                ...authorizationParams,
+                screen_hint: "register",
+            },
         });
     },
 
-    createLocalAccount({ commit, dispatch }) {
-        commit('reset', {
-            authenticatedUser: {
-                firstName: 'M',
-                lastName: 'E',
+    async createLocalAccount({ commit, dispatch }) {
+        commit("reset", {
+            user: {
+                firstName: "M",
+                lastName: "E",
                 localOnly: true,
             },
         });
-        dispatch('saveToLocalStorage');
+        dispatch("saveToLocalStorage");
+        await router.replace("/");
+    },
+
+    async logout({ state, commit }) {
+        await state.auth0Client.logout();
+        commit("reset", { user: null, isBootstrapped: true });
+        commit("workoutSession/restoreDefault", undefined, { root: true });
+        commit("programBuilder/restoreDefault", undefined, { root: true });
     },
 
     saveToLocalStorage({ getters }) {
@@ -309,10 +258,6 @@ const mutations = {
         Object.keys(newState || {}).forEach((key) => {
             state[key] = newState[key];
         });
-    },
-
-    setAfterLoginUrl(state, to) {
-        state.afterLoginUrl = to;
     },
 
     setPreviousRoute(state, from) {

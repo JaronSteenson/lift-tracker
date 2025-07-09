@@ -283,18 +283,13 @@ public partial class LiftTrackerDbContext(
         modelBuilder.Entity<User>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("PRIMARY");
+            entity.Property(e => e.Uuid).HasColumnName("uuid");
+            entity.HasIndex(e => e.Uuid, "idx_uuid").IsUnique();
             entity.HasIndex(e => e.Email, "email").IsUnique();
             entity.Property(e => e.Id).HasColumnName("id");
             entity.Property(e => e.CreatedAt).HasColumnType("timestamp").HasColumnName("createdAt");
+            entity.Property(e => e.DeletedAt).HasColumnType("timestamp").HasColumnName("deletedAt");
             entity.Property(e => e.Email).HasColumnName("email");
-            entity
-                .Property(e => e.EmailVerifiedAt)
-                .HasColumnType("timestamp")
-                .HasColumnName("emailVerifiedAt");
-            entity.Property(e => e.FirstName).HasMaxLength(255).HasColumnName("firstName");
-            entity.Property(e => e.LastName).HasMaxLength(255).HasColumnName("lastName");
-            entity.Property(e => e.Password).HasMaxLength(255).HasColumnName("password");
-            entity.Property(e => e.RememberToken).HasMaxLength(100).HasColumnName("rememberToken");
             entity.Property(e => e.UpdatedAt).HasColumnType("timestamp").HasColumnName("updatedAt");
         });
 

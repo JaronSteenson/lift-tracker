@@ -66,14 +66,11 @@ namespace LiftTrackerApi.Migrations
                 {
                     id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("MySQL:ValueGenerationStrategy", MySQLValueGenerationStrategy.IdentityColumn),
-                    firstName = table.Column<string>(type: "varchar(255)", maxLength: 255, nullable: true),
-                    lastName = table.Column<string>(type: "varchar(255)", maxLength: 255, nullable: true),
                     email = table.Column<string>(type: "varchar(255)", nullable: true),
-                    createdAt = table.Column<DateTime>(type: "timestamp", nullable: true),
+                    uuid = table.Column<Guid>(type: "char(36)", nullable: true),
+                    createdAt = table.Column<DateTime>(type: "timestamp", nullable: false),
                     updatedAt = table.Column<DateTime>(type: "timestamp", nullable: true),
-                    emailVerifiedAt = table.Column<DateTime>(type: "timestamp", nullable: true),
-                    password = table.Column<string>(type: "varchar(255)", maxLength: 255, nullable: false),
-                    rememberToken = table.Column<string>(type: "varchar(100)", maxLength: 100, nullable: true)
+                    deletedAt = table.Column<DateTime>(type: "timestamp", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -314,7 +311,13 @@ namespace LiftTrackerApi.Migrations
                 unique: true);
 
             migrationBuilder.CreateIndex(
-                name: "idx_uuid2",
+                name: "idx_uuid1",
+                table: "Users",
+                column: "uuid",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "idx_uuid3",
                 table: "WorkoutProgramRoutines",
                 column: "uuid",
                 unique: true);
@@ -325,7 +328,7 @@ namespace LiftTrackerApi.Migrations
                 column: "workoutProgramId");
 
             migrationBuilder.CreateIndex(
-                name: "idx_uuid1",
+                name: "idx_uuid2",
                 table: "WorkoutPrograms",
                 column: "uuid",
                 unique: true);

@@ -59,7 +59,7 @@ function isLocalOnlyUser() {
         return false;
     }
 
-    return JSON.parse(json)?.authenticatedUser?.localOnly;
+    return JSON.parse(json)?.user?.localOnly;
 }
 
 /**
