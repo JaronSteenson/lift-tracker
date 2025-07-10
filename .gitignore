@@ -6,9 +6,8 @@
 /public/css/*
 /public/fonts/*
 /public/mix-manifest.json
-/storage/*.key
 /vendor
 auth_config.json
 npm-debug.log
-yarn-error.log
 .env
+index.html

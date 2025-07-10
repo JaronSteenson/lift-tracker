@@ -1,4 +1,4 @@
-image: node:14.19.1
+image: node:24.4.0
 
 definitions:
   services:
@@ -14,12 +14,12 @@ pipelines:
   branches:
     cs-api:
       - parallel:
-#          - step:
-#              name: Build, test, deploy frontend
-#              caches:
-#                - node
-#              script:
-#                - . ci/should-build-frontend.sh
+          - step:
+              name: Build, test, deploy frontend
+              caches:
+                - node
+              script:
+                - . ci/should-build-frontend.sh
 #                - npm ci
 #                - npm run lint
 #                - npm test
@@ -65,6 +65,7 @@ pipelines:
               caches:
                 - dotnetcore
               script:
+                - . ci/should-build-api.sh
                 - cd LiftTrackerApi
                 - echo 'Installing dependencies'
                 - dotnet tool restore
