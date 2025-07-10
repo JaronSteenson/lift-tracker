@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 namespace LiftTrackerApi.Middleware;
 
 /**
- * Temp/test middleware till auth zero is added last.
+ * Maps the email provided from auth0 to a user in the database.
  */
 public class UserIdMiddleware(RequestDelegate next)
 {

@@ -8,12 +8,6 @@ public partial class LiftTrackerDbContext(
     IConfiguration config
 ) : DbContext(options)
 {
-    public virtual DbSet<Exercise> Exercises { get; set; }
-
-    public virtual DbSet<Migration> Migrations { get; set; }
-
-    public virtual DbSet<PasswordReset> PasswordResets { get; set; }
-
     public virtual DbSet<RoutineExercise> RoutineExercises { get; set; }
 
     public virtual DbSet<SessionExercise> SessionExercises { get; set; }
@@ -117,42 +111,6 @@ public partial class LiftTrackerDbContext(
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        modelBuilder.Entity<Exercise>(entity =>
-        {
-            entity.HasNoKey();
-
-            entity.Property(e => e.CreatedAt).HasColumnType("timestamp").HasColumnName("createdAt");
-            entity.Property(e => e.Id).HasColumnName("id");
-            entity.Property(e => e.Name).HasMaxLength(255).HasColumnName("name");
-            entity.Property(e => e.UpdatedAt).HasColumnType("timestamp").HasColumnName("updatedAt");
-            entity.Property(e => e.UserId).HasColumnName("userId");
-        });
-
-        modelBuilder.Entity<Migration>(entity =>
-        {
-            entity.HasKey(e => e.Id).HasName("PRIMARY");
-
-            entity.ToTable("migrations");
-
-            entity.Property(e => e.Id).HasColumnName("id");
-            entity.Property(e => e.Batch).HasColumnName("batch");
-            entity.Property(e => e.Migration1).HasMaxLength(255).HasColumnName("migration");
-        });
-
-        modelBuilder.Entity<PasswordReset>(entity =>
-        {
-            entity.HasNoKey().ToTable("password_resets");
-
-            entity.HasIndex(e => e.Email, "password_resets_email_index");
-
-            entity
-                .Property(e => e.CreatedAt)
-                .HasColumnType("timestamp")
-                .HasColumnName("created_at");
-            entity.Property(e => e.Email).HasColumnName("email");
-            entity.Property(e => e.Token).HasMaxLength(255).HasColumnName("token");
-        });
-
         modelBuilder.Entity<RoutineExercise>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("PRIMARY");
