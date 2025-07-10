@@ -5,6 +5,7 @@ const { BundleAnalyzerPlugin } = require("webpack-bundle-analyzer");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 const { join } = require("node:path");
 
+let publicPath = "https://lift-tracker.app/";
 if (mix.inProduction()) {
     let optionalPlugins = [];
     if (process.env.ANALYZE_BUNDLE) {
@@ -27,12 +28,14 @@ if (mix.inProduction()) {
     });
 } else {
     const port = 8081;
-    console.log(`Running in development mode at: http://localhost:${port}`);
+    publicPath = `http://localhost:${port}`;
+
+    console.log(`Running in development mode at: ${publicPath}`);
 
     mix.webpackConfig({
         plugins: [
             new HtmlWebpackPlugin({
-                template: "resources/index.html", // optional, use your own template
+                template: "resources/index.html",
                 inject: true,
             }),
             new webpack.DefinePlugin({
@@ -48,9 +51,12 @@ if (mix.inProduction()) {
             historyApiFallback: true,
             port,
             hot: true,
+            client: {
+                webSocketURL: `ws://localhost:${port}/ws`,
+            },
         },
         output: {
-            publicPath: "",
+            publicPath,
         },
     });
 }

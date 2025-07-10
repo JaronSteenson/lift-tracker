@@ -1,8 +1,12 @@
-﻿namespace LiftTrackerApi.Entities;
+﻿using System.Text.Json.Serialization;
+using LiftTrackerApi.Entities.Interfaces;
 
-public partial class Exercise : DomainEntity
+namespace LiftTrackerApi.Entities;
+
+public partial class Exercise : DomainEntity, IOwnable
 {
     public string Name { get; set; } = null!;
 
+    [JsonIgnore]
     public int? UserId { get; set; }
 }

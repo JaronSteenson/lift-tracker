@@ -9,11 +9,18 @@ namespace LiftTrackerApi.Controllers;
 public class WorkoutSessionController(WorkoutSessionService workoutSessionService) : Controller
 {
     [HttpGet]
-    public async Task<IActionResult> Index()
+    public async Task<IActionResult> Index(
+        [FromQuery] int pageIndex = 1,
+        [FromQuery] int pageSize = 10
+    )
     {
         var userId = (int)(HttpContext.Items["UserId"] ?? -1);
 
-        var workoutSessions = await workoutSessionService.FindWorkoutSessionsForUserId(userId);
+        var workoutSessions = await workoutSessionService.FindWorkoutSessionsForUserId(
+            userId,
+            pageIndex,
+            pageSize
+        );
         return Json(workoutSessions);
     }
 

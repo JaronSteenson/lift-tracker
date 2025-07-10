@@ -1,5 +1,5 @@
-import { utcNow } from '../dates';
-import UuidHelper from '../UuidHelper';
+import { utcNow } from "../dates";
+import UuidHelper from "../UuidHelper";
 
 export default function createSessionFromBuilderWorkout({ originWorkout }) {
     const startedAt = utcNow();
@@ -51,7 +51,7 @@ function createExerciseForEmptyWorkout(name) {
 function createSessionExerciseFromBuilderExercise(builderExercise) {
     return {
         uuid: UuidHelper.assign(),
-        name: builderExercise.name || 'Unnamed exercise',
+        name: builderExercise.name || "Unnamed exercise",
         plannedWeight: builderExercise.weight,
         plannedRestPeriodDuration: builderExercise.restPeriod,
         plannedWarmUp: builderExercise.warmUp,
@@ -67,7 +67,9 @@ function createSessionExerciseFromBuilderExercise(builderExercise) {
                 };
             }
         ),
-        routineExerciseUuid: builderExercise.uuid,
+        routineExercise: {
+            uuid: builderExercise.uuid,
+        },
         createdAt: utcNow(),
     };
 }

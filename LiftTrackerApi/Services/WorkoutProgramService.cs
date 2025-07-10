@@ -48,12 +48,12 @@ public class WorkoutProgramService(LiftTrackerDbContext db, DomainEntityService 
     {
         var workoutProgram =
             await db
-                .WorkoutPrograms.Include(workoutProgram => workoutProgram.WorkoutProgramRoutines)
+                .WorkoutPrograms.AsNoTracking()
+                .Include(workoutProgram => workoutProgram.WorkoutProgramRoutines)
                 .ThenInclude(routine => routine.RoutineExercises)
                 .Where(workoutProgram => workoutProgram.UserId == userId)
                 .WhereUuid(workoutProgramUid)
-                .AsNoTracking()
-                .FirstAsync()
+                .FirstOrDefaultAsync()
             ?? throw new NotFoundException(
                 $"WorkoutProgram with UUID {workoutProgramUid} not found for user {userId}."
             );

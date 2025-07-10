@@ -1,6 +1,6 @@
-import ApiService from './ApiService';
+import ApiService from "./ApiService";
 
-const RESOURCE_NAME = 'workout-programs';
+const RESOURCE_NAME = "workout-programs";
 
 const WorkoutProgramService = {
     get(uuid) {
@@ -8,7 +8,7 @@ const WorkoutProgramService = {
     },
 
     getByRoutine(routineUuid) {
-        return ApiService.get(`${RESOURCE_NAME}?routine-uuid=${routineUuid}`);
+        return ApiService.get(`${RESOURCE_NAME}/by-routine/${routineUuid}`);
     },
 
     getAll() {

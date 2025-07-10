@@ -15,8 +15,10 @@ public class WorkoutProgramControllerTests(WorkoutDbFixture fixture)
     : IClassFixture<WorkoutDbFixture>
 {
     private readonly HttpClient _client = fixture.Client;
+    private readonly string _longString =
+        "12345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901";
 
-    /// <see cref="WorkoutProgramController.Index(Guid?)" />
+    /// <see cref="WorkoutProgramController.Index()" />
     [Fact]
     public async Task Get_EndpointsReturnsEntities()
     {
@@ -66,7 +68,6 @@ public class WorkoutProgramControllerTests(WorkoutDbFixture fixture)
     {
         Assert.Equal(Guid.Parse("186383a6-e369-4071-b80d-70c82d2495d1"), workoutProgram.Uuid);
         Assert.Equal("Test Workout Program", workoutProgram.Name);
-        Assert.Equal(1, workoutProgram.UserId);
 
         var routines = workoutProgram.WorkoutProgramRoutines;
         Assert.Equal(3, routines.Count);
@@ -124,7 +125,6 @@ public class WorkoutProgramControllerTests(WorkoutDbFixture fixture)
         var workoutProgram = JsonConvert.DeserializeObject<WorkoutProgram>(json);
         Assert.Equal(Guid.Parse("186383a6-e369-4071-b80d-70c82d2495d1"), workoutProgram!.Uuid);
         Assert.Equal("Test Workout Program", workoutProgram.Name);
-        Assert.Equal(1, workoutProgram.UserId);
 
         var routines = workoutProgram.WorkoutProgramRoutines;
         Assert.Equal(3, routines.Count);
@@ -266,7 +266,6 @@ public class WorkoutProgramControllerTests(WorkoutDbFixture fixture)
 
         Assert.Equal(Guid.Parse("3a94e1b9-5709-4d5f-bae8-8db8a3e1b8cc"), workoutProgram!.Uuid);
         Assert.Equal("Brand New Workout Program", workoutProgram.Name);
-        Assert.Equal(1, workoutProgram.UserId);
 
         var routines = workoutProgram.WorkoutProgramRoutines;
         Assert.Equal(3, routines.Count);
@@ -394,7 +393,6 @@ public class WorkoutProgramControllerTests(WorkoutDbFixture fixture)
 
         Assert.Equal(Guid.Parse("03e58899-a627-446f-bc52-814835b00661"), workoutProgram!.Uuid);
         Assert.Equal("Brand New Workout Program 2", workoutProgram.Name);
-        Assert.Equal(1, workoutProgram.UserId);
 
         var routines = workoutProgram.WorkoutProgramRoutines;
         Assert.Equal(3, routines.Count);
@@ -536,7 +534,6 @@ public class WorkoutProgramControllerTests(WorkoutDbFixture fixture)
             workoutProgramEdited!.Uuid
         );
         Assert.Equal("Edited Workout Program", workoutProgramEdited.Name);
-        Assert.Equal(1, workoutProgramEdited.UserId);
 
         var routinesEdited = workoutProgramEdited.WorkoutProgramRoutines;
         Assert.Equal(3, routinesEdited.Count);
@@ -800,20 +797,20 @@ public class WorkoutProgramControllerTests(WorkoutDbFixture fixture)
     }
 
     [Fact]
-    public async Task Post_ReturnsBadRequest_WhenNamesAreEmpty()
+    public async Task Post_ReturnsBadRequest_WhenNamesAreTooLong()
     {
         // Arrange
         var duplicateWorkoutProgram = new WorkoutProgram
         {
             Uuid = Guid.NewGuid(),
-            Name = "",
+            Name = _longString,
             UserId = 1,
             WorkoutProgramRoutines = new List<WorkoutProgramRoutine>
             {
                 new()
                 {
                     Uuid = Guid.NewGuid(),
-                    Name = "",
+                    Name = _longString,
                     NormalDay = "Monday",
                     Position = 0,
                     RoutineExercises = new List<RoutineExercise>
@@ -821,7 +818,7 @@ public class WorkoutProgramControllerTests(WorkoutDbFixture fixture)
                         new()
                         {
                             Uuid = Guid.NewGuid(),
-                            Name = "",
+                            Name = _longString,
                             NumberOfSets = 3,
                             Position = 0,
                             Weight = 50,
@@ -853,21 +850,22 @@ public class WorkoutProgramControllerTests(WorkoutDbFixture fixture)
         var errors = problems.Errors;
 
         errors.Should().ContainKey("Name");
-        errors["Name"].Should().Contain("Name is required");
-        errors["Name"].Should().Contain("Name must be between 1 and 100 characters");
+        errors["Name"].Should().Contain("Name must be at most 100 characters");
 
         errors.Should().ContainKey("WorkoutProgramRoutines[0].Name");
-        errors["WorkoutProgramRoutines[0].Name"].Should().Contain("Name is required");
         errors["WorkoutProgramRoutines[0].Name"]
             .Should()
-            .Contain("Name must be between 1 and 100 characters");
+            .Contain("Name must be at most 100 characters");
+        errors["WorkoutProgramRoutines[0].Name"]
+            .Should()
+            .Contain("Name must be at most 100 characters");
 
         errors.Should().ContainKey("WorkoutProgramRoutines[0].RoutineExercises[0].Name");
         errors["WorkoutProgramRoutines[0].RoutineExercises[0].Name"]
             .Should()
-            .Contain("Name is required");
+            .Contain("Name must be at most 100 characters");
         errors["WorkoutProgramRoutines[0].RoutineExercises[0].Name"]
             .Should()
-            .Contain("Name must be between 1 and 100 characters");
+            .Contain("Name must be at most 100 characters");
     }
 }

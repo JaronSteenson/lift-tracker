@@ -8,7 +8,7 @@ use LiftTracker\Http\Controllers\Controller;
 use LiftTracker\User;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
-class SessionExercisePreviousEntries extends Controller
+class SessionExerciseHistory extends Controller
 {
     /**
      * Return all previous entries of the given session exercise.

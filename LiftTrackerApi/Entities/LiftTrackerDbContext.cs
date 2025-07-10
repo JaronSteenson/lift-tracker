@@ -64,10 +64,11 @@ public partial class LiftTrackerDbContext(
             switch (entry.State)
             {
                 case EntityState.Added:
-                    // Allow tests to set CreatedAt to a specific time.
-                    if (entity.CreatedAt >= now)
+                    // Allow tests and the front-end to set CreatedAt to a specific time.
+                    if (entity.CreatedAt == null || entity.CreatedAt >= now)
                     {
                         entity.CreatedAt = now;
+                        entity.UpdatedAt = now;
                     }
 
                     break;

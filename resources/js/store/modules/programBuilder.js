@@ -1,15 +1,15 @@
-import WorkoutProgramService from '../../api/WorkoutProgramService';
-import UuidHelper from '../../UuidHelper';
-import { dateTimeDescription, utcNow } from '../../dates';
-import { debounce, pick } from '../../util/index';
+import WorkoutProgramService from "../../api/WorkoutProgramService";
+import UuidHelper from "../../UuidHelper";
+import { dateTimeDescription, utcNow } from "../../dates";
+import { debounce, pick } from "../../util/index";
 import {
     mutations as saveStatusMutations,
     actions as saveStatusActions,
     state as saveStatusState,
-} from './saveStatusMixin';
+} from "./saveStatusMixin";
 
 const SAVE_DEBOUNCE_WAIT = 1000;
-const LOCAL_STORAGE_KEY = 'store-state--ProgramBuilder';
+const LOCAL_STORAGE_KEY = "store-state--ProgramBuilder";
 
 function sortByPosition(a, b) {
     return a.position < b.position ? 1 : 0;
@@ -22,7 +22,7 @@ function defaultState() {
         hasMadeSignificantChangesFromNew: false,
         inFocusProgram: {
             uuid: null,
-            name: '',
+            name: "",
             workoutProgramRoutines: [],
             createdAt: null,
             updatedAt: null,
@@ -37,22 +37,22 @@ function defaultState() {
 const state = defaultState();
 
 const workoutFields = [
-    'uuid',
-    'name',
-    'normalDay',
-    'position',
-    'routineExercises',
+    "uuid",
+    "name",
+    "normalDay",
+    "position",
+    "routineExercises",
 ];
 
 const exerciseFields = [
-    'uuid',
-    'name',
-    'position',
-    'numberOfSets',
-    'position',
-    'weight',
-    'restPeriod',
-    'warmUp',
+    "uuid",
+    "name",
+    "position",
+    "numberOfSets",
+    "position",
+    "weight",
+    "restPeriod",
+    "warmUp",
 ];
 
 const getters = {
@@ -64,7 +64,7 @@ const getters = {
                         ...routine,
                         workoutProgram,
                         latestSession: rootState[
-                            'workoutSession'
+                            "workoutSession"
                         ].myWorkoutSessions.find(
                             (workoutSession) =>
                                 routine.uuid ===
@@ -85,7 +85,7 @@ const getters = {
     hasMadeSignificantChangesFromNew(state) {
         return Boolean(
             state.inFocusProgram.uuid || // Has somehow forced a save or uuid assignment.
-                state.inFocusProgram.name.trim() !== '' || // Has added a name.
+                state.inFocusProgram.name.trim() !== "" || // Has added a name.
                 state.inFocusProgram.workoutProgramRoutines.length > 1 || // Has added a workout.
                 state.inFocusProgram.workoutProgramRoutines[0]?.name || // Has a name for the first routine.
                 state.inFocusProgram.workoutProgramRoutines[0]?.routineExercises
@@ -184,30 +184,30 @@ const getters = {
 const actions = {
     ...saveStatusActions,
     async fetchMyWorkoutPrograms({ commit, rootGetters }) {
-        if (rootGetters['app/userIsLocalOnly']) {
+        if (rootGetters["app/userIsLocalOnly"]) {
             return;
         }
-        commit('reset', { myWorkoutProgramsIsLoading: true });
+        commit("reset", { myWorkoutProgramsIsLoading: true });
         const response = await WorkoutProgramService.getAll();
 
-        commit('reset', {
+        commit("reset", {
             myWorkoutPrograms: response.data,
             myWorkoutProgramsIsLoading: false,
         });
     },
 
     startNew({ state, commit }) {
-        commit('reset', {
+        commit("reset", {
             ...defaultState(),
             inFocusProgram: {
                 /**  {@link hasMadeSignificantChangesFromNew} */
                 uuid: null,
-                name: 'New Workout Program',
+                name: "New Workout Program",
                 workoutProgramRoutines: [
                     {
                         uuid: UuidHelper.assign(),
-                        name: 'Workout 1',
-                        normalDay: 'Monday',
+                        name: "Workout 1",
+                        normalDay: "Monday",
                         position: 0,
                         routineExercises: [],
                     },
@@ -222,9 +222,9 @@ const actions = {
     },
 
     updateName({ commit, dispatch }, name) {
-        commit('updateName', name);
+        commit("updateName", name);
 
-        dispatch('save');
+        dispatch("save");
     },
 
     updateWorkout({ state, commit, dispatch }, { uuid, name }) {
@@ -233,15 +233,15 @@ const actions = {
             uuid
         );
 
-        commit('updateWorkout', { workout, newState: { name } });
+        commit("updateWorkout", { workout, newState: { name } });
 
-        dispatch('save');
+        dispatch("save");
     },
 
     updateWorkoutPositionFromOrder({ commit, dispatch }, orderedWorkouts) {
-        commit('updateWorkoutPositionFromOrder', orderedWorkouts);
+        commit("updateWorkoutPositionFromOrder", orderedWorkouts);
 
-        dispatch('save');
+        dispatch("save");
     },
 
     updateExercisePositionFromOrder(
@@ -284,23 +284,23 @@ const actions = {
                 fromAnotherWorkout.uuid
             );
 
-            commit('updateExercisePositionFromOrder', {
+            commit("updateExercisePositionFromOrder", {
                 workoutUuid: exercisesOriginalWorkout.uuid,
                 newOrderedExercises: withOutMovedExercise,
             });
         }
 
-        commit('updateExercisePositionFromOrder', {
+        commit("updateExercisePositionFromOrder", {
             workoutUuid,
             newOrderedExercises,
         });
 
-        dispatch('save');
+        dispatch("save");
     },
 
     addWorkoutToProgram({ state, commit, dispatch }, workout) {
         if (!workout) {
-            workout = { name: null };
+            workout = { name: "" };
         }
 
         if (!workout.position) {
@@ -314,40 +314,40 @@ const actions = {
 
         UuidHelper.assignTo(workout);
 
-        commit('addWorkout', workout);
-        commit('setJustAddedUuid', workout.uuid);
+        commit("addWorkout", workout);
+        commit("setJustAddedUuid", workout.uuid);
 
-        dispatch('save');
+        dispatch("save");
     },
 
     addExerciseToWorkout({ commit }, { workoutUuid }) {
         const uuid = UuidHelper.assign();
 
-        commit('addExerciseToWorkout', { uuid, workoutUuid });
-        commit('setJustAddedUuid', uuid);
+        commit("addExerciseToWorkout", { uuid, workoutUuid });
+        commit("setJustAddedUuid", uuid);
 
         // Don't save, we might abort the addition of this exercise, we instead force a save adding a name.
         // dispatch('save');
     },
 
     forgetJustAddedUuid({ commit }) {
-        commit('setJustAddedUuid', null);
+        commit("setJustAddedUuid", null);
     },
 
     deleteWorkout({ commit, dispatch }, { workoutUuid }) {
-        commit('deleteWorkout', { workoutUuid });
+        commit("deleteWorkout", { workoutUuid });
 
-        commit('fixPositions');
+        commit("fixPositions");
 
-        dispatch('save');
+        dispatch("save");
     },
 
     deleteExercise({ commit, dispatch }, { exerciseUuid }) {
-        commit('deleteExercise', { exerciseUuid });
+        commit("deleteExercise", { exerciseUuid });
 
-        commit('fixPositions');
+        commit("fixPositions");
 
-        dispatch('save');
+        dispatch("save");
     },
 
     updateExercise(
@@ -356,9 +356,9 @@ const actions = {
     ) {
         const exercise = getters.getExercise(exerciseUuid);
 
-        commit('updateExercise', { exercise, newState });
+        commit("updateExercise", { exercise, newState });
 
-        dispatch('save');
+        dispatch("save");
     },
 
     async delete({ state, commit, dispatch, rootGetters }, uuid) {
@@ -369,15 +369,15 @@ const actions = {
                 uuidToDelete
             );
 
-            commit('reset', { myWorkoutPrograms: updatedWorkoutPrograms }); // Optimistically remove from the state.
+            commit("reset", { myWorkoutPrograms: updatedWorkoutPrograms }); // Optimistically remove from the state.
 
-            if (!rootGetters['app/userIsLocalOnly']) {
+            if (!rootGetters["app/userIsLocalOnly"]) {
                 await WorkoutProgramService.delete(uuidToDelete);
             }
         } catch (error) {
-            dispatch('finishSavingError');
+            dispatch("finishSavingError");
 
-            commit('reset', { myWorkoutPrograms: state.myWorkoutPrograms }); // Rollback the remove from the state.
+            commit("reset", { myWorkoutPrograms: state.myWorkoutPrograms }); // Rollback the remove from the state.
         }
     },
 
@@ -388,7 +388,7 @@ const actions = {
                 return;
             }
 
-            dispatch('startSaving');
+            dispatch("startSaving");
 
             // We still don't have a top level uuid, but we have made some changes,
             // assign a UUID and actually save the program.
@@ -396,7 +396,7 @@ const actions = {
                 !state.inFocusProgram.uuid &&
                 getters.hasMadeSignificantChangesFromNew
             ) {
-                commit('assignTopLevelUuid');
+                commit("assignTopLevelUuid");
             }
 
             if (state.delayedSavingToServer) {
@@ -404,14 +404,14 @@ const actions = {
             }
 
             try {
-                if (rootGetters['app/userIsLocalOnly']) {
-                    commit('markUpdated');
+                if (rootGetters["app/userIsLocalOnly"]) {
+                    commit("markUpdated");
                 } else {
                     const response = await WorkoutProgramService.save(
                         getters.savePayload
                     );
 
-                    commit('patchInSaveResponse', response.data);
+                    commit("patchInSaveResponse", response.data);
                 }
 
                 const updatedWorkoutPrograms = UuidHelper.replaceInCopy(
@@ -419,12 +419,12 @@ const actions = {
                     state.inFocusProgram
                 );
 
-                commit('reset', { myWorkoutPrograms: updatedWorkoutPrograms });
-                dispatch('saveToLocalStorage');
+                commit("reset", { myWorkoutPrograms: updatedWorkoutPrograms });
+                dispatch("saveToLocalStorage");
 
-                dispatch('finishSaving');
+                dispatch("finishSaving");
             } catch (error) {
-                dispatch('finishSavingError');
+                dispatch("finishSavingError");
             }
         },
         SAVE_DEBOUNCE_WAIT
@@ -438,24 +438,24 @@ const actions = {
     },
 
     async fetch({ commit, rootGetters }, uuid) {
-        if (rootGetters['app/userIsLocalOnly']) {
+        if (rootGetters["app/userIsLocalOnly"]) {
             return;
         }
 
         const response = await WorkoutProgramService.get(uuid);
-        commit('reset', {
+        commit("reset", {
             inFocusProgram: response.data,
             delayedSavingToServer: false,
         });
     },
 
     async prepareForSessionOverview({ commit, rootGetters }, routineUuid) {
-        if (rootGetters['app/userIsLocalOnly']) {
+        if (rootGetters["app/userIsLocalOnly"]) {
             return;
         }
 
         const response = await WorkoutProgramService.getByRoutine(routineUuid);
-        commit('reset', {
+        commit("reset", {
             inFocusProgram: response.data,
             delayedSavingToServer: true,
         });
@@ -463,8 +463,8 @@ const actions = {
 
     saveIfDirty({ state, getters, rootGetters, dispatch }) {
         if (state.inFocusProgram.isDirty) {
-            if (rootGetters['app/userIsLocalOnly']) {
-                dispatch('saveToLocalStorage');
+            if (rootGetters["app/userIsLocalOnly"]) {
+                dispatch("saveToLocalStorage");
             } else {
                 return WorkoutProgramService.save(getters.savePayload);
             }
@@ -550,7 +550,7 @@ const mutations = {
 
         workout.routineExercises.push({
             uuid,
-            name: null,
+            name: "",
             weight: null,
             numberOfSets: 3,
             warmUp: 2 * 60, // 2 minutes in seconds.

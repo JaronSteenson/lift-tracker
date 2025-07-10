@@ -37,7 +37,7 @@
                     />
                 </template>
                 <template v-slot:item.bodyWeight="{ item: session }">
-                    {{ session.bodyWeight ? `${session.bodyWeight}kg` : '' }}
+                    {{ session.bodyWeight ? `${session.bodyWeight}kg` : "" }}
                 </template>
                 <template v-slot:item.duration="{ item: session }">
                     {{
@@ -119,11 +119,11 @@
 </template>
 
 <script>
-import NarrowContentContainer from '../layouts/NarrowContentContainer';
-import { mapState, mapGetters } from 'vuex';
-import SessionStatsCard from '../domain/workoutSessions/SessionStatsCard';
-import { dateDescription, hoursMinutesSecondsFromStartEnd } from '../../dates';
-import ProgramName from '../domain/programBuilder/ProgramName';
+import NarrowContentContainer from "../layouts/NarrowContentContainer";
+import { mapState, mapGetters } from "vuex";
+import SessionStatsCard from "../domain/workoutSessions/SessionStatsCard";
+import { dateDescription, hoursMinutesSecondsFromStartEnd } from "../../dates";
+import ProgramName from "../domain/programBuilder/ProgramName";
 
 export default {
     components: {
@@ -133,60 +133,57 @@ export default {
     },
     data() {
         return {
-            showTable: localStorage.getItem('homePageShowTable') === 'true',
+            showTable: localStorage.getItem("homePageShowTable") === "true",
             loadingNextPage: false,
             newSessionModalProgramUuid: null,
         };
     },
     mounted() {
         this.infiniteScroll();
-        window.addEventListener('scroll', this.infiniteScroll);
+        window.addEventListener("scroll", this.infiniteScroll);
     },
     destroyed() {
-        window.removeEventListener('scroll', this.infiniteScroll);
+        window.removeEventListener("scroll", this.infiniteScroll);
     },
     computed: {
-        ...mapState('workoutSession', [
-            'myMyWorkoutSessionsPagesAllLoaded',
-            'myWorkoutSessions',
-        ]),
-        ...mapGetters('workoutSession', ['isInProgressWorkout']),
+        ...mapState("workoutSession", ["allPagesLoaded", "myWorkoutSessions"]),
+        ...mapGetters("workoutSession", ["isInProgressWorkout"]),
         headers() {
             return [
                 {
-                    text: 'Date',
-                    value: 'startedAt',
-                    width: '20%',
+                    text: "Date",
+                    value: "startedAt",
+                    width: "20%",
                     sortable: false,
                 },
                 {
-                    text: 'Routine',
-                    value: 'name',
-                    width: '20%',
+                    text: "Routine",
+                    value: "name",
+                    width: "20%",
                     sortable: false,
                 },
                 {
-                    text: 'Program',
-                    value: 'programName',
-                    width: '20%',
+                    text: "Program",
+                    value: "programName",
+                    width: "20%",
                     sortable: false,
                 },
                 {
-                    text: 'Body weight',
-                    value: 'bodyWeight',
-                    width: '20%',
+                    text: "Body weight",
+                    value: "bodyWeight",
+                    width: "20%",
                     sortable: false,
                 },
                 {
-                    text: 'Total duration',
-                    value: 'duration',
-                    width: '20%',
+                    text: "Total duration",
+                    value: "duration",
+                    width: "20%",
                     sortable: false,
                 },
                 {
-                    text: '',
-                    value: 'menu',
-                    align: 'end',
+                    text: "",
+                    value: "menu",
+                    align: "end",
                     sortable: false,
                 },
             ];
@@ -196,7 +193,7 @@ export default {
         hoursMinutesSecondsFromStartEnd,
         setHomePageShowTable(value) {
             localStorage.setItem(
-                'homePageShowTable',
+                "homePageShowTable",
                 Boolean(value).toString()
             );
         },
@@ -210,17 +207,17 @@ export default {
         },
         async loadNextPage() {
             this.loadingNextPage = true;
-            await this.$store.dispatch('workoutSession/fetchNextPage');
+            await this.$store.dispatch("workoutSession/fetchNextPage");
             this.loadingNextPage = false;
         },
         showDeleteConfirmation(workoutSessionUuid) {
             const deleteConfirmed = window.confirm(
-                'Are you sure you want to delete this workout?'
+                "Are you sure you want to delete this workout?"
             );
 
             if (deleteConfirmed) {
                 this.$store.dispatch(
-                    'workoutSession/delete',
+                    "workoutSession/delete",
                     workoutSessionUuid
                 );
             }

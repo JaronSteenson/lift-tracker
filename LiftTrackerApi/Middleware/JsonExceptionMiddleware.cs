@@ -19,7 +19,7 @@ public class JsonExceptionMiddleware(
     {
         try
         {
-            await next(context); // call next middleware
+            await next(context);
         }
         catch (Exception ex)
         {

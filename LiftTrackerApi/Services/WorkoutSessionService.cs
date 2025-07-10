@@ -1,16 +1,22 @@
 using LiftTrackerApi.Entities;
 using LiftTrackerApi.Exceptions;
 using LiftTrackerApi.Extensions;
+using LiftTrackerApi.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace LiftTrackerApi.Services;
 
 public class WorkoutSessionService(LiftTrackerDbContext db, DomainEntityService domainEntityService)
 {
-    public async Task<List<WorkoutSession>> FindWorkoutSessionsForUserId(int userId)
+    public async Task<PaginatedList<WorkoutSession>> FindWorkoutSessionsForUserId(
+        int userId,
+        int pageIndex,
+        int pageSize
+    )
     {
         var query = db
-            .WorkoutSessions.Include(session => session.SessionExercises)
+            .WorkoutSessions.AsNoTracking()
+            .Include(session => session.SessionExercises)
             .ThenInclude(exercise => exercise.SessionSets)
             .Include(session => session.SessionExercises)
             .ThenInclude(exercise => exercise.RoutineExercise)
@@ -19,7 +25,11 @@ public class WorkoutSessionService(LiftTrackerDbContext db, DomainEntityService 
             .Where(session => session.UserId == userId)
             .OrderByDescending(session => session.CreatedAt);
 
-        var workoutSessions = await query.AsNoTracking().ToListAsync();
+        var workoutSessions = await PaginatedList<WorkoutSession>.CreateAsync(
+            query,
+            pageIndex,
+            pageSize
+        );
         SortChildren(workoutSessions);
 
         return workoutSessions;
@@ -55,6 +65,7 @@ public class WorkoutSessionService(LiftTrackerDbContext db, DomainEntityService 
     {
         var exercise = await db
             .SessionExercises.AsNoTracking()
+            .IgnoreQueryFilters()
             .WhereUuid(sessionExerciseUuid)
             .Include(exercise => exercise.RoutineExercise)
             .Include(exercise => exercise.WorkoutSession)
@@ -268,12 +279,17 @@ public class WorkoutSessionService(LiftTrackerDbContext db, DomainEntityService 
             userId
         );
 
+        if (sourceExercise.RoutineExercise == null)
+        {
+            return [];
+        }
+
         var history = await db
             .SessionExercises.Include(exercise => exercise.SessionSets)
             .Include(exercise => exercise.RoutineExercise)
             .Where(exercise =>
                 exercise.RoutineExercise != null
-                && exercise.RoutineExercise.Id == sourceExercise.RoutineExercise!.Id
+                && exercise.RoutineExercise.Id == sourceExercise.RoutineExercise.Id
             )
             .Where(exercise => !exercise.Skipped)
             .Where(exercise => exercise.WorkoutSession.UserId == userId)

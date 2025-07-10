@@ -16,10 +16,10 @@
 </template>
 
 <script>
-import NotFound from '../../routing/NotFound';
-import SessionOverviewLoadingSkeleton from './SessionOverviewLoadingSkeleton';
-import WorkoutCard from './../programBuilder/WorkoutCard';
-import NarrowContentContainer from '../../layouts/NarrowContentContainer';
+import NotFound from "../../routing/NotFound";
+import SessionOverviewLoadingSkeleton from "./SessionOverviewLoadingSkeleton";
+import WorkoutCard from "./../programBuilder/WorkoutCard";
+import NarrowContentContainer from "../../layouts/NarrowContentContainer";
 
 export default {
     components: {
@@ -41,16 +41,10 @@ export default {
     async created() {
         if (this.originRoutineUuid) {
             this.loading = true;
-
-            try {
-                await this.$store.dispatch(
-                    'programBuilder/prepareForSessionOverview',
-                    this.originRoutineUuid
-                );
-            } catch (e) {
-                this.fetchError = true;
-            }
-
+            await this.$store.dispatch(
+                "programBuilder/prepareForSessionOverview",
+                this.originRoutineUuid
+            );
             this.loading = false;
         }
     },

@@ -1,9 +1,10 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using LiftTrackerApi.Entities.Interfaces;
 using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 
 namespace LiftTrackerApi.Entities;
 
-public partial class WorkoutSession : DomainEntity
+public partial class WorkoutSession : DomainEntity, IOwnable
 {
     public int? UserId { get; set; }
 

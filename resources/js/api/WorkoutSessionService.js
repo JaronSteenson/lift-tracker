@@ -1,10 +1,8 @@
-import ApiService from './ApiService';
+import ApiService from "./ApiService";
 
-const RESOURCE_NAME = 'workout-sessions';
-const SET_RESOURCE_NAME = 'sessions-sets';
-const EXERCISE_RESOURCE_NAME = 'sessions-exercises';
-const EXERCISE_PREVIOUS_ENTRIES = 'session-exercise-previous-entries';
-const IN_PROGRESS_WORKOUTS = 'in-progress-workouts';
+const RESOURCE_NAME = "workout-sessions";
+const SET_RESOURCE_NAME = "session-sets";
+const EXERCISE_RESOURCE_NAME = "session-exercises";
 
 const WorkoutProgramService = {
     get(uuid) {
@@ -12,11 +10,12 @@ const WorkoutProgramService = {
     },
 
     /**
-     * @param page {Number}
      * @return {Promise<any>}
      */
-    index(page) {
-        return ApiService.get(`${RESOURCE_NAME}?page=${page}`);
+    index({ pageIndex, pageSize = 10 }) {
+        return ApiService.get(
+            `${RESOURCE_NAME}?pageIndex=${pageIndex}&pageSize=${pageSize}`
+        );
     },
 
     getPageSize() {
@@ -24,19 +23,7 @@ const WorkoutProgramService = {
     },
 
     getBySet(sessionSetUuid) {
-        return ApiService.get(
-            `${RESOURCE_NAME}?session-set-uuid=${sessionSetUuid}`
-        );
-    },
-
-    getInProgressWorkouts() {
-        return ApiService.get(`${IN_PROGRESS_WORKOUTS}`);
-    },
-
-    getExercisePreviousEntries(sessionExerciseUuid) {
-        return ApiService.get(
-            `${EXERCISE_PREVIOUS_ENTRIES}/${sessionExerciseUuid}`
-        );
+        return ApiService.get(`${RESOURCE_NAME}/by-set/${sessionSetUuid}`);
     },
 
     saveSet(sessionSet) {

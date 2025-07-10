@@ -137,15 +137,15 @@ const actions = {
         }
 
         if (state.isAuthenticated) {
-            commit(
-                "workoutSession/reset",
+            dispatch(
+                "programBuilder/fetchMyWorkoutPrograms",
                 {},
                 {
                     root: true,
                 }
             );
-            commit(
-                "programBuilder/reset",
+            dispatch(
+                "workoutSession/fetchNextPage",
                 {},
                 {
                     root: true,

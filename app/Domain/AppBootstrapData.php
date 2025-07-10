@@ -40,8 +40,8 @@ class AppBootstrapData implements \JsonSerializable
             'workoutSession' => [
                 'inProgressWorkouts' => (new WorkoutSession)->findInProgress($user->id),
                 'myWorkoutSessions' => $myWorkoutSessions,
-                'myMyWorkoutSessionsPagesLoaded' => 1,
-                'myMyWorkoutSessionsPagesAllLoaded' => count($myWorkoutSessions) < (new WorkoutSession)->getPerPage(),
+                'pageIndex' => 1,
+                'allPagesLoaded' => count($myWorkoutSessions) < (new WorkoutSession)->getPerPage(),
             ],
             'programBuilder' => [
                 'myWorkoutPrograms' => $user->getWorkoutPrograms(),

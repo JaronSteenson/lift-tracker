@@ -12,7 +12,6 @@ public class SessionExerciseController(WorkoutSessionService workoutSessionServi
     public async Task<IActionResult> Update([FromBody] SessionExercise sessionExercise)
     {
         var userId = (int)(HttpContext.Items["UserId"] ?? -1);
-
         if (!ModelState.IsValid)
         {
             return BadRequest(ModelState);

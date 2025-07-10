@@ -1,4 +1,5 @@
 using LiftTrackerApi.Entities;
+using LiftTrackerApi.Entities.Interfaces;
 using LiftTrackerApi.Exceptions;
 using LiftTrackerApi.Extensions;
 using Microsoft.EntityFrameworkCore;
@@ -46,7 +47,7 @@ public class DomainEntityService(LiftTrackerDbContext db)
     /// </p>
     /// </summary>
     ///
-    /// <see cref="ReattachRequestEntity"/>
+    /// <see cref="ReattachRequestEntity{T}"/>
     public void TrackEntityDiffChanges<T>(
         Dictionary<Guid, T> existingMap,
         Dictionary<Guid, T> updatedMap
@@ -82,10 +83,17 @@ public class DomainEntityService(LiftTrackerDbContext db)
     /// Because of the system's design where Ids are used as the internal key, but publicly exposed UUIDs are used,
     /// we must reattach the request entity to the existing entity to update it in the database.
     /// </summary>
-    public void ReattachRequestEntity(DomainEntity existing, DomainEntity updated)
+    public void ReattachRequestEntity<T>(T existing, T updated)
+        where T : DomainEntity
     {
         updated.Id = existing.Id;
         updated.CreatedAt = existing.CreatedAt;
+
+        if (updated is IOwnable updatedOwnable && existing is IOwnable existingOwnable)
+        {
+            updatedOwnable.UserId = existingOwnable.UserId;
+        }
+
         db.Entry(updated).State = EntityState.Modified;
     }
 }

@@ -5,12 +5,7 @@ namespace LiftTrackerApi.Entities;
 
 public partial class RoutineExercise : DomainEntity, IPositionable
 {
-    [Required(ErrorMessage = "Name is required")]
-    [StringLength(
-        100,
-        MinimumLength = 1,
-        ErrorMessage = "Name must be between 1 and 100 characters"
-    )]
+    [MaxLength(100, ErrorMessage = "Name must be at most 100 characters")]
     public string? Name { get; set; }
 
     public int? NumberOfSets { get; set; }
