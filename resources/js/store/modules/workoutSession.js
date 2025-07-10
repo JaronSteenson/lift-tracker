@@ -1,25 +1,25 @@
-import WorkoutSessionService from "../../api/WorkoutSessionService";
-import UuidHelper from "../../UuidHelper";
-import { utcNow } from "../../dates";
-import { memoizeDebounceAction } from "../../util";
-import { differenceInSeconds, isAfter } from "date-fns";
+import WorkoutSessionService from '../../api/WorkoutSessionService';
+import UuidHelper from '../../UuidHelper';
+import { utcNow } from '../../dates';
+import { memoizeDebounceAction } from '../../util';
+import { differenceInSeconds, isAfter } from 'date-fns';
 import {
     mutations as saveStatusMutations,
     actions as saveStatusActions,
     state as saveStatusState,
-} from "./saveStatusMixin";
-import createSessionFromBuilderWorkout from "../../domain/createSessionFromBuilderWorkout";
-import SessionExerciseService from "../../api/SessionExerciseService";
+} from './saveStatusMixin';
+import createSessionFromBuilderWorkout from '../../domain/createSessionFromBuilderWorkout';
+import SessionExerciseService from '../../api/SessionExerciseService';
 
 const SAVE_DEBOUNCE_WAIT = 1000;
-const LOCAL_STORAGE_KEY = "store-state--WorkoutSession";
+const LOCAL_STORAGE_KEY = 'store-state--WorkoutSession';
 
 function defaultState() {
     return {
         ...saveStatusState,
         workoutSession: {
             uuid: null,
-            name: "",
+            name: '',
             startedAt: null,
             endedAt: null,
             notes: null,
@@ -410,7 +410,7 @@ export const getters = {
     },
 
     hasLoadedExerciseHistory: (state) => (exerciseUuid) => {
-        return typeof state.exercisesHistory[exerciseUuid] !== "undefined";
+        return typeof state.exercisesHistory[exerciseUuid] !== 'undefined';
     },
 
     exerciseHistory: (state) => (exerciseUuid) => {
@@ -437,11 +437,11 @@ export const actions = {
     ...saveStatusActions,
 
     updateBodyWeight({ commit, dispatch }, { bodyWeight }) {
-        commit("updateWorkoutSession", { bodyWeight });
-        dispatch("saveWorkout");
+        commit('updateWorkoutSession', { bodyWeight });
+        dispatch('saveWorkout');
     },
     updateSetWeight({ commit, dispatch, getters }, { uuid, weight }) {
-        commit("updateSet", { uuid, weight });
+        commit('updateSet', { uuid, weight });
 
         // If we are in progress, update the upcoming sets as well as this set.
         if (getters.isInProgressWorkout) {
@@ -449,13 +449,13 @@ export const actions = {
 
             exercise.sessionSets.forEach((set) => {
                 if (set.uuid !== uuid && set.startedAt === null) {
-                    commit("updateSet", { uuid: set.uuid, weight });
+                    commit('updateSet', { uuid: set.uuid, weight });
                 }
             });
 
-            dispatch("saveExercise", exercise.uuid);
+            dispatch('saveExercise', exercise.uuid);
         } else {
-            dispatch("saveSet", uuid);
+            dispatch('saveSet', uuid);
         }
     },
 
@@ -463,102 +463,102 @@ export const actions = {
         { commit, dispatch },
         { uuid, warmUpDuration }
     ) {
-        commit("updateExercise", { uuid, warmUpDuration });
+        commit('updateExercise', { uuid, warmUpDuration });
 
-        dispatch("saveExercise", uuid);
+        dispatch('saveExercise', uuid);
     },
 
     updateSetRestPeriodDuration(
         { commit, dispatch },
         { uuid, restPeriodDuration }
     ) {
-        commit("updateSet", { uuid, restPeriodDuration });
+        commit('updateSet', { uuid, restPeriodDuration });
 
-        dispatch("saveSet", uuid);
+        dispatch('saveSet', uuid);
     },
 
     updateSetReps({ commit, dispatch }, { uuid, reps }) {
-        commit("updateSet", { uuid, reps });
+        commit('updateSet', { uuid, reps });
 
-        dispatch("saveSet", uuid);
+        dispatch('saveSet', uuid);
     },
 
     updateExerciseNotes({ commit, dispatch }, { uuid, notes }) {
-        commit("updateExercise", { uuid, notes });
+        commit('updateExercise', { uuid, notes });
 
-        dispatch("saveExercise", uuid);
+        dispatch('saveExercise', uuid);
     },
 
     updateExerciseSkipped({ commit, dispatch }, { uuid, skipped }) {
-        commit("updateExercise", { uuid, skipped });
+        commit('updateExercise', { uuid, skipped });
 
-        dispatch("saveExercise", uuid);
+        dispatch('saveExercise', uuid);
     },
 
     startSet({ commit, dispatch }, { uuid }) {
         const now = utcNow();
 
-        commit("startSet", { uuid, startedAt: now });
+        commit('startSet', { uuid, startedAt: now });
 
-        dispatch("saveSet", uuid);
+        dispatch('saveSet', uuid);
     },
 
     endSet({ commit, dispatch }, { uuid }) {
-        commit("updateSet", { uuid, endedAt: utcNow() });
+        commit('updateSet', { uuid, endedAt: utcNow() });
 
-        dispatch("saveSet", uuid);
+        dispatch('saveSet', uuid);
     },
 
     skipExercise({ commit, dispatch }, { uuid }) {
-        commit("skipExercise", { uuid });
+        commit('skipExercise', { uuid });
 
-        dispatch("saveExercise", uuid);
+        dispatch('saveExercise', uuid);
     },
 
     startWarmUp({ commit, dispatch }, { uuid }) {
         const warmUpStartedAt = utcNow();
 
-        commit("updateExercise", {
+        commit('updateExercise', {
             uuid,
             warmUpStartedAt,
             warmUpEndedAt: null,
         });
 
-        dispatch("saveExercise", uuid);
+        dispatch('saveExercise', uuid);
     },
 
     startRestPeriod({ commit, dispatch }, { uuid }) {
         const restPeriodStartedAt = utcNow();
 
-        commit("updateSet", {
+        commit('updateSet', {
             uuid,
             restPeriodStartedAt,
             restPeriodEndedAt: null,
         });
 
-        dispatch("saveSet", uuid);
+        dispatch('saveSet', uuid);
     },
 
     resetWarmUp({ commit, dispatch }, { uuid }) {
-        commit("updateExercise", {
+        commit('updateExercise', {
             uuid,
             warmUpStartedAt: null,
             warmUpEndedAt: null,
             warmUpDuration: null,
         });
 
-        dispatch("saveExercise", uuid);
+        dispatch('saveExercise', uuid);
     },
 
     resetRestPeriod({ commit, dispatch }, { uuid }) {
-        commit("updateSet", {
+        commit('updateSet', {
             uuid,
             restPeriodStartedAt: null,
             restPeriodEndedAt: null,
             restPeriodDuration: null,
         });
 
-        dispatch("saveSet", uuid);
+        dispatch('saveSet', uuid);
     },
 
     endWarmUp({ commit, dispatch, getters }, { uuid }) {
@@ -569,13 +569,13 @@ export const actions = {
             new Date(warmUpEndedAt),
             new Date(exercise.warmUpStartedAt)
         );
-        commit("endWarmUp", {
+        commit('endWarmUp', {
             uuid,
             warmUpEndedAt,
             warmUpDuration,
         });
 
-        dispatch("saveExercise", uuid);
+        dispatch('saveExercise', uuid);
     },
 
     endRestPeriod({ commit, dispatch, getters }, { uuid }) {
@@ -586,17 +586,17 @@ export const actions = {
             new Date(restPeriodEndedAt),
             new Date(set.restPeriodStartedAt)
         );
-        commit("endRestPeriod", {
+        commit('endRestPeriod', {
             uuid,
             restPeriodEndedAt,
             restPeriodDuration,
         });
 
-        dispatch("saveSet", uuid);
+        dispatch('saveSet', uuid);
     },
 
     updateOpenForEditsStatus({ state, commit }, { workoutSessionUuid, value }) {
-        commit("reset", {
+        commit('reset', {
             openForEdits: {
                 ...state.openForEdits,
                 [workoutSessionUuid]: value,
@@ -612,19 +612,19 @@ export const actions = {
             );
 
             // Optimistically remove from the state.
-            commit("reset", {
+            commit('reset', {
                 myWorkoutSessions: updatedWorkoutSessions,
             });
 
-            if (!rootGetters["app/userIsLocalOnly"]) {
+            if (!rootGetters['app/userIsLocalOnly']) {
                 await WorkoutSessionService.delete(uuidToDelete);
             }
         } catch (error) {
             console.error(error);
-            dispatch("finishSavingError");
+            dispatch('finishSavingError');
 
             // Rollback the remove from the state.
-            commit("reset", {
+            commit('reset', {
                 myWorkoutSessions: state.myWorkoutSessions,
             });
         }
@@ -642,38 +642,38 @@ export const actions = {
     saveSet: memoizeDebounceAction(
         async ({ commit, getters, dispatch, rootGetters }, uuid) => {
             try {
-                dispatch("startSaving");
+                dispatch('startSaving');
 
-                commit("updateSet", {
+                commit('updateSet', {
                     uuid,
                     updatedAt: utcNow(),
                 });
-                commit("updateWorkoutSession", {
+                commit('updateWorkoutSession', {
                     uuid: getters.uuid,
                     updatedAt: utcNow(),
                 });
 
                 const set = getters.set(uuid);
 
-                if (!rootGetters["app/userIsLocalOnly"]) {
+                if (!rootGetters['app/userIsLocalOnly']) {
                     const response = await WorkoutSessionService.saveSet(set);
 
-                    commit("updateWorkoutSession", {
+                    commit('updateWorkoutSession', {
                         uuid: getters.uuid,
                         updatedAt: response.data.updatedAt,
                     });
 
-                    commit("updateSet", {
+                    commit('updateSet', {
                         uuid,
                         updatedAt: response.data.updatedAt,
                         createdAt: response.data.createdAt,
                     });
                 }
 
-                dispatch("saveToLocalStorage");
-                dispatch("finishSaving");
+                dispatch('saveToLocalStorage');
+                dispatch('finishSaving');
             } catch (error) {
-                dispatch("finishSavingError");
+                dispatch('finishSavingError');
                 console.error(error);
             }
         },
@@ -683,32 +683,32 @@ export const actions = {
     saveExercise: memoizeDebounceAction(
         async ({ commit, getters, dispatch, rootGetters }, uuid) => {
             try {
-                dispatch("startSaving");
+                dispatch('startSaving');
 
-                commit("updateExercise", {
+                commit('updateExercise', {
                     uuid,
                 });
 
-                if (!rootGetters["app/userIsLocalOnly"]) {
+                if (!rootGetters['app/userIsLocalOnly']) {
                     const response = await WorkoutSessionService.saveExercise(
                         getters.exercise(uuid)
                     );
 
-                    commit("updateWorkoutSession", {
+                    commit('updateWorkoutSession', {
                         updatedAt: response.data.updatedAt,
                     });
 
-                    commit("updateExercise", {
+                    commit('updateExercise', {
                         uuid,
                         updatedAt: response.data.updatedAt,
                         createdAt: response.data.createdAt,
                     });
                 }
 
-                dispatch("saveToLocalStorage");
-                dispatch("finishSaving");
+                dispatch('saveToLocalStorage');
+                dispatch('finishSaving');
             } catch (error) {
-                dispatch("finishSavingError");
+                dispatch('finishSavingError');
                 console.error(error);
             }
         },
@@ -717,25 +717,25 @@ export const actions = {
 
     async saveWorkout({ commit, state, dispatch, rootGetters }) {
         try {
-            dispatch("startSaving");
+            dispatch('startSaving');
 
-            commit("updateWorkoutSession", {});
-            dispatch("saveToLocalStorage");
+            commit('updateWorkoutSession', {});
+            dispatch('saveToLocalStorage');
 
-            if (!rootGetters["app/userIsLocalOnly"]) {
+            if (!rootGetters['app/userIsLocalOnly']) {
                 const response = await WorkoutSessionService.save(
                     state.workoutSession
                 );
 
-                commit("updateWorkoutSession", {
+                commit('updateWorkoutSession', {
                     updatedAt: response.data.updatedAt,
                     createdAt: response.data.createdAt,
                 });
             }
 
-            dispatch("finishSaving");
+            dispatch('finishSaving');
         } catch (error) {
-            dispatch("finishSavingError");
+            dispatch('finishSavingError');
             console.error(error);
         }
     },
@@ -748,12 +748,12 @@ export const actions = {
     },
 
     async fetch({ commit, rootGetters }, uuid) {
-        if (rootGetters["app/userIsLocalOnly"]) {
+        if (rootGetters['app/userIsLocalOnly']) {
             return undefined;
         }
 
         const response = await WorkoutSessionService.get(uuid);
-        commit("reset", { workoutSession: response.data });
+        commit('reset', { workoutSession: response.data });
 
         return response;
     },
@@ -762,8 +762,8 @@ export const actions = {
      * @return {Promise<*>}
      */
     async fetchNextPage({ commit, state, rootGetters }) {
-        if (rootGetters["app/userIsLocalOnly"]) {
-            commit("reset", {
+        if (rootGetters['app/userIsLocalOnly']) {
+            commit('reset', {
                 allPagesLoaded: true,
             });
             return [];
@@ -772,7 +772,7 @@ export const actions = {
         const pageIndex = state.pageIndex + 1;
         const response = await WorkoutSessionService.index({ pageIndex });
 
-        commit("reset", {
+        commit('reset', {
             myWorkoutSessions: [...state.myWorkoutSessions, ...response.data],
             pageIndex,
             allPagesLoaded:
@@ -783,19 +783,19 @@ export const actions = {
     },
 
     async fetchBySet({ commit, rootGetters }, sessionSetUuid) {
-        if (rootGetters["app/userIsLocalOnly"]) {
+        if (rootGetters['app/userIsLocalOnly']) {
             return undefined;
         }
 
         const response = await WorkoutSessionService.getBySet(sessionSetUuid);
-        commit("reset", { workoutSession: response.data });
+        commit('reset', { workoutSession: response.data });
 
         return response;
     },
 
     async fetchExerciseHistory({ state, commit, rootGetters }, exerciseUuid) {
         let previousEntries;
-        if (rootGetters["app/userIsLocalOnly"]) {
+        if (rootGetters['app/userIsLocalOnly']) {
             previousEntries = state.myWorkoutSessions
                 .reduce((carry, workoutSession) => {
                     const matchingExercises =
@@ -817,7 +817,7 @@ export const actions = {
             previousEntries = response.data.reverse();
         }
 
-        commit("updateExerciseHistory", {
+        commit('updateExerciseHistory', {
             exerciseUuid,
             previousEntries,
         });
@@ -837,14 +837,14 @@ export const actions = {
             myWorkoutSessions: [workoutSession, ...state.myWorkoutSessions],
             exercisesHistory: originalState.exercisesHistory,
         };
-        commit("reset", update);
+        commit('reset', update);
 
         // Save updates to the master workout routine.
-        await dispatch("programBuilder/saveIfDirty", undefined, { root: true });
+        await dispatch('programBuilder/saveIfDirty', undefined, { root: true });
 
         // We must wait for the master routine to be updated,
         // so we can link any new session exercises to their builder counterparts.
-        if (!rootGetters["app/userIsLocalOnly"]) {
+        if (!rootGetters['app/userIsLocalOnly']) {
             workoutSession = (await WorkoutSessionService.save(workoutSession))
                 .data;
         }
@@ -856,8 +856,8 @@ export const actions = {
                 workoutSession
             ),
         };
-        commit("reset", updateFromServer);
-        dispatch("saveToLocalStorage");
+        commit('reset', updateFromServer);
+        dispatch('saveToLocalStorage');
     },
 
     async endWorkout({ commit, dispatch, getters }) {
@@ -871,13 +871,13 @@ export const actions = {
             lastExercise.sessionSets[lastExercise.sessionSets.length - 1];
 
         // TODO combine set and workout save (just save everything in one hit).
-        commit("endSet", { uuid: lastSet.uuid, endedAt });
-        dispatch("saveSet", lastSet.uuid);
+        commit('endSet', { uuid: lastSet.uuid, endedAt });
+        dispatch('saveSet', lastSet.uuid);
 
         const workoutSession = { ...getters.workoutSession, endedAt };
-        commit("reset", { workoutSession });
+        commit('reset', { workoutSession });
 
-        const save = await dispatch("saveWorkout");
+        const save = await dispatch('saveWorkout');
 
         return save;
     },

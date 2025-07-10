@@ -23,25 +23,25 @@
     </VMenu>
 </template>
 <script>
-import { mapGetters } from "vuex";
+import { mapGetters } from 'vuex';
 
 export default {
     computed: {
-        ...mapGetters("app", [
-            "avatarInitials",
-            "userIsAuthenticated",
-            "userIsLocalOnly",
+        ...mapGetters('app', [
+            'avatarInitials',
+            'userIsAuthenticated',
+            'userIsLocalOnly',
         ]),
     },
     methods: {
         async logout() {
             if (!this.userIsAuthenticated) {
-                await this.$router.push({ name: "LoginPage" });
+                await this.$router.push({ name: 'LoginPage' });
                 return;
             }
 
-            await this.$store.dispatch("app/logout");
-            await this.$router.push({ name: "LoginPage" });
+            await this.$store.dispatch('app/logout');
+            await this.$router.push({ name: 'LoginPage' });
         },
     },
 };

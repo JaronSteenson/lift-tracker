@@ -1,15 +1,15 @@
-import axios from "axios";
-import { createAuth0Client } from "@auth0/auth0-spa-js";
-import router from "../../router/router";
-import authConfig from "../../../../auth_config.json";
+import axios from 'axios';
+import { createAuth0Client } from '@auth0/auth0-spa-js';
+import router from '../../router/router';
+import authConfig from '../../../../auth_config.json';
 
-export const LOCAL_STORAGE_KEY = "store-state--App";
+export const LOCAL_STORAGE_KEY = 'store-state--App';
 
 const authorizationParams = {
     detailedResponse: true,
     redirect_uri: window.location.origin,
-    audience: "https://dev.lift-tracker.app",
-    scope: "email",
+    audience: 'https://dev.lift-tracker.app',
+    scope: 'email',
 };
 
 const state = {
@@ -18,9 +18,9 @@ const state = {
     auth0Client: null,
     auth0Error: null,
     localOnlyUser: false,
-    appName: "Lift Tracker",
+    appName: 'Lift Tracker',
     user: null,
-    previousRoute: "/",
+    previousRoute: '/',
     /**
      * We can force the session-expired modal from either a bad ajax response or from our expiry check interval.
      * @type Boolean
@@ -43,8 +43,8 @@ const getters = {
     },
 
     avatarInitials(state) {
-        const f = state?.user?.name?.charAt(0) ?? "";
-        const l = state?.user?.family_name?.charAt(0) ?? "";
+        const f = state?.user?.name?.charAt(0) ?? '';
+        const l = state?.user?.family_name?.charAt(0) ?? '';
 
         return `${f}${l}`.trim();
     },
@@ -60,7 +60,7 @@ const getters = {
 
         return (
             rootState.workoutSession.myWorkoutSessions.length === 0 &&
-            rootGetters["programBuilder/myWorkoutPrograms"].length === 0
+            rootGetters['programBuilder/myWorkoutPrograms'].length === 0
         );
     },
 
@@ -74,7 +74,7 @@ const getters = {
             return false;
         }
 
-        return rootGetters["programBuilder/myWorkoutPrograms"].length === 0;
+        return rootGetters['programBuilder/myWorkoutPrograms'].length === 0;
     },
 
     shouldShowNoSessionsHint(state, getters, rootState, rootGetters) {
@@ -84,7 +84,7 @@ const getters = {
 
         return (
             rootState.workoutSession.myWorkoutSessions.length === 0 &&
-            rootGetters["programBuilder/myWorkoutPrograms"].length > 0
+            rootGetters['programBuilder/myWorkoutPrograms'].length > 0
         );
     },
 
@@ -96,16 +96,17 @@ const getters = {
         return state.showSessionExpiredModal;
     },
 
-    forLocalStorageSave({ user }) {
+    forLocalStorageSave({ user, localOnlyUser }) {
         return {
             user,
+            localOnlyUser,
         };
     },
 
     fromLocalStorage(state, getters, rootState, rootGetters) {
         const app = JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY));
-        const programBuilder = rootGetters["programBuilder/fromLocalStorage"];
-        const workoutSession = rootGetters["workoutSession/fromLocalStorage"];
+        const programBuilder = rootGetters['programBuilder/fromLocalStorage'];
+        const workoutSession = rootGetters['workoutSession/fromLocalStorage'];
 
         return {
             app,
@@ -117,35 +118,38 @@ const getters = {
 
 const actions = {
     setNavigationDrawerOpen({ commit }, value) {
-        commit("reset", {
+        commit('reset', {
             navigationDrawerOpen: value,
         });
     },
     async boostrap({ state, commit, getters, dispatch }) {
-        await dispatch("boostrapAuth0");
+        await dispatch('boostrapAuth0');
 
         const localStorageData = getters.fromLocalStorage || {};
         let localOnlyUser = localStorageData?.app?.localOnlyUser ?? false;
 
         if (localOnlyUser) {
-            commit("workoutSession/reset", localStorageData.workoutSession, {
+            commit('reset', localStorageData?.app);
+            commit('workoutSession/reset', localStorageData.workoutSession, {
                 root: true,
             });
-            commit("programBuilder/reset", localStorageData.programBuilder, {
+            commit('programBuilder/reset', localStorageData.programBuilder, {
                 root: true,
             });
+            commit('reset', { ...localStorageData?.app, isBootstrapped: true });
+            return;
         }
 
         if (state.isAuthenticated) {
             dispatch(
-                "programBuilder/fetchMyWorkoutPrograms",
+                'programBuilder/fetchMyWorkoutPrograms',
                 {},
                 {
                     root: true,
                 }
             );
             dispatch(
-                "workoutSession/fetchNextPage",
+                'workoutSession/fetchNextPage',
                 {},
                 {
                     root: true,
@@ -153,7 +157,7 @@ const actions = {
             );
         }
 
-        commit("reset", { localOnlyUser, isBootstrapped: true });
+        commit('reset', { localOnlyUser, isBootstrapped: true });
     },
 
     async boostrapAuth0({ commit }) {
@@ -167,10 +171,10 @@ const actions = {
         try {
             // If the user is returning to the app after authentication.
             if (
-                window.location.search.includes("code=") &&
-                window.location.search.includes("state=")
+                window.location.search.includes('code=') &&
+                window.location.search.includes('state=')
             ) {
-                console.log("handleRedirectCallback");
+                console.log('handleRedirectCallback');
                 // handle the redirect and retrieve tokens
                 await auth0Client.handleRedirectCallback();
                 auth0Error = null;
@@ -191,7 +195,7 @@ const actions = {
                 axios.defaults.headers.common.Authorization = `Bearer ${token}`;
             }
 
-            commit("reset", {
+            commit('reset', {
                 isAuthenticated,
                 user,
                 auth0Client,
@@ -199,20 +203,20 @@ const actions = {
             });
 
             if (removeSearchParams) {
-                await router.replace("");
+                await router.replace('');
             }
         }
     },
 
     setPreviousRoute({ commit }, from) {
-        commit("setPreviousRoute", from);
+        commit('setPreviousRoute', from);
     },
 
     async login({ state }) {
         await state.auth0Client.loginWithRedirect({
             authorizationParams: {
                 ...authorizationParams,
-                screen_hint: "login",
+                screen_hint: 'login',
             },
         });
     },
@@ -221,28 +225,27 @@ const actions = {
         await state.auth0Client.loginWithRedirect({
             authorizationParams: {
                 ...authorizationParams,
-                screen_hint: "register",
+                screen_hint: 'register',
             },
         });
     },
 
     async createLocalAccount({ commit, dispatch }) {
-        commit("reset", {
+        commit('reset', {
             user: {
-                firstName: "M",
-                lastName: "E",
-                localOnly: true,
+                name: 'J',
             },
+            localOnlyUser: true,
         });
-        dispatch("saveToLocalStorage");
-        await router.replace("/");
+        dispatch('saveToLocalStorage');
+        await router.replace('/');
     },
 
     async logout({ state, commit }) {
         await state.auth0Client.logout();
-        commit("reset", { user: null, isBootstrapped: true });
-        commit("workoutSession/restoreDefault", undefined, { root: true });
-        commit("programBuilder/restoreDefault", undefined, { root: true });
+        commit('reset', { user: null, isBootstrapped: true });
+        commit('workoutSession/restoreDefault', undefined, { root: true });
+        commit('programBuilder/restoreDefault', undefined, { root: true });
     },
 
     saveToLocalStorage({ getters }) {

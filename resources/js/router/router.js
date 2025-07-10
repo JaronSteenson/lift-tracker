@@ -1,23 +1,23 @@
-import Vue from "vue";
-import LoginPage from "../components/pages/LoginPage";
-import AccountPage from "../components/pages/AccountPage";
-import ProgramBuilderPage from "../components/pages/ProgramBuilderPage";
-import MyWorkoutProgramsPage from "../components/pages/MyWorkoutProgramsPage";
-import HomePage from "../components/pages/HomePage";
-import NewSessionOverviewPage from "../components/pages/NewSessionOverviewPage";
-import NewSessionRoutineSelectPage from "../components/pages/NewSessionRoutineSelectPage";
-import SessionOverviewPage from "../components/pages/SessionOverviewPage";
-import NotFoundPage from "../components/pages/NotFoundPage";
-import VueRouter from "vue-router";
-import store from "./../store";
-import SetOverviewPage from "../components/pages/SetOverviewPage";
-import PrivacyPolicyPage from "../components/pages/PrivacyPolicyPage";
+import Vue from 'vue';
+import LoginPage from '../components/pages/LoginPage';
+import AccountPage from '../components/pages/AccountPage';
+import ProgramBuilderPage from '../components/pages/ProgramBuilderPage';
+import MyWorkoutProgramsPage from '../components/pages/MyWorkoutProgramsPage';
+import HomePage from '../components/pages/HomePage';
+import NewSessionOverviewPage from '../components/pages/NewSessionOverviewPage';
+import NewSessionRoutineSelectPage from '../components/pages/NewSessionRoutineSelectPage';
+import SessionOverviewPage from '../components/pages/SessionOverviewPage';
+import NotFoundPage from '../components/pages/NotFoundPage';
+import VueRouter from 'vue-router';
+import store from './../store';
+import SetOverviewPage from '../components/pages/SetOverviewPage';
+import PrivacyPolicyPage from '../components/pages/PrivacyPolicyPage';
 
 Vue.use(VueRouter);
 
 async function checkAuthGuards(to, from, next) {
-    const isAuthed = store.getters["app/userIsAuthenticated"];
-    await store.dispatch("app/setPreviousRoute", from);
+    const isAuthed = store.getters['app/userIsAuthenticated'];
+    await store.dispatch('app/setPreviousRoute', from);
 
     if (to.meta.guard === GUARD_NONE) {
         next();
@@ -30,12 +30,12 @@ async function checkAuthGuards(to, from, next) {
     }
 
     if (isAuthed && to.meta.guard === GUARD_UNAUTHED_ONLY) {
-        next({ name: "HomePage" });
+        next({ name: 'HomePage' });
         return;
     }
 
     if (!isAuthed && to.meta.guard === GUARD_AUTHED) {
-        next({ name: "LoginPage" });
+        next({ name: 'LoginPage' });
         return;
     }
 
@@ -43,26 +43,26 @@ async function checkAuthGuards(to, from, next) {
 }
 
 function checkPwaStart(to, from, next) {
-    const isAuthed = store.getters["app/userIsAuthenticated"];
-    const toPwaStart = to.fullPath === "/pwa-start";
+    const isAuthed = store.getters['app/userIsAuthenticated'];
+    const toPwaStart = to.fullPath === '/pwa-start';
 
     if (!isAuthed || !toPwaStart) {
         next();
         return;
     }
 
-    next({ name: "HomePage" });
+    next({ name: 'HomePage' });
 }
 
 function checkForceDrawerHide(to, from, next) {
     const goingToForceHideRoute = [
-        "ProgramBuilderPage",
-        "ProgramBuilderPageNew",
+        'ProgramBuilderPage',
+        'ProgramBuilderPageNew',
     ].includes(to.name);
 
-    const isVisible = store.getters["app/navigationDrawerOpen"];
+    const isVisible = store.getters['app/navigationDrawerOpen'];
     store.dispatch(
-        "app/setNavigationDrawerOpen",
+        'app/setNavigationDrawerOpen',
         isVisible && !goingToForceHideRoute
     );
 
@@ -70,29 +70,29 @@ function checkForceDrawerHide(to, from, next) {
 }
 
 // The default is only authed.
-const GUARD_AUTHED = Symbol("GUARD_AUTHED");
-const GUARD_UNAUTHED_ONLY = Symbol("GUARD_UNAUTHED_ONLY");
-const GUARD_NONE = Symbol("GUARD_NONE");
+const GUARD_AUTHED = Symbol('GUARD_AUTHED');
+const GUARD_UNAUTHED_ONLY = Symbol('GUARD_UNAUTHED_ONLY');
+const GUARD_NONE = Symbol('GUARD_NONE');
 
 const routes = [
     {
-        name: "HomePage",
-        path: "/",
+        name: 'HomePage',
+        path: '/',
         component: HomePage,
         meta: {
             guard: GUARD_AUTHED,
         },
     },
     {
-        name: "PwaStart",
-        path: "/pwa-start",
+        name: 'PwaStart',
+        path: '/pwa-start',
         meta: {
             guard: GUARD_AUTHED,
         },
     },
     {
-        name: "LoginPage",
-        path: "/login",
+        name: 'LoginPage',
+        path: '/login',
         component: LoginPage,
         props: true,
         meta: {
@@ -100,24 +100,24 @@ const routes = [
         },
     },
     {
-        name: "PrivacyPolicy",
-        path: "/privacy-policy",
+        name: 'PrivacyPolicy',
+        path: '/privacy-policy',
         component: PrivacyPolicyPage,
         meta: {
             guard: GUARD_NONE,
         },
     },
     {
-        name: "AccountPage",
-        path: "/account",
+        name: 'AccountPage',
+        path: '/account',
         component: AccountPage,
         meta: {
             guard: GUARD_AUTHED,
         },
     },
     {
-        name: "ProgramBuilderPageNew",
-        path: "/program-builder",
+        name: 'ProgramBuilderPageNew',
+        path: '/program-builder',
         component: ProgramBuilderPage,
         props: true,
         meta: {
@@ -125,8 +125,8 @@ const routes = [
         },
     },
     {
-        name: "ProgramBuilderPage",
-        path: "/program-builder/:workoutProgramUuid",
+        name: 'ProgramBuilderPage',
+        path: '/program-builder/:workoutProgramUuid',
         component: ProgramBuilderPage,
         props: true,
         meta: {
@@ -134,24 +134,24 @@ const routes = [
         },
     },
     {
-        name: "MyWorkoutProgramsPage",
-        path: "/workout-programs",
+        name: 'MyWorkoutProgramsPage',
+        path: '/workout-programs',
         component: MyWorkoutProgramsPage,
         meta: {
             guard: GUARD_AUTHED,
         },
     },
     {
-        name: "NewSessionRoutineSelectPage",
-        path: "/new-session",
+        name: 'NewSessionRoutineSelectPage',
+        path: '/new-session',
         component: NewSessionRoutineSelectPage,
         meta: {
             guard: GUARD_AUTHED,
         },
     },
     {
-        name: "NewSessionOverviewPage",
-        path: "/new-session-overview/:originRoutineUuid",
+        name: 'NewSessionOverviewPage',
+        path: '/new-session-overview/:originRoutineUuid',
         component: NewSessionOverviewPage,
         props: true,
         meta: {
@@ -159,8 +159,8 @@ const routes = [
         },
     },
     {
-        name: "SessionOverviewPage",
-        path: "/session-overview/:workoutSessionUuid",
+        name: 'SessionOverviewPage',
+        path: '/session-overview/:workoutSessionUuid',
         component: SessionOverviewPage,
         props: true,
         meta: {
@@ -168,8 +168,8 @@ const routes = [
         },
     },
     {
-        name: "SetOverviewPage",
-        path: "/set-overview/:sessionSetUuid",
+        name: 'SetOverviewPage',
+        path: '/set-overview/:sessionSetUuid',
         component: SetOverviewPage,
         props: true,
         meta: {
@@ -177,8 +177,8 @@ const routes = [
         },
     },
     {
-        path: "*",
-        name: "404",
+        path: '*',
+        name: '404',
         component: NotFoundPage,
         meta: {
             guard: GUARD_NONE,
@@ -188,7 +188,7 @@ const routes = [
 
 const router = new VueRouter({
     routes,
-    mode: "history",
+    mode: 'history',
     scrollBehavior(to, from, savedPosition) {
         if (savedPosition) {
             return savedPosition;

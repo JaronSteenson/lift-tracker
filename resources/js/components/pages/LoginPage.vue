@@ -58,8 +58,8 @@
 </template>
 
 <script>
-import AppBar from "../AppBar";
-import { mapActions, mapState } from "vuex";
+import AppBar from '../AppBar';
+import { mapActions, mapState } from 'vuex';
 
 export default {
     components: {
@@ -76,10 +76,10 @@ export default {
         };
     },
     computed: {
-        ...mapState("app", ["auth0Client"]),
+        ...mapState('app', ['auth0Client']),
     },
     methods: {
-        ...mapActions("app", ["login", "register", "createLocalAccount"]),
+        ...mapActions('app', ['login', 'register', 'createLocalAccount']),
     },
 };
 </script>

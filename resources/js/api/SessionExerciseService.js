@@ -1,6 +1,6 @@
-import ApiService from "./ApiService";
+import ApiService from './ApiService';
 
-const RESOURCE_NAME = "session-exercises";
+const RESOURCE_NAME = 'session-exercises';
 
 const SessionExerciseService = {
     getHistory(sessionExerciseUuid) {

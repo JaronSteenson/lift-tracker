@@ -1,4 +1,4 @@
-image: node:24.4.0
+image: node:14.19.1
 
 definitions:
   services:
@@ -20,10 +20,11 @@ pipelines:
                 - node
               script:
                 - . ci/should-build-frontend.sh
-#                - npm ci
-#                - npm run lint
-#                - npm test
-#                - npm run prod
+                - npm ci
+                - npm run lint
+                - cp auth_config.dev.json auth_config.json
+                - npm test
+                - npm run prod
 #                - echo 'Starting deploy';
 #                - tar -czf artifacts-frontend.tar.gz public resources;
 #                - pipe: atlassian/ssh-run:0.4.1

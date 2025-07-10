@@ -10,8 +10,8 @@
 </template>
 
 <script>
-import { mapGetters, mapState } from "vuex";
-import AppNavigationDrawer from "./AppNavigationDrawer";
+import { mapGetters, mapState } from 'vuex';
+import AppNavigationDrawer from './AppNavigationDrawer';
 
 export default {
     components: {
@@ -27,22 +27,22 @@ export default {
         this.setSupportsTextSelect();
     },
     computed: {
-        ...mapState("app", ["appName", "isBootstrapped"]),
-        ...mapGetters("app", {
-            avatarInitial: "getUserAvatarInitial",
-            userIsAuthenticated: "userIsAuthenticated",
-            showSessionExpiredModal: "showSessionExpiredModal",
+        ...mapState('app', ['appName', 'isBootstrapped']),
+        ...mapGetters('app', {
+            avatarInitial: 'getUserAvatarInitial',
+            userIsAuthenticated: 'userIsAuthenticated',
+            showSessionExpiredModal: 'showSessionExpiredModal',
         }),
-        ...mapGetters("programBuilder", ["myWorkoutPrograms"]),
+        ...mapGetters('programBuilder', ['myWorkoutPrograms']),
     },
     methods: {
         setSupportsTextSelect() {
-            if (window.location.host === "localhost") {
+            if (window.location.host === 'localhost') {
                 return;
             }
 
             const supportsTouch =
-                "ontouchstart" in window || navigator.msMaxTouchPoints;
+                'ontouchstart' in window || navigator.msMaxTouchPoints;
 
             // Prevent context menu and text select on touch devices to give a real app like feel,
             // and to prevent visual interference when dragging elements.

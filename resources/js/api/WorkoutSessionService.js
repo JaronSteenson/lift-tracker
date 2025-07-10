@@ -1,8 +1,8 @@
-import ApiService from "./ApiService";
+import ApiService from './ApiService';
 
-const RESOURCE_NAME = "workout-sessions";
-const SET_RESOURCE_NAME = "session-sets";
-const EXERCISE_RESOURCE_NAME = "session-exercises";
+const RESOURCE_NAME = 'workout-sessions';
+const SET_RESOURCE_NAME = 'session-sets';
+const EXERCISE_RESOURCE_NAME = 'session-exercises';
 
 const WorkoutProgramService = {
     get(uuid) {

@@ -470,14 +470,14 @@
 </template>
 
 <script>
-import { mapGetters, mapState } from "vuex";
-import RestPeriodInput from "../RestPeriodInput";
-import RestPeriodTimer from "../RestPeriodTimer";
-import SessionExerciseStatsModal from "./SessionExerciseStatsModal";
-import ServerSyncInfo from "./../../ServerSyncInfo";
-import LabeledWorkoutDuration from "../LabeledWorkoutDuration";
-import NarrowContentContainer from "../../layouts/NarrowContentContainer";
-import AppBar from "../../AppBar";
+import { mapGetters, mapState } from 'vuex';
+import RestPeriodInput from '../RestPeriodInput';
+import RestPeriodTimer from '../RestPeriodTimer';
+import SessionExerciseStatsModal from './SessionExerciseStatsModal';
+import ServerSyncInfo from './../../ServerSyncInfo';
+import LabeledWorkoutDuration from '../LabeledWorkoutDuration';
+import NarrowContentContainer from '../../layouts/NarrowContentContainer';
+import AppBar from '../../AppBar';
 
 export default {
     components: {
@@ -507,13 +507,13 @@ export default {
         };
     },
     computed: {
-        ...mapState("workoutSession", ["saveStatus"]),
-        ...mapGetters("app", ["userIsLocalOnly"]),
-        ...mapGetters("workoutSession", [
-            "workoutName",
-            "workoutSession",
-            "uuid",
-            "updatedAt",
+        ...mapState('workoutSession', ['saveStatus']),
+        ...mapGetters('app', ['userIsLocalOnly']),
+        ...mapGetters('workoutSession', [
+            'workoutName',
+            'workoutSession',
+            'uuid',
+            'updatedAt',
         ]),
         pageTitle() {
             if (this.$vuetify.breakpoint.xsOnly) {
@@ -523,7 +523,7 @@ export default {
             return `${this.exercise.name} - set ${this.set.position + 1}`;
         },
         set() {
-            return this.$store.getters["workoutSession/set"](
+            return this.$store.getters['workoutSession/set'](
                 this.sessionSetUuid
             );
         },
@@ -534,19 +534,19 @@ export default {
             return this.exercise.skipped;
         },
         isInProgressWorkout() {
-            return this.$store.getters["workoutSession/isInProgressWorkout"](
+            return this.$store.getters['workoutSession/isInProgressWorkout'](
                 this.workoutSession.uuid
             );
         },
         isOpenForEdits: {
             get() {
-                return this.$store.getters["workoutSession/isOpenForEdits"](
+                return this.$store.getters['workoutSession/isOpenForEdits'](
                     this.workoutSession.uuid
                 );
             },
             set(value) {
                 this.$store.dispatch(
-                    "workoutSession/updateOpenForEditsStatus",
+                    'workoutSession/updateOpenForEditsStatus',
                     {
                         workoutSessionUuid: this.workoutSession.uuid,
                         value,
@@ -598,29 +598,29 @@ export default {
             return !this.isInProgressSet && !this.isLookingBack;
         },
         previousExerciseLastSet() {
-            return this.$store.getters["workoutSession/previousSet"](
+            return this.$store.getters['workoutSession/previousSet'](
                 this.exercise.sessionSets[0].uuid
             );
         },
         previousSet() {
-            return this.$store.getters["workoutSession/previousSet"](
+            return this.$store.getters['workoutSession/previousSet'](
                 this.sessionSetUuid
             );
         },
         nextExerciseFirstSet() {
-            return this.$store.getters["workoutSession/nextSet"](
+            return this.$store.getters['workoutSession/nextSet'](
                 this.exercise.sessionSets[this.exercise.sessionSets.length - 1]
                     .uuid
             );
         },
         nextSet() {
-            return this.$store.getters["workoutSession/nextSet"](
+            return this.$store.getters['workoutSession/nextSet'](
                 this.sessionSetUuid
             );
         },
         inProgressSet() {
             return this.$store.getters[
-                "workoutSession/currentSetForInProgressWorkout"
+                'workoutSession/currentSetForInProgressWorkout'
             ](this.uuid);
         },
         /**
@@ -647,22 +647,22 @@ export default {
             return this.exercise.sessionSets.slice(position - 2, position + 3);
         },
         exercise() {
-            return this.$store.getters["workoutSession/exerciseBySet"](
+            return this.$store.getters['workoutSession/exerciseBySet'](
                 this.sessionSetUuid
             );
         },
         warmUpStarted() {
-            return this.$store.getters["workoutSession/warmUpStarted"](
+            return this.$store.getters['workoutSession/warmUpStarted'](
                 this.exercise.uuid
             );
         },
         warmUpEnded() {
-            return this.$store.getters["workoutSession/warmUpEnded"](
+            return this.$store.getters['workoutSession/warmUpEnded'](
                 this.exercise.uuid
             );
         },
         restPeriodStarted() {
-            return this.$store.getters["workoutSession/restPeriodStarted"](
+            return this.$store.getters['workoutSession/restPeriodStarted'](
                 this.sessionSetUuid
             );
         },
@@ -701,16 +701,16 @@ export default {
         },
         activeTimerLabel() {
             if (this.set.endedAt || this.warmUpEnded) {
-                return "Rest period";
+                return 'Rest period';
             }
-            return "Warm-up";
+            return 'Warm-up';
         },
         isTimerRunning() {
             return (
-                this.$store.getters["workoutSession/isDuringWarmUp"](
+                this.$store.getters['workoutSession/isDuringWarmUp'](
                     this.exercise.uuid
                 ) ||
-                this.$store.getters["workoutSession/isDuringRestPeriod"](
+                this.$store.getters['workoutSession/isDuringRestPeriod'](
                     this.sessionSetUuid
                 )
             );
@@ -720,43 +720,43 @@ export default {
                 return true;
             }
 
-            return this.$store.getters["workoutSession/restPeriodIsFinished"](
+            return this.$store.getters['workoutSession/restPeriodIsFinished'](
                 this.sessionSetUuid
             );
         },
         isFirstSetOfWorkout() {
-            return this.$store.getters["workoutSession/isFirstSetOfWorkout"](
+            return this.$store.getters['workoutSession/isFirstSetOfWorkout'](
                 this.sessionSetUuid
             );
         },
         isLastSetOfWorkout() {
-            return this.$store.getters["workoutSession/isLastSetOfWorkout"](
+            return this.$store.getters['workoutSession/isLastSetOfWorkout'](
                 this.sessionSetUuid
             );
         },
         isFirstSetOfExercise() {
-            return this.$store.getters["workoutSession/isFirstSetOfExercise"](
+            return this.$store.getters['workoutSession/isFirstSetOfExercise'](
                 this.sessionSetUuid
             );
         },
         isLastSetOfExercise() {
-            return this.$store.getters["workoutSession/isLastSetOfExercise"](
+            return this.$store.getters['workoutSession/isLastSetOfExercise'](
                 this.sessionSetUuid
             );
         },
         exerciseHistory() {
-            return this.$store.getters["workoutSession/exerciseHistory"](
+            return this.$store.getters['workoutSession/exerciseHistory'](
                 this.exercise.uuid
             );
         },
         weight: {
             get() {
                 return this.$store.getters[
-                    "workoutSession/weightForCurrentSet"
+                    'workoutSession/weightForCurrentSet'
                 ](this.sessionSetUuid);
             },
             set(weight) {
-                this.$store.dispatch("workoutSession/updateSetWeight", {
+                this.$store.dispatch('workoutSession/updateSetWeight', {
                     uuid: this.sessionSetUuid,
                     weight,
                 });
@@ -764,12 +764,12 @@ export default {
         },
         reps: {
             get() {
-                return this.$store.getters["workoutSession/repsForCurrentSet"](
+                return this.$store.getters['workoutSession/repsForCurrentSet'](
                     this.sessionSetUuid
                 );
             },
             set(reps) {
-                this.$store.dispatch("workoutSession/updateSetReps", {
+                this.$store.dispatch('workoutSession/updateSetReps', {
                     uuid: this.sessionSetUuid,
                     reps,
                 });
@@ -778,12 +778,12 @@ export default {
         warmUp: {
             get() {
                 return this.$store.getters[
-                    "workoutSession/warmUpForCurrentExercise"
+                    'workoutSession/warmUpForCurrentExercise'
                 ](this.this.exercise.uuid);
             },
             set(warmUpDuration) {
                 this.$store.dispatch(
-                    "workoutSession/updateExerciseWarmUpDuration",
+                    'workoutSession/updateExerciseWarmUpDuration',
                     {
                         uuid: this.exercise.uuid,
                         warmUpDuration,
@@ -795,18 +795,18 @@ export default {
             get() {
                 if (this.set.endedAt || this.warmUpEnded) {
                     return this.$store.getters[
-                        "workoutSession/restPeriodForCurrentSet"
+                        'workoutSession/restPeriodForCurrentSet'
                     ](this.sessionSetUuid);
                 }
 
                 return this.$store.getters[
-                    "workoutSession/warmUpForCurrentExercise"
+                    'workoutSession/warmUpForCurrentExercise'
                 ](this.exercise.uuid);
             },
             set(duration) {
                 if (this.set.endedAt || this.warmUpEnded) {
                     this.$store.dispatch(
-                        "workoutSession/updateSetRestPeriodDuration",
+                        'workoutSession/updateSetRestPeriodDuration',
                         {
                             uuid: this.sessionSetUuid,
                             restPeriodDuration: duration,
@@ -816,7 +816,7 @@ export default {
                 }
 
                 this.$store.dispatch(
-                    "workoutSession/updateExerciseWarmUpDuration",
+                    'workoutSession/updateExerciseWarmUpDuration',
                     {
                         uuid: this.exercise.uuid,
                         warmUpDuration: duration,
@@ -829,7 +829,7 @@ export default {
                 return this.workoutSession.bodyWeight;
             },
             set(bodyWeight) {
-                this.$store.dispatch("workoutSession/updateBodyWeight", {
+                this.$store.dispatch('workoutSession/updateBodyWeight', {
                     bodyWeight,
                 });
             },
@@ -839,7 +839,7 @@ export default {
                 return this.exercise.notes;
             },
             set(notes) {
-                this.$store.dispatch("workoutSession/updateExerciseNotes", {
+                this.$store.dispatch('workoutSession/updateExerciseNotes', {
                     uuid: this.exercise.uuid,
                     notes,
                 });
@@ -855,34 +855,34 @@ export default {
     methods: {
         getStepColor(otherSet) {
             if (otherSet.uuid === this.inProgressSet?.uuid) {
-                return "success";
+                return 'success';
             }
 
-            return otherSet.uuid !== this.set.uuid ? "grey" : "primary";
+            return otherSet.uuid !== this.set.uuid ? 'grey' : 'primary';
         },
         changeSetFromStepper(requestedSet) {
             const setToChangeTo = this.exercise.sessionSets[requestedSet - 1];
 
             this.$router.push({
-                name: "SetOverviewPage",
+                name: 'SetOverviewPage',
                 params: { sessionSetUuid: setToChangeTo.uuid },
             });
         },
         async lookAhead() {
             await this.$router.push({
-                name: "SetOverviewPage",
+                name: 'SetOverviewPage',
                 params: { sessionSetUuid: this.nextSet.uuid },
             });
         },
         async lookBack() {
             await this.$router.push({
-                name: "SetOverviewPage",
+                name: 'SetOverviewPage',
                 params: { sessionSetUuid: this.previousSet.uuid },
             });
         },
         async fetchExerciseHistory() {
             return this.$store.dispatch(
-                "workoutSession/fetchExerciseHistory",
+                'workoutSession/fetchExerciseHistory',
                 this.exercise.uuid
             );
         },
@@ -893,7 +893,7 @@ export default {
             }
 
             const finishConfirmed = window.confirm(
-                "There are sets left in this workout, finish now?"
+                'There are sets left in this workout, finish now?'
             );
 
             if (finishConfirmed) {
@@ -911,9 +911,9 @@ export default {
             setTimeout(
                 async () => {
                     // Force a delay, so we show the loading feedback before the app get too busy to re-render the ui.
-                    this.$store.dispatch("workoutSession/endWorkout");
+                    this.$store.dispatch('workoutSession/endWorkout');
                     this.$router.push({
-                        name: "SessionOverviewPage",
+                        name: 'SessionOverviewPage',
                         params: { workoutSessionUuid: this.uuid },
                     });
                 },
@@ -922,13 +922,13 @@ export default {
         },
         resetWarmUp() {
             const uuid = this.exercise.uuid;
-            this.$store.dispatch("workoutSession/resetWarmUp", {
+            this.$store.dispatch('workoutSession/resetWarmUp', {
                 uuid,
             });
         },
         resetRestPeriod() {
             const uuid = this.set.uuid;
-            this.$store.dispatch("workoutSession/resetRestPeriod", {
+            this.$store.dispatch('workoutSession/resetRestPeriod', {
                 uuid,
             });
         },
@@ -943,12 +943,12 @@ export default {
             }
 
             const nextSetUuid = this.nextSet.uuid;
-            await this.$store.dispatch("workoutSession/startSet", {
+            await this.$store.dispatch('workoutSession/startSet', {
                 uuid: nextSetUuid,
             });
 
             await this.$router.push({
-                name: "SetOverviewPage",
+                name: 'SetOverviewPage',
                 params: { sessionSetUuid: nextSetUuid },
             });
 
@@ -958,16 +958,16 @@ export default {
             this.isChangingSet = true;
             const nextSetUuid = this.nextExerciseFirstSet?.uuid;
 
-            await this.$store.dispatch("workoutSession/skipExercise", {
+            await this.$store.dispatch('workoutSession/skipExercise', {
                 uuid: this.exercise.uuid,
             });
 
             if (nextSetUuid) {
-                await this.$store.dispatch("workoutSession/startSet", {
+                await this.$store.dispatch('workoutSession/startSet', {
                     uuid: nextSetUuid,
                 });
                 await this.$router.push({
-                    name: "SetOverviewPage",
+                    name: 'SetOverviewPage',
                     params: { sessionSetUuid: nextSetUuid },
                 });
             } else {
@@ -977,35 +977,35 @@ export default {
             this.isChangingSet = false;
         },
         async markExerciseNotSkipped() {
-            await this.$store.dispatch("workoutSession/updateExerciseSkipped", {
+            await this.$store.dispatch('workoutSession/updateExerciseSkipped', {
                 uuid: this.exercise.uuid,
                 skipped: false,
             });
         },
         startActiveTimer() {
             if (this.warmUpEnded) {
-                this.$store.dispatch("workoutSession/startRestPeriod", {
+                this.$store.dispatch('workoutSession/startRestPeriod', {
                     uuid: this.sessionSetUuid,
                 });
             } else {
-                this.$store.dispatch("workoutSession/startWarmUp", {
+                this.$store.dispatch('workoutSession/startWarmUp', {
                     uuid: this.exercise.uuid,
                 });
             }
         },
         endActiveTimer() {
             if (this.warmUpEnded) {
-                this.$store.dispatch("workoutSession/endRestPeriod", {
+                this.$store.dispatch('workoutSession/endRestPeriod', {
                     uuid: this.sessionSetUuid,
                 });
             } else {
-                this.$store.dispatch("workoutSession/endWarmUp", {
+                this.$store.dispatch('workoutSession/endWarmUp', {
                     uuid: this.exercise.uuid,
                 });
             }
         },
         endSet() {
-            this.$store.dispatch("workoutSession/endSet", {
+            this.$store.dispatch('workoutSession/endSet', {
                 uuid: this.sessionSetUuid,
             });
         },
@@ -1021,7 +1021,7 @@ export default {
             }
 
             this.hasLoadedExerciseHistory = this.$store.getters[
-                "workoutSession/hasLoadedExerciseHistory"
+                'workoutSession/hasLoadedExerciseHistory'
             ](this.exercise.uuid);
 
             if (!this.hasLoadedExerciseHistory) {

@@ -16,10 +16,10 @@
 </template>
 
 <script>
-import NotFound from "../../routing/NotFound";
-import SessionOverviewLoadingSkeleton from "./SessionOverviewLoadingSkeleton";
-import WorkoutCard from "./../programBuilder/WorkoutCard";
-import NarrowContentContainer from "../../layouts/NarrowContentContainer";
+import NotFound from '../../routing/NotFound';
+import SessionOverviewLoadingSkeleton from './SessionOverviewLoadingSkeleton';
+import WorkoutCard from './../programBuilder/WorkoutCard';
+import NarrowContentContainer from '../../layouts/NarrowContentContainer';
 
 export default {
     components: {
@@ -42,7 +42,7 @@ export default {
         if (this.originRoutineUuid) {
             this.loading = true;
             await this.$store.dispatch(
-                "programBuilder/prepareForSessionOverview",
+                'programBuilder/prepareForSessionOverview',
                 this.originRoutineUuid
             );
             this.loading = false;

@@ -1,13 +1,13 @@
-import Vue from "vue";
-import store from "./store";
-import ApiService from "./api/ApiService";
-import router from "./router/router";
-import vuetify from "./vuetify";
-import App from "./components/App.vue";
+import Vue from 'vue';
+import store from './store';
+import ApiService from './api/ApiService';
+import router from './router/router';
+import vuetify from './vuetify';
+import App from './components/App.vue';
 
 (async function () {
-    if ("serviceWorker" in navigator) {
-        navigator.serviceWorker.register("/service-worker.js");
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('/service-worker.js');
     }
 
     // This cannot just live in ApiService, or we end up with circular imports.
@@ -18,9 +18,9 @@ import App from "./components/App.vue";
         async (error) => {
             if (
                 error.request.status === 401 &&
-                store.getters["app/userIsAuthenticated"]
+                store.getters['app/userIsAuthenticated']
             ) {
-                await store.dispatch("app/expireSession");
+                await store.dispatch('app/expireSession');
                 return Promise.resolve(error);
             }
 
@@ -28,12 +28,12 @@ import App from "./components/App.vue";
         }
     );
 
-    await store.dispatch("app/boostrap");
+    await store.dispatch('app/boostrap');
 
     new Vue({
         store,
         router,
         vuetify,
         render: (h) => h(App),
-    }).$mount("#app");
+    }).$mount('#app');
 })();

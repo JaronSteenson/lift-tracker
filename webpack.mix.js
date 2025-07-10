@@ -4,6 +4,7 @@ const { BundleAnalyzerPlugin } = require("webpack-bundle-analyzer");
 
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 const { join } = require("node:path");
+const fs = require("fs");
 
 let publicPath = "https://lift-tracker.app/";
 if (mix.inProduction()) {
@@ -67,5 +68,4 @@ mix.js("resources/js/app.js", "public/js")
         version: 2,
         extractStyles: "public/js/app-custom.css",
     })
-    .sourceMaps(true, "source-map")
-    .version();
+    .sourceMaps(true, "source-map");
