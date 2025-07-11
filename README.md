@@ -1,61 +1,35 @@
-## Initial setup
-```shell
-# Clone the repo
-git clone --recursive git@bitbucket-personal:jaronsteenson/lift-tracker;
-cd lift-tracker;
-cp .env.example .env;
-cd lift-tracker-laradock;
-git fetch origin lift-tracker && git checkout lift-tracker;
-cp -f .env.example .env;
+# Lift Tracker
+The purpose of this project is twofold:
 
-# Set up docker
-docker-compose up nginx mysql;
+1. A place for me to learn tech that I don't use in my day job.
+2. A way to track my gym "progress" in the exact way I like.
 
-# Set up js
-nvm use 14.19.1;
-npm ci;
+## Features
+- Program builder
+- Step through session tracking
+- Offline support
+- Theming
 
-# Set up php
-docker-compose exec workspace bash;
-composer install;
-artisan migrate; 
-artisan migrate --database=mysql_test; # Migrate the app and unit test db;
-```
+## Live site
 
+### [https://lift-tracker.app/](https://lift-tracker.app/)
 
-## Starting laradoc
-```shell
-cd ~/code/lift-tracker/lift-tracker-laradock && docker-compose up -d nginx mysql && cd ..;
-```
+<img src="./readme/screenshots/program-builder.png" width="600"/>
 
-## Migrating the database
-```shell
-docker-compose exec workspace bash; # get into the workspace container
+![screenshot](./readme/screenshots/workout-session-active.png)
 
-artisan migrate;
-artisan migrate --database=mysql_test; # Migrate the app and unit test db;
-```
+![screenshot](./readme/screenshots/workout-session-finished.png)
 
-## Running php unit from cli
-```shell
-docker-compose exec workspace bash; # get into the workspace container
+## Built With
+- Vue / Vuetify / Vuex - SPA frontend
+- Dotnet 9 (C#) / ASP MVC / EF Core - API backend
+- MySQL - DB
+- Auth0 - Authentication
 
-php -dxdebug.remote_enable=1 -dxdebug.remote_mode=req -dxdebug.remote_port=9000 -dxdebug.remote_host=172.17.0.1 ./vendor/phpunit/phpunit/phpunit --configuration ./phpunit.xml --filter "/(::testDeleteRemovesExercises)( .*)?$/"
+## Getting Started
+- [Vue App](./readme/vue-app-frontend-quick-start.md)
+- [Dotnet API](./LiftTrackerApi/README.md)
+- [MySQL](./LiftTrackerApi/Docker/mysql/README.md)
 
-php -dxdebug.remote_enable=1 -dxdebug.remote_mode=req -dxdebug.remote_port=9000 -dxdebug.remote_host=172.17.0.1 ./vendor/phpunit/phpunit/phpunit --configuration ./phpunit.xml --filter SessionSetTest
-
-php ./vendor/phpunit/phpunit/phpunit --configuration ./phpunit.xml
-```
-
-## Using phpstorm example config
-```shell
-cp .idea.example/** .idea  -rf
-```
-
-## Creating new phpstorm config example
-```shell
-cp .idea/** .idea.example -rf;
-```
-
-## Relevant framework docs
-https://laravel.com/docs/5.8
+## License
+This project is licensed under the [GNU General Public License v3.0](https://www.gnu.org/licenses/gpl-3.0.en.html).
