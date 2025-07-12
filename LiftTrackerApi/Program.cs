@@ -1,3 +1,4 @@
+using System.Text.Json;
 using System.Text.Json.Serialization;
 using LiftTrackerApi.Entities;
 using LiftTrackerApi.Middleware;
@@ -63,6 +64,19 @@ builder.Services.AddControllers(options =>
 });
 
 var app = builder.Build();
+
+app.UseStatusCodePages(async context =>
+{
+    var response = context.HttpContext.Response;
+
+    // Only customize known codes; leave 200, 201, etc. untouched
+    if (response.StatusCode >= 400)
+    {
+        response.ContentType = "application/json";
+        var json = JsonSerializer.Serialize(new { error = $"Error {response.StatusCode}" });
+        await response.WriteAsync(json);
+    }
+});
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsProduction())

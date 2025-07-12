@@ -15,6 +15,14 @@ public class UserIdMiddleware(RequestDelegate next)
 
     public async Task InvokeAsync(HttpContext context, LiftTrackerDbContext db)
     {
+        // Skip for root/health check.
+        var path = context.Request.Path.Value ?? "";
+        if (path.Equals("/", StringComparison.OrdinalIgnoreCase))
+        {
+            await next(context);
+            return;
+        }
+
         var email = context.User?.Claims.FirstOrDefault(c => c.Type == EmailClaim);
         var emailVerified = context.User?.Claims.FirstOrDefault(c => c.Type == EmailVerifiedClaim);
         if (email == null || emailVerified == null)
