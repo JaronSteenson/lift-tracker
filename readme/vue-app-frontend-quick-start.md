@@ -5,6 +5,10 @@
 nvm use 14.19.1
 npm install
 ```
+## Configure Auth0
+```shell
+cp auth_config.development.json auth_config.json
+```
 
 ## Run the dev server
 ```shell

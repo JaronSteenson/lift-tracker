@@ -1,13 +1,13 @@
-const webpack = require("webpack");
-const mix = require("laravel-mix");
-const { BundleAnalyzerPlugin } = require("webpack-bundle-analyzer");
+const webpack = require('webpack');
+const mix = require('laravel-mix');
+const { BundleAnalyzerPlugin } = require('webpack-bundle-analyzer');
 
-const HtmlWebpackPlugin = require("html-webpack-plugin");
-const { join } = require("node:path");
-const fs = require("fs");
+const HtmlWebpackPlugin = require('html-webpack-plugin');
+const { join } = require('node:path');
 
-let publicPath = "https://lift-tracker.app/";
 if (mix.inProduction()) {
+    mix.setPublicPath('public');
+
     let optionalPlugins = [];
     if (process.env.ANALYZE_BUNDLE) {
         optionalPlugins.push(new BundleAnalyzerPlugin());
@@ -19,14 +19,26 @@ if (mix.inProduction()) {
         plugins: [
             ...optionalPlugins,
             new HtmlWebpackPlugin({
-                template: "resources/index.html", // optional, use your own template
+                template: 'resources/index.html',
                 inject: true,
+                filename: 'index.html',
             }),
             new webpack.DefinePlugin({
-                "process.env.API_BASE_URL": JSON.stringify("/api"),
+                'process.env.API_BASE_URL': JSON.stringify(`/api`),
             }),
         ],
+        output: {
+            publicPath: '.',
+        },
     });
+
+    mix.js('resources/js/app.js', 'js')
+        .setResourceRoot('resources')
+        .vue({
+            version: 2,
+            extractStyles: 'js/app-custom.css',
+        })
+        .sourceMaps(true, 'source-map');
 } else {
     const port = 8081;
     publicPath = `http://localhost:${port}`;
@@ -36,18 +48,18 @@ if (mix.inProduction()) {
     mix.webpackConfig({
         plugins: [
             new HtmlWebpackPlugin({
-                template: "resources/index.html",
+                template: 'resources/index.html',
                 inject: true,
             }),
             new webpack.DefinePlugin({
-                "process.env.API_BASE_URL": JSON.stringify(
-                    "http://localhost:5299"
+                'process.env.API_BASE_URL': JSON.stringify(
+                    'http://localhost:5299'
                 ),
             }),
         ],
         devServer: {
             static: {
-                directory: join(__dirname, "public"),
+                directory: join(__dirname, 'public'),
             },
             historyApiFallback: true,
             port,
@@ -60,12 +72,12 @@ if (mix.inProduction()) {
             publicPath,
         },
     });
-}
 
-mix.js("resources/js/app.js", "public/js")
-    .setResourceRoot("resources")
-    .vue({
-        version: 2,
-        extractStyles: "public/js/app-custom.css",
-    })
-    .sourceMaps(true, "source-map");
+    mix.js('resources/js/app.js', 'public/js')
+        .setResourceRoot('resources')
+        .vue({
+            version: 2,
+            extractStyles: 'public/js/app-custom.css',
+        })
+        .sourceMaps(true, 'source-map');
+}

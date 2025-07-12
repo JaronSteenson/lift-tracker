@@ -5,6 +5,7 @@ using LiftTrackerApi.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc.Authorization;
+using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -49,8 +50,8 @@ builder
     })
     .AddJwtBearer(options =>
     {
-        options.Authority = "https://dev-tjfr6n7ocu2ifro1.us.auth0.com/";
-        options.Audience = "https://dev.lift-tracker.app";
+        options.Authority = builder.Configuration["Auth0:Domain"];
+        options.Audience = builder.Configuration["Auth0:Audience"];
     });
 
 // Add authorization policies to every controller by default.
@@ -83,6 +84,13 @@ app.UseAuthorization();
 app.UseMiddleware<UserIdMiddleware>();
 app.UseMiddleware<JsonExceptionMiddleware>();
 app.MapControllers();
+
+// Run db migrations on startup.
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<LiftTrackerDbContext>();
+    db.Database.Migrate();
+}
 
 app.Run();
 

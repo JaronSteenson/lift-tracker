@@ -12,7 +12,7 @@ definitions:
 
 pipelines:
   branches:
-    cs-api:
+    master:
       - parallel:
           - step:
               name: Build, test, deploy frontend
@@ -20,46 +20,47 @@ pipelines:
                 - node
               script:
                 - . ci/should-build-frontend.sh
+                - echo 'Installing dependencies'
                 - npm ci
+                - echo 'Running linter'
                 - npm run lint
-                - cp auth_config.dev.json auth_config.json
+                - echo 'Running tests'
                 - npm test
+                - echo 'Building'
+                - node ci/replace-auth-config.js
                 - npm run prod
-#                - echo 'Starting deploy';
-#                - tar -czf artifacts-frontend.tar.gz public resources;
-#                - pipe: atlassian/ssh-run:0.4.1
-#                  variables:
-#                    SSH_USER: $PROD_USER
-#                    SERVER: $PROD_IP
-#                    MODE: "command"
-#                    COMMAND: >
-#                      rm -rf /tmp/deploy-frontend
-#                      && mkdir /tmp/deploy-frontend
-#                - pipe: atlassian/scp-deploy:0.3.3
-#                  variables:
-#                    USER: $PROD_USER
-#                    SERVER: $PROD_IP
-#
-#                    REMOTE_PATH: "/tmp/deploy-frontend"
-#                    LOCAL_PATH: "artifacts-frontend.tar.gz"
-#                    EXTRA_ARGS: [ "-r" ]
-#                - pipe: atlassian/ssh-run:0.4.1
-#                  variables:
-#                    SSH_USER: $PROD_USER
-#                    SERVER: $PROD_IP
-#                    MODE: "command"
-#                    COMMAND: >
-#                      tar -xf /tmp/deploy-frontend/artifacts-frontend.tar.gz -C /var/www/html/lift-tracker
-#                      && rm -rf /tmp/deploy-frontend
-#                      && cd /var/www/html/lift-tracker
-#                      && php artisan view:clear
-#                - echo 'Purging CDN cache'
-#                - >
-#                  curl \
-#                   -X POST "https://api.cloudflare.com/client/v4/zones/c1c95b982d4310a8f3ccd3b8483c6df7/purge_cache" \
-#                   -H "Authorization: Bearer $CLOUDFLARE_AUTH_TOKEN" \
-#                   -H "Content-Type:application/json" \
-#                   --data '{"purge_everything":true}'
+                - echo 'Starting deploy'
+                - tar -czf artifacts-frontend.tar.gz public
+                - pipe: atlassian/ssh-run:0.4.1
+                  variables:
+                    SSH_USER: $PROD_USER
+                    SERVER: $PROD_IP
+                    MODE: "command"
+                    COMMAND: >
+                      rm -rf /tmp/deploy-frontend
+                      && mkdir /tmp/deploy-frontend
+                - pipe: atlassian/scp-deploy:0.3.3
+                  variables:
+                    USER: $PROD_USER
+                    SERVER: $PROD_IP
+
+                    REMOTE_PATH: "/tmp/deploy-frontend"
+                    LOCAL_PATH: "artifacts-frontend.tar.gz"
+                    EXTRA_ARGS: [ "-r" ]
+                - pipe: atlassian/ssh-run:0.4.1
+                  variables:
+                    SSH_USER: $PROD_USER
+                    SERVER: $PROD_IP
+                    MODE: "command"
+                    COMMAND: >
+                      tar -xf /tmp/deploy-frontend/artifacts-frontend.tar.gz -C /var/www/html/lift-tracker # /var/www/html/lift-tracker/public
+                - echo 'Purging CDN cache'
+                - >
+                  curl \
+                   -X POST "https://api.cloudflare.com/client/v4/zones/c1c95b982d4310a8f3ccd3b8483c6df7/purge_cache" \
+                   -H "Authorization: Bearer $CLOUDFLARE_AUTH_TOKEN" \
+                   -H "Content-Type:application/json" \
+                   --data '{"purge_everything":true}'
           - step:
               name: Build, test, dotnet api
               image: mcr.microsoft.com/dotnet/sdk:9.0
@@ -69,15 +70,43 @@ pipelines:
                 - . ci/should-build-api.sh
                 - cd LiftTrackerApi
                 - echo 'Installing dependencies'
+                - apt-get update && apt-get install -y gettext # for envsubst
                 - dotnet tool restore
                 - echo 'Checking formatting'
                 - dotnet csharpier check . && dotnet csharpier check ../LiftTrackerApi.Tests
-                - echo 'Building solution'
-                - dotnet build
                 - echo 'Migrating test database'
                 - ASPNETCORE_ENVIRONMENT=Test dotnet ef database update
                 - echo 'Running tests'
                 - dotnet test
+                - echo 'Publishing solution'
+                - envsubst < appsettings.Production.template.json > appsettings.Production.json
+                - dotnet publish LiftTrackerApi.csproj -c Release -r linux-x64 --self-contained true -o ./publish
+                - echo 'Starting deploy';
+                - tar -czf artifacts-backend.tar.gz ./publish;
+                - pipe: atlassian/ssh-run:0.4.1
+                  variables:
+                    SSH_USER: $PROD_USER
+                    SERVER: $PROD_IP
+                    MODE: "command"
+                    COMMAND: >
+                      rm -rf /tmp/deploy-backend/
+                      && mkdir /tmp/deploy-backend/
+                - pipe: atlassian/scp-deploy:0.3.3
+                  variables:
+                    USER: $PROD_USER
+                    SERVER: $PROD_IP
+                    REMOTE_PATH: "/tmp/deploy-backend"
+                    LOCAL_PATH: "artifacts-backend.tar.gz"
+                    EXTRA_ARGS: [ "-r" ]
+                - pipe: atlassian/ssh-run:0.4.1
+                  variables:
+                    SSH_USER: $PROD_USER
+                    SERVER: $PROD_IP
+                    MODE: "command"
+                    COMMAND: >
+                      tar -xf /tmp/deploy-backend/artifacts-backend.tar.gz -C /var/www/html/lift-tracker # /var/www/html/lift-tracker/publish
+                      && cd /var/www/html/lift-tracker/api
+                      && sudo systemctl restart lt-api
               services:
                 - mysql
       - step:

@@ -35,18 +35,6 @@ public class JsonExceptionMiddleware(
 
         switch (exception)
         {
-            case NotFoundException:
-                context.Response.StatusCode = 404; // Not found
-                return context.Response.WriteAsync(
-                    JsonSerializer.Serialize(
-                        new
-                        {
-                            error = "Entity not found.",
-                            requestId = Activity.Current?.Id ?? context.TraceIdentifier,
-                            detail = exception.Message,
-                        }
-                    )
-                );
             case UuidAlreadyExistsException:
                 context.Response.StatusCode = 400; // Bad Request
                 return context.Response.WriteAsync(
@@ -54,6 +42,30 @@ public class JsonExceptionMiddleware(
                         new
                         {
                             error = "Uuid already assigned.",
+                            requestId = Activity.Current?.Id ?? context.TraceIdentifier,
+                            detail = exception.Message,
+                        }
+                    )
+                );
+            case UnauthorizedAccessException:
+                context.Response.StatusCode = 401; // Unauthorized
+                return context.Response.WriteAsync(
+                    JsonSerializer.Serialize(
+                        new
+                        {
+                            error = "Unauthorized.",
+                            requestId = Activity.Current?.Id ?? context.TraceIdentifier,
+                            detail = exception.Message,
+                        }
+                    )
+                );
+            case NotFoundException:
+                context.Response.StatusCode = 404; // Not found
+                return context.Response.WriteAsync(
+                    JsonSerializer.Serialize(
+                        new
+                        {
+                            error = "Entity not found.",
                             requestId = Activity.Current?.Id ?? context.TraceIdentifier,
                             detail = exception.Message,
                         }

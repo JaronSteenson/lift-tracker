@@ -15,24 +15,27 @@ public class UserIdMiddleware(RequestDelegate next)
 
     public async Task InvokeAsync(HttpContext context, LiftTrackerDbContext db)
     {
-        var emailVerified = context
-            .User?.Claims.FirstOrDefault(c => c.Type == EmailVerifiedClaim)
-            ?.Value;
-        if (emailVerified != "true")
+        var email = context.User?.Claims.FirstOrDefault(c => c.Type == EmailClaim);
+        var emailVerified = context.User?.Claims.FirstOrDefault(c => c.Type == EmailVerifiedClaim);
+        if (email == null || emailVerified == null)
+        {
+            throw new UnauthorizedAccessException("Invalid or missing JWT.");
+        }
+
+        if (emailVerified.Value != "true")
         {
             throw new UnauthorizedAccessException("Email not verified.");
         }
 
-        var email = context.User?.Claims.FirstOrDefault(c => c.Type == EmailClaim)?.Value;
-        if (!MailAddress.TryCreate(email ?? String.Empty, out _))
+        if (!MailAddress.TryCreate(email.Value, out _))
         {
-            throw new UnauthorizedAccessException("Invalid email address.");
+            throw new UnauthorizedAccessException($"Invalid email address {email.Value}.");
         }
 
-        var user = await db.Users.Where(user => user.Email == email).FirstOrDefaultAsync();
+        var user = await db.Users.Where(user => user.Email == email.Value).FirstOrDefaultAsync();
         if (user == null)
         {
-            user = new User { Uuid = Guid.NewGuid(), Email = email };
+            user = new User { Uuid = Guid.NewGuid(), Email = email.Value };
             db.Users.Add(user);
             await db.SaveChangesAsync();
         }

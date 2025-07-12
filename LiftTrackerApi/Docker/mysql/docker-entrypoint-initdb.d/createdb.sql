@@ -30,3 +30,4 @@ FLUSH PRIVILEGES;
 -- So php can use mysql 8
 ALTER USER 'lift_tracker_api' IDENTIFIED WITH mysql_native_password BY 'lift_tracker_api';
 ALTER USER 'lift_tracker_api_test' IDENTIFIED WITH mysql_native_password BY 'lift_tracker_api_test';
+
