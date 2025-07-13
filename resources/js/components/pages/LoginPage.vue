@@ -10,8 +10,10 @@
                 <img
                     v-show="imageHasLoaded"
                     ref="image"
-                    class="banner-image banner-image--large"
-                    :class="{ 'banner-image--fade-in': fadeImageIn }"
+                    class="banner-image"
+                    :class="{
+                        'banner-image--fade-in': fadeImageIn,
+                    }"
                     src="images/phone-gym-floor.jpg"
                     alt="Banner image"
                 />
@@ -99,14 +101,11 @@ $defaultThemeAppBarColor: #f5f5f5;
 
 .banner-image {
     opacity: 0;
+    height: unset;
+    max-width: 100vw;
+    border-bottom: 8px solid $defaultThemeAppBarColor;
 
-    &--small {
-        height: unset;
-        width: 100vw;
-        border-bottom: 8px solid $defaultThemeAppBarColor;
-    }
-
-    &--large {
+    @media (min-width: 600px) {
         height: 260px;
         width: 390px;
         border: 8px solid $defaultThemeAppBarColor;

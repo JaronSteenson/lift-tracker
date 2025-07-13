@@ -1,11 +1,7 @@
-﻿using System.Net;
-using System.Text;
-using FluentAssertions;
+﻿using System.Text;
 using LiftTrackerApi.Controllers;
 using LiftTrackerApi.Entities;
-using LiftTrackerApi.Extensions;
 using LiftTrackerApi.Tests.Integration.Fixtures;
-using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 
 namespace LiftTrackerApi.Tests.Integration;
@@ -65,7 +61,7 @@ public class SessionExerciseControllerTests(WorkoutDbFixture fixture)
         var requestJson = JsonConvert.SerializeObject(newWorkoutSession);
         var content = new StringContent(requestJson, Encoding.UTF8, "application/json");
 
-        var response = await _client.PostAsync("/workout-sessions", content);
+        var response = await _client.PostAsync("/api/workout-sessions", content);
         var json = await response.Content.ReadAsStringAsync();
         response.EnsureSuccessStatusCode();
         Assert.Equal(
@@ -85,13 +81,13 @@ public class SessionExerciseControllerTests(WorkoutDbFixture fixture)
 
         var originalPostResponse = JsonConvert.SerializeObject(exercise);
         var putContent = new StringContent(originalPostResponse, Encoding.UTF8, "application/json");
-        var responseFromEdit = await _client.PutAsync("/session-exercises", putContent);
+        var responseFromEdit = await _client.PutAsync("api/session-exercises", putContent);
 
         // Assert
         await AssertSimpleSaveResponse(responseFromEdit);
 
         var responseFromDelete = await _client.DeleteAsync(
-            "/workout-sessions/36465433-7e55-4282-9c61-761417fbcda8"
+            "/api/workout-sessions/36465433-7e55-4282-9c61-761417fbcda8"
         );
         responseFromDelete.EnsureSuccessStatusCode();
         Assert.Equal(
@@ -136,7 +132,7 @@ public class SessionExerciseControllerTests(WorkoutDbFixture fixture)
     {
         // Act
         var response = await _client.GetAsync(
-            "/session-exercises/history/a85ca59d-e66c-4b19-aed1-222222222221"
+            "/api/session-exercises/history/a85ca59d-e66c-4b19-aed1-222222222221"
         );
 
         // Assert

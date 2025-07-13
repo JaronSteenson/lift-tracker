@@ -21,7 +21,7 @@ public class WorkoutSessionControllerTests(WorkoutDbFixture fixture)
     public async Task Get_EndpointsReturnsEntities()
     {
         // Act
-        var response = await _client.GetAsync("/workout-sessions");
+        var response = await _client.GetAsync("/api/workout-sessions");
 
         // Assert
         response.EnsureSuccessStatusCode();
@@ -44,7 +44,7 @@ public class WorkoutSessionControllerTests(WorkoutDbFixture fixture)
     {
         // Act
         var response = await _client.GetAsync(
-            "/workout-sessions/27ffe07e-ecfd-4599-b132-6ec9e35fee1d"
+            "/api/workout-sessions/27ffe07e-ecfd-4599-b132-6ec9e35fee1d"
         );
 
         // Assert
@@ -67,7 +67,7 @@ public class WorkoutSessionControllerTests(WorkoutDbFixture fixture)
     {
         // Act
         var response = await _client.GetAsync(
-            "/workout-sessions/by-set/b0d6a7d7-9185-4019-bdfa-5b0411d946ab"
+            "/api/workout-sessions/by-set/b0d6a7d7-9185-4019-bdfa-5b0411d946ab"
         );
 
         // Assert
@@ -196,7 +196,7 @@ public class WorkoutSessionControllerTests(WorkoutDbFixture fixture)
         var content = new StringContent(requestJson, Encoding.UTF8, "application/json");
 
         // Act
-        var response = await _client.PostAsync("/workout-sessions", content);
+        var response = await _client.PostAsync("/api/workout-sessions", content);
 
         // Assert
         var createdSession = await AssertSimpleSaveResponse(response);
@@ -210,7 +210,7 @@ public class WorkoutSessionControllerTests(WorkoutDbFixture fixture)
 
         var originalPostResponse = JsonConvert.SerializeObject(createdSession);
         var putContent = new StringContent(originalPostResponse, Encoding.UTF8, "application/json");
-        var responseFromEdit = await _client.PutAsync("/workout-sessions", putContent);
+        var responseFromEdit = await _client.PutAsync("/api/workout-sessions", putContent);
 
         // Assert
         var editedSession = await AssertSimpleSaveResponse(responseFromEdit);
@@ -218,7 +218,7 @@ public class WorkoutSessionControllerTests(WorkoutDbFixture fixture)
         Assert.Equal(DateTime.Parse("2025-04-12"), editedSession.StartedAt);
 
         var responseFromDelete = await _client.DeleteAsync(
-            "/workout-sessions/80412f8c-49dd-4f0e-b9b2-1021f9308106"
+            "/api/workout-sessions/80412f8c-49dd-4f0e-b9b2-1021f9308106"
         );
         responseFromDelete.EnsureSuccessStatusCode();
         Assert.Equal(

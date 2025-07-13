@@ -23,7 +23,7 @@ public class WorkoutProgramControllerTests(WorkoutDbFixture fixture)
     public async Task Get_EndpointsReturnsEntities()
     {
         // Act
-        var response = await _client.GetAsync("/workout-programs");
+        var response = await _client.GetAsync("/api/workout-programs");
 
         // Assert
         response.EnsureSuccessStatusCode();
@@ -47,7 +47,7 @@ public class WorkoutProgramControllerTests(WorkoutDbFixture fixture)
     {
         // Act
         var response = await _client.GetAsync(
-            "/workout-programs/186383a6-e369-4071-b80d-70c82d2495d1"
+            "/api/workout-programs/186383a6-e369-4071-b80d-70c82d2495d1"
         );
 
         // Assert
@@ -111,7 +111,7 @@ public class WorkoutProgramControllerTests(WorkoutDbFixture fixture)
     {
         // Act
         var response = await _client.GetAsync(
-            "/workout-programs/by-routine/cd218127-b60d-46a7-bbc1-a17332bea15f"
+            "/api/workout-programs/by-routine/cd218127-b60d-46a7-bbc1-a17332bea15f"
         );
 
         // Assert
@@ -228,7 +228,7 @@ public class WorkoutProgramControllerTests(WorkoutDbFixture fixture)
         var content = new StringContent(requestJson, Encoding.UTF8, "application/json");
 
         // Act
-        var response = await _client.PostAsync("/workout-programs", content);
+        var response = await _client.PostAsync("/api/workout-programs", content);
 
         // Assert
         await AssertSimpleSaveResponse(response);
@@ -237,13 +237,13 @@ public class WorkoutProgramControllerTests(WorkoutDbFixture fixture)
         // We should be able to resave it all without any issues.
         var originalPostResponse = await response.Content.ReadAsStringAsync();
         var putJson = new StringContent(originalPostResponse, Encoding.UTF8, "application/json");
-        var responseFromEdit = await _client.PutAsync("/workout-programs", putJson);
+        var responseFromEdit = await _client.PutAsync("/api/workout-programs", putJson);
 
         // Assert
         await AssertSimpleSaveResponse(responseFromEdit);
 
         var responseFromDelete = await _client.DeleteAsync(
-            "/workout-programs/3a94e1b9-5709-4d5f-bae8-8db8a3e1b8cc"
+            "/api/workout-programs/3a94e1b9-5709-4d5f-bae8-8db8a3e1b8cc"
         );
         responseFromDelete.EnsureSuccessStatusCode();
         Assert.Equal(
@@ -378,7 +378,7 @@ public class WorkoutProgramControllerTests(WorkoutDbFixture fixture)
         var content = new StringContent(requestJson, Encoding.UTF8, "application/json");
 
         // Act
-        var response = await _client.PostAsync("/workout-programs", content);
+        var response = await _client.PostAsync("/api/workout-programs", content);
 
         // Assert
         response.EnsureSuccessStatusCode();
@@ -516,7 +516,7 @@ public class WorkoutProgramControllerTests(WorkoutDbFixture fixture)
         editedWorkoutProgram.Id = null;
         var putRequestJson = JsonConvert.SerializeObject(editedWorkoutProgram);
         var putJson = new StringContent(putRequestJson, Encoding.UTF8, "application/json");
-        var responseFromEdit = await _client.PutAsync("/workout-programs", putJson);
+        var responseFromEdit = await _client.PutAsync("/api/workout-programs", putJson);
 
         // Assert
         responseFromEdit.EnsureSuccessStatusCode();
@@ -626,7 +626,7 @@ public class WorkoutProgramControllerTests(WorkoutDbFixture fixture)
 
         var requestJson = JsonConvert.SerializeObject(newWorkoutProgram);
         var content = new StringContent(requestJson, Encoding.UTF8, "application/json");
-        await _client.PostAsync("/workout-programs", content);
+        await _client.PostAsync("/api/workout-programs", content);
 
         // Arrange for PUT - moving Bench Press to Wednesday
         var editedProgram = new WorkoutProgram
@@ -671,7 +671,7 @@ public class WorkoutProgramControllerTests(WorkoutDbFixture fixture)
         var putContent = new StringContent(putRequestJson, Encoding.UTF8, "application/json");
 
         // Act
-        var response = await _client.PutAsync("/workout-programs", putContent);
+        var response = await _client.PutAsync("/api/workout-programs", putContent);
 
         // Assert
         response.EnsureSuccessStatusCode();
@@ -737,7 +737,7 @@ public class WorkoutProgramControllerTests(WorkoutDbFixture fixture)
         // Arrange
         var requestJson = JsonConvert.SerializeObject(newWorkoutProgram);
         var content = new StringContent(requestJson, Encoding.UTF8, "application/json");
-        await _client.PostAsync("/workout-programs", content);
+        await _client.PostAsync("/api/workout-programs", content);
 
         // Arrange
         var editedProgram = new WorkoutProgram
@@ -752,7 +752,7 @@ public class WorkoutProgramControllerTests(WorkoutDbFixture fixture)
         var putContent = new StringContent(putRequestJson, Encoding.UTF8, "application/json");
 
         // Act
-        var response = await _client.PutAsync("/workout-programs", putContent);
+        var response = await _client.PutAsync("/api/workout-programs", putContent);
 
         // Assert
         response.EnsureSuccessStatusCode();
@@ -782,7 +782,7 @@ public class WorkoutProgramControllerTests(WorkoutDbFixture fixture)
         );
 
         // Act
-        var response = await _client.PostAsync("/workout-programs", content);
+        var response = await _client.PostAsync("/api/workout-programs", content);
 
         // Assert
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
@@ -837,7 +837,7 @@ public class WorkoutProgramControllerTests(WorkoutDbFixture fixture)
         );
 
         // Act
-        var response = await _client.PostAsync("/workout-programs", content);
+        var response = await _client.PostAsync("/api/workout-programs", content);
 
         // Assert
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);

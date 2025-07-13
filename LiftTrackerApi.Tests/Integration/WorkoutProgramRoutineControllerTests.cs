@@ -16,7 +16,7 @@ public class WorkoutProgramRoutineControllerTests(WorkoutDbFixture fixture)
     public async Task Get_EndpointsReturnsEntities()
     {
         // Act
-        var response = await _client.GetAsync("/routines");
+        var response = await _client.GetAsync("/api/routines");
 
         // Assert
         response.EnsureSuccessStatusCode();

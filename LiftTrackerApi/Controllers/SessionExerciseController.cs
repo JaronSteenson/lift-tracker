@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace LiftTrackerApi.Controllers;
 
 [ApiController]
-[Route("/session-exercises")]
+[Route("/api/session-exercises")]
 public class SessionExerciseController(WorkoutSessionService workoutSessionService) : Controller
 {
     [HttpPut]

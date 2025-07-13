@@ -7,7 +7,7 @@
 /public/fonts/*
 /public/mix-manifest.json
 /vendor
-auth_config.json
+auth_config.js
 npm-debug.log
 .env
 index.html

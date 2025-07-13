@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace LiftTrackerApi.Controllers;
 
 [ApiController]
-[Route("/workout-programs")]
+[Route("/api/workout-programs")]
 public class WorkoutProgramController(WorkoutProgramService workoutProgramService) : Controller
 {
     [HttpGet]

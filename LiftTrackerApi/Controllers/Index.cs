@@ -5,7 +5,7 @@ namespace LiftTrackerApi.Controllers;
 
 [ApiController]
 [AllowAnonymous]
-[Route("")]
+[Route("/api")]
 public class Index() : Controller
 {
     [HttpGet]

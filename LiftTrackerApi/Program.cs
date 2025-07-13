@@ -51,7 +51,7 @@ builder
     })
     .AddJwtBearer(options =>
     {
-        options.Authority = builder.Configuration["Auth0:Domain"];
+        options.Authority = $"https://{builder.Configuration["Auth0:Domain"]}";
         options.Audience = builder.Configuration["Auth0:Audience"];
     });
 
@@ -65,6 +65,7 @@ builder.Services.AddControllers(options =>
 
 var app = builder.Build();
 
+// Not sure if this is working.
 app.UseStatusCodePages(async context =>
 {
     var response = context.HttpContext.Response;

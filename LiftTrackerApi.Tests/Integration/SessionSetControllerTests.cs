@@ -64,7 +64,7 @@ public class SessionSetControllerTests(WorkoutDbFixture fixture) : IClassFixture
         var requestJson = JsonConvert.SerializeObject(newWorkoutSession);
         var content = new StringContent(requestJson, Encoding.UTF8, "application/json");
 
-        var response = await _client.PostAsync("/workout-sessions", content);
+        var response = await _client.PostAsync("/api/workout-sessions", content);
         var json = await response.Content.ReadAsStringAsync();
         response.EnsureSuccessStatusCode();
         Assert.Equal(
@@ -80,13 +80,13 @@ public class SessionSetControllerTests(WorkoutDbFixture fixture) : IClassFixture
 
         var originalPostResponse = JsonConvert.SerializeObject(set);
         var putContent = new StringContent(originalPostResponse, Encoding.UTF8, "application/json");
-        var responseFromEdit = await _client.PutAsync("/session-sets", putContent);
+        var responseFromEdit = await _client.PutAsync("/api/session-sets", putContent);
 
         // Assert
         await AssertSimpleSaveResponse(responseFromEdit);
 
         var responseFromDelete = await _client.DeleteAsync(
-            "/workout-sessions/1e50d5a5-7328-4983-be4a-489a5e377261"
+            "/api/workout-sessions/1e50d5a5-7328-4983-be4a-489a5e377261"
         );
         responseFromDelete.EnsureSuccessStatusCode();
         Assert.Equal(

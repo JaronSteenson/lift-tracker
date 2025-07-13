@@ -25,6 +25,10 @@ async function checkAuthGuards(to, from, next) {
     }
 
     if (isAuthed && to.meta.guard === GUARD_AUTHED) {
+        if (to.name === 'AuthCallback') {
+            next({ name: 'HomePage' });
+        }
+
         next();
         return;
     }
@@ -86,6 +90,14 @@ const routes = [
     {
         name: 'PwaStart',
         path: '/pwa-start',
+        meta: {
+            guard: GUARD_AUTHED,
+        },
+    },
+    {
+        name: 'AuthCallback',
+        path: '/callback',
+        component: HomePage,
         meta: {
             guard: GUARD_AUTHED,
         },

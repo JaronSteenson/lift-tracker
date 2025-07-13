@@ -1,13 +1,13 @@
 import axios from 'axios';
 import { createAuth0Client } from '@auth0/auth0-spa-js';
 import router from '../../router/router';
-import authConfig from '../../../../auth_config.json';
+import authConfig from '../../../../auth_config.js';
 
 export const LOCAL_STORAGE_KEY = 'store-state--App';
 
 const authorizationParams = {
     detailedResponse: true,
-    redirect_uri: window.location.origin,
+    redirect_uri: `${window.location.origin}/callback`,
     audience: authConfig.audience,
     scope: 'email',
 };
@@ -189,10 +189,17 @@ const actions = {
 
             if (isAuthenticated) {
                 user = await auth0Client.getUser();
-                const token = await auth0Client.getTokenWithPopup({
-                    authorizationParams,
-                });
-                axios.defaults.headers.common.Authorization = `Bearer ${token}`;
+                if (authConfig.tokenFetchIsSilent) {
+                    const token = await auth0Client.getTokenSilently({
+                        authorizationParams,
+                    });
+                    axios.defaults.headers.common.Authorization = `Bearer ${token}`;
+                } else {
+                    const token = await auth0Client.getTokenWithPopup({
+                        authorizationParams,
+                    });
+                    axios.defaults.headers.common.Authorization = `Bearer ${token}`;
+                }
             }
 
             commit('reset', {
@@ -213,21 +220,25 @@ const actions = {
     },
 
     async login({ state }) {
-        await state.auth0Client.loginWithRedirect({
+        const options = {
             authorizationParams: {
                 ...authorizationParams,
                 screen_hint: 'login',
             },
-        });
+        };
+
+        await state.auth0Client.loginWithRedirect(options);
     },
 
     async register({ state }) {
-        await state.auth0Client.loginWithRedirect({
+        const options = {
             authorizationParams: {
                 ...authorizationParams,
                 screen_hint: 'register',
             },
-        });
+        };
+
+        await state.auth0Client.loginWithRedirect(options);
     },
 
     async createLocalAccount({ commit, dispatch }) {

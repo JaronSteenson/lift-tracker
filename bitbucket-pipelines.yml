@@ -53,7 +53,9 @@ pipelines:
                     SERVER: $PROD_IP
                     MODE: "command"
                     COMMAND: >
-                      tar -xf /tmp/deploy-frontend/artifacts-frontend.tar.gz -C /var/www/html/lift-tracker # /var/www/html/lift-tracker/public
+                      set -x
+                      && tar -xf /tmp/deploy-frontend/artifacts-frontend.tar.gz -C /var/www/html/lift-tracker
+                      && sudo systemctl reload nginx
                 - echo 'Purging CDN cache'
                 - >
                   curl \
@@ -104,8 +106,9 @@ pipelines:
                     SERVER: $PROD_IP
                     MODE: "command"
                     COMMAND: >
-                      tar -xf /tmp/deploy-backend/artifacts-backend.tar.gz -C /var/www/html/lift-tracker # /var/www/html/lift-tracker/publish
-                      && cd /var/www/html/lift-tracker/api
+                      set -x
+                      && tar -xf /tmp/deploy-backend/artifacts-backend.tar.gz -C /var/www/html/lift-tracker
+                      && sudo systemctl reload nginx
                       && sudo systemctl restart lt-api
               services:
                 - mysql
