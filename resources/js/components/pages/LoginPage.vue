@@ -4,7 +4,7 @@
 
         <div
             class="d-flex flex-wrap justify-center gap-4"
-            :class="$vuetify.breakpoint.mdAndUp ? 'mt-16' : 'mt-8'"
+            :class="$vuetify.breakpoint.mdAndUp ? 'mt-16' : 'mt-0'"
         >
             <div>
                 <img
@@ -101,9 +101,7 @@ $defaultThemeAppBarColor: #f5f5f5;
 
 .banner-image {
     opacity: 0;
-    height: unset;
-    max-width: 100vw;
-    border-bottom: 8px solid $defaultThemeAppBarColor;
+    width: 100vw;
 
     @media (min-width: 600px) {
         height: 260px;
