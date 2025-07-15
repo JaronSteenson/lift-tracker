@@ -1,7 +1,8 @@
 <template>
     <div>
         <PageAppBar :title="appName" show-drawer-icon />
-        <NoProgramsWelcomeHint v-if="shouldShowNoProgramsWelcomeHint" />
+        <SessionOverviewLoadingSkeleton v-if="!isBootstrapped" />
+        <NoProgramsWelcomeHint v-else-if="shouldShowNoProgramsWelcomeHint" />
         <NoSessionsHint v-else-if="shouldShowNoSessionsHint" />
         <WorkoutSessionList v-else />
         <VBtn
@@ -41,17 +42,19 @@ import { mapGetters, mapState } from 'vuex';
 import NoProgramsWelcomeHint from '../domain/userHints/NoProgramsWelcomeHint';
 import NoSessionsHint from '../domain/userHints/NoSessionsHint';
 import PageAppBar from '../AppBar';
+import SessionOverviewLoadingSkeleton from '../domain/workoutSessions/SessionOverviewLoadingSkeleton.vue';
 
 export default {
     name: 'HomePage',
     components: {
         PageAppBar,
+        SessionOverviewLoadingSkeleton,
         NoSessionsHint,
         NoProgramsWelcomeHint,
         WorkoutSessionList,
     },
     computed: {
-        ...mapState('app', ['appName']),
+        ...mapState('app', ['appName', 'isBootstrapped']),
         ...mapGetters('app', [
             'shouldShowNoProgramsWelcomeHint',
             'shouldShowNoSessionsHint',

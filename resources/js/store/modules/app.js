@@ -54,7 +54,7 @@ const getters = {
     },
 
     shouldShowNoProgramsWelcomeHint(state, getters, rootState, rootGetters) {
-        if (!getters.userIsAuthenticated) {
+        if (!getters.userIsAuthenticated || !state.isBootstrapped) {
             return false;
         }
 
@@ -70,7 +70,7 @@ const getters = {
         rootState,
         rootGetters
     ) {
-        if (!getters.userIsAuthenticated) {
+        if (!getters.userIsAuthenticated || !state.isBootstrapped) {
             return false;
         }
 

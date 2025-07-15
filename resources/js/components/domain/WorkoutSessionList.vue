@@ -2,7 +2,7 @@
     <div>
         <VContainer v-show="showTable">
             <VToolbar dense>
-                <VToolbarTitle> My sessions </VToolbarTitle>
+                <VToolbarTitle>My sessions</VToolbarTitle>
                 <VSpacer />
                 <VSwitch
                     class="mt-4 pt-1"
@@ -17,6 +17,7 @@
                 :items="myWorkoutSessions"
                 :items-per-page="myWorkoutSessions.length"
                 hide-default-footer
+                mobile-breakpoint="0"
             >
                 <template v-slot:item.startedAt="{ item: session }">
                     <RouterLink
@@ -99,7 +100,7 @@
             :class="{ 'd-flex': !showTable }"
         >
             <VToolbar dense>
-                <VToolbarTitle> My sessions </VToolbarTitle>
+                <VToolbarTitle>My sessions</VToolbarTitle>
                 <VSpacer />
                 <VSwitch
                     class="mt-4 pt-1"
@@ -149,6 +150,26 @@ export default {
         ...mapState('workoutSession', ['allPagesLoaded', 'myWorkoutSessions']),
         ...mapGetters('workoutSession', ['isInProgressWorkout']),
         headers() {
+            if (this.$vuetify.breakpoint.xsOnly) {
+                return [
+                    {
+                        text: 'Date',
+                        value: 'startedAt',
+                        sortable: false,
+                    },
+                    {
+                        text: 'Routine',
+                        value: 'name',
+                        sortable: false,
+                    },
+                    {
+                        text: 'BW',
+                        value: 'bodyWeight',
+                        sortable: false,
+                    },
+                ];
+            }
+
             return [
                 {
                     text: 'Date',
