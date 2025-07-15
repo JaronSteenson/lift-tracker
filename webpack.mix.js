@@ -12,6 +12,7 @@ if (mix.inProduction()) {
 } else {
     console.log(`Running in development mode at: http://localhost:${port}`);
 }
+mix.setPublicPath('dist');
 
 mix.webpackConfig({
     plugins: [
@@ -30,7 +31,7 @@ mix.webpackConfig({
         ? undefined
         : {
               static: {
-                  directory: join(__dirname, 'static'),
+                  directory: join(__dirname, 'dist'),
               },
               historyApiFallback: true,
               port,
@@ -40,7 +41,7 @@ mix.webpackConfig({
               },
           },
     output: {
-        publicPath: mix.inProduction() ? '/static' : '',
+        publicPath: '', // relative URLs for assets
     },
 });
 
@@ -48,6 +49,5 @@ mix.setResourceRoot('resources')
     .js('resources/js/app.js', 'js')
     .vue({
         version: 2,
-        extractStyles: 'js/app-custom.css',
     })
     .sourceMaps(true, 'source-map');

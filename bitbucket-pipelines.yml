@@ -30,7 +30,7 @@ pipelines:
                 - node ci/replace-auth-config.js
                 - npm run prod
                 - echo 'Starting deploy'
-                - tar -czf artifacts-frontend.tar.gz static index.html
+                - tar -czf artifacts-frontend.tar.gz -C dist .
                 - pipe: atlassian/ssh-run:0.4.1
                   variables:
                     SSH_USER: $PROD_USER
