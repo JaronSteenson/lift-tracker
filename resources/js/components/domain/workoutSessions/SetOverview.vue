@@ -291,7 +291,7 @@
                                 <VProgressLinear indeterminate />
                             </span>
                             <template v-else>
-                                <template v-if="exerciseHistory.length > 0">
+                                <template v-if="exerciseHistory.length > 1">
                                     <RouterLink
                                         :to="{
                                             $route,
@@ -311,8 +311,8 @@
                                 </template>
                                 <span v-else>
                                     This is the first time you are doing this
-                                    exercise. Last time recaps will appear here
-                                    next time.
+                                    exercise. History will appear here next
+                                    time.
                                 </span>
                             </template>
                         </VCol>
