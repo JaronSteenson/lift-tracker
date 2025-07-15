@@ -1,5 +1,5 @@
 {
-    "/public/js/app.css": "/public/js/app.css",
-    "/public/js/app.js": "/public/js/app.js",
-    "/public/js/app-custom.css": "/public/js/app-custom.css"
+    "/js/app.css": "/js/app.css",
+    "/js/app.js": "/js/app.js",
+    "/js/app-custom.css": "/js/app-custom.css"
 }

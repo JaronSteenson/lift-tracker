@@ -9,5 +9,4 @@ template = template
     .replace('${AUTH0_CLIENT_ID}', process.env.AUTH0_CLIENT_ID)
     .replace('${AUTH0_AUDIENCE}', process.env.AUTH0_AUDIENCE);
 
-fs.writeFileSync('public/auth_config.js', template); // Debugging.
 fs.writeFileSync('auth_config.js', template);

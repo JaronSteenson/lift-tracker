@@ -5,79 +5,49 @@ const { BundleAnalyzerPlugin } = require('webpack-bundle-analyzer');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const { join } = require('node:path');
 
+const port = 8081;
+
 if (mix.inProduction()) {
-    mix.setPublicPath('public');
-
-    let optionalPlugins = [];
-    if (process.env.ANALYZE_BUNDLE) {
-        optionalPlugins.push(new BundleAnalyzerPlugin());
-    } else {
-        mix.disableNotifications();
-    }
-
-    mix.webpackConfig({
-        plugins: [
-            ...optionalPlugins,
-            new HtmlWebpackPlugin({
-                template: 'resources/index.html',
-                inject: true,
-                filename: 'index.html',
-            }),
-            new webpack.DefinePlugin({
-                'process.env.API_BASE_URL': JSON.stringify(`/api`),
-            }),
-        ],
-        output: {
-            publicPath: '.',
-        },
-    });
-
-    mix.js('resources/js/app.js', 'js')
-        .setResourceRoot('resources')
-        .vue({
-            version: 2,
-            extractStyles: 'js/app-custom.css',
-        })
-        .sourceMaps(true, 'source-map');
+    mix.disableNotifications();
 } else {
-    const port = 8081;
-    publicPath = `http://localhost:${port}`;
-
-    console.log(`Running in development mode at: ${publicPath}`);
-
-    mix.webpackConfig({
-        plugins: [
-            new HtmlWebpackPlugin({
-                template: 'resources/index.html',
-                inject: true,
-            }),
-            new webpack.DefinePlugin({
-                'process.env.API_BASE_URL': JSON.stringify(
-                    'http://localhost:5299/api'
-                ),
-            }),
-        ],
-        devServer: {
-            static: {
-                directory: join(__dirname, 'public'),
-            },
-            historyApiFallback: true,
-            port,
-            hot: true,
-            client: {
-                webSocketURL: `ws://localhost:${port}/ws`,
-            },
-        },
-        output: {
-            publicPath,
-        },
-    });
-
-    mix.js('resources/js/app.js', 'public/js')
-        .setResourceRoot('resources')
-        .vue({
-            version: 2,
-            extractStyles: 'public/js/app-custom.css',
-        })
-        .sourceMaps(true, 'source-map');
+    console.log(`Running in development mode at: http://localhost:${port}`);
 }
+
+mix.webpackConfig({
+    plugins: [
+        new HtmlWebpackPlugin({
+            template: 'resources/index.html',
+            inject: true,
+        }),
+        new webpack.DefinePlugin({
+            'process.env.API_BASE_URL': mix.inProduction()
+                ? JSON.stringify(`/api`)
+                : JSON.stringify('http://localhost:5299/api'),
+        }),
+        process.env.ANALYZE_BUNDLE ? new BundleAnalyzerPlugin() : null,
+    ].filter(Boolean),
+    devServer: mix.inProduction()
+        ? undefined
+        : {
+              static: {
+                  directory: join(__dirname, 'static'),
+              },
+              historyApiFallback: true,
+              port,
+              hot: true,
+              client: {
+                  webSocketURL: `ws://localhost:${port}/ws`,
+              },
+          },
+    output: {
+        publicPath: mix.inProduction() ? '/static' : '',
+    },
+});
+
+mix.setResourceRoot('resources')
+    .js('resources/js/app.js', 'js')
+    .vue({
+        version: 2,
+        extractStyles: 'js/app-custom.css',
+    })
+    .sourceMaps(true, 'source-map');
