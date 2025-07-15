@@ -1,7 +1,7 @@
 <template>
     <div>
         <PageAppBar :title="appName" show-drawer-icon />
-        <SessionOverviewLoadingSkeleton v-if="!isBootstrapped" />
+        <SessionOverviewLoadingSkeleton v-if="myWorkoutSessionsIsLoading" />
         <NoProgramsWelcomeHint v-else-if="shouldShowNoProgramsWelcomeHint" />
         <NoSessionsHint v-else-if="shouldShowNoSessionsHint" />
         <WorkoutSessionList v-else />
@@ -54,7 +54,8 @@ export default {
         WorkoutSessionList,
     },
     computed: {
-        ...mapState('app', ['appName', 'isBootstrapped']),
+        ...mapState('app', ['appName']),
+        ...mapState('workoutSession', ['myWorkoutSessionsIsLoading']),
         ...mapGetters('app', [
             'shouldShowNoProgramsWelcomeHint',
             'shouldShowNoSessionsHint',

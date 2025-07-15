@@ -27,6 +27,7 @@ function defaultState() {
             createdAt: null,
             updatedAt: null,
         },
+        myWorkoutSessionsIsLoading: false,
         myWorkoutSessions: [],
         pageIndex: 0,
         allPagesLoaded: false,
@@ -769,10 +770,15 @@ export const actions = {
             return [];
         }
 
+        commit('reset', {
+            myWorkoutSessionsIsLoading: true,
+        });
+
         const pageIndex = state.pageIndex + 1;
         const response = await WorkoutSessionService.index({ pageIndex });
 
         commit('reset', {
+            myWorkoutSessionsIsLoading: false,
             myWorkoutSessions: [...state.myWorkoutSessions, ...response.data],
             pageIndex,
             allPagesLoaded:

@@ -4,7 +4,7 @@
 
         <div
             class="d-flex flex-wrap justify-center gap-4"
-            :class="$vuetify.breakpoint.mdAndUp ? 'mt-16' : 'mt-0'"
+            :class="$vuetify.breakpoint.smAndUp ? 'mt-8' : 'mt-0'"
         >
             <div>
                 <img

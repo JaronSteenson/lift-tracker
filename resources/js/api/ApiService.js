@@ -1,9 +1,9 @@
 import axios from 'axios';
 
-let baseUrl = process.env.API_BASE_URL ?? '/api';
+let baseUrl = process.env.API_BASE_URL;
 
 if (typeof baseUrl === 'string') {
-    baseUrl = baseUrl.replace(/\/+$/, '');
+    console.log(`${baseUrl} api base url configured.`);
 } else {
     console.error('No api base url configured.');
 }

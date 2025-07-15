@@ -1,18 +1,17 @@
 <template>
-    <div>
+    <NarrowContentContainer use-full-width>
         <VSkeletonLoader
             v-if="myWorkoutProgramsIsLoading"
             class="ma-5"
             type="card@10"
         />
-        <NarrowContentContainer v-else>
-            <RoutineCard
-                v-for="routine in myRoutines"
-                :key="routine.uuid"
-                :routine="routine"
-            />
-        </NarrowContentContainer>
-    </div>
+        <RoutineCard
+            v-else
+            v-for="routine in myRoutines"
+            :key="routine.uuid"
+            :routine="routine"
+        />
+    </NarrowContentContainer>
 </template>
 
 <script>

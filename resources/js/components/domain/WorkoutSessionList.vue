@@ -147,7 +147,11 @@ export default {
         window.removeEventListener('scroll', this.infiniteScroll);
     },
     computed: {
-        ...mapState('workoutSession', ['allPagesLoaded', 'myWorkoutSessions']),
+        ...mapState('workoutSession', [
+            'allPagesLoaded',
+            'myWorkoutSessionsIsLoading',
+            'myWorkoutSessions',
+        ]),
         ...mapGetters('workoutSession', ['isInProgressWorkout']),
         headers() {
             if (this.$vuetify.breakpoint.xsOnly) {
@@ -222,7 +226,11 @@ export default {
             const atBottom =
                 document.documentElement.scrollTop + window.innerHeight ===
                 document.documentElement.offsetHeight;
-            if (atBottom) {
+            if (
+                atBottom &&
+                !this.myWorkoutSessionsIsLoading &&
+                !this.allPagesLoaded
+            ) {
                 this.loadNextPage();
             }
         },

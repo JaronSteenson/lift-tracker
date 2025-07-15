@@ -21,9 +21,9 @@ mix.webpackConfig({
             inject: true,
         }),
         new webpack.DefinePlugin({
-            'process.env.API_BASE_URL': mix.inProduction()
-                ? JSON.stringify(`/api`)
-                : JSON.stringify('http://localhost:5299/api'),
+            'process.env.API_BASE_URL': JSON.stringify(
+                mix.inProduction() ? '/api' : 'http://localhost:5299/api'
+            ),
         }),
         process.env.ANALYZE_BUNDLE ? new BundleAnalyzerPlugin() : null,
     ].filter(Boolean),
