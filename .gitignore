@@ -8,6 +8,7 @@
 /dist/mix-manifest.json
 /dist/index.html
 /dist/hot
+/dist/mix-manifest.json
 /vendor
 auth_config.js
 npm-debug.log

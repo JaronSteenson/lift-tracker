@@ -41,6 +41,8 @@ mix.webpackConfig({
               },
           },
     output: {
+        filename: '[name].[contenthash].js',
+        chunkFilename: '[name].[contenthash].js',
         publicPath: '', // relative URLs for assets
     },
 });

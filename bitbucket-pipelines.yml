@@ -54,6 +54,8 @@ pipelines:
                     MODE: "command"
                     COMMAND: >
                       set -x
+                      && rm -rf /var/www/html/lift-tracker/index.html
+                      && rm -rf /var/www/html/lift-tracker/js
                       && tar -xf /tmp/deploy-frontend/artifacts-frontend.tar.gz -C /var/www/html/lift-tracker
                       && sudo systemctl reload nginx
                 - echo 'Purging CDN cache'
