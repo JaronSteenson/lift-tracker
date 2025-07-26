@@ -19,6 +19,12 @@
 
                     <VList>
                         <VListItem
+                            :disabled="!exercise.routineExercise"
+                            @click="editingSource = true"
+                        >
+                            <VListItemTitle>Edit source</VListItemTitle>
+                        </VListItem>
+                        <VListItem
                             :disabled="isFirstSetOfWorkout"
                             @click="lookBack"
                         >
@@ -466,6 +472,11 @@
                 </VCardActions>
             </VCardText>
         </NarrowContentContainer>
+        <EditExerciseModal
+            v-if="editingSource"
+            :exercise-uuid="exercise.routineExercise.uuid"
+            v-model="editingSource"
+        />
     </div>
 </template>
 
@@ -478,9 +489,11 @@ import ServerSyncInfo from './../../ServerSyncInfo';
 import LabeledWorkoutDuration from '../LabeledWorkoutDuration';
 import NarrowContentContainer from '../../layouts/NarrowContentContainer';
 import AppBar from '../../AppBar';
+import EditExerciseModal from '../../domain/programBuilder/EditExerciseModal';
 
 export default {
     components: {
+        EditExerciseModal,
         AppBar,
         NarrowContentContainer,
         LabeledWorkoutDuration,
@@ -504,6 +517,7 @@ export default {
             isChangingSet: false,
             isEndingWorkout: false,
             forceUpdate: 0,
+            editingSource: false,
         };
     },
     computed: {
