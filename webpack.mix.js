@@ -33,17 +33,27 @@ mix.webpackConfig({
               static: {
                   directory: join(__dirname, 'dist'),
               },
-              historyApiFallback: true,
-              port,
-              hot: true,
-              client: {
-                  webSocketURL: `ws://localhost:${port}/ws`,
-              },
+                hot: true,
+                host: 'localhost',
+                port: 8081,
+                historyApiFallback: true,
+                client: {
+                    webSocketURL: {
+                        hostname: 'localhost',
+                        port: 8081,
+                        pathname: '/ws',
+                    },
+                },
           },
-    output: {
-        filename: '[name].[contenthash].js',
-        chunkFilename: '[name].[contenthash].js',
-        publicPath: '', // relative URLs for assets
+    output: mix.inProduction() ?
+        {
+            filename: '[name].[contenthash].js',
+            chunkFilename: '[name].[contenthash].js',
+            publicPath: '', // relative URLs for assets
+        } : {
+            filename: '[name].js',
+            chunkFilename: '[name].js',
+            publicPath: 'http://localhost:8081/',
     },
 });
 

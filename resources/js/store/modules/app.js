@@ -7,7 +7,7 @@ export const LOCAL_STORAGE_KEY = 'store-state--App';
 
 const authorizationParams = {
     detailedResponse: true,
-    redirect_uri: `${window.location.origin}/callback`,
+    redirect_uri: `${window.location.origin}`,
     audience: authConfig.audience,
     scope: 'email',
 };
