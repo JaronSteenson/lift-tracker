@@ -765,6 +765,11 @@ export default {
                     uuid: this.sessionSetUuid,
                     weight,
                 });
+
+                this.$store.dispatch('programBuilder/updateExercise', {
+                    exerciseUuid: this.exercise.routineExercise.uuid,
+                    weight,
+                });
             },
         },
         reps: {

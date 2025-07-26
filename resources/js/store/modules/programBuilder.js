@@ -449,15 +449,20 @@ const actions = {
         });
     },
 
-    async prepareForSessionOverview({ commit, rootGetters }, routineUuid) {
+    async prepareForSessionOverview({ commit, rootGetters, state }, routineUuid) {
         if (rootGetters['app/userIsLocalOnly']) {
-            return;
+            commit('reset', {
+                inFocusProgram: state.myWorkoutPrograms.find(
+                    workoutProgram => workoutProgram.workoutProgramRoutines.some((routine) => routine.uuid === routineUuid)
+                ),
+                delayedSavingToServer: false,
+            });
         }
 
         const response = await WorkoutProgramService.getByRoutine(routineUuid);
         commit('reset', {
             inFocusProgram: response.data,
-            delayedSavingToServer: true,
+            delayedSavingToServer: false,
         });
     },
 
