@@ -16,12 +16,8 @@
             From
             <ProgramName :workoutProgram="routine.workoutProgram" />
         </VCardSubtitle>
-        <VCardText>
-            <SessionStats
-                v-if="routine.latestSession"
-                :workoutSession="routine.latestSession"
-            />
-            <MissingValue v-else>Routine not used yet</MissingValue>
+        <VCardText v-if="mostRecentDate">
+            Last completed <MissingValue>{{ mostRecentDate }}</MissingValue>
         </VCardText>
         <VCardActions>
             <VBtn
@@ -49,6 +45,7 @@
 import MissingValue from '../util/MissingValue';
 import ProgramName from '../domain/programBuilder/ProgramName';
 import SessionStats from './workoutSessions/SessionStats';
+import { dateTimeDescription } from '../../dates';
 
 export default {
     components: {
@@ -66,6 +63,14 @@ export default {
         return {
             starting: false,
         };
+    },
+    computed: {
+        mostRecentDate() {
+            const mostRecent = this.$store.getters['workoutSession/mostRecent'](this.routine.uuid);
+            if (mostRecent) {
+                return dateTimeDescription(mostRecent.endedAt);
+            }
+        }
     },
     methods: {
         async startNow() {

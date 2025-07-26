@@ -82,6 +82,14 @@ export const getters = {
         return workoutSession.workoutProgramRoutine.uuid;
     },
 
+    mostRecent: (state) => (routineUuid) => {
+        const sourceSessions = state.myWorkoutSessions
+            .filter(session => session?.workoutProgramRoutine?.uuid === routineUuid)
+            .sort((a, b) => new Date(b.endedAt) - new Date(a.endedAt));
+
+        return sourceSessions[0] || null;
+    },
+
     /**
      * Flatten all sets from every exercise in a single array.
      */

@@ -208,10 +208,6 @@ const actions = {
                 auth0Client,
                 auth0Error,
             });
-
-            if (removeSearchParams) {
-                await router.replace('');
-            }
         }
     },
 
