@@ -46,14 +46,12 @@ export default {
         },
     },
     watch: {
-        $route(to, from) {
-            debugger
+        $route() {
             this.ensureWorkoutSessionIsLoadedLoaded();
-        }
+        },
     },
     methods: {
         async ensureWorkoutSessionIsLoadedLoaded() {
-            debugger
             if (
                 this.$store.getters['workoutSession/setIsInFocusedSession'](
                     this.sessionSetUuid
@@ -69,11 +67,13 @@ export default {
                     'workoutSession/fetchBySet',
                     this.sessionSetUuid
                 );
-                const workoutProgramRoutine = this.$store.state.workoutSession.workoutSession.workoutProgramRoutine
+                const workoutProgramRoutine =
+                    this.$store.state.workoutSession.workoutSession
+                        .workoutProgramRoutine;
                 if (workoutProgramRoutine) {
                     await this.$store.dispatch(
                         'programBuilder/prepareForSessionOverview',
-                        workoutProgramRoutine.uuid,
+                        workoutProgramRoutine.uuid
                     );
                 }
             } catch (e) {

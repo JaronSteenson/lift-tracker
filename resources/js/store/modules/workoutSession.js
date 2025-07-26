@@ -84,7 +84,10 @@ export const getters = {
 
     mostRecent: (state) => (routineUuid) => {
         const sourceSessions = state.myWorkoutSessions
-            .filter(session => session?.workoutProgramRoutine?.uuid === routineUuid)
+            .filter(
+                (session) =>
+                    session?.workoutProgramRoutine?.uuid === routineUuid
+            )
             .sort((a, b) => new Date(b.endedAt) - new Date(a.endedAt));
 
         return sourceSessions[0] || null;

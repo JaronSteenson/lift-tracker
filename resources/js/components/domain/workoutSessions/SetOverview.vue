@@ -759,12 +759,12 @@ export default {
             );
         },
         exerciseHistory() {
-            const history = this.$store.getters['workoutSession/exerciseHistory'](
-                this.exercise.uuid
-            );
+            const history = this.$store.getters[
+                'workoutSession/exerciseHistory'
+            ](this.exercise.uuid);
 
             // Keep today reactive.
-            return history.map(entry =>
+            return history.map((entry) =>
                 entry.uuid === this.exercise.uuid ? this.exercise : entry
             );
         },

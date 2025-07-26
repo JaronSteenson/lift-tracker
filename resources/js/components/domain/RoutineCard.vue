@@ -44,14 +44,12 @@
 <script>
 import MissingValue from '../util/MissingValue';
 import ProgramName from '../domain/programBuilder/ProgramName';
-import SessionStats from './workoutSessions/SessionStats';
 import { dateTimeDescription } from '../../dates';
 
 export default {
     components: {
         MissingValue,
         ProgramName,
-        SessionStats,
     },
     props: {
         routine: {
@@ -66,11 +64,15 @@ export default {
     },
     computed: {
         mostRecentDate() {
-            const mostRecent = this.$store.getters['workoutSession/mostRecent'](this.routine.uuid);
+            const mostRecent = this.$store.getters['workoutSession/mostRecent'](
+                this.routine.uuid
+            );
             if (mostRecent) {
                 return dateTimeDescription(mostRecent.endedAt);
             }
-        }
+
+            return undefined;
+        },
     },
     methods: {
         async startNow() {

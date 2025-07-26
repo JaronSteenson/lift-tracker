@@ -165,7 +165,6 @@ const actions = {
         const auth0Client = await createAuth0Client({
             ...authConfig,
         });
-        let removeSearchParams = false;
         let auth0Error;
         let user;
         try {
@@ -178,7 +177,6 @@ const actions = {
                 // handle the redirect and retrieve tokens
                 await auth0Client.handleRedirectCallback();
                 auth0Error = null;
-                removeSearchParams = true;
             }
         } catch (e) {
             auth0Error = e;
