@@ -227,6 +227,62 @@ public class WorkoutSessionControllerTests(WorkoutDbFixture fixture)
         );
     }
 
+    /// <see cref="WorkoutProgramController.Create(WorkoutProgram)" />
+    /// <see cref="WorkoutProgramController.Update(WorkoutProgram)" />
+    [Fact]
+    public async Task PostPutDelete_SavesAndDeletesWeightRecordingsWithoutChildren()
+    {
+        // Arrange
+        var newWorkoutSession = new WorkoutSession
+        {
+            Uuid = Guid.Parse("64014462-91c0-447f-a1dc-d6da88754ad1"),
+            Name = "Weight recording",
+            Notes = "Feeling heavy today",
+            UserId = 1,
+        };
+
+        var requestJson = JsonConvert.SerializeObject(newWorkoutSession);
+        var content = new StringContent(requestJson, Encoding.UTF8, "application/json");
+
+        // Act
+        var response = await _client.PostAsync("/api/workout-sessions", content);
+
+        // Assert
+        var json = await response.Content.ReadAsStringAsync();
+        var createdSession = JsonConvert.DeserializeObject<WorkoutSession>(json);
+        Assert.Null(createdSession.BodyWeight);
+        Assert.Null(createdSession.StartedAt);
+        Assert.Equal("Weight recording", createdSession.Name);
+        Assert.Equal("Feeling heavy today", createdSession.Notes);
+
+        // Act
+        // Make a couple of top-level edits to the session, like in the actual app.
+        createdSession.BodyWeight = 85;
+
+        var originalPostResponse = JsonConvert.SerializeObject(createdSession);
+        var putContent = new StringContent(originalPostResponse, Encoding.UTF8, "application/json");
+        var responseFromEdit = await _client.PutAsync("/api/workout-sessions", putContent);
+
+        // Assert
+        response.EnsureSuccessStatusCode();
+        Assert.Equal(
+            "application/json; charset=utf-8",
+            response.Content.Headers.ContentType!.ToString()
+        );
+        var jsonEdited = await responseFromEdit.Content.ReadAsStringAsync();
+        var editedSession = JsonConvert.DeserializeObject<WorkoutSession>(jsonEdited);
+        Assert.Equal(85, editedSession.BodyWeight);
+
+        var responseFromDelete = await _client.DeleteAsync(
+            "/api/workout-sessions/64014462-91c0-447f-a1dc-d6da88754ad1"
+        );
+        responseFromDelete.EnsureSuccessStatusCode();
+        Assert.Equal(
+            "application/json; charset=utf-8",
+            response.Content.Headers.ContentType!.ToString()
+        );
+    }
+
     private static async Task<WorkoutSession> AssertSimpleSaveResponse(HttpResponseMessage response)
     {
         var json = await response.Content.ReadAsStringAsync();
