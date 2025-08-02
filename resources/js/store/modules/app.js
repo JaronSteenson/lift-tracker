@@ -187,17 +187,10 @@ const actions = {
 
             if (isAuthenticated) {
                 user = await auth0Client.getUser();
-                if (authConfig.tokenFetchIsSilent) {
-                    const token = await auth0Client.getTokenSilently({
-                        authorizationParams,
-                    });
-                    axios.defaults.headers.common.Authorization = `Bearer ${token}`;
-                } else {
-                    const token = await auth0Client.getTokenWithPopup({
-                        authorizationParams,
-                    });
-                    axios.defaults.headers.common.Authorization = `Bearer ${token}`;
-                }
+                const token = await auth0Client.getTokenSilently({
+                    authorizationParams,
+                });
+                axios.defaults.headers.common.Authorization = `Bearer ${token}`;
             }
 
             commit('reset', {
