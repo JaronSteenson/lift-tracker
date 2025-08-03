@@ -2,7 +2,7 @@ import WorkoutSessionService from '../../api/WorkoutSessionService';
 import UuidHelper from '../../UuidHelper';
 import { utcNow } from '../../dates';
 import { memoizeDebounceAction } from '../../util';
-import { differenceInSeconds, isAfter } from 'date-fns';
+import { differenceInSeconds, isAfter, isToday, parseISO } from 'date-fns';
 import {
     mutations as saveStatusMutations,
     actions as saveStatusActions,
@@ -33,25 +33,12 @@ function defaultState() {
         allPagesLoaded: false,
         exercisesHistory: {}, // Previous entries of exercises keyed by exercise uuid.
         timerTimeout: null,
-        /**
-         * A map of workout session ids to boolean, indicating if a session is open for retrospective editing.
-         * Note this is only relevant to finished workouts.
-         */
-        openForEdits: {},
     };
 }
 
 const state = defaultState();
 
 export const getters = {
-    isOpenForEdits: (state, getters) => (workoutSessionUuid) => {
-        if (getters.isInProgressWorkout(workoutSessionUuid)) {
-            return true;
-        }
-
-        return state?.openForEdits?.[workoutSessionUuid];
-    },
-
     isInProgressWorkout: (state, getters) => (workoutSessionUuid) => {
         if (!getters.inProgressWorkouts) {
             return false;
@@ -120,7 +107,7 @@ export const getters = {
                 workoutSessionUuid
             );
 
-            if (!workout) {
+            if (!workout || workout.sessionExercises.length === 0) {
                 return null;
             }
 
@@ -153,7 +140,9 @@ export const getters = {
 
     inProgressWorkouts(state) {
         return state.myWorkoutSessions.filter(
-            (workoutSession) => workoutSession.endedAt === null
+            (workoutSession) =>
+                workoutSession.startedAt !== null &&
+                workoutSession.endedAt === null
         );
     },
 
@@ -447,11 +436,6 @@ export const getters = {
 
 export const actions = {
     ...saveStatusActions,
-
-    updateBodyWeight({ commit, dispatch }, { bodyWeight }) {
-        commit('updateWorkoutSession', { bodyWeight });
-        dispatch('saveWorkout');
-    },
     updateSetWeight({ commit, dispatch, getters }, { uuid, weight }) {
         commit('updateSet', { uuid, weight });
 
@@ -507,18 +491,12 @@ export const actions = {
         dispatch('saveExercise', uuid);
     },
 
-    startSet({ commit, dispatch }, { uuid }) {
-        const now = utcNow();
-
-        commit('startSet', { uuid, startedAt: now });
-
-        dispatch('saveSet', uuid);
+    async startSet({ commit }, { uuid }) {
+        await commit('startSet', { uuid, startedAt: utcNow() });
     },
 
-    endSet({ commit, dispatch }, { uuid }) {
-        commit('updateSet', { uuid, endedAt: utcNow() });
-
-        dispatch('saveSet', uuid);
+    async endSet({ commit }, { uuid }) {
+        await commit('updateSet', { uuid, endedAt: utcNow() });
     },
 
     skipExercise({ commit, dispatch }, { uuid }) {
@@ -607,15 +585,6 @@ export const actions = {
         dispatch('saveSet', uuid);
     },
 
-    updateOpenForEditsStatus({ state, commit }, { workoutSessionUuid, value }) {
-        commit('reset', {
-            openForEdits: {
-                ...state.openForEdits,
-                [workoutSessionUuid]: value,
-            },
-        });
-    },
-
     async delete({ state, commit, dispatch, rootGetters }, uuidToDelete) {
         try {
             const updatedWorkoutSessions = UuidHelper.removeFromCopy(
@@ -651,46 +620,43 @@ export const actions = {
      * @param uuid The sets uuid
      * @return {Promise<void>}
      */
-    saveSet: memoizeDebounceAction(
-        async ({ commit, getters, dispatch, rootGetters }, uuid) => {
-            try {
-                dispatch('startSaving');
+    saveSet: async ({ commit, getters, dispatch, rootGetters }, uuid) => {
+        try {
+            dispatch('startSaving');
+
+            commit('updateSet', {
+                uuid,
+                updatedAt: utcNow(),
+            });
+            commit('updateWorkoutSession', {
+                uuid: getters.uuid,
+                updatedAt: utcNow(),
+            });
+
+            const set = getters.set(uuid);
+
+            if (!rootGetters['app/userIsLocalOnly']) {
+                const response = await WorkoutSessionService.saveSet(set);
+
+                commit('updateWorkoutSession', {
+                    uuid: getters.uuid,
+                    updatedAt: response.data.updatedAt,
+                });
 
                 commit('updateSet', {
                     uuid,
-                    updatedAt: utcNow(),
+                    updatedAt: response.data.updatedAt,
+                    createdAt: response.data.createdAt,
                 });
-                commit('updateWorkoutSession', {
-                    uuid: getters.uuid,
-                    updatedAt: utcNow(),
-                });
-
-                const set = getters.set(uuid);
-
-                if (!rootGetters['app/userIsLocalOnly']) {
-                    const response = await WorkoutSessionService.saveSet(set);
-
-                    commit('updateWorkoutSession', {
-                        uuid: getters.uuid,
-                        updatedAt: response.data.updatedAt,
-                    });
-
-                    commit('updateSet', {
-                        uuid,
-                        updatedAt: response.data.updatedAt,
-                        createdAt: response.data.createdAt,
-                    });
-                }
-
-                dispatch('saveToLocalStorage');
-                dispatch('finishSaving');
-            } catch (error) {
-                dispatch('finishSavingError');
-                console.error(error);
             }
-        },
-        SAVE_DEBOUNCE_WAIT
-    ),
+
+            dispatch('saveToLocalStorage');
+            dispatch('finishSaving');
+        } catch (error) {
+            dispatch('finishSavingError');
+            console.error(error);
+        }
+    },
 
     saveExercise: memoizeDebounceAction(
         async ({ commit, getters, dispatch, rootGetters }, uuid) => {
@@ -740,8 +706,7 @@ export const actions = {
                 );
 
                 commit('updateWorkoutSession', {
-                    updatedAt: response.data.updatedAt,
-                    createdAt: response.data.createdAt,
+                    ...response.data,
                 });
             }
 
@@ -840,18 +805,52 @@ export const actions = {
         });
     },
 
+    async saveCheckIn({ commit, state, dispatch, rootGetters }, updates) {
+        let workoutSession = { ...state.workoutSession, ...updates };
+        const update = {
+            workoutSession,
+            myWorkoutSessions: UuidHelper.replaceInCopy(
+                state.myWorkoutSessions,
+                workoutSession,
+                true
+            ),
+            exercisesHistory: state.exercisesHistory,
+        };
+        commit('reset', update);
+
+        // We must wait for the master routine to be updated,
+        // so we can link any new session exercises to their builder counterparts.
+        if (!rootGetters['app/userIsLocalOnly']) {
+            workoutSession = (await WorkoutSessionService.save(workoutSession))
+                .data;
+            commit('reset', { workoutSession });
+        }
+
+        dispatch('saveToLocalStorage');
+    },
+
     async startWorkout(
         { commit, state, dispatch, rootGetters },
         { originWorkout }
     ) {
+        const existingCheckIn = state.myWorkoutSessions.find(
+            (session) =>
+                isToday(parseISO(session.createdAt)) &&
+                session.sessionExercises.length === 0
+        );
+
         let workoutSession = createSessionFromBuilderWorkout({
+            existingCheckIn,
             originWorkout,
         });
 
         const originalState = defaultState();
         const update = {
             workoutSession,
-            myWorkoutSessions: [workoutSession, ...state.myWorkoutSessions],
+            myWorkoutSessions: UuidHelper.replaceInCopy(
+                state.myWorkoutSessions,
+                workoutSession
+            ),
             exercisesHistory: originalState.exercisesHistory,
         };
         commit('reset', update);

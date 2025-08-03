@@ -50,9 +50,10 @@ export default {
      * if It's not found, the item is appended to the end of the list.
      * @param array
      * @param replaceWith
+     * @param prependNew {Boolean}
      * @returns {*}
      */
-    replaceInCopy(array, replaceWith) {
+    replaceInCopy(array, replaceWith, prependNew = false) {
         const copy = [...array];
 
         const index = copy.findIndex(
@@ -60,6 +61,9 @@ export default {
         );
 
         if (index === -1) {
+            if (prependNew) {
+                return [replaceWith, ...copy];
+            }
             return [...copy, replaceWith];
         }
 

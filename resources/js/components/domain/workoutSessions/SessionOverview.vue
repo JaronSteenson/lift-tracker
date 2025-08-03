@@ -1,6 +1,6 @@
 <template>
     <div>
-        <AppBar title="Session overview" :back-to="{ name: 'HomePage' }">
+        <AppBar :title="pageTitle" :back-to="{ name: 'HomePage' }">
             <template v-slot:right>
                 <VMenu bottom left>
                     <template v-slot:activator="{ on }">
@@ -11,7 +11,7 @@
 
                     <VList>
                         <VListItem
-                            :disabled="workoutSession.startedAt === null"
+                            :disabled="workoutSession.createdAt === null"
                             @click="showDeleteConfirmation"
                         >
                             <VListItemTitle>Delete</VListItemTitle>
@@ -31,7 +31,7 @@
                         color="green"
                         :to="{
                             name: 'SetOverviewPage',
-                            params: { sessionSetUuid: currentSet.uuid },
+                            params: { sessionSetUuid: currentSet?.uuid },
                         }"
                     >
                         Resume
@@ -42,7 +42,10 @@
 
             <SessionStatsCard :workout-session="workoutSession" />
 
-            <VTimeline :dense="$vuetify.breakpoint.xsOnly">
+            <VTimeline
+                v-if="workoutSession.sessionExercises.length !== 0"
+                :dense="$vuetify.breakpoint.xsOnly"
+            >
                 <VTimelineItem
                     v-for="(sessionExercise, i) in exercises"
                     :key="sessionExercise.uuid"
@@ -99,16 +102,18 @@ export default {
         SessionStatsCard,
         ExerciseSummaryCard,
     },
-    props: {
-        originRoutineUuid: String,
-        workoutSessionUuid: String,
-    },
     computed: {
         ...mapGetters('workoutSession', [
             'workoutName',
             'workoutSession',
             'notSkippedSessionExercises',
         ]),
+        isCheckInOnly() {
+            return this.workoutSession.sessionExercises.length === 0;
+        },
+        pageTitle() {
+            return this.isCheckInOnly ? 'Check-in' : 'Session overview';
+        },
         exercises() {
             return this.notSkippedSessionExercises.map((exercise, i) => ({
                 ...exercise,

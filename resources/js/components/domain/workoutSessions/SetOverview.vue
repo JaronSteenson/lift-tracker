@@ -109,40 +109,6 @@
                 </div>
             </VAlert>
 
-            <VAlert
-                dense
-                text
-                type="info"
-                v-if="!isChangingSet && workoutIsFinished"
-            >
-                <div class="d-flex justify-space-between align-center">
-                    <template v-if="isOpenForEdits">
-                        <span class="px-2">
-                            Your are making retrospective edits to a workout.
-                        </span>
-                        <VBtn
-                            @click="isOpenForEdits = false"
-                            color="red"
-                            v-if="isOpenForEdits"
-                        >
-                            Stop editing
-                        </VBtn>
-                    </template>
-                    <template v-else>
-                        <span class="px-2">
-                            You are viewing a finished workout.
-                        </span>
-                        <VBtn
-                            @click="isOpenForEdits = true"
-                            color="primary"
-                            v-if="!isOpenForEdits"
-                        >
-                            Edit
-                        </VBtn>
-                    </template>
-                </div>
-            </VAlert>
-
             <!--
                 I have not worked it out, but we need to force a re-render with :key
                 or the no steps are selected when looking back or forward through the
@@ -236,24 +202,9 @@
 
             <VCardText class="px-0">
                 <VContainer class="py-0">
-                    <VRow v-if="isFirstSetOfWorkout">
-                        <VCol class="pt-0" cols="12" md="12" sm="12">
-                            <VTextField
-                                :disabled="!isOpenForEdits"
-                                class="mt-0"
-                                label="Body weight (kg)"
-                                type="number"
-                                :step="1"
-                                :max="9999"
-                                :min="0"
-                                v-model.number="bodyWeight"
-                            />
-                        </VCol>
-                    </VRow>
                     <VRow>
                         <VCol class="pt-0" cols="6" md="6" sm="6">
                             <VTextField
-                                :disabled="!isOpenForEdits"
                                 class="mt-0"
                                 label="Weight (kg)"
                                 type="number"
@@ -265,7 +216,6 @@
                         </VCol>
                         <VCol class="pt-0" cols="6" md="6" sm="6">
                             <VTextField
-                                :disabled="!isOpenForEdits"
                                 class="mt-0"
                                 label="Reps"
                                 type="number"
@@ -286,7 +236,7 @@
                                 v-if="!isLastSetOfExercise || !warmUpStarted"
                                 :label="activeTimerLabel"
                                 v-model="activeTimer"
-                                :disabled="!isOpenForEdits || isTimerRunning"
+                                :disabled="isTimerRunning"
                             />
                         </VCol>
                     </VRow>
@@ -326,7 +276,6 @@
                     <VRow>
                         <VCol class="pt-0" cols="12">
                             <VTextarea
-                                :disabled="!isOpenForEdits"
                                 auto-grow
                                 filled
                                 label="Notes"
@@ -551,22 +500,6 @@ export default {
             return this.$store.getters['workoutSession/isInProgressWorkout'](
                 this.workoutSession.uuid
             );
-        },
-        isOpenForEdits: {
-            get() {
-                return this.$store.getters['workoutSession/isOpenForEdits'](
-                    this.workoutSession.uuid
-                );
-            },
-            set(value) {
-                this.$store.dispatch(
-                    'workoutSession/updateOpenForEditsStatus',
-                    {
-                        workoutSessionUuid: this.workoutSession.uuid,
-                        value,
-                    }
-                );
-            },
         },
         workoutIsFinished() {
             return this.workoutSession.endedAt !== null;
@@ -848,16 +781,6 @@ export default {
                 );
             },
         },
-        bodyWeight: {
-            get() {
-                return this.workoutSession.bodyWeight;
-            },
-            set(bodyWeight) {
-                this.$store.dispatch('workoutSession/updateBodyWeight', {
-                    bodyWeight,
-                });
-            },
-        },
         exerciseNotes: {
             get() {
                 return this.exercise.notes;
@@ -963,13 +886,17 @@ export default {
             this.isChangingSet = true;
 
             if (this.set.endedAt === null) {
-                this.endSet();
+                await this.$store.dispatch('workoutSession/endSet', {
+                    uuid: this.sessionSetUuid,
+                });
             }
 
             const nextSetUuid = this.nextSet.uuid;
             await this.$store.dispatch('workoutSession/startSet', {
                 uuid: nextSetUuid,
             });
+
+            await this.$store.dispatch('workoutSession/saveWorkout');
 
             await this.$router.push({
                 name: 'SetOverviewPage',
@@ -1027,11 +954,6 @@ export default {
                     uuid: this.exercise.uuid,
                 });
             }
-        },
-        endSet() {
-            this.$store.dispatch('workoutSession/endSet', {
-                uuid: this.sessionSetUuid,
-            });
         },
         async ensureExerciseHistoryAreLoaded() {
             if (this.wasAddedOnTheFly) {

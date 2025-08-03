@@ -4,16 +4,6 @@
         <SessionOverviewLoadingSkeleton v-if="myWorkoutProgramsIsLoading" />
         <NoProgramsHint v-else-if="myWorkoutPrograms.length === 0" />
         <WorkoutProgramList v-else />
-        <VBtn
-            :to="{ name: 'ProgramBuilderPageNew' }"
-            fab
-            fixed
-            right
-            bottom
-            title="Build new workout program"
-        >
-            <VIcon color="primary">{{ $svgIcons.mdiPlus }}</VIcon>
-        </VBtn>
     </div>
 </template>
 

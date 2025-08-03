@@ -4,7 +4,7 @@
         <SessionOverviewLoadingSkeleton v-if="myWorkoutSessionsIsLoading" />
         <NoProgramsWelcomeHint v-else-if="shouldShowNoProgramsWelcomeHint" />
         <NoSessionsHint v-else-if="shouldShowNoSessionsHint" />
-        <WorkoutSessionList v-else />
+        <RecordsList v-else />
         <VBtn
             v-if="inProgressSet"
             :to="{
@@ -21,23 +21,11 @@
             <span class="text--primary">Resume workout</span>
             <VIcon color="green" large>{{ $svgIcons.mdiPlayPause }}</VIcon>
         </VBtn>
-        <VBtn
-            v-else
-            :to="{ name: 'NewSessionRoutineSelectPage' }"
-            fab
-            color="secondary"
-            fixed
-            right
-            bottom
-            title="Start new session"
-        >
-            <VIcon color="primary">{{ $svgIcons.mdiPlay }}</VIcon>
-        </VBtn>
     </div>
 </template>
 
 <script>
-import WorkoutSessionList from '../domain/WorkoutSessionList';
+import RecordsList from '../domain/RecordsList';
 import { mapGetters, mapState } from 'vuex';
 import NoProgramsWelcomeHint from '../domain/userHints/NoProgramsWelcomeHint';
 import NoSessionsHint from '../domain/userHints/NoSessionsHint';
@@ -51,7 +39,7 @@ export default {
         SessionOverviewLoadingSkeleton,
         NoSessionsHint,
         NoProgramsWelcomeHint,
-        WorkoutSessionList,
+        RecordsList,
     },
     computed: {
         ...mapState('app', ['appName']),

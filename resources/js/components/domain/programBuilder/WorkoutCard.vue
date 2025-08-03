@@ -108,47 +108,46 @@
                 >
                     <template v-for="exercise in orderedExercises">
                         <ExerciseCard
-                            :exercise-uuid="exercise.uuid"
                             :key="exercise.uuid"
+                            :exercise-uuid="exercise.uuid"
                             ref="exercise-cards"
                         />
                     </template>
                 </Draggable>
             </component>
         </component>
-        <component
-            :is="$vuetify.breakpoint.xsOnly ? 'div' : 'VCardActions'"
+        <div
             v-if="isSessionOverview"
-            class="mx-3 mt-3"
+            class="px-2 pt-2 d-flex justify-space-between align-center gap-4 flex-wrap"
         >
-            <VBtn
-                :height="$vuetify.breakpoint.xs ? '4rem' : null"
-                :width="$vuetify.breakpoint.xsOnly ? '100%' : '50%'"
+            <AddNewButton
+                class="flex-grow-1"
                 :disabled="starting"
                 @click="addExercise"
             >
-                <VIcon>{{ $svgIcons.mdiPlus }}</VIcon>
                 Add exercise
-            </VBtn>
+            </AddNewButton>
             <VBtn
                 v-if="isSessionOverview"
-                :height="$vuetify.breakpoint.xs ? '4rem' : null"
+                :height="$vuetify.breakpoint.xs ? '4rem' : '72'"
                 :ripple="false"
                 :disabled="starting"
-                :class="{ 'mt-5': $vuetify.breakpoint.xsOnly }"
-                :width="$vuetify.breakpoint.xsOnly ? '100%' : '50%'"
+                :class="{
+                    'flex-grow-1': true,
+                    'start-workout-button': true,
+                }"
+                :width="$vuetify.breakpoint.smAndDown ? '100%' : undefined"
                 color="success"
                 @click="startWorkout"
             >
                 <VIcon>{{ $svgIcons.mdiPlay }}</VIcon>
                 Start workout
             </VBtn>
-        </component>
+        </div>
         <VCardActions v-else class="justify-center" width="100%">
-            <VBtn @click="addExercise" width="100%">
-                <VIcon left>{{ $svgIcons.mdiPlus }}</VIcon>
+            <AddNewButton @click="addExercise" width="100%">
                 Add exercise
-            </VBtn>
+            </AddNewButton>
         </VCardActions>
     </component>
 </template>
@@ -158,9 +157,11 @@ import ExerciseCard from './ExerciseCard';
 import Draggable from 'vuedraggable';
 import EditableTitle from '../../formFields/EditableTitle';
 import MissingValue from '../../util/MissingValue';
+import AddNewButton from '../../formFields/AddNewButton';
 
 export default {
     components: {
+        AddNewButton,
         MissingValue,
         EditableTitle,
         ExerciseCard,
@@ -309,6 +310,14 @@ export default {
 </script>
 
 <style scoped lang="scss">
+.start-workout-button {
+    border-style: dashed;
+
+    ::v-deep .v-btn__content {
+        width: 0;
+    }
+}
+
 .workout-card.v-card {
     border: solid 1px var(--v-primary-base);
 }

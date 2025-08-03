@@ -6,93 +6,25 @@
         :clipped="false"
     >
         <VList dense>
-            <div :key="workout.uuid" v-for="workout in inProgressWorkouts">
-                <VListItem
-                    :key="workout.uuid"
-                    link
-                    :to="{
-                        name: 'SessionOverviewPage',
-                        params: { workoutSessionUuid: workout.uuid },
-                    }"
-                >
-                    <VListItemAction>
-                        <VIcon color="success">
-                            {{ $svgIcons.workoutSessionnInProgress }}
-                        </VIcon>
-                    </VListItemAction>
-                    <VListItemContent>
-                        <VListItemTitle v-if="workoutIsInFocus(workout.uuid)">
-                            In progress workout
-                        </VListItemTitle>
-                        <VListItemTitle v-else>Resume workout</VListItemTitle>
-                        <VListItemSubtitle>
-                            {{ workout.name }}
-                        </VListItemSubtitle>
-                    </VListItemContent>
-                </VListItem>
-
-                <VListItem
-                    :key="getCurrentSet(workout.uuid).uuid"
-                    link
-                    :to="{
-                        name: 'SetOverviewPage',
-                        params: {
-                            sessionSetUuid: getCurrentSet(workout.uuid).uuid,
-                        },
-                    }"
-                >
-                    <VListItemAction>
-                        <VIcon color="success">
-                            {{ $svgIcons.mdiPlayPause }}
-                        </VIcon>
-                    </VListItemAction>
-                    <VListItemContent>
-                        <VListItemTitle
-                            v-if="setIsInFocus(getCurrentSet(workout.uuid))"
-                        >
-                            In progress set
-                        </VListItemTitle>
-                        <VListItemTitle v-else>Resume set</VListItemTitle>
-                        <VListItemSubtitle>
-                            {{ getCurrentSet(workout.uuid).exercise.name }}
-                            - set
-                            {{ getCurrentSet(workout.uuid).position + 1 }}
-                        </VListItemSubtitle>
-                    </VListItemContent>
-                </VListItem>
-            </div>
-
-            <VDivider
-                v-if="inProgressWorkouts && inProgressWorkouts.length > 0"
-            />
-            <VListItem
-                v-if="!inProgressWorkouts || inProgressWorkouts.length === 0"
-                link
-                :to="{ name: 'NewSessionRoutineSelectPage' }"
-            >
+            <VListItem link :to="{ name: 'HomePage' }">
                 <VListItemAction>
-                    <VIcon color="primary">{{ $svgIcons.mdiPlay }}</VIcon>
+                    <VIcon color="primary">
+                        {{ $svgIcons.workoutSession }}
+                    </VIcon>
                 </VListItemAction>
                 <VListItemContent>
-                    <VListItemTitle>Start new session</VListItemTitle>
+                    <VListItemTitle>My records</VListItemTitle>
                 </VListItemContent>
             </VListItem>
+            <VDivider />
             <VListItem link :to="{ name: 'MyWorkoutProgramsPage' }">
                 <VListItemAction>
-                    <VIcon color="primary">{{
-                        $svgIcons.workoutProgram
-                    }}</VIcon>
+                    <VIcon color="primary">
+                        {{ $svgIcons.workoutProgram }}
+                    </VIcon>
                 </VListItemAction>
                 <VListItemContent>
                     <VListItemTitle>My workout programs</VListItemTitle>
-                </VListItemContent>
-            </VListItem>
-            <VListItem link :to="{ name: 'ProgramBuilderPageNew' }">
-                <VListItemAction>
-                    <VIcon color="primary">{{ $svgIcons.mdiPlus }}</VIcon>
-                </VListItemAction>
-                <VListItemContent>
-                    <VListItemTitle>Build new workout program</VListItemTitle>
                 </VListItemContent>
             </VListItem>
         </VList>

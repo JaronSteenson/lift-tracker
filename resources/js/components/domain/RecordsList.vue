@@ -1,8 +1,22 @@
 <template>
     <div>
         <VContainer v-show="showTable">
+            <div class="d-flex justify-space-between align-center mb-4 gap-4">
+                <AddNewButton
+                    class="flex-grow-1"
+                    :to="{ name: 'CheckInEditPage' }"
+                >
+                    Check-in
+                </AddNewButton>
+                <AddNewButton
+                    class="flex-grow-1"
+                    :to="{ name: 'NewSessionRoutineSelectPage' }"
+                >
+                    Session
+                </AddNewButton>
+            </div>
             <VToolbar dense>
-                <VToolbarTitle>My sessions</VToolbarTitle>
+                <VToolbarTitle>My records</VToolbarTitle>
                 <VSpacer />
                 <VSwitch
                     class="mt-4 pt-1"
@@ -99,8 +113,22 @@
             v-show="!showTable"
             :class="{ 'd-flex': !showTable }"
         >
+            <div class="d-flex justify-space-between align-center gap-4">
+                <AddNewButton
+                    class="flex-grow-1"
+                    :to="{ name: 'CheckInEditPage' }"
+                >
+                    Check-in
+                </AddNewButton>
+                <AddNewButton
+                    class="flex-grow-1"
+                    :to="{ name: 'NewSessionRoutineSelectPage' }"
+                >
+                    Session
+                </AddNewButton>
+            </div>
             <VToolbar dense>
-                <VToolbarTitle>My sessions</VToolbarTitle>
+                <VToolbarTitle>My records</VToolbarTitle>
                 <VSpacer />
                 <VSwitch
                     class="mt-4 pt-1"
@@ -125,9 +153,11 @@ import { mapState, mapGetters } from 'vuex';
 import SessionStatsCard from '../domain/workoutSessions/SessionStatsCard';
 import { dateDescription, hoursMinutesSecondsFromStartEnd } from '../../dates';
 import ProgramName from '../domain/programBuilder/ProgramName';
+import AddNewButton from '../formFields/AddNewButton.vue';
 
 export default {
     components: {
+        AddNewButton,
         NarrowContentContainer,
         SessionStatsCard,
         ProgramName,

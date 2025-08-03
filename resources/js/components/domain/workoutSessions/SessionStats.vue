@@ -29,18 +29,6 @@ export default {
         stats() {
             return [
                 {
-                    icon: this.$svgIcons.bodyWeight,
-                    value: this.workoutSession.bodyWeight
-                        ? `${Number(
-                              this.workoutSession.bodyWeight
-                          ).toLocaleString('en-US', {
-                              minimumFractionDigits: 1,
-                              maximumFractionDigits: 4,
-                          })}kg`
-                        : 'Not recorded',
-                    cols: 6,
-                },
-                {
                     icon: this.$svgIcons.mdiClockOutline,
                     value: hoursMinutesSecondsDuration(this.timeStats.total),
                     cols: 6,

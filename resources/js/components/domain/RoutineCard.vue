@@ -83,11 +83,15 @@ export default {
                 originWorkout: this.routine,
             });
 
-            // Then go to the first set in the workout.
-            const firstSet = this.$store.getters['workoutSession/firstSet'];
+            // Check in.
             await this.$router.push({
-                name: 'SetOverviewPage',
-                params: { sessionSetUuid: firstSet.uuid },
+                name: 'CheckInEditPage',
+                params: {
+                    workoutSessionUuid:
+                        this.$store.getters['workoutSession/workoutSession']
+                            .uuid,
+                    toFirstSetAfterSave: true,
+                },
             });
             this.starting = false;
         },

@@ -8,6 +8,7 @@ import NewSessionOverviewPage from '../components/pages/NewSessionOverviewPage';
 import NewSessionRoutineSelectPage from '../components/pages/NewSessionRoutineSelectPage';
 import SessionOverviewPage from '../components/pages/SessionOverviewPage';
 import NotFoundPage from '../components/pages/NotFoundPage';
+import CheckInEditPage from '../components/pages/CheckInEditPage';
 import VueRouter from 'vue-router';
 import store from './../store';
 import SetOverviewPage from '../components/pages/SetOverviewPage';
@@ -157,6 +158,15 @@ const routes = [
         name: 'NewSessionRoutineSelectPage',
         path: '/new-session',
         component: NewSessionRoutineSelectPage,
+        meta: {
+            guard: GUARD_AUTHED,
+        },
+    },
+    {
+        name: 'CheckInEditPage',
+        path: '/check-in-edit/:workoutSessionUuid?',
+        component: CheckInEditPage,
+        props: true,
         meta: {
             guard: GUARD_AUTHED,
         },

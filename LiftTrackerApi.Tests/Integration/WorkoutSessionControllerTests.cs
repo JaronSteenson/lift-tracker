@@ -155,41 +155,10 @@ public class WorkoutSessionControllerTests(WorkoutDbFixture fixture)
         var newWorkoutSession = new WorkoutSession
         {
             Uuid = Guid.Parse("80412f8c-49dd-4f0e-b9b2-1021f9308106"),
-            Name = "Deadlift day",
+            Name = "Check in",
             UserId = 1,
-            WorkoutProgramRoutine = new WorkoutProgramRoutine
-            {
-                Uuid = Guid.Parse("073379e9-0bc1-4f69-9cd5-1b0e7074d1a3"),
-            },
-            SessionExercises = new List<SessionExercise>
-            {
-                new()
-                {
-                    Uuid = Guid.Parse("f7dcf236-0b19-4974-a6d3-0ca97c61edd6"),
-                    Name = "Deadlifts",
-                    Position = 0,
-                    RoutineExercise = new RoutineExercise()
-                    {
-                        Uuid = Guid.Parse("21ba1db3-8045-473c-901d-18b19ba33fe5"),
-                    },
-                    SessionSets = new List<SessionSet>
-                    {
-                        new()
-                        {
-                            Uuid = Guid.Parse("72a9339e-c625-415d-8e6d-38ec431299b4"),
-                            Reps = null,
-                            Weight = 180,
-                            Position = 0,
-                            RestPeriodDuration = null,
-                            RestPeriodStartedAt = null,
-                            RestPeriodEndedAt = null,
-                            WarmUpDuration = null,
-                            WarmUpStartedAt = null,
-                            WarmUpEndedAt = null,
-                        },
-                    },
-                },
-            },
+            WorkoutProgramRoutine = null,
+            SessionExercises = new List<SessionExercise>(),
         };
 
         var requestJson = JsonConvert.SerializeObject(newWorkoutSession);
@@ -199,23 +168,66 @@ public class WorkoutSessionControllerTests(WorkoutDbFixture fixture)
         var response = await _client.PostAsync("/api/workout-sessions", content);
 
         // Assert
-        var createdSession = await AssertSimpleSaveResponse(response);
+        var createdSession = await AssertSimpleCreateResponse(response);
+        Assert.Null(createdSession.WorkoutProgramRoutine);
         Assert.Null(createdSession.BodyWeight);
         Assert.Null(createdSession.StartedAt);
 
         // Act
         // Make a couple of top-level edits to the session, like in the actual app.
         createdSession.BodyWeight = 85;
+        createdSession.Name = "Deadlift day";
         createdSession.StartedAt = DateTime.Parse("2025-04-12");
+        createdSession.WorkoutProgramRoutine = new WorkoutProgramRoutine
+        {
+            Uuid = Guid.Parse("073379e9-0bc1-4f69-9cd5-1b0e7074d1a3"),
+        };
+        createdSession.SessionExercises = new List<SessionExercise>
+        {
+            new()
+            {
+                Uuid = Guid.Parse("f7dcf236-0b19-4974-a6d3-0ca97c61edd6"),
+                Name = "Deadlifts",
+                Position = 0,
+                RoutineExercise = new RoutineExercise()
+                {
+                    Uuid = Guid.Parse("231f3f81-4680-4086-b228-168116ae330a"),
+                },
+                SessionSets = new List<SessionSet>
+                {
+                    new()
+                    {
+                        Uuid = Guid.Parse("72a9339e-c625-415d-8e6d-38ec431299b4"),
+                        Reps = null,
+                        Weight = 180,
+                        Position = 0,
+                        RestPeriodDuration = null,
+                        RestPeriodStartedAt = null,
+                        RestPeriodEndedAt = null,
+                        WarmUpDuration = null,
+                        WarmUpStartedAt = null,
+                        WarmUpEndedAt = null,
+                    },
+                },
+            },
+        };
 
         var originalPostResponse = JsonConvert.SerializeObject(createdSession);
         var putContent = new StringContent(originalPostResponse, Encoding.UTF8, "application/json");
         var responseFromEdit = await _client.PutAsync("/api/workout-sessions", putContent);
 
         // Assert
-        var editedSession = await AssertSimpleSaveResponse(responseFromEdit);
+        var editedSession = await AssertSimpleEditResponse(responseFromEdit);
         Assert.Equal(85, editedSession.BodyWeight);
         Assert.Equal(DateTime.Parse("2025-04-12"), editedSession.StartedAt);
+        Assert.Equal("Empty First Routine", editedSession.WorkoutProgramRoutine!.Name);
+        Assert.Equal(
+            Guid.Parse("073379e9-0bc1-4f69-9cd5-1b0e7074d1a3"),
+            createdSession.WorkoutProgramRoutine.Uuid
+        );
+        var sourceExercise = editedSession.SessionExercises.First().RoutineExercise;
+        Assert.Equal("Push Ups", sourceExercise.Name);
+        Assert.Equal(Guid.Parse("231f3f81-4680-4086-b228-168116ae330a"), sourceExercise.Uuid);
 
         var responseFromDelete = await _client.DeleteAsync(
             "/api/workout-sessions/80412f8c-49dd-4f0e-b9b2-1021f9308106"
@@ -254,6 +266,7 @@ public class WorkoutSessionControllerTests(WorkoutDbFixture fixture)
         Assert.Null(createdSession.StartedAt);
         Assert.Equal("Weight recording", createdSession.Name);
         Assert.Equal("Feeling heavy today", createdSession.Notes);
+        Assert.Null(createdSession.WorkoutProgramRoutine);
 
         // Act
         // Make a couple of top-level edits to the session, like in the actual app.
@@ -283,7 +296,25 @@ public class WorkoutSessionControllerTests(WorkoutDbFixture fixture)
         );
     }
 
-    private static async Task<WorkoutSession> AssertSimpleSaveResponse(HttpResponseMessage response)
+    private static async Task<WorkoutSession> AssertSimpleCreateResponse(
+        HttpResponseMessage response
+    )
+    {
+        var json = await response.Content.ReadAsStringAsync();
+        response.EnsureSuccessStatusCode();
+        Assert.Equal(
+            "application/json; charset=utf-8",
+            response.Content.Headers.ContentType!.ToString()
+        );
+        var workoutSession = JsonConvert.DeserializeObject<WorkoutSession>(json);
+
+        Assert.Equal("Check in", workoutSession!.Name);
+        Assert.Empty(workoutSession.SessionExercises);
+
+        return workoutSession;
+    }
+
+    private static async Task<WorkoutSession> AssertSimpleEditResponse(HttpResponseMessage response)
     {
         var json = await response.Content.ReadAsStringAsync();
         response.EnsureSuccessStatusCode();

@@ -48,7 +48,7 @@
                 </VIcon>
                 {{ averageRestPeriod }} avg rest
             </div>
-            <div v-if="averageRestPeriod" class="mt-2">
+            <div v-if="exercise.notes" class="mt-2">
                 <VTextarea
                     v-if="exercise.notes && exercise.notes.trim().length > 0"
                     label="Notes"
@@ -65,7 +65,7 @@
                     name: 'SetOverviewPage',
                     params: { sessionSetUuid: firstSet.uuid },
                 }"
-                >View
+                >Edit
                 <VIcon small color="success">{{
                     $svgIcons.mdiClipboardTextOutline
                 }}</VIcon>

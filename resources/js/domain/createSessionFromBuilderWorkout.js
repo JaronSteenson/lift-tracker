@@ -1,17 +1,44 @@
 import { utcNow } from '../dates';
 import UuidHelper from '../UuidHelper';
 
-export default function createSessionFromBuilderWorkout({ originWorkout }) {
+/**
+ * Check-in/records are just sessions without exercises and start/end times.
+ */
+export function createCheckIn() {
+    return {
+        uuid: UuidHelper.assign(),
+        name: 'Check-in',
+        notes: null,
+        bodyWeight: null,
+        startedAt: null,
+        endedAt: null,
+        createdAt: null,
+        workoutProgramRoutine: null,
+        sessionExercises: [],
+    };
+}
+
+export default function createSessionFromBuilderWorkout({
+    existingCheckIn,
+    originWorkout,
+}) {
     const startedAt = utcNow();
 
-    const session = {
-        uuid: UuidHelper.assign(),
-        name: originWorkout.name,
-        startedAt,
-        endedAt: null,
-        createdAt: null, // Critical for knowing when we can fetch the previous exercises.
-        workoutProgramRoutine: originWorkout,
-    };
+    const session = existingCheckIn
+        ? {
+              ...existingCheckIn,
+              startedAt,
+              name: originWorkout.name,
+              workoutProgramRoutine: originWorkout,
+          }
+        : {
+              uuid: UuidHelper.assign(),
+              name: originWorkout.name,
+              startedAt,
+              endedAt: null,
+              createdAt: null, // Critical for knowing when we can fetch the previous exercises.
+              workoutProgramRoutine: originWorkout,
+          };
 
     if (originWorkout.routineExercises.length === 0) {
         session.sessionExercises = [

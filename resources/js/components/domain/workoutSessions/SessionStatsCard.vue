@@ -14,17 +14,34 @@
             </RouterLink>
             <template v-else>{{ workoutSession.name }}</template>
         </VCardTitle>
-        <VCardSubtitle v-if="workoutSession.workoutProgramRoutine">
+        <VCardSubtitle>
             {{ date }}
         </VCardSubtitle>
         <VCardText>
+            <CheckInFieldsDisplay :workoutSession="workoutSession" />
             <SessionStats
+                v-if="workoutSession.startedAt"
                 :workoutSession="workoutSession"
                 :timeStats="timeStats"
             />
         </VCardText>
-        <VCardActions v-if="workoutSession.workoutProgramRoutine">
+        <VCardActions>
             <VBtn
+                small
+                :to="{
+                    name: 'CheckInEditPage',
+                    params: {
+                        workoutSessionUuid: workoutSession.uuid,
+                    },
+                }"
+            >
+                Edit
+                <VIcon small color="green">
+                    {{ $svgIcons.workoutSession }}
+                </VIcon>
+            </VBtn>
+            <VBtn
+                v-if="workoutSession.workoutProgramRoutine"
                 small
                 :to="{
                     name: 'NewSessionOverviewPage',
@@ -71,10 +88,11 @@
 <script>
 import { dateDescription, utcNow } from '../../../dates';
 import { differenceInSeconds } from 'date-fns';
-import SessionStats from '../workoutSessions/SessionStats.vue';
+import SessionStats from '../workoutSessions/SessionStats';
+import CheckInFieldsDisplay from '../workoutSessions/CheckInFieldsDisplay';
 
 export default {
-    components: { SessionStats },
+    components: { SessionStats, CheckInFieldsDisplay },
     props: {
         linkTitle: Boolean,
         workoutSession: {
@@ -84,7 +102,9 @@ export default {
     },
     computed: {
         date() {
-            return dateDescription(this.workoutSession.startedAt);
+            return dateDescription(
+                this.workoutSession.startedAt || this.workoutSession.createdAt
+            );
         },
         timeStats() {
             const total = differenceInSeconds(

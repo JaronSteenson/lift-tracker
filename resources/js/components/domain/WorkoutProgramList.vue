@@ -42,6 +42,14 @@
             </template>
         </VDataTable>
         <!-- eslint-enable -->
+        <div class="d-flex justify-space-between align-center mt-4 w">
+            <AddNewButton
+                class="flex-grow-1"
+                :to="{ name: 'ProgramBuilderPageNew' }"
+            >
+                Program
+            </AddNewButton>
+        </div>
         <NewSessionModal :program-uuid.sync="newSessionModalProgramUuid" />
     </VContainer>
 </template>
@@ -50,9 +58,11 @@
 import NewSessionModal from './workoutSessions/NewSessionModal';
 import { mapActions, mapGetters } from 'vuex';
 import ProgramName from '../domain/programBuilder/ProgramName';
+import AddNewButton from '../formFields/AddNewButton.vue';
 
 export default {
     components: {
+        AddNewButton,
         ProgramName,
         NewSessionModal,
     },

@@ -92,14 +92,13 @@
                             ></WorkoutCard>
                         </div>
                         <div class="workout-card-wrapper">
-                            <VBtn
+                            <AddNewButton
                                 @click="addWorkoutToProgram(null)"
                                 draggable="false"
                                 width="100%"
                             >
-                                <VIcon left>{{ $svgIcons.mdiPlus }}</VIcon>
                                 Add workout
-                            </VBtn>
+                            </AddNewButton>
                         </div>
                     </Draggable>
                 </VSheet>
@@ -114,12 +113,14 @@ import WorkoutCard from './WorkoutCard';
 import NotFoundPage from '../../pages/NotFoundPage';
 import Draggable from 'vuedraggable';
 import EditableTitle from '../../formFields/EditableTitle';
+import AddNewButton from '../../formFields/AddNewButton';
 import ProgramBuilderLoadingSkeleton from './ProgramBuilderLoadingSkeleton';
 import ServerSyncInfo from '../../ServerSyncInfo';
 import AppBar from '../../AppBar';
 
 export default {
     components: {
+        AddNewButton,
         ServerSyncInfo,
         WorkoutCard,
         NotFoundPage,

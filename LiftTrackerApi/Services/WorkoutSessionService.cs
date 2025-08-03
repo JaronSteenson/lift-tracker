@@ -139,22 +139,24 @@ public class WorkoutSessionService(LiftTrackerDbContext db, DomainEntityService 
         return savedWorkoutSession;
     }
 
-    private async Task AssociateSourceRoutine(WorkoutSession newWorkoutSession)
+    private async Task AssociateSourceRoutine(WorkoutSession editedWorkoutSession)
     {
         // Associate the WorkoutProgramRoutine if present.
-        if (newWorkoutSession.WorkoutProgramRoutine?.Uuid != null)
+        if (editedWorkoutSession.WorkoutProgramRoutine?.Uuid != null)
         {
             var sourceRoutine =
                 await db
-                    .WorkoutProgramRoutines.WhereUuid(newWorkoutSession.WorkoutProgramRoutine?.Uuid)
+                    .WorkoutProgramRoutines.WhereUuid(
+                        editedWorkoutSession.WorkoutProgramRoutine?.Uuid
+                    )
                     .FirstOrDefaultAsync()
                 ?? throw new NotFoundException(
-                    $"WorkoutProgramRoutine with UUID {newWorkoutSession.WorkoutProgramRoutine?.Uuid} not found."
+                    $"WorkoutProgramRoutine with UUID {editedWorkoutSession.WorkoutProgramRoutine?.Uuid} not found."
                 );
 
             // Touch it so it's sorted to the top of the routine list.
             db.Entry(sourceRoutine).State = EntityState.Modified;
-            newWorkoutSession.WorkoutProgramRoutine = sourceRoutine;
+            editedWorkoutSession.WorkoutProgramRoutine = sourceRoutine;
         }
     }
 
@@ -202,8 +204,8 @@ public class WorkoutSessionService(LiftTrackerDbContext db, DomainEntityService 
         }
 
         var existing = await FindByUuidAndOwner(updated.Uuid.Value, userId);
-
         domainEntityService.ReattachRequestEntity(existing: existing, updated: updated);
+
         domainEntityService.TrackEntityDiffChanges(
             existingMap: ToExerciseMap(existing),
             updatedMap: ToExerciseMap(updated)
@@ -214,6 +216,15 @@ public class WorkoutSessionService(LiftTrackerDbContext db, DomainEntityService 
         );
 
         await db.SaveChangesAsync();
+
+        if (existing.WorkoutProgramRoutine == null)
+        {
+            await AssociateSourceRoutine(updated);
+            await AssociateSourceExercises(updated);
+
+            db.Update(updated);
+            await db.SaveChangesAsync();
+        }
 
         var savedWorkoutSession = await FindByUuidAndOwner(updated.Uuid.Value, userId);
         SortChildren(savedWorkoutSession);
