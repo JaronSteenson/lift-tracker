@@ -885,24 +885,32 @@ export default {
         async startNextSet() {
             this.isChangingSet = true;
 
+            const dispatches = [];
             if (this.set.endedAt === null) {
-                await this.$store.dispatch('workoutSession/endSet', {
-                    uuid: this.sessionSetUuid,
-                });
+                dispatches.push(
+                    this.$store.dispatch('workoutSession/endSet', {
+                        uuid: this.sessionSetUuid,
+                    })
+                );
             }
 
             const nextSetUuid = this.nextSet.uuid;
-            await this.$store.dispatch('workoutSession/startSet', {
-                uuid: nextSetUuid,
-            });
+            dispatches.push(
+                this.$store.dispatch('workoutSession/startSet', {
+                    uuid: nextSetUuid,
+                })
+            );
 
-            await this.$store.dispatch('workoutSession/saveWorkout');
+            dispatches.push(this.$store.dispatch('workoutSession/saveWorkout'));
 
-            await this.$router.push({
-                name: 'SetOverviewPage',
-                params: { sessionSetUuid: nextSetUuid },
-            });
+            dispatches.push(
+                this.$router.push({
+                    name: 'SetOverviewPage',
+                    params: { sessionSetUuid: nextSetUuid },
+                })
+            );
 
+            await Promise.all(dispatches);
             this.isChangingSet = false;
         },
         async skipExercise() {
