@@ -34,26 +34,28 @@
             </template>
         </AppBar>
 
-        <NarrowContentContainer>
-            <VTextField
-                class=""
-                v-model="name"
-                label="Title"
-                hide-details
-                single-line
-            />
-            <VTextField
-                class=""
-                autofocus
-                label="Body weight (kg)"
-                type="number"
-                :step="1"
-                :max="9999"
-                :min="0"
-                v-model.number="bodyWeight"
-            />
-            <VTextarea auto-grow filled label="Notes" v-model="notes" />
-            <VBtn @click="save">Save</VBtn>
+        <NarrowContentContainer use-full-width>
+            <VForm @submit.prevent="save">
+                <VTextField
+                    class=""
+                    v-model="name"
+                    label="Title"
+                    hide-details
+                    single-line
+                />
+                <VTextField
+                    class=""
+                    autofocus
+                    label="Body weight (kg)"
+                    type="number"
+                    :step="1"
+                    :max="9999"
+                    :min="0"
+                    v-model.number="bodyWeight"
+                />
+                <VTextarea auto-grow filled label="Notes" v-model="notes" />
+                <VBtn width="100%" type="submit">Save</VBtn>
+            </VForm>
         </NarrowContentContainer>
     </div>
 </template>
