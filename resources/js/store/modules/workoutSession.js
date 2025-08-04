@@ -820,7 +820,10 @@ export const actions = {
 
         // We must wait for the master routine to be updated,
         // so we can link any new session exercises to their builder counterparts.
-        if (!rootGetters['app/userIsLocalOnly']) {
+        if (rootGetters['app/userIsLocalOnly']) {
+            workoutSession.createdAt = utcNow();
+            commit('reset', { workoutSession });
+        } else {
             workoutSession = (await WorkoutSessionService.save(workoutSession))
                 .data;
             commit('reset', { workoutSession });

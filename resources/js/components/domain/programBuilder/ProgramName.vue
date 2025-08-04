@@ -14,8 +14,8 @@
                       },
         }"
     >
-        <span v-if="workoutProgram.name">
-            {{ workoutProgram.name }}
+        <span v-if="workoutProgram?.name">
+            {{ workoutProgram?.name }}
         </span>
         <MissingValue v-else full-opacity>Unnamed program</MissingValue>
     </RouterLink>

@@ -56,10 +56,12 @@
                 </template>
                 <template v-slot:item.duration="{ item: session }">
                     {{
-                        hoursMinutesSecondsFromStartEnd(
-                            session.startedAt,
-                            session.endedAt
-                        )
+                        session.startedAt
+                            ? hoursMinutesSecondsFromStartEnd(
+                                  session.startedAt,
+                                  session.endedAt
+                              )
+                            : ''
                     }}
                 </template>
                 <template v-slot:item.menu="{ item: session }">
@@ -282,7 +284,9 @@ export default {
             }
         },
         getFormattedDate(workoutSession) {
-            let startedAt = dateDescription(workoutSession.startedAt);
+            let startedAt = dateDescription(
+                workoutSession.startedAt || workoutSession.createdAt
+            );
 
             if (this.isInProgressWorkout(workoutSession.uuid)) {
                 startedAt = `${startedAt} (in progress)`;
