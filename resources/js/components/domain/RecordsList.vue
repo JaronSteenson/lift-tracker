@@ -16,7 +16,7 @@
                 </AddNewButton>
             </div>
             <VToolbar dense>
-                <VToolbarTitle>My records</VToolbarTitle>
+                <VToolbarTitle>Timeline</VToolbarTitle>
                 <VSpacer />
                 <VSwitch
                     class="mt-4 pt-1"
@@ -130,7 +130,7 @@
                 </AddNewButton>
             </div>
             <VToolbar dense>
-                <VToolbarTitle>My records</VToolbarTitle>
+                <VToolbarTitle>Timeline</VToolbarTitle>
                 <VSpacer />
                 <VSwitch
                     class="mt-4 pt-1"

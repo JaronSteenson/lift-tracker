@@ -1,5 +1,5 @@
 <template>
-    <NarrowContentContainer use-full-width>
+    <NarrowContentContainer>
         <VSkeletonLoader
             v-if="myWorkoutProgramsIsLoading"
             class="ma-5"

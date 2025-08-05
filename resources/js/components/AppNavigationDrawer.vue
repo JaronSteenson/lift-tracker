@@ -13,7 +13,7 @@
                     </VIcon>
                 </VListItemAction>
                 <VListItemContent>
-                    <VListItemTitle>My records</VListItemTitle>
+                    <VListItemTitle>Timeline</VListItemTitle>
                 </VListItemContent>
             </VListItem>
             <VDivider />

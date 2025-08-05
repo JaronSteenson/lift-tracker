@@ -57,6 +57,18 @@
                 </VIcon>
             </VBtn>
             <VBtn
+                v-if="isStandAloneCheckInFromToday"
+                small
+                :to="{
+                    name: 'NewSessionRoutineSelectPage',
+                }"
+            >
+                Add session
+                <VIcon small color="green">
+                    {{ $svgIcons.mdiPlay }}
+                </VIcon>
+            </VBtn>
+            <VBtn
                 v-if="
                     workoutSession.workoutProgramRoutine &&
                     workoutSession.workoutProgramRoutine.workoutProgram
@@ -87,7 +99,7 @@
 </template>
 <script>
 import { dateDescription, utcNow } from '../../../dates';
-import { differenceInSeconds } from 'date-fns';
+import { differenceInSeconds, isToday, parseISO } from 'date-fns';
 import SessionStats from '../workoutSessions/SessionStats';
 import CheckInFieldsDisplay from '../workoutSessions/CheckInFieldsDisplay';
 
@@ -104,6 +116,15 @@ export default {
         date() {
             return dateDescription(
                 this.workoutSession.startedAt || this.workoutSession.createdAt
+            );
+        },
+        isStandAloneCheckInFromToday() {
+            // Only allowing for today keeps things simple.
+            // New workout sessions are automatically linked to any stand-alone check in
+            // for the current day.
+            return (
+                isToday(parseISO(this.workoutSession.createdAt)) &&
+                this.workoutSession.sessionExercises.length === 0
             );
         },
         timeStats() {

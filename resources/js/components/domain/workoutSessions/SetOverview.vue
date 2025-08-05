@@ -79,7 +79,7 @@
             </template>
         </AppBar>
 
-        <NarrowContentContainer use-full-width>
+        <NarrowContentContainer>
             <VAlert
                 dense
                 text

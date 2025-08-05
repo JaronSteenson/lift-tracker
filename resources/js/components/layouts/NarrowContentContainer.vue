@@ -1,12 +1,6 @@
 <template>
-    <div class="narrow-content-container mx-2 my-4">
-        <div
-            class="narrow-content-container__content gap-4"
-            :style="{
-                'min-width': $vuetify.breakpoint.mdAndUp ? '700px' : undefined,
-                width: useFullWidth ? '700px' : undefined,
-            }"
-        >
+    <div class="narrow-content-container mx-4 my-4">
+        <div class="narrow-content-container__content gap-4">
             <slot />
         </div>
     </div>
@@ -29,7 +23,8 @@ export default {
     &__content {
         display: flex;
         flex-direction: column;
-        max-width: 700px;
+        max-width: min(700px, 100%);
+        width: 700px;
     }
 }
 </style>

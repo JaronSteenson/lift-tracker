@@ -164,7 +164,7 @@ const routes = [
     },
     {
         name: 'CheckInEditPage',
-        path: '/check-in-edit/:workoutSessionUuid?',
+        path: '/check-in/:workoutSessionUuid?',
         component: CheckInEditPage,
         props: true,
         meta: {
@@ -182,7 +182,7 @@ const routes = [
     },
     {
         name: 'SessionOverviewPage',
-        path: '/session-overview/:workoutSessionUuid',
+        path: '/timeline-entry/:workoutSessionUuid',
         component: SessionOverviewPage,
         props: true,
         meta: {

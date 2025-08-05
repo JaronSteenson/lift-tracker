@@ -807,6 +807,7 @@ export const actions = {
 
     async saveCheckIn({ commit, state, dispatch, rootGetters }, updates) {
         let workoutSession = { ...state.workoutSession, ...updates };
+
         const update = {
             workoutSession,
             myWorkoutSessions: UuidHelper.replaceInCopy(
@@ -820,15 +821,15 @@ export const actions = {
 
         // We must wait for the master routine to be updated,
         // so we can link any new session exercises to their builder counterparts.
-        if (rootGetters['app/userIsLocalOnly']) {
-            workoutSession.createdAt = utcNow();
-            commit('reset', { workoutSession });
-        } else {
+        if (!rootGetters['app/userIsLocalOnly']) {
             workoutSession = (await WorkoutSessionService.save(workoutSession))
                 .data;
-            commit('reset', { workoutSession });
+        } else {
+            // Required for the timeline.
+            workoutSession.createdAt = workoutSession.createdAt || utcNow();
         }
 
+        commit('reset', { workoutSession });
         dispatch('saveToLocalStorage');
     },
 
