@@ -14,14 +14,16 @@ Vue.use(Vuetify, {
     components,
 });
 
-export default new Vuetify({
-    icons: {
-        iconfont: 'mdiSvg',
-    },
-    theme: {
-        options: {
-            customProperties: true,
+export default function createVuetify() {
+    return new Vuetify({
+        icons: {
+            iconfont: 'mdiSvg',
         },
-        ...getInitialVuetifyOptions(),
-    },
-});
+        theme: {
+            options: {
+                customProperties: true,
+            },
+            ...getInitialVuetifyOptions(),
+        },
+    });
+}

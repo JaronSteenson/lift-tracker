@@ -4,7 +4,7 @@
         <SessionOverviewLoadingSkeleton v-if="myWorkoutSessionsIsLoading" />
         <NoProgramsWelcomeHint v-else-if="shouldShowNoProgramsWelcomeHint" />
         <NoSessionsHint v-else-if="shouldShowNoSessionsHint" />
-        <RecordsList v-else />
+        <MyTimeline v-else />
         <VBtn
             v-if="inProgressSet"
             :to="{
@@ -25,7 +25,7 @@
 </template>
 
 <script>
-import RecordsList from '../domain/RecordsList';
+import MyTimeline from '../domain/MyTimeline';
 import { mapGetters, mapState } from 'vuex';
 import NoProgramsWelcomeHint from '../domain/userHints/NoProgramsWelcomeHint';
 import NoSessionsHint from '../domain/userHints/NoSessionsHint';
@@ -39,7 +39,7 @@ export default {
         SessionOverviewLoadingSkeleton,
         NoSessionsHint,
         NoProgramsWelcomeHint,
-        RecordsList,
+        MyTimeline,
     },
     computed: {
         ...mapState('app', ['appName']),

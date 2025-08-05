@@ -1,4 +1,5 @@
 import { colors } from 'vuetify/lib';
+import store from '../store';
 
 export const defaultLightDefinition = {
     primary: '#246080',
@@ -34,7 +35,10 @@ const ogPurpleDefinition = {
 };
 
 export function getAvailableThemes() {
-    const activeThemeKey = fetchSelectedThemeKey() || 'dark';
+    // Dark default, and dark logged out landing page.
+    const activeThemeKey = store.getters['app/userIsAuthenticated']
+        ? fetchSelectedThemeKey() || 'dark'
+        : 'dark';
 
     return [
         {
