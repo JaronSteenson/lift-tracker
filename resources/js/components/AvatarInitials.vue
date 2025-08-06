@@ -41,7 +41,6 @@ export default {
             }
 
             await this.$store.dispatch('app/logout');
-            await this.$router.push({ name: 'LoginPage' });
         },
     },
 };

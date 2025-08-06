@@ -167,16 +167,17 @@ const actions = {
         });
         let auth0Error;
         let user;
+        let clearQueryParams = false;
         try {
             // If the user is returning to the app after authentication.
             if (
                 window.location.search.includes('code=') &&
                 window.location.search.includes('state=')
             ) {
-                console.log('handleRedirectCallback');
-                // handle the redirect and retrieve tokens
+                // Handle the redirect and retrieve tokens.
                 await auth0Client.handleRedirectCallback();
                 auth0Error = null;
+                clearQueryParams = true;
             }
         } catch (e) {
             auth0Error = e;
@@ -199,6 +200,10 @@ const actions = {
                 auth0Client,
                 auth0Error,
             });
+
+            if (clearQueryParams) {
+                await router.replace({ query: {} });
+            }
         }
     },
 
@@ -241,7 +246,11 @@ const actions = {
 
     async logout({ state, commit }) {
         await state.auth0Client.logout();
-        commit('reset', { user: null, isBootstrapped: true });
+        commit('reset', {
+            user: null,
+            isAuthenticated: false,
+            isBootstrapped: true,
+        });
         commit('workoutSession/restoreDefault', undefined, { root: true });
         commit('programBuilder/restoreDefault', undefined, { root: true });
     },
