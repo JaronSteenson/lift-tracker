@@ -7,7 +7,7 @@ npm install
 ```
 ## Configure Auth0
 ```shell
-cp auth_config.development.js auth_config.js
+cp config.development.json config.json
 ```
 
 ## Run the dev server

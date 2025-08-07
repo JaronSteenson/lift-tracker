@@ -1,14 +1,15 @@
 import axios from 'axios';
 import { createAuth0Client } from '@auth0/auth0-spa-js';
 import router from '../../router/router';
-import authConfig from '../../../../auth_config.js';
+import config from '../../../../config.json';
+import { rollbar } from '../../rollbar/rollbar';
 
 export const LOCAL_STORAGE_KEY = 'store-state--App';
 
 const authorizationParams = {
     detailedResponse: true,
     redirect_uri: `${window.location.origin}`,
-    audience: authConfig.audience,
+    audience: config.auth0.audience,
     scope: 'email',
 };
 
@@ -163,7 +164,10 @@ const actions = {
     async boostrapAuth0({ commit }) {
         // Create a new instance of the SDK client using members of the given options object
         const auth0Client = await createAuth0Client({
-            ...authConfig,
+            domain: config.auth0.domain,
+            clientId: config.auth0.clientId,
+            audience: config.auth0.audience,
+            cacheLocation: config.auth0.cacheLocation,
         });
         let auth0Error;
         let user;
@@ -204,6 +208,12 @@ const actions = {
             if (clearQueryParams) {
                 await router.replace({ query: {} });
             }
+
+            rollbar.configure({
+                payload: {
+                    person: user,
+                },
+            });
         }
     },
 

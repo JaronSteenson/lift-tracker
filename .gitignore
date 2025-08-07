@@ -10,8 +10,7 @@
 /dist/hot
 /dist/mix-manifest.json
 /vendor
-auth_config.js
+config.json
 npm-debug.log
 .env
-index.html
 hot

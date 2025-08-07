@@ -20,11 +20,6 @@ mix.webpackConfig({
             template: 'resources/index.html',
             inject: true,
         }),
-        new webpack.DefinePlugin({
-            'process.env.API_BASE_URL': JSON.stringify(
-                mix.inProduction() ? '/api' : 'http://localhost:5299/api'
-            ),
-        }),
         process.env.ANALYZE_BUNDLE ? new BundleAnalyzerPlugin() : null,
     ].filter(Boolean),
     devServer: mix.inProduction()
@@ -33,28 +28,29 @@ mix.webpackConfig({
               static: {
                   directory: join(__dirname, 'dist'),
               },
-                hot: true,
-                host: 'localhost',
-                port: 8081,
-                historyApiFallback: true,
-                client: {
-                    webSocketURL: {
-                        hostname: 'localhost',
-                        port: 8081,
-                        pathname: '/ws',
-                    },
-                },
+              hot: true,
+              host: 'localhost',
+              port: 8081,
+              historyApiFallback: true,
+              client: {
+                  webSocketURL: {
+                      hostname: 'localhost',
+                      port: 8081,
+                      pathname: '/ws',
+                  },
+              },
           },
-    output: mix.inProduction() ?
-        {
-            filename: '[name].[contenthash].js',
-            chunkFilename: '[name].[contenthash].js',
-            publicPath: '', // relative URLs for assets
-        } : {
-            filename: '[name].js',
-            chunkFilename: '[name].js',
-            publicPath: 'http://localhost:8081/',
-    },
+    output: mix.inProduction()
+        ? {
+              filename: '[name].[contenthash].js',
+              chunkFilename: '[name].[contenthash].js',
+              publicPath: '', // relative URLs for assets
+          }
+        : {
+              filename: '[name].js',
+              chunkFilename: '[name].js',
+              publicPath: 'http://localhost:8081/',
+          },
 });
 
 mix.setResourceRoot('resources')

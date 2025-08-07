@@ -1,6 +1,7 @@
 import axios from 'axios';
+import config from '../../../config.json';
 
-let baseUrl = process.env.API_BASE_URL;
+let baseUrl = config.apiBaseUrl;
 
 if (typeof baseUrl === 'string') {
     console.log(`${baseUrl} api base url configured.`);
