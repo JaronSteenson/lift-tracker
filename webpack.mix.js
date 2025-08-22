@@ -14,14 +14,24 @@ if (mix.inProduction()) {
 }
 mix.setPublicPath('dist');
 
-mix.webpackConfig({
+mix.webpackConfig((webpack) => ({
     plugins: [
+        new webpack.DefinePlugin({
+            __VUE_OPTIONS_API__: JSON.stringify(true),
+            __VUE_PROD_DEVTOOLS__: JSON.stringify(false),
+            __VUE_PROD_HYDRATION_MISMATCH_DETAILS__: JSON.stringify(true),
+        }),
         new HtmlWebpackPlugin({
             template: 'resources/index.html',
             inject: true,
         }),
         process.env.ANALYZE_BUNDLE ? new BundleAnalyzerPlugin() : null,
     ].filter(Boolean),
+    resolve: {
+        alias: {
+            vue$: 'vue/dist/vue.esm-bundler.js',
+        },
+    },
     devServer: mix.inProduction()
         ? undefined
         : {
@@ -51,11 +61,14 @@ mix.webpackConfig({
               chunkFilename: '[name].js',
               publicPath: 'http://localhost:8081/',
           },
-});
+}));
 
 mix.setResourceRoot('resources')
     .js('resources/js/app.js', 'js')
     .vue({
-        version: 2,
+        version: 3,
     })
-    .sourceMaps(true, 'source-map');
+    .sourceMaps(true, 'source-map')
+    .options({
+        processCssUrls: false,
+    });

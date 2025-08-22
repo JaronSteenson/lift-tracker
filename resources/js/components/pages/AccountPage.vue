@@ -27,6 +27,7 @@
                     account, and is not reversible.
                 </p>
                 <VBtn
+                    elevation="1"
                     v-if="userIsLocalOnly"
                     dark
                     color="red"
@@ -45,22 +46,29 @@ import AppBar from '../AppBar';
 import FacebookLoginDeleteAccountButton from '../formFields/FacebookLoginDeleteAccountButton';
 import ThemePicker from '../formFields/ThemePicker';
 import NarrowContentContainer from '../layouts/NarrowContentContainer';
-import { mapGetters } from 'vuex';
+import { useAppStore } from '../../stores/app';
 
 export default {
+    name: 'AccountPage',
     components: {
         NarrowContentContainer,
         ThemePicker,
         AppBar,
         FacebookLoginDeleteAccountButton,
     },
+    setup() {
+        const appStore = useAppStore();
+        return { appStore };
+    },
     computed: {
-        ...mapGetters('app', ['userIsLocalOnly']),
+        userIsLocalOnly() {
+            return this.appStore.userIsLocalOnly;
+        },
     },
     methods: {
         deleteLocalData() {
             const confirmed = confirm(
-                'Are you sure you want to delete your account?'
+                'Are you sure you want to delete your account?',
             );
 
             if (confirmed) {

@@ -16,8 +16,8 @@
         >
             <template v-slot:right>
                 <VMenu bottom left>
-                    <template v-slot:activator="{ on }">
-                        <VBtn icon v-on="on">
+                    <template v-slot:activator="{ props }">
+                        <VBtn icon flat v-bind="props">
                             <VIcon>{{ $svgIcons.mdiDotsVertical }}</VIcon>
                         </VBtn>
                     </template>
@@ -55,7 +55,7 @@
                         v-model.number="bodyWeight"
                     />
                     <VTextarea auto-grow filled label="Notes" v-model="notes" />
-                    <VBtn width="100%" type="submit">Save</VBtn>
+                    <VBtn elevation="1" width="100%" type="submit">Save</VBtn>
                 </VForm>
             </VContainer>
         </NarrowContentContainer>
@@ -66,11 +66,17 @@
 import NarrowContentContainer from '../../layouts/NarrowContentContainer';
 import AppBar from '../../AppBar';
 import { createCheckIn } from '../../../domain/createSessionFromBuilderWorkout';
+import { useWorkoutSessionStore } from '../../../stores/workoutSession';
+import { svgIcons } from '../../../vuetify';
 
 export default {
     components: {
         NarrowContentContainer,
         AppBar,
+    },
+    setup() {
+        const workoutSessionStore = useWorkoutSessionStore();
+        return { workoutSessionStore, svgIcons };
     },
     props: {
         toFirstSetAfterSave: Boolean,
@@ -87,21 +93,35 @@ export default {
             return createCheckIn();
         }
 
-        const workoutSession =
-            this.$store.getters['workoutSession/workoutSession'];
         return {
-            uuid: workoutSession.uuid,
-            name: workoutSession.name,
-            bodyWeight: workoutSession.bodyWeight,
-            notes: workoutSession.notes,
-            createdAt: workoutSession.createdAt,
-            sessionExercises: workoutSession.sessionExercises,
-            workoutProgramRoutine: workoutSession.workoutProgramRoutine,
+            uuid: null,
+            name: null,
+            bodyWeight: null,
+            notes: null,
+            createdAt: null,
+            sessionExercises: [],
+            workoutProgramRoutine: null,
         };
     },
+    created() {
+        if (this.$route.params.workoutSessionUuid) {
+            this.loadWorkoutSession();
+        }
+    },
     methods: {
+        loadWorkoutSession() {
+            const workoutSession =
+                this.workoutSessionStore.workoutSession || {};
+            this.uuid = workoutSession.uuid;
+            this.name = workoutSession.name;
+            this.bodyWeight = workoutSession.bodyWeight;
+            this.notes = workoutSession.notes;
+            this.createdAt = workoutSession.createdAt;
+            this.sessionExercises = workoutSession.sessionExercises || [];
+            this.workoutProgramRoutine = workoutSession.workoutProgramRoutine;
+        },
         async save() {
-            await this.$store.dispatch('workoutSession/saveCheckIn', {
+            await this.workoutSessionStore.saveCheckIn({
                 uuid: this.uuid,
                 name: this.name,
                 bodyWeight: this.bodyWeight,
@@ -109,14 +129,16 @@ export default {
                 sessionExercises: this.sessionExercises,
                 workoutProgramRoutine: this.workoutProgramRoutine,
             });
-            const workoutSession =
-                this.$store.getters['workoutSession/workoutSession'];
 
+            const workoutSession = this.workoutSessionStore.workoutSession;
             if (this.toFirstSetAfterSave) {
-                const firstSet = this.$store.getters['workoutSession/firstSet'];
+                const firstSet = this.workoutSessionStore.firstSet;
                 await this.$router.push({
                     name: 'SetOverviewPage',
-                    params: { sessionSetUuid: firstSet.uuid },
+                    params: {
+                        sessionSetUuid: firstSet.uuid,
+                        fromCheckIn: true,
+                    },
                 });
                 return;
             }
@@ -126,16 +148,13 @@ export default {
                 params: { workoutSessionUuid: workoutSession.uuid },
             });
         },
-        showDeleteConfirmation() {
+        async showDeleteConfirmation() {
             const deleteConfirmed = window.confirm(
-                'Are you sure you want to delete this record?'
+                'Are you sure you want to delete this record?',
             );
 
             if (deleteConfirmed) {
-                this.$store.dispatch(
-                    'workoutSession/delete',
-                    this.workoutSession.uuid
-                );
+                await this.workoutSessionStore.delete(this.uuid);
                 this.$router.replace({ name: 'HomePage' });
             }
         },

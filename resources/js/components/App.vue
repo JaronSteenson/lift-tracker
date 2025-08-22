@@ -1,19 +1,31 @@
 <template>
-    <VApp :class="{ 'prevent-text-select': preventTextSelect }">
-        <AppNavigationDrawer />
-        <VMain>
-            <KeepAlive v-if="isBootstrapped" include="HomePage">
-                <RouterView />
-            </KeepAlive>
-        </VMain>
-    </VApp>
+    <div>
+        <VApp
+            :key="`app-${rerenderKey}`"
+            :class="{ 'prevent-text-select': preventTextSelect }"
+        >
+            <AppNavigationDrawer />
+            <VMain>
+                <RouterView v-if="isBootstrapped" v-slot="{ Component }">
+                    <KeepAlive include="HomePage">
+                        <Transition mode="out-in" name="no-transition">
+                            <component :is="Component" />
+                        </Transition>
+                    </KeepAlive>
+                </RouterView>
+            </VMain>
+        </VApp>
+    </div>
 </template>
 
 <script>
-import { mapGetters, mapState } from 'vuex';
 import AppNavigationDrawer from './AppNavigationDrawer';
+import { useAppStore } from '../stores/app';
+import { useProgramBuilderStore } from '../stores/programBuilder';
+import { useDisplay } from 'vuetify';
 
 export default {
+    name: 'App',
     components: {
         AppNavigationDrawer,
     },
@@ -23,17 +35,55 @@ export default {
             preventTextSelect: false,
         };
     },
-    mounted() {
-        this.setSupportsTextSelect();
+    setup() {
+        const appStore = useAppStore();
+        const programBuilderStore = useProgramBuilderStore();
+        const display = useDisplay();
+
+        return {
+            appStore,
+            programBuilderStore,
+            display,
+        };
     },
     computed: {
-        ...mapState('app', ['appName', 'isBootstrapped']),
-        ...mapGetters('app', {
-            avatarInitial: 'getUserAvatarInitial',
-            userIsAuthenticated: 'userIsAuthenticated',
-            showSessionExpiredModal: 'showSessionExpiredModal',
-        }),
-        ...mapGetters('programBuilder', ['myWorkoutPrograms']),
+        isBootstrapped() {
+            return this.appStore.isBootstrapped;
+        },
+        userIsAuthenticated() {
+            return this.appStore.userIsAuthenticated;
+        },
+        showSessionExpiredModal() {
+            return this.appStore.shouldShowSessionExpiredModal;
+        },
+        myWorkoutPrograms() {
+            return this.programBuilderStore.myWorkoutPrograms;
+        },
+        rerenderKey() {
+            console.log(
+                'rerenderKey computed called with:',
+                this.appStore.forceRerenderKey,
+            );
+            return this.appStore.forceRerenderKey;
+        },
+    },
+    mounted() {
+        console.log(
+            'App mounted with forceRerenderKey:',
+            this.appStore.forceRerenderKey,
+        );
+        this.setSupportsTextSelect();
+    },
+    updated() {
+        console.log(
+            'App updated with forceRerenderKey:',
+            this.appStore.forceRerenderKey,
+        );
+    },
+    watch: {
+        rerenderKey(newVal, oldVal) {
+            console.log('rerenderKey watcher triggered:', oldVal, '->', newVal);
+        },
     },
     methods: {
         setSupportsTextSelect() {
@@ -53,7 +103,7 @@ export default {
                 };
             }
 
-            if (supportsTouch && this.$vuetify.breakpoint.smAndDown) {
+            if (supportsTouch && this.display.smAndDown.value) {
                 this.preventTextSelect = true;
             }
         },
@@ -187,5 +237,17 @@ $vuetify-gap-basis: 4px;
 /* Handle on hover */
 ::-webkit-scrollbar-thumb:hover {
     background: #787777;
+}
+
+/* Disable page transitions to prevent interference with custom image fade-in */
+.no-transition-enter-active,
+.no-transition-leave-active {
+    transition: none !important;
+}
+
+.no-transition-enter-from,
+.no-transition-leave-to {
+    opacity: 1 !important;
+    transform: none !important;
 }
 </style>

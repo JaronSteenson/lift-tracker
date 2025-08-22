@@ -4,12 +4,12 @@
 
         <div
             class="d-flex flex-wrap justify-center gap-4"
-            :class="$vuetify.breakpoint.smAndUp ? 'mt-8' : 'mt-0'"
+            :class="display.smAndUp.value ? 'mt-8' : 'mt-0'"
         >
             <div>
                 <img
                     v-show="imageHasLoaded"
-                    ref="image"
+                    ref="imageRef"
                     class="banner-image"
                     :class="{
                         'banner-image--fade-in': fadeImageIn,
@@ -25,6 +25,7 @@
             </div>
             <div class="mx-15 d-flex flex-column justify-center align-center">
                 <VBtn
+                    elevation="1"
                     class="mt-2"
                     color="secondary"
                     width="100%"
@@ -33,13 +34,20 @@
                     Login
                 </VBtn>
                 <hr class="hr mt-4 mb-4" />
-                <VBtn color="white" text small width="100%" @click="register">
+                <VBtn
+                    elevation="1"
+                    variant="text"
+                    small
+                    width="100%"
+                    @click="register"
+                >
                     Create an account
                 </VBtn>
                 <VBtn
+                    elevation="1"
                     class="mt-1"
                     color="primary"
-                    text
+                    variant="text"
                     small
                     width="100%"
                     @click="createLocalAccount"
@@ -61,27 +69,73 @@
 
 <script>
 import AppBar from '../AppBar';
-import { mapActions, mapState } from 'vuex';
+import { useAppStore } from '../../stores/app';
+import { useDisplay } from 'vuetify';
+import { ref, onMounted, nextTick } from 'vue';
 
 export default {
+    name: 'LoginPage',
     components: {
         AppBar,
     },
-    mounted() {
-        this.$refs.image.onload = () => (this.imageHasLoaded = true);
-        setTimeout(() => (this.fadeImageIn = true), 100);
-    },
-    data() {
+    setup() {
+        const appStore = useAppStore();
+        const display = useDisplay();
+        const imageRef = ref(null);
+        const imageHasLoaded = ref(false);
+        const fadeImageIn = ref(false);
+
+        const handleImageLoad = () => {
+            imageHasLoaded.value = true;
+            // Force a microtask delay to ensure DOM updates
+            nextTick(() => {
+                requestAnimationFrame(() => {
+                    fadeImageIn.value = true;
+                });
+            });
+        };
+
+        onMounted(() => {
+            if (imageRef.value) {
+                // Check if image is already loaded (cached)
+                if (
+                    imageRef.value.complete &&
+                    imageRef.value.naturalHeight !== 0
+                ) {
+                    handleImageLoad();
+                } else {
+                    imageRef.value.onload = handleImageLoad;
+                    // Also handle error case to prevent hanging
+                    imageRef.value.onerror = () => {
+                        imageHasLoaded.value = true; // Still show something if image fails
+                    };
+                }
+            }
+        });
+
         return {
-            imageHasLoaded: false,
-            fadeImageIn: false,
+            appStore,
+            display,
+            imageRef,
+            imageHasLoaded,
+            fadeImageIn,
         };
     },
     computed: {
-        ...mapState('app', ['auth0Client']),
+        auth0Client() {
+            return this.appStore.auth0Client;
+        },
     },
     methods: {
-        ...mapActions('app', ['login', 'register', 'createLocalAccount']),
+        async login() {
+            await this.appStore.login();
+        },
+        async register() {
+            await this.appStore.register();
+        },
+        async createLocalAccount() {
+            await this.appStore.createLocalAccount();
+        },
     },
 };
 </script>
@@ -111,8 +165,8 @@ $defaultThemeAppBarColor: #f5f5f5;
     }
 
     &--fade-in {
-        transition: opacity 0.5s ease-in;
-        opacity: 1;
+        opacity: 1 !important;
+        transition: opacity 0.9s ease-in-out !important;
     }
 }
 

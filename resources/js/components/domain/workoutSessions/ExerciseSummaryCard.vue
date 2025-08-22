@@ -3,47 +3,47 @@
         <VCardTitle>
             {{ exercise.name }}
         </VCardTitle>
-        <VCardSubtitle v-if="$vuetify.breakpoint.xsOnly">
-            <span :class="`pt-1 font-weight-bold text--primary`">
+        <VCardSubtitle v-if="display.xs.value">
+            <span class="pt-1 font-weight-bold text-primary">
                 +{{ exercise.duration }},
             </span>
             <span>{{ exercise.startedAt }}</span>
         </VCardSubtitle>
-        <VCardText class="mb-0 pb-0">
+        <VCardText class="mb-0 pb-0 d-flex gap-4">
             <div
                 class="pb-1"
                 :key="index"
                 v-for="(weightGroup, index) in weightGroups"
             >
-                <VIcon small>
+                <VIcon size="small">
                     {{ $svgIcons.mdiDumbbell }}
                 </VIcon>
                 {{ weightGroup.weight }} x
-                <template
+                <span
                     v-for="(repBreakDown, index) in weightGroup.repBreakDown"
+                    :key="repBreakDown.uuid"
                 >
-                    <RouterLink :key="repBreakDown.uuid" :to="repBreakDown.to">
+                    <RouterLink :to="repBreakDown.to">
                         {{ repBreakDown.text }}</RouterLink
-                    ><template
-                        v-if="index < weightGroup.repBreakDown.length - 1"
+                    ><span v-if="index < weightGroup.repBreakDown.length - 1"
                         >,
-                    </template>
-                </template>
+                    </span>
+                </span>
             </div>
-            <div v-if="totalDuration" class="pb-1">
-                <VIcon small>
+            <div v-if="totalDuration" class="pb-4 py-4">
+                <VIcon size="small">
                     {{ $svgIcons.mdiClockOutline }}
                 </VIcon>
                 {{ totalDuration }}
             </div>
-            <div v-if="totalWarmUp" class="pb-1">
-                <VIcon small>
+            <div v-if="totalWarmUp" class="pb-4 py-4">
+                <VIcon size="small">
                     {{ $svgIcons.warmUp }}
                 </VIcon>
                 {{ totalWarmUp }} warm-up
             </div>
-            <div v-if="averageRestPeriod" class="pb-1">
-                <VIcon small>
+            <div v-if="averageRestPeriod" class="pb-4 py-4">
+                <VIcon size="small">
                     {{ $svgIcons.restPeriod }}
                 </VIcon>
                 {{ averageRestPeriod }} avg rest
@@ -54,19 +54,20 @@
                     label="Notes"
                     :value="exercise.notes"
                     readonly
-                    outlined
+                    variant="outlined"
                 />
             </div>
         </VCardText>
         <VCardActions class="mt-0 pt-0">
             <VBtn
-                small
+                elevation="1"
+                size="small"
                 :to="{
                     name: 'SetOverviewPage',
                     params: { sessionSetUuid: firstSet.uuid },
                 }"
                 >Edit
-                <VIcon small color="success">{{
+                <VIcon size="small" color="success">{{
                     $svgIcons.mdiClipboardTextOutline
                 }}</VIcon>
             </VBtn>
@@ -79,8 +80,13 @@ import {
     hoursMinutesSecondsFromStartEnd,
     minsSecDuration,
 } from '../../../dates';
+import { useDisplay } from 'vuetify';
 
 export default {
+    setup() {
+        const display = useDisplay();
+        return { display };
+    },
     props: {
         exercise: {
             type: Object,
@@ -156,7 +162,7 @@ export default {
 
             const totalRest = setsWithoutLast.reduce(
                 (runningTotal, set) => set.restPeriodDuration + runningTotal,
-                0
+                0,
             );
 
             const average = totalRest / setsWithoutLast.length;
@@ -174,7 +180,7 @@ export default {
 
             return hoursMinutesSecondsFromStartEnd(
                 this.exercise.warmUpStartedAt,
-                this.exercise.warmUpEndedAt
+                this.exercise.warmUpEndedAt,
             );
         },
     },

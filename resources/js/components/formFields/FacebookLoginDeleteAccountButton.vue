@@ -1,18 +1,27 @@
 <template>
-    <VBtn color="red" dark @click="logout"> Yes delete my account </VBtn>
+    <VBtn elevation="1" color="red" dark @click="logout">
+        Yes delete my account
+    </VBtn>
 </template>
 
 <script>
-import { mapActions } from 'vuex';
+import { useAppStore } from '../../stores/app';
 
 export default {
+    name: 'FacebookLoginDeleteAccountButton',
+    setup() {
+        const appStore = useAppStore();
+        return { appStore };
+    },
     data() {
         return {
             loading: false,
         };
     },
     methods: {
-        ...mapActions('app', ['logout']),
+        async logout() {
+            await this.appStore.logout();
+        },
     },
 };
 </script>

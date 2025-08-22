@@ -17,9 +17,11 @@
 import SessionOverview from '../domain/workoutSessions/SessionOverview';
 import NotFoundPage from '../pages/NotFoundPage';
 import SessionOverviewLoadingSkeleton from '../domain/workoutSessions/SessionOverviewLoadingSkeleton';
-import { mapGetters } from 'vuex';
+import { useAppStore } from '../../stores/app';
+import { useWorkoutSessionStore } from '../../stores/workoutSession';
 
 export default {
+    name: 'SessionOverviewPage',
     components: {
         SessionOverview,
         NotFoundPage,
@@ -30,6 +32,11 @@ export default {
             type: String,
             required: true,
         },
+    },
+    setup() {
+        const appStore = useAppStore();
+        const workoutSessionStore = useWorkoutSessionStore();
+        return { appStore, workoutSessionStore };
     },
     data() {
         return {
@@ -48,7 +55,9 @@ export default {
         },
     },
     computed: {
-        ...mapGetters('app', ['userIsAuthenticated']),
+        userIsAuthenticated() {
+            return this.appStore.userIsAuthenticated;
+        },
         notFound() {
             return !this.loading && this.fetchError;
         },
@@ -56,19 +65,19 @@ export default {
     methods: {
         async ensureWorkoutSessionIsLoaded() {
             if (
-                this.$store.getters['workoutSession/workoutSessionIsLoaded'](
-                    this.workoutSessionUuid
+                this.workoutSessionStore.workoutSessionIsLoaded(
+                    this.workoutSessionUuid,
                 )
             ) {
                 return;
             }
 
             this.loading = true;
+            this.fetchError = false;
 
             try {
-                await this.$store.dispatch(
-                    'workoutSession/fetch',
-                    this.workoutSessionUuid
+                await this.workoutSessionStore.fetchWorkoutSession(
+                    this.workoutSessionUuid,
                 );
             } catch (e) {
                 this.fetchError = true;

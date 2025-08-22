@@ -11,8 +11,8 @@
                 <ServerSyncInfo :status="saveStatus" :updated-at="updatedAt" />
 
                 <VMenu bottom left>
-                    <template v-slot:activator="{ on }">
-                        <VBtn icon v-on="on">
+                    <template v-slot:activator="{ props }">
+                        <VBtn icon flat v-bind="props">
                             <VIcon>{{ $svgIcons.mdiDotsVertical }}</VIcon>
                         </VBtn>
                     </template>
@@ -80,125 +80,92 @@
         </AppBar>
 
         <NarrowContentContainer>
-            <VAlert
-                dense
-                text
-                type="info"
-                v-if="!isChangingSet && (isLookingAhead || isLookingBack)"
-            >
-                <div class="d-flex justify-space-between align-center">
-                    <span v-if="isLookingBack">This is a previous set.</span>
-                    <span v-else-if="isLookingAhead">
-                        This is an upcoming set.
-                    </span>
+            <div class="d-flex align-center justify-center pa-4">
+                <RouterLink
+                    v-if="previousExerciseLastSet"
+                    class="d-flex"
+                    :to="{
+                        name: 'SetOverviewPage',
+                        params: {
+                            sessionSetUuid: previousExerciseLastSet.uuid,
+                        },
+                    }"
+                >
                     <VBtn
-                        class="ml-5"
-                        small
-                        color="green"
-                        :to="{
-                            name: 'SetOverviewPage',
-                            params: { sessionSetUuid: inProgressSet.uuid },
-                        }"
+                        icon
+                        size="x-small"
+                        color="secondary"
+                        class="set-navigation set-navigation--left"
                     >
-                        <VIcon>{{ $svgIcons.mdiPlay }}</VIcon>
-                        Resume
-                        <template v-if="$vuetify.breakpoint.smAndUp">
-                            current</template
-                        >
+                        <VIcon size="x-large">{{
+                            $svgIcons.mdiChevronLeft
+                        }}</VIcon>
                     </VBtn>
+                </RouterLink>
+                <VBtn
+                    v-else
+                    icon
+                    size="x-small"
+                    class="set-navigation set-navigation--left"
+                    style="visibility: hidden"
+                >
+                    <VIcon size="x-large">{{ $svgIcons.mdiChevronLeft }}</VIcon>
+                </VBtn>
+
+                <div
+                    class="d-flex justify-center align-center flex-grow-1 gap-2"
+                >
+                    <VChip
+                        v-for="otherSet in setsForStepper"
+                        :key="otherSet.uuid"
+                        :color="getStepColor(otherSet)"
+                        :variant="
+                            set.uuid === otherSet.uuid ? 'elevated' : 'outlined'
+                        "
+                        @click="changeSetFromStepper(otherSet.position + 1)"
+                        size="small"
+                        class="set-chip"
+                    >
+                        <VIcon v-if="otherSet.endedAt" start>{{
+                            $svgIcons.mdiCheck
+                        }}</VIcon>
+                        Set {{ otherSet.position + 1 }}
+                    </VChip>
                 </div>
-            </VAlert>
 
-            <!--
-                I have not worked it out, but we need to force a re-render with :key
-                or the no steps are selected when looking back or forward through the
-                exercises.
-             -->
-            <VStepper
-                :key="this.exercise.uuid"
-                :value="set.position + 1"
-                flat
-                :vertical="false"
-                @change="changeSetFromStepper($event)"
-            >
-                <VStepperHeader>
-                    <RouterLink
-                        v-if="previousExerciseLastSet"
-                        class="d-flex"
-                        :to="{
-                            name: 'SetOverviewPage',
-                            params: {
-                                sessionSetUuid: previousExerciseLastSet.uuid,
-                            },
-                        }"
+                <RouterLink
+                    v-if="nextExerciseFirstSet"
+                    class="d-flex"
+                    :to="{
+                        name: 'SetOverviewPage',
+                        params: {
+                            sessionSetUuid: nextExerciseFirstSet.uuid,
+                        },
+                    }"
+                >
+                    <VBtn
+                        icon
+                        size="x-small"
+                        color="secondary"
+                        class="set-navigation set-navigation--right"
                     >
-                        <VIcon
-                            class="set-navigation set-navigation--left"
-                            large
-                            color="secondary-darken1"
-                        >
-                            {{ $svgIcons.mdiChevronLeft }}
-                        </VIcon>
-                    </RouterLink>
-                    <div v-else class="d-flex">
-                        <VIcon
-                            class="set-navigation set-navigation--left set-navigation--disabled"
-                            large
-                        >
-                            {{ $svgIcons.mdiChevronLeft }}
-                        </VIcon>
-                    </div>
-
-                    <div class="d-flex justify-space-around flex-grow-1">
-                        <template v-for="otherSet in setsForStepper">
-                            <VStepperStep
-                                :key="otherSet.uuid"
-                                :complete="otherSet.endedAt !== null"
-                                :color="getStepColor(otherSet)"
-                                :step="otherSet.position + 1"
-                                :editable="set.uuid !== otherSet.uuid"
-                                :edit-icon="$svgIcons.mdiCheck"
-                            >
-                                Set {{ otherSet.position + 1 }}
-                            </VStepperStep>
-
-                            <VDivider
-                                v-if="
-                                    otherSet.position + 1 <
-                                    exercise.sessionSets.length
-                                "
-                                :key="otherSet.position + '-divider'"
-                            />
-                        </template>
-                    </div>
-
-                    <RouterLink
-                        v-if="nextExerciseFirstSet"
-                        class="d-flex"
-                        :to="{
-                            name: 'SetOverviewPage',
-                            params: {
-                                sessionSetUuid: this.nextExerciseFirstSet.uuid,
-                            },
-                        }"
-                    >
-                        <VIcon
-                            class="set-navigation set-navigation--right"
-                            large
-                        >
-                            {{ $svgIcons.mdiChevronRight }}
-                        </VIcon>
-                    </RouterLink>
-                    <div v-else class="d-flex">
-                        <VIcon
-                            class="set-navigation set-navigation--right set-navigation--disabled"
-                            large
-                        >
-                            {{ $svgIcons.mdiChevronRight }}
-                        </VIcon>
-                    </div>
-                </VStepperHeader>
-            </VStepper>
+                        <VIcon size="x-large">{{
+                            $svgIcons.mdiChevronRight
+                        }}</VIcon>
+                    </VBtn>
+                </RouterLink>
+                <VBtn
+                    v-else
+                    icon
+                    size="x-small"
+                    class="set-navigation set-navigation--right"
+                    style="visibility: hidden"
+                >
+                    <VIcon size="x-large">{{
+                        $svgIcons.mdiChevronRight
+                    }}</VIcon>
+                </VBtn>
+            </div>
 
             <VCardText class="px-0">
                 <VContainer class="py-0">
@@ -284,13 +251,12 @@
                         </VCol>
                     </VRow>
                     <VRow
-                        alight="center"
-                        justify="space-between"
+                        class="d-flex justify-center align-center"
                         v-if="shouldShowRestPeriodActions"
                     >
                         <VCol
                             class="pt-0"
-                            :class="{ 'mt-2': $vuetify.breakpoint.xsOnly }"
+                            :class="{ 'mt-2': !smAndUp }"
                             cols="6"
                         >
                             <RestPeriodTimer
@@ -301,12 +267,10 @@
 
                         <VCol class="pt-0 text-right" cols="6">
                             <VBtn
-                                :height="$vuetify.breakpoint.xs ? '4rem' : null"
+                                :height="xs ? '4rem' : null"
                                 large
                                 :disabled="isChangingSet"
-                                :width="
-                                    $vuetify.breakpoint.xsOnly ? '100%' : null
-                                "
+                                :width="!smAndUp ? '100%' : null"
                                 @click="endActiveTimer"
                                 class="mt-2"
                                 color="error"
@@ -317,7 +281,7 @@
                         </VCol>
                     </VRow>
                     <VRow
-                        justify="space-between"
+                        class="d-flex justify-center align-center"
                         v-else-if="
                             (isInProgressSet && restPeriodIsFinished) ||
                             (isLastSetOfWorkout && !workoutIsFinished) ||
@@ -355,41 +319,31 @@
                             >
                                 <VBtn
                                     v-if="isLastSetOfWorkout"
-                                    :height="
-                                        $vuetify.breakpoint.xs ? '4rem' : null
-                                    "
+                                    :height="xs ? '4rem' : null"
                                     large
                                     :ripple="false"
                                     :disabled="isEndingWorkout"
-                                    :width="
-                                        $vuetify.breakpoint.xsOnly
-                                            ? '100%'
-                                            : null
-                                    "
+                                    :width="!smAndUp ? '100%' : null"
                                     @click="endWorkout"
                                     class="mt-2"
                                     color="success"
+                                    variant="flat"
                                 >
                                     <VIcon left>{{ $svgIcons.mdiCheck }}</VIcon>
                                     Finish
-                                    <br v-if="$vuetify.breakpoint.xsOnly" />
+                                    <br v-if="!smAndUp" />
                                     workout
                                 </VBtn>
                                 <VBtn
                                     v-else
-                                    :height="
-                                        $vuetify.breakpoint.xs ? '4rem' : null
-                                    "
+                                    :height="xs ? '4rem' : null"
                                     large
                                     :loading="isChangingSet"
-                                    :width="
-                                        $vuetify.breakpoint.xsOnly
-                                            ? '100%'
-                                            : null
-                                    "
+                                    :width="!smAndUp ? '100%' : null"
                                     @click="startNextSet"
                                     class="mt-2"
                                     color="success"
+                                    variant="flat"
                                 >
                                     <VIcon left>{{ $svgIcons.mdiPlay }}</VIcon>
                                     Next set
@@ -400,15 +354,17 @@
                 </VContainer>
 
                 <VCardActions
-                    class="justify-center"
+                    class="d-flex justify-center align-center"
                     v-if="showStartTimerButton"
                     width="100%"
                 >
                     <VBtn
                         class="start-rest-button"
-                        :height="$vuetify.breakpoint.xs ? '4rem' : null"
+                        :height="xs ? '4rem' : null"
+                        :width="!smAndUp ? '100%' : null"
                         x-large
                         color="success"
+                        variant="flat"
                         @click="startActiveTimer"
                     >
                         <VIcon left>
@@ -426,11 +382,15 @@
             :exercise-uuid="exercise.routineExercise.uuid"
             v-model="editingSource"
         />
+        <ResumeWorkoutFab :current-set-uuid="set.uuid" />
     </div>
 </template>
 
 <script>
-import { mapGetters, mapState } from 'vuex';
+import { useWorkoutSessionStore } from '../../../stores/workoutSession';
+import { useAppStore } from '../../../stores/app';
+import { useProgramBuilderStore } from '../../../stores/programBuilder';
+import { useDisplay } from 'vuetify';
 import RestPeriodInput from '../RestPeriodInput';
 import RestPeriodTimer from '../RestPeriodTimer';
 import SessionExerciseStatsModal from './SessionExerciseStatsModal';
@@ -439,6 +399,7 @@ import LabeledWorkoutDuration from '../LabeledWorkoutDuration';
 import NarrowContentContainer from '../../layouts/NarrowContentContainer';
 import AppBar from '../../AppBar';
 import EditExerciseModal from '../../domain/programBuilder/EditExerciseModal';
+import ResumeWorkoutFab from '../../ResumeWorkoutFab';
 
 export default {
     components: {
@@ -450,6 +411,21 @@ export default {
         SessionExerciseStatsModal,
         RestPeriodInput,
         RestPeriodTimer,
+        ResumeWorkoutFab,
+    },
+    setup() {
+        const workoutSessionStore = useWorkoutSessionStore();
+        const appStore = useAppStore();
+        const programBuilderStore = useProgramBuilderStore();
+        const { xs, smAndUp, mobile } = useDisplay();
+        return {
+            workoutSessionStore,
+            appStore,
+            programBuilderStore,
+            xs,
+            smAndUp,
+            mobile,
+        };
     },
     props: {
         sessionSetUuid: {
@@ -470,25 +446,33 @@ export default {
         };
     },
     computed: {
-        ...mapState('workoutSession', ['saveStatus']),
-        ...mapGetters('app', ['userIsLocalOnly']),
-        ...mapGetters('workoutSession', [
-            'workoutName',
-            'workoutSession',
-            'uuid',
-            'updatedAt',
-        ]),
+        saveStatus() {
+            return this.workoutSessionStore.saveStatus;
+        },
+        userIsLocalOnly() {
+            return this.appStore.userIsLocalOnly;
+        },
+        workoutName() {
+            return this.workoutSessionStore.workoutName;
+        },
+        workoutSession() {
+            return this.workoutSessionStore.workoutSession;
+        },
+        uuid() {
+            return this.workoutSessionStore.uuid;
+        },
+        updatedAt() {
+            return this.workoutSessionStore.updatedAt;
+        },
         pageTitle() {
-            if (this.$vuetify.breakpoint.xsOnly) {
+            if (!this.smAndUp) {
                 return this.exercise.name;
             }
 
             return `${this.exercise.name} - set ${this.set.position + 1}`;
         },
         set() {
-            return this.$store.getters['workoutSession/set'](
-                this.sessionSetUuid
-            );
+            return this.workoutSessionStore.set(this.sessionSetUuid);
         },
         isInProgressSet() {
             return this.set.uuid === this.inProgressSet?.uuid;
@@ -497,8 +481,8 @@ export default {
             return this.exercise.skipped;
         },
         isInProgressWorkout() {
-            return this.$store.getters['workoutSession/isInProgressWorkout'](
-                this.workoutSession.uuid
+            return this.workoutSessionStore.isInProgressWorkout(
+                this.workoutSession.uuid,
             );
         },
         workoutIsFinished() {
@@ -545,30 +529,25 @@ export default {
             return !this.isInProgressSet && !this.isLookingBack;
         },
         previousExerciseLastSet() {
-            return this.$store.getters['workoutSession/previousSet'](
-                this.exercise.sessionSets[0].uuid
+            return this.workoutSessionStore.previousExerciseLastSet(
+                this.exercise.uuid,
             );
         },
         previousSet() {
-            return this.$store.getters['workoutSession/previousSet'](
-                this.sessionSetUuid
-            );
+            return this.workoutSessionStore.previousSet(this.sessionSetUuid);
         },
         nextExerciseFirstSet() {
-            return this.$store.getters['workoutSession/nextSet'](
-                this.exercise.sessionSets[this.exercise.sessionSets.length - 1]
-                    .uuid
+            return this.workoutSessionStore.nextExerciseFirstSet(
+                this.exercise.uuid,
             );
         },
         nextSet() {
-            return this.$store.getters['workoutSession/nextSet'](
-                this.sessionSetUuid
-            );
+            return this.workoutSessionStore.nextSet(this.sessionSetUuid);
         },
         inProgressSet() {
-            return this.$store.getters[
-                'workoutSession/currentSetForInProgressWorkout'
-            ](this.uuid);
+            return this.workoutSessionStore.currentSetForInProgressWorkout(
+                this.uuid,
+            );
         },
         /**
          * If there are more than five sets limit to displaying five at a time (one each side of the current),
@@ -594,23 +573,17 @@ export default {
             return this.exercise.sessionSets.slice(position - 2, position + 3);
         },
         exercise() {
-            return this.$store.getters['workoutSession/exerciseBySet'](
-                this.sessionSetUuid
-            );
+            return this.workoutSessionStore.exerciseBySet(this.sessionSetUuid);
         },
         warmUpStarted() {
-            return this.$store.getters['workoutSession/warmUpStarted'](
-                this.exercise.uuid
-            );
+            return this.workoutSessionStore.warmUpStarted(this.exercise.uuid);
         },
         warmUpEnded() {
-            return this.$store.getters['workoutSession/warmUpEnded'](
-                this.exercise.uuid
-            );
+            return this.workoutSessionStore.warmUpEnded(this.exercise.uuid);
         },
         restPeriodStarted() {
-            return this.$store.getters['workoutSession/restPeriodStarted'](
-                this.sessionSetUuid
+            return this.workoutSessionStore.restPeriodStarted(
+                this.sessionSetUuid,
             );
         },
         shouldShowRestPeriodActions() {
@@ -654,12 +627,8 @@ export default {
         },
         isTimerRunning() {
             return (
-                this.$store.getters['workoutSession/isDuringWarmUp'](
-                    this.exercise.uuid
-                ) ||
-                this.$store.getters['workoutSession/isDuringRestPeriod'](
-                    this.sessionSetUuid
-                )
+                this.workoutSessionStore.isDuringWarmUp(this.exercise.uuid) ||
+                this.workoutSessionStore.isDuringRestPeriod(this.sessionSetUuid)
             );
         },
         restPeriodIsFinished() {
@@ -667,53 +636,53 @@ export default {
                 return true;
             }
 
-            return this.$store.getters['workoutSession/restPeriodIsFinished'](
-                this.sessionSetUuid
+            return this.workoutSessionStore.restPeriodIsFinished(
+                this.sessionSetUuid,
             );
         },
         isFirstSetOfWorkout() {
-            return this.$store.getters['workoutSession/isFirstSetOfWorkout'](
-                this.sessionSetUuid
+            return this.workoutSessionStore.isFirstSetOfWorkout(
+                this.sessionSetUuid,
             );
         },
         isLastSetOfWorkout() {
-            return this.$store.getters['workoutSession/isLastSetOfWorkout'](
-                this.sessionSetUuid
+            return this.workoutSessionStore.isLastSetOfWorkout(
+                this.sessionSetUuid,
             );
         },
         isFirstSetOfExercise() {
-            return this.$store.getters['workoutSession/isFirstSetOfExercise'](
-                this.sessionSetUuid
+            return this.workoutSessionStore.isFirstSetOfExercise(
+                this.sessionSetUuid,
             );
         },
         isLastSetOfExercise() {
-            return this.$store.getters['workoutSession/isLastSetOfExercise'](
-                this.sessionSetUuid
+            return this.workoutSessionStore.isLastSetOfExercise(
+                this.sessionSetUuid,
             );
         },
         exerciseHistory() {
-            const history = this.$store.getters[
-                'workoutSession/exerciseHistory'
-            ](this.exercise.uuid);
+            const history = this.workoutSessionStore.exerciseHistory(
+                this.exercise.uuid,
+            );
 
             // Keep today reactive.
             return history.map((entry) =>
-                entry.uuid === this.exercise.uuid ? this.exercise : entry
+                entry.uuid === this.exercise.uuid ? this.exercise : entry,
             );
         },
         weight: {
             get() {
-                return this.$store.getters[
-                    'workoutSession/weightForCurrentSet'
-                ](this.sessionSetUuid);
+                return this.workoutSessionStore.weightForCurrentSet(
+                    this.sessionSetUuid,
+                );
             },
             set(weight) {
-                this.$store.dispatch('workoutSession/updateSetWeight', {
+                this.workoutSessionStore.updateSetWeight({
                     uuid: this.sessionSetUuid,
                     weight,
                 });
 
-                this.$store.dispatch('programBuilder/updateExercise', {
+                this.programBuilderStore.updateExercise({
                     exerciseUuid: this.exercise.routineExercise.uuid,
                     weight,
                 });
@@ -721,12 +690,12 @@ export default {
         },
         reps: {
             get() {
-                return this.$store.getters['workoutSession/repsForCurrentSet'](
-                    this.sessionSetUuid
+                return this.workoutSessionStore.repsForCurrentSet(
+                    this.sessionSetUuid,
                 );
             },
             set(reps) {
-                this.$store.dispatch('workoutSession/updateSetReps', {
+                this.workoutSessionStore.updateSetReps({
                     uuid: this.sessionSetUuid,
                     reps,
                 });
@@ -734,51 +703,42 @@ export default {
         },
         warmUp: {
             get() {
-                return this.$store.getters[
-                    'workoutSession/warmUpForCurrentExercise'
-                ](this.this.exercise.uuid);
+                return this.workoutSessionStore.warmUpForCurrentExercise(
+                    this.exercise.uuid,
+                );
             },
             set(warmUpDuration) {
-                this.$store.dispatch(
-                    'workoutSession/updateExerciseWarmUpDuration',
-                    {
-                        uuid: this.exercise.uuid,
-                        warmUpDuration,
-                    }
-                );
+                this.workoutSessionStore.updateExerciseWarmUpDuration({
+                    uuid: this.exercise.uuid,
+                    warmUpDuration,
+                });
             },
         },
         activeTimer: {
             get() {
                 if (this.set.endedAt || this.warmUpEnded) {
-                    return this.$store.getters[
-                        'workoutSession/restPeriodForCurrentSet'
-                    ](this.sessionSetUuid);
+                    return this.workoutSessionStore.restPeriodForCurrentSet(
+                        this.sessionSetUuid,
+                    );
                 }
 
-                return this.$store.getters[
-                    'workoutSession/warmUpForCurrentExercise'
-                ](this.exercise.uuid);
+                return this.workoutSessionStore.warmUpForCurrentExercise(
+                    this.exercise.uuid,
+                );
             },
             set(duration) {
                 if (this.set.endedAt || this.warmUpEnded) {
-                    this.$store.dispatch(
-                        'workoutSession/updateSetRestPeriodDuration',
-                        {
-                            uuid: this.sessionSetUuid,
-                            restPeriodDuration: duration,
-                        }
-                    );
+                    this.workoutSessionStore.updateSetRestPeriodDuration({
+                        uuid: this.sessionSetUuid,
+                        restPeriodDuration: duration,
+                    });
                     return;
                 }
 
-                this.$store.dispatch(
-                    'workoutSession/updateExerciseWarmUpDuration',
-                    {
-                        uuid: this.exercise.uuid,
-                        warmUpDuration: duration,
-                    }
-                );
+                this.workoutSessionStore.updateExerciseWarmUpDuration({
+                    uuid: this.exercise.uuid,
+                    warmUpDuration: duration,
+                });
             },
         },
         exerciseNotes: {
@@ -786,7 +746,7 @@ export default {
                 return this.exercise.notes;
             },
             set(notes) {
-                this.$store.dispatch('workoutSession/updateExerciseNotes', {
+                this.workoutSessionStore.updateExerciseNotes({
                     uuid: this.exercise.uuid,
                     notes,
                 });
@@ -828,9 +788,8 @@ export default {
             });
         },
         async fetchExerciseHistory() {
-            return this.$store.dispatch(
-                'workoutSession/fetchExerciseHistory',
-                this.exercise.uuid
+            return this.workoutSessionStore.fetchExerciseHistory(
+                this.exercise.uuid,
             );
         },
         tryEndWorkout() {
@@ -840,7 +799,7 @@ export default {
             }
 
             const finishConfirmed = window.confirm(
-                'There are sets left in this workout, finish now?'
+                'There are sets left in this workout, finish now?',
             );
 
             if (finishConfirmed) {
@@ -858,24 +817,24 @@ export default {
             setTimeout(
                 async () => {
                     // Force a delay, so we show the loading feedback before the app get too busy to re-render the ui.
-                    this.$store.dispatch('workoutSession/endWorkout');
+                    this.workoutSessionStore.endWorkout();
                     this.$router.push({
                         name: 'SessionOverviewPage',
                         params: { workoutSessionUuid: this.uuid },
                     });
                 },
-                this.$vuetify.breakpoint.xsOnly ? 250 : 0
+                !this.smAndUp ? 250 : 0,
             );
         },
         resetWarmUp() {
             const uuid = this.exercise.uuid;
-            this.$store.dispatch('workoutSession/resetWarmUp', {
+            this.workoutSessionStore.resetWarmUp({
                 uuid,
             });
         },
         resetRestPeriod() {
             const uuid = this.set.uuid;
-            this.$store.dispatch('workoutSession/resetRestPeriod', {
+            this.workoutSessionStore.resetRestPeriod({
                 uuid,
             });
         },
@@ -886,28 +845,28 @@ export default {
             this.isChangingSet = true;
 
             const dispatches = [];
-            if (this.set.endedAt === null) {
+            if (!this.set.endedAt) {
                 dispatches.push(
-                    this.$store.dispatch('workoutSession/endSet', {
+                    this.workoutSessionStore.endSet({
                         uuid: this.sessionSetUuid,
-                    })
+                    }),
                 );
             }
 
             const nextSetUuid = this.nextSet.uuid;
             dispatches.push(
-                this.$store.dispatch('workoutSession/startSet', {
+                this.workoutSessionStore.startSet({
                     uuid: nextSetUuid,
-                })
+                }),
             );
 
-            dispatches.push(this.$store.dispatch('workoutSession/saveWorkout'));
+            dispatches.push(this.workoutSessionStore.saveWorkout());
 
             dispatches.push(
                 this.$router.push({
                     name: 'SetOverviewPage',
                     params: { sessionSetUuid: nextSetUuid },
-                })
+                }),
             );
 
             await Promise.all(dispatches);
@@ -917,12 +876,12 @@ export default {
             this.isChangingSet = true;
             const nextSetUuid = this.nextExerciseFirstSet?.uuid;
 
-            await this.$store.dispatch('workoutSession/skipExercise', {
+            await this.workoutSessionStore.skipExercise({
                 uuid: this.exercise.uuid,
             });
 
             if (nextSetUuid) {
-                await this.$store.dispatch('workoutSession/startSet', {
+                await this.workoutSessionStore.startSet({
                     uuid: nextSetUuid,
                 });
                 await this.$router.push({
@@ -936,29 +895,29 @@ export default {
             this.isChangingSet = false;
         },
         async markExerciseNotSkipped() {
-            await this.$store.dispatch('workoutSession/updateExerciseSkipped', {
+            await this.workoutSessionStore.updateExerciseSkipped({
                 uuid: this.exercise.uuid,
                 skipped: false,
             });
         },
         startActiveTimer() {
             if (this.warmUpEnded) {
-                this.$store.dispatch('workoutSession/startRestPeriod', {
+                this.workoutSessionStore.startRestPeriod({
                     uuid: this.sessionSetUuid,
                 });
             } else {
-                this.$store.dispatch('workoutSession/startWarmUp', {
+                this.workoutSessionStore.startWarmUp({
                     uuid: this.exercise.uuid,
                 });
             }
         },
         endActiveTimer() {
             if (this.warmUpEnded) {
-                this.$store.dispatch('workoutSession/endRestPeriod', {
+                this.workoutSessionStore.endRestPeriod({
                     uuid: this.sessionSetUuid,
                 });
             } else {
-                this.$store.dispatch('workoutSession/endWarmUp', {
+                this.workoutSessionStore.endWarmUp({
                     uuid: this.exercise.uuid,
                 });
             }
@@ -974,9 +933,10 @@ export default {
                 return;
             }
 
-            this.hasLoadedExerciseHistory = this.$store.getters[
-                'workoutSession/hasLoadedExerciseHistory'
-            ](this.exercise.uuid);
+            this.hasLoadedExerciseHistory =
+                this.workoutSessionStore.hasLoadedExerciseHistory(
+                    this.exercise.uuid,
+                );
 
             if (!this.hasLoadedExerciseHistory) {
                 await this.fetchExerciseHistory();
@@ -998,25 +958,6 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.v-stepper {
-    margin-top: 5px;
-    box-shadow: none;
-    max-width: 100vw;
-    overflow-x: hidden;
-    overflow-y: hidden;
-}
-
-.v-stepper__header {
-    height: 40px;
-    box-shadow: none;
-    flex-wrap: nowrap;
-}
-
-.v-stepper__step {
-    padding-top: 0;
-    padding-bottom: 0;
-}
-
 .start-rest-button {
     margin-bottom: 15px;
 }
@@ -1030,5 +971,18 @@ export default {
     &--disabled {
         color: var(--v-secondary-darken1) !important;
     }
+}
+
+.set-chip {
+    cursor: pointer;
+    transition: all 0.2s ease;
+
+    &:not(.v-chip--disabled):hover {
+        transform: translateY(-1px);
+    }
+}
+
+.gap-2 {
+    gap: 8px;
 }
 </style>

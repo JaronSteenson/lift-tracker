@@ -7,43 +7,20 @@
             >
             <template v-else>
                 <AppBar
-                    :title="
-                        $vuetify.breakpoint.smAndDown ? 'Program builder' : null
-                    "
                     :back-to="
                         $route.query.returnTo || {
                             name: 'MyWorkoutProgramsPage',
                         }
                     "
                 >
-                    <template v-if="$vuetify.breakpoint.mdAndUp" v-slot:middle>
-                        <VTextField
-                            v-if="editingName"
-                            class="program-builder-title"
-                            v-model="localState.name"
-                            :autofocus="editingName"
-                            label="Program name"
-                            hide-details
-                            single-line
-                            @blur="finishEditingName"
-                            @keydown.enter="finishEditingName"
-                            @keydown.esc="abortEditingName"
-                        >
-                        </VTextField>
-                        <VToolbarTitle v-else>
-                            <EditableTitle @click="editingName = true">{{
-                                nameForDisplay
-                            }}</EditableTitle>
-                        </VToolbarTitle>
-                    </template>
                     <template v-slot:right>
                         <ServerSyncInfo
                             :status="saveStatus"
                             :updatedAt="inFocusProgram.updatedAt"
                         />
                         <VMenu bottom left>
-                            <template v-slot:activator="{ on }">
-                                <VBtn icon v-on="on">
+                            <template v-slot:activator="{ props }">
+                                <VBtn icon v-bind="props">
                                     <VIcon>{{
                                         $svgIcons.mdiDotsVertical
                                     }}</VIcon>
@@ -59,47 +36,48 @@
                     </template>
                 </AppBar>
 
-                <VSheet class="mx-3">
+                <VSheet class="pa-2 ma-0">
                     <VTextField
-                        v-if="$vuetify.breakpoint.smAndDown"
                         v-model="localState.name"
-                        :autofocus="editingName"
-                        single-line
+                        variant="underlined"
                         hide-details
                         @blur="finishEditingName"
                         @keydown.enter="finishEditingName"
-                        @keydown.esc="abortEditingName"
                         label="Program name"
+                        class="mb-4"
                     />
 
                     <Draggable
                         class="main-draggable-container"
+                        tag="div"
                         :forceFallback="true"
                         :delay="250"
                         :delayOnTouchOnly="true"
                         dragClass="workout-drag"
-                        ghostClass="workout-drop-placeholder"
+                        ghostClass="workout-ghost"
                         handle=".js-workout-drag-handle"
+                        itemKey="uuid"
                         v-model="orderedWorkouts"
+                        @start="onWorkoutDragStart"
+                        @end="onWorkoutDragEnd"
                     >
-                        <div
-                            class="workout-card-wrapper"
-                            :key="workout.uuid"
-                            v-for="workout in orderedWorkouts"
-                        >
-                            <WorkoutCard
-                                :workoutUuid="workout.uuid"
-                            ></WorkoutCard>
-                        </div>
-                        <div class="workout-card-wrapper">
-                            <AddNewButton
-                                @click="addWorkoutToProgram(null)"
-                                draggable="false"
-                                width="100%"
-                            >
-                                Add workout
-                            </AddNewButton>
-                        </div>
+                        <template #item="{ element: workout }">
+                            <div class="workout-card-wrapper pa-2 ma-2">
+                                <WorkoutCard :workoutUuid="workout.uuid" />
+                            </div>
+                        </template>
+                        <template #footer>
+                            <div class="workout-card-wrapper pa-2 ma-2">
+                                <AddNewButton
+                                    @click="addWorkoutToProgram(null)"
+                                    draggable="false"
+                                    width="100%"
+                                    class="ma-2"
+                                >
+                                    Add workout
+                                </AddNewButton>
+                            </div>
+                        </template>
                     </Draggable>
                 </VSheet>
             </template>
@@ -108,15 +86,15 @@
 </template>
 
 <script>
-import { mapActions, mapGetters, mapState } from 'vuex';
+import { useProgramBuilderStore } from '../../../stores/programBuilder';
 import WorkoutCard from './WorkoutCard';
 import NotFoundPage from '../../pages/NotFoundPage';
 import Draggable from 'vuedraggable';
-import EditableTitle from '../../formFields/EditableTitle';
 import AddNewButton from '../../formFields/AddNewButton';
 import ProgramBuilderLoadingSkeleton from './ProgramBuilderLoadingSkeleton';
 import ServerSyncInfo from '../../ServerSyncInfo';
 import AppBar from '../../AppBar';
+import { useDisplay } from 'vuetify';
 
 export default {
     components: {
@@ -125,9 +103,13 @@ export default {
         WorkoutCard,
         NotFoundPage,
         Draggable,
-        EditableTitle,
         AppBar,
         ProgramBuilderLoadingSkeleton,
+    },
+    setup() {
+        const programBuilderStore = useProgramBuilderStore();
+        const display = useDisplay();
+        return { programBuilderStore, display };
     },
     props: {
         workoutProgramUuid: {
@@ -142,9 +124,9 @@ export default {
         return {
             loading: false,
             fetchError: false,
-            editingName: false,
+            isAddingWorkout: false,
             localState: {
-                name: this.$store.state.programBuilder.inFocusProgram.name,
+                name: null,
             },
         };
     },
@@ -168,19 +150,25 @@ export default {
         notFound() {
             return !this.loading && this.fetchError;
         },
-        ...mapState('programBuilder', ['inFocusProgram', 'saveStatus']),
-        ...mapGetters('programBuilder', ['hasMadeSignificantChangesFromNew']),
+        inFocusProgram() {
+            return this.programBuilderStore.inFocusProgram;
+        },
+        saveStatus() {
+            return this.programBuilderStore.saveStatus;
+        },
+        hasMadeSignificantChangesFromNew() {
+            return this.programBuilderStore.hasMadeSignificantChangesFromNew;
+        },
         uuid() {
             return this.inFocusProgram.uuid;
         },
         orderedWorkouts: {
             get() {
-                return this.$store.getters['programBuilder/getOrderedWorkouts'];
+                return this.programBuilderStore.getOrderedWorkouts;
             },
             set(orderedWorkouts) {
-                this.$store.dispatch(
-                    'programBuilder/updateWorkoutPositionFromOrder',
-                    orderedWorkouts
+                this.programBuilderStore.updateWorkoutPositionFromOrder(
+                    orderedWorkouts,
                 );
             },
         },
@@ -189,28 +177,40 @@ export default {
         },
         name: {
             get() {
-                return this.$store.state.programBuilder.inFocusProgram.name;
+                return this.programBuilderStore.inFocusProgram.name;
             },
             set(name) {
-                this.$store.dispatch('programBuilder/updateName', name);
+                this.programBuilderStore.updateName(name);
             },
         },
     },
     methods: {
-        ...mapActions('programBuilder', ['addWorkoutToProgram', 'delete']),
+        addWorkoutToProgram(data) {
+            if (this.isAddingWorkout) {
+                return;
+            }
+
+            this.isAddingWorkout = true;
+            this.programBuilderStore.addWorkoutToProgram(data);
+
+            // Reset the flag in the next tick
+            this.$nextTick(() => {
+                this.isAddingWorkout = false;
+            });
+        },
+        delete() {
+            return this.programBuilderStore.delete();
+        },
         async loadProgram() {
             if (!this.workoutProgramUuid) {
-                await this.$store.dispatch('programBuilder/startNew');
+                await this.programBuilderStore.startNew();
                 this.resetLocalState();
                 return;
             }
 
             this.loading = true;
             try {
-                await this.$store.dispatch(
-                    'programBuilder/fetch',
-                    this.workoutProgramUuid
-                );
+                await this.programBuilderStore.fetch(this.workoutProgramUuid);
                 this.resetLocalState();
             } catch (e) {
                 this.fetchError = true;
@@ -219,7 +219,7 @@ export default {
         },
         async showDeleteConfirmation() {
             const deleteConfirmed = window.confirm(
-                'Are you sure you want to delete this program?'
+                'Are you sure you want to delete this program?',
             );
 
             if (deleteConfirmed) {
@@ -228,20 +228,20 @@ export default {
             }
         },
         finishEditingName() {
-            this.editingName = false;
-
             if (this.name !== this.localState.name) {
                 this.name = this.localState.name;
             }
         },
-        abortEditingName() {
-            this.localState.name = this.name;
-            this.editingName = false;
-        },
         resetLocalState() {
             this.localState = {
-                name: this.$store.state.programBuilder.inFocusProgram.name,
+                name: this.programBuilderStore.inFocusProgram?.name || '',
             };
+        },
+        onWorkoutDragStart() {
+            this.programBuilderStore.setDraggingWorkout(true);
+        },
+        onWorkoutDragEnd() {
+            this.programBuilderStore.setDraggingWorkout(false);
         },
     },
 };
@@ -258,7 +258,7 @@ export default {
 }
 
 .main-draggable-container {
-    padding: 16px;
+    padding: 0;
     display: flex;
     gap: 16px;
 }

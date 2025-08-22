@@ -1,36 +1,23 @@
 <template>
     <div>
         <PageAppBar :title="appName" show-drawer-icon />
-        <SessionOverviewLoadingSkeleton v-if="myWorkoutSessionsIsLoading" />
+        <SessionOverviewLoadingSkeleton v-if="isInitialLoading" />
         <NoProgramsWelcomeHint v-else-if="shouldShowNoProgramsWelcomeHint" />
         <NoSessionsHint v-else-if="shouldShowNoSessionsHint" />
         <MyTimeline v-else />
-        <VBtn
-            v-if="inProgressSet"
-            :to="{
-                name: 'SetOverviewPage',
-                params: { sessionSetUuid: inProgressSet.uuid },
-            }"
-            color="secondary"
-            fixed
-            right
-            bottom
-            title="Resume set"
-            large
-        >
-            <span class="text--primary">Resume workout</span>
-            <VIcon color="green" large>{{ $svgIcons.mdiPlayPause }}</VIcon>
-        </VBtn>
+        <ResumeWorkoutFab />
     </div>
 </template>
 
 <script>
 import MyTimeline from '../domain/MyTimeline';
-import { mapGetters, mapState } from 'vuex';
 import NoProgramsWelcomeHint from '../domain/userHints/NoProgramsWelcomeHint';
 import NoSessionsHint from '../domain/userHints/NoSessionsHint';
 import PageAppBar from '../AppBar';
 import SessionOverviewLoadingSkeleton from '../domain/workoutSessions/SessionOverviewLoadingSkeleton.vue';
+import { useAppStore } from '../../stores/app';
+import { useWorkoutSessionStore } from '../../stores/workoutSession';
+import ResumeWorkoutFab from '../ResumeWorkoutFab';
 
 export default {
     name: 'HomePage',
@@ -40,15 +27,40 @@ export default {
         NoSessionsHint,
         NoProgramsWelcomeHint,
         MyTimeline,
+        ResumeWorkoutFab,
+    },
+    setup() {
+        const appStore = useAppStore();
+        const workoutSessionStore = useWorkoutSessionStore();
+
+        return {
+            appStore,
+            workoutSessionStore,
+        };
     },
     computed: {
-        ...mapState('app', ['appName']),
-        ...mapState('workoutSession', ['myWorkoutSessionsIsLoading']),
-        ...mapGetters('app', [
-            'shouldShowNoProgramsWelcomeHint',
-            'shouldShowNoSessionsHint',
-        ]),
-        ...mapGetters('workoutSession', ['inProgressSet']),
+        appName() {
+            return this.appStore.appName;
+        },
+        myWorkoutSessionsIsLoading() {
+            return this.workoutSessionStore.myWorkoutSessionsIsLoading;
+        },
+        isInitialLoading() {
+            return (
+                this.workoutSessionStore.myWorkoutSessionsIsLoading &&
+                this.workoutSessionStore.myWorkoutSessions.length === 0
+            );
+        },
+        shouldShowNoProgramsWelcomeHint() {
+            return this.appStore.shouldShowNoProgramsWelcomeHint;
+        },
+        shouldShowNoSessionsHint() {
+            return this.appStore.shouldShowNoSessionsHint;
+        },
+        inProgressSet() {
+            // TODO: Implement in workoutSession store
+            return null;
+        },
     },
 };
 </script>

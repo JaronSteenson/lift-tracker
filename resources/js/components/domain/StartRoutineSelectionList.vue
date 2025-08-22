@@ -17,22 +17,48 @@
 <script>
 import RoutineCard from './RoutineCard';
 import NarrowContentContainer from '../layouts/NarrowContentContainer';
-import { mapActions, mapGetters, mapState } from 'vuex';
+import { useProgramBuilderStore } from '../../stores/programBuilder';
 
 export default {
+    name: 'StartRoutineSelectionList',
     components: {
         NarrowContentContainer,
         RoutineCard,
     },
-    created() {
-        this.fetchMyWorkoutPrograms();
+    setup() {
+        const programBuilderStore = useProgramBuilderStore();
+        return { programBuilderStore };
+    },
+    async created() {
+        await this.programBuilderStore.fetchMyWorkoutProgramsWithRoutines();
     },
     computed: {
-        ...mapState('programBuilder', ['myWorkoutProgramsIsLoading']),
-        ...mapGetters('programBuilder', ['myRoutines']),
-    },
-    methods: {
-        ...mapActions('programBuilder', ['fetchMyWorkoutPrograms']),
+        myWorkoutProgramsIsLoading() {
+            return this.programBuilderStore.myWorkoutProgramsIsLoading;
+        },
+        myRoutines() {
+            // Return workout routines from all programs for session selection
+            const routines = [];
+            this.programBuilderStore.myWorkoutPrograms.forEach((program) => {
+                if (
+                    program.workoutProgramRoutines &&
+                    Array.isArray(program.workoutProgramRoutines)
+                ) {
+                    program.workoutProgramRoutines.forEach((routine) => {
+                        routines.push({
+                            ...routine,
+                            workoutProgram: {
+                                uuid: program.uuid,
+                                name: program.name,
+                                createdAt: program.createdAt,
+                                updatedAt: program.updatedAt,
+                            },
+                        });
+                    });
+                }
+            });
+            return routines;
+        },
     },
 };
 </script>

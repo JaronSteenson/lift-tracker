@@ -1,10 +1,9 @@
 export default {
     data() {
         return {
-            isEditingTitle: false,
             localState: {
                 ...this.$store.getters['programBuilder/getExercise'](
-                    this.exerciseUuid
+                    this.exerciseUuid,
                 ),
             },
             numberOfSetsOptions: [
@@ -25,7 +24,7 @@ export default {
         exercise: {
             get() {
                 return this.$store.getters['programBuilder/getExercise'](
-                    this.exerciseUuid
+                    this.exerciseUuid,
                 );
             },
             set(newState) {

@@ -2,9 +2,9 @@
     <div v-if="userIsAuthenticated">
         <SessionOverviewLoadingSkeleton v-if="loading" />
         <div v-else>
-            <NotFound v-if="notFound"
-                >Sorry we couldn't find that set.</NotFound
-            >
+            <NotFound v-if="notFound">
+                Sorry we couldn't find that set.
+            </NotFound>
             <template v-else>
                 <SetOverview :sessionSetUuid="sessionSetUuid" />
             </template>
@@ -16,31 +16,47 @@
 import NotFound from '../routing/NotFound';
 import SessionOverviewLoadingSkeleton from '../domain/workoutSessions/SessionOverviewLoadingSkeleton';
 import SetOverview from '../domain/workoutSessions/SetOverview';
-import { mapGetters } from 'vuex';
+import { useAppStore } from '../../stores/app';
+import { useWorkoutSessionStore } from '../../stores/workoutSession';
+import { useProgramBuilderStore } from '../../stores/programBuilder';
 
 export default {
+    name: 'SetOverviewPage',
     components: {
         NotFound,
         SessionOverviewLoadingSkeleton,
         SetOverview,
     },
     props: {
+        fromCheckIn: {
+            type: String,
+            required: false,
+            default: '',
+        },
         sessionSetUuid: {
             type: String,
             required: true,
         },
+    },
+    setup() {
+        const appStore = useAppStore();
+        const workoutSessionStore = useWorkoutSessionStore();
+        const programBuilderStore = useProgramBuilderStore();
+        return { appStore, workoutSessionStore, programBuilderStore };
     },
     created() {
         this.ensureWorkoutSessionIsLoadedLoaded();
     },
     data() {
         return {
-            loading: false,
+            loading: true,
             fetchError: false,
         };
     },
     computed: {
-        ...mapGetters('app', ['userIsAuthenticated']),
+        userIsAuthenticated() {
+            return this.appStore.userIsAuthenticated;
+        },
         notFound() {
             return !this.loading && this.fetchError;
         },
@@ -52,32 +68,42 @@ export default {
     },
     methods: {
         async ensureWorkoutSessionIsLoadedLoaded() {
+            const appStore = useAppStore();
+
             if (
-                this.$store.getters['workoutSession/setIsInFocusedSession'](
-                    this.sessionSetUuid
+                !this.fromCheckIn &&
+                !appStore.localOnlyUser &&
+                this.workoutSessionStore.setIsInFocusedSession(
+                    this.sessionSetUuid,
                 )
             ) {
                 return;
             }
-
             this.loading = true;
 
             try {
-                await this.$store.dispatch(
-                    'workoutSession/fetchBySet',
-                    this.sessionSetUuid
-                );
+                await this.workoutSessionStore.fetchBySet(this.sessionSetUuid);
                 const workoutProgramRoutine =
-                    this.$store.state.workoutSession.workoutSession
-                        .workoutProgramRoutine;
+                    this.workoutSessionStore.workoutSession
+                        ?.workoutProgramRoutine;
                 if (workoutProgramRoutine) {
-                    await this.$store.dispatch(
-                        'programBuilder/prepareForSessionOverview',
-                        workoutProgramRoutine.uuid
+                    await this.programBuilderStore.prepareForSessionOverview(
+                        workoutProgramRoutine.uuid,
                     );
                 }
             } catch (e) {
+                console.log(e);
                 this.fetchError = true;
+            }
+
+            if (this.fromCheckIn) {
+                await this.$router.replace({
+                    name: 'SetOverviewPage',
+                    params: {
+                        sessionSetUuid: this.sessionSetUuid,
+                        fromCheckIn: '',
+                    },
+                });
             }
 
             this.loading = false;

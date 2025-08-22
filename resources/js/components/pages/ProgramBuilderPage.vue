@@ -1,16 +1,17 @@
 <template>
     <ProgramBuilder
         v-if="userIsAuthenticated"
-        class="programBuilder"
+        class="programBuilder pa-4"
         :workout-program-uuid="workoutProgramUuid"
     />
 </template>
 
 <script>
 import ProgramBuilder from '../domain/programBuilder/ProgramBuilder';
-import { mapGetters } from 'vuex';
+import { useAppStore } from '../../stores/app';
 
 export default {
+    name: 'ProgramBuilderPage',
     components: {
         ProgramBuilder,
     },
@@ -20,18 +21,24 @@ export default {
             required: false,
         },
     },
+    setup() {
+        const appStore = useAppStore();
+        return { appStore };
+    },
+    computed: {
+        userIsAuthenticated() {
+            return this.appStore.userIsAuthenticated;
+        },
+    },
     mounted() {
         const element = document.querySelector('main');
         element.style.height = '100vh';
         element.style.overflow = 'scroll hidden';
     },
-    destroyed() {
+    unmounted() {
         const element = document.querySelector('main');
         element.style.height = 'unset';
         element.style.overflow = 'unset';
-    },
-    computed: {
-        ...mapGetters('app', ['userIsAuthenticated']),
     },
 };
 </script>

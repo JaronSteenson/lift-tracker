@@ -1,32 +1,29 @@
 <template>
-    <VSubheader class="px-0">
-        <VIcon :size="$vuetify.breakpoint.xsOnly ? 'small' : null">
+    <div class="px-0 d-flex align-center text-caption text-medium-emphasis">
+        <VIcon :size="display.xs.value ? 'small' : null">
             {{ icon }}
         </VIcon>
         <span
             class="updated-at"
-            :class="
-                $vuetify.breakpoint.xsOnly ? 'updated-at--small mx-1' : 'mx-2'
-            "
+            :class="display.xs.value ? 'updated-at--small mx-1' : 'mx-2'"
         >
             {{ generatedStatusMessage }}
         </span>
-    </VSubheader>
+    </div>
 </template>
 <script>
 import { dateTimeDescription, updatedAtMicro } from '../dates';
-import VSubheader from 'vuetify/lib/components/VSubheader';
-import {
-    STATUS_SAVE_ERROR,
-    STATUS_SAVE_IN_PROGRESS,
-    STATUS_SAVE_OK,
-} from '../store/modules/saveStatusMixin';
-import { mapGetters } from 'vuex';
+import { useAppStore } from '../stores/app';
+import { useDisplay } from 'vuetify';
+import { svgIcons } from '../vuetify';
+
+// Save status constants
+const STATUS_SAVE_ERROR = 'error';
+const STATUS_SAVE_IN_PROGRESS = 'saving';
+const STATUS_SAVE_OK = 'saved';
 
 export default {
-    components: {
-        VSubheader,
-    },
+    name: 'ServerSyncInfo',
     props: {
         updatedAt: {
             type: String,
@@ -37,6 +34,19 @@ export default {
             required: false,
         },
     },
+    setup() {
+        const appStore = useAppStore();
+        const display = useDisplay();
+
+        return {
+            appStore,
+            display,
+            svgIcons,
+            STATUS_SAVE_ERROR,
+            STATUS_SAVE_IN_PROGRESS,
+            STATUS_SAVE_OK,
+        };
+    },
     data() {
         return {
             refreshForce: null,
@@ -46,39 +56,41 @@ export default {
     created() {
         this.startRefreshInterval();
     },
-    destroyed() {
+    unmounted() {
         this.clearRefreshInterval();
     },
     computed: {
-        ...mapGetters('app', ['userIsLocalOnly']),
+        userIsLocalOnly() {
+            return this.appStore.userIsLocalOnly;
+        },
         icon() {
             switch (this.status) {
-                case STATUS_SAVE_OK:
+                case this.STATUS_SAVE_OK:
                     if (this.userIsLocalOnly) {
-                        return this.$svgIcons.mdiCheckCircle;
+                        return this.svgIcons.mdiCheckCircle;
                     }
 
-                    return this.$svgIcons.saveOk;
-                case STATUS_SAVE_IN_PROGRESS:
-                    return this.$svgIcons.saveInProgress;
-                case STATUS_SAVE_ERROR:
+                    return this.svgIcons.saveOk;
+                case this.STATUS_SAVE_IN_PROGRESS:
+                    return this.svgIcons.saveInProgress;
+                case this.STATUS_SAVE_ERROR:
                 default:
-                    return this.$svgIcons.saveFailed;
+                    return this.svgIcons.saveFailed;
             }
         },
         generatedStatusMessage() {
             this.refreshForce;
 
-            if (this.status === STATUS_SAVE_ERROR) {
-                if (this.$vuetify.breakpoint.smAndDown) {
+            if (this.status === this.STATUS_SAVE_ERROR) {
+                if (this.display.smAndDown.value) {
                     return '';
                 }
 
                 return 'Error saving';
             }
 
-            if (this.status === STATUS_SAVE_IN_PROGRESS) {
-                if (this.$vuetify.breakpoint.smAndDown) {
+            if (this.status === this.STATUS_SAVE_IN_PROGRESS) {
+                if (this.display.smAndDown.value) {
                     return '...';
                 }
 
@@ -89,8 +101,12 @@ export default {
                 return 'Saved locally';
             }
 
-            if (this.updatedAt >= 0) {
-                if (this.$vuetify.breakpoint.mdAndDown) {
+            if (
+                this.updatedAt &&
+                this.updatedAt !== null &&
+                this.updatedAt !== undefined
+            ) {
+                if (this.display.mdAndDown.value) {
                     return `${updatedAtMicro(this.updatedAt)}`;
                 }
 

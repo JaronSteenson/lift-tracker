@@ -1,17 +1,17 @@
 <template>
-    <VAppBar app dense>
+    <VAppBar :style="{ backgroundColor: colour }" app density="compact">
         <div
             class="d-flex justify-space-between align-center toolbar-content-container"
         >
             <div
                 class="text-left"
                 :class="{
-                    'fixed-outside-flex-basis': $vuetify.breakpoint.smAndUp,
-                    'left-align-title': $vuetify.breakpoint.xsOnly,
+                    'fixed-outside-flex-basis': display.smAndUp.value,
+                    'left-align-title': display.xs.value,
                 }"
             >
                 <VAppBarNavIcon
-                    v-if="showDrawerIcon && userIsAuthenticated"
+                    v-if="showDrawerIcon && appStore.userIsAuthenticated"
                     @click.stop="drawer = !drawer"
                 />
                 <VBtn
@@ -21,27 +21,27 @@
                     active-class="disable-btn-active"
                 >
                     <VIcon>
-                        {{ $svgIcons.backNavigation }}
+                        {{ svgIcons.backNavigation }}
                     </VIcon>
                 </VBtn>
 
-                <slot v-if="$vuetify.breakpoint.xsOnly" name="middle">
+                <slot v-if="display.xs.value" name="middle">
                     <VToolbarTitle class="mx-2 d-flex align-center">
-                        {{ title || appName }}
+                        {{ title || appStore.appName }}
                     </VToolbarTitle>
                 </slot>
             </div>
 
-            <slot v-if="$vuetify.breakpoint.smAndUp" name="middle">
+            <slot v-if="display.smAndUp.value" name="middle">
                 <VToolbarTitle class="mx-2">
-                    {{ title || appName }}
+                    {{ title || appStore.appName }}
                 </VToolbarTitle>
             </slot>
 
             <div
                 class="d-flex justify-end"
                 :class="{
-                    'fixed-outside-flex-basis': $vuetify.breakpoint.smAndUp,
+                    'fixed-outside-flex-basis': display.smAndUp.value,
                 }"
             >
                 <AvatarInitials v-if="!$slots.right" />
@@ -53,9 +53,14 @@
 
 <script>
 import AvatarInitials from './AvatarInitials';
-import { mapGetters, mapState } from 'vuex';
+import { useAppStore } from '../stores/app';
+import { useDisplay } from 'vuetify';
+import { svgIcons } from '../vuetify';
+import { computed } from 'vue';
+import { useTheme } from 'vuetify/framework';
 
 export default {
+    name: 'AppBar',
     components: {
         AvatarInitials,
     },
@@ -64,17 +69,34 @@ export default {
         backTo: [Object, String],
         title: String,
     },
-    computed: {
-        ...mapState('app', ['appName', 'navigationDrawerOpen']),
-        ...mapGetters('app', ['userIsAuthenticated']),
-        drawer: {
+    setup() {
+        const appStore = useAppStore();
+        const display = useDisplay();
+        const theme = useTheme();
+
+        // Option 1: Use hex color value with bg-color prop
+        const colour =
+            theme.current.value.colors.toolbar ||
+            theme.current.value.colors.background;
+
+        // Option 2: Use theme color name with color prop (uncomment if you prefer this)
+        // const colour = 'surface'; // or 'background', 'primary', etc.
+        const drawer = computed({
             get() {
-                return this.navigationDrawerOpen;
+                return appStore.navigationDrawerOpen;
             },
             set(value) {
-                this.$store.dispatch('app/setNavigationDrawerOpen', value);
+                appStore.setNavigationDrawerOpen(value);
             },
-        },
+        });
+
+        return {
+            appStore,
+            display,
+            svgIcons,
+            drawer,
+            colour,
+        };
     },
 };
 </script>

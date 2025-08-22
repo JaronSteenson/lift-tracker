@@ -4,7 +4,7 @@
  * and babble covers a lot of it's offerings these days (2021).
  */
 
-import { LOCAL_STORAGE_KEY } from '../store/modules/app';
+import { LOCAL_STORAGE_KEY } from '../stores/app';
 
 /**
  * @param original {function}
@@ -41,7 +41,7 @@ export function memoizeDebounceAction(original, wait) {
         if (typeof cache[arg1] !== 'function') {
             cache[arg1] = debounce(
                 original.bind(this, vuexContext, arg1),
-                wait
+                wait,
             );
         }
 

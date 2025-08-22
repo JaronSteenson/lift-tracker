@@ -11,9 +11,10 @@
 <script>
 import NewSessionOverview from '../domain/workoutSessions/NewSessionOverview';
 import AppBar from '../AppBar';
-import { mapGetters } from 'vuex';
+import { useAppStore } from '../../stores/app';
 
 export default {
+    name: 'NewSessionOverviewPage',
     components: {
         NewSessionOverview,
         AppBar,
@@ -24,8 +25,14 @@ export default {
             required: true,
         },
     },
+    setup() {
+        const appStore = useAppStore();
+        return { appStore };
+    },
     computed: {
-        ...mapGetters('app', ['userIsAuthenticated']),
+        userIsAuthenticated() {
+            return this.appStore.userIsAuthenticated;
+        },
     },
 };
 </script>

@@ -20,6 +20,8 @@
 </template>
 
 <script>
+import { useWorkoutSessionStore } from '../../stores/workoutSession';
+
 export default {
     props: {
         sessionSetUuid: {
@@ -30,6 +32,10 @@ export default {
             type: String,
             required: false,
         },
+    },
+    setup() {
+        const workoutSessionStore = useWorkoutSessionStore();
+        return { workoutSessionStore };
     },
     data() {
         return {
@@ -67,9 +73,7 @@ export default {
     },
     computed: {
         exercise() {
-            return this.$store.getters['workoutSession/exerciseBySet'](
-                this.sessionSetUuid
-            );
+            return this.workoutSessionStore.exerciseBySet(this.sessionSetUuid);
         },
         _label() {
             if (this.overdue) {
@@ -88,31 +92,23 @@ export default {
         timeRemaining() {
             this.refreshForce;
 
-            if (
-                this.$store.getters['workoutSession/isDuringWarmUp'](
-                    this.exercise.uuid
-                )
-            ) {
-                return this.$store.getters[
-                    'workoutSession/warmUpTimeRemaining'
-                ](this.exercise.uuid);
+            if (this.workoutSessionStore.isDuringWarmUp(this.exercise.uuid)) {
+                return this.workoutSessionStore.warmUpTimeRemaining(
+                    this.exercise.uuid,
+                );
             }
 
-            return this.$store.getters[
-                'workoutSession/restPeriodTimeRemaining'
-            ](this.sessionSetUuid);
+            return this.workoutSessionStore.restPeriodTimeRemaining(
+                this.sessionSetUuid,
+            );
         },
         timerFinished() {
-            if (
-                this.$store.getters['workoutSession/isDuringWarmUp'](
-                    this.exercise.uuid
-                )
-            ) {
+            if (this.workoutSessionStore.isDuringWarmUp(this.exercise.uuid)) {
                 return false;
             }
 
-            return this.$store.getters['workoutSession/restPeriodIsFinished'](
-                this.sessionSetUuid
+            return this.workoutSessionStore.restPeriodIsFinished(
+                this.sessionSetUuid,
             );
         },
         timesUp() {
@@ -193,10 +189,6 @@ export default {
 
     &--overdue {
         color: var(--v-error-base);
-    }
-
-    &__time-parts {
-        margin-top: 15px;
     }
 
     &__time-part {

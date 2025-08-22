@@ -17,17 +17,16 @@
         <VCardSubtitle>
             {{ date }}
         </VCardSubtitle>
-        <VCardText>
-            <CheckInFieldsDisplay :workoutSession="workoutSession" />
-            <SessionStats
-                v-if="workoutSession.startedAt"
+        <VCardText class="pb-0">
+            <CheckInFieldsDisplay
                 :workoutSession="workoutSession"
                 :timeStats="timeStats"
             />
         </VCardText>
         <VCardActions>
             <VBtn
-                small
+                size="small"
+                elevation="1"
                 :to="{
                     name: 'CheckInEditPage',
                     params: {
@@ -36,13 +35,14 @@
                 }"
             >
                 Edit
-                <VIcon small color="green">
+                <VIcon size="small" color="green">
                     {{ $svgIcons.workoutSession }}
                 </VIcon>
             </VBtn>
             <VBtn
                 v-if="workoutSession.workoutProgramRoutine"
-                small
+                elevation="1"
+                size="small"
                 :to="{
                     name: 'NewSessionOverviewPage',
                     params: {
@@ -52,19 +52,20 @@
                 }"
             >
                 Repeat
-                <VIcon small color="green">
+                <VIcon size="small" color="green">
                     {{ $svgIcons.repeat }}
                 </VIcon>
             </VBtn>
             <VBtn
                 v-if="isStandAloneCheckInFromToday"
-                small
+                elevation="1"
+                size="small"
                 :to="{
                     name: 'NewSessionRoutineSelectPage',
                 }"
             >
                 Add session
-                <VIcon small color="green">
+                <VIcon size="small" color="green">
                     {{ $svgIcons.mdiPlay }}
                 </VIcon>
             </VBtn>
@@ -73,7 +74,8 @@
                     workoutSession.workoutProgramRoutine &&
                     workoutSession.workoutProgramRoutine.workoutProgram
                 "
-                small
+                elevation="1"
+                size="small"
                 :to="{
                     name: 'ProgramBuilderPage',
                     params: {
@@ -90,7 +92,7 @@
                 }"
             >
                 Program
-                <VIcon small color="primary">
+                <VIcon size="small" color="primary">
                     {{ $svgIcons.workoutProgram }}
                 </VIcon>
             </VBtn>
@@ -98,13 +100,12 @@
     </VCard>
 </template>
 <script>
-import { dateDescription, utcNow } from '../../../dates';
+import { dateDescription } from '../../../dates';
 import { differenceInSeconds, isToday, parseISO } from 'date-fns';
-import SessionStats from '../workoutSessions/SessionStats';
 import CheckInFieldsDisplay from '../workoutSessions/CheckInFieldsDisplay';
 
 export default {
-    components: { SessionStats, CheckInFieldsDisplay },
+    components: { CheckInFieldsDisplay },
     props: {
         linkTitle: Boolean,
         workoutSession: {
@@ -115,33 +116,58 @@ export default {
     computed: {
         date() {
             return dateDescription(
-                this.workoutSession.startedAt || this.workoutSession.createdAt
+                this.workoutSession.startedAt || this.workoutSession.createdAt,
             );
         },
         isStandAloneCheckInFromToday() {
             // Only allowing for today keeps things simple.
             // New workout sessions are automatically linked to any stand-alone check in
             // for the current day.
+            if (!this.workoutSession.createdAt) {
+                return false;
+            }
             return (
                 isToday(parseISO(this.workoutSession.createdAt)) &&
-                this.workoutSession.sessionExercises.length === 0
+                (this.workoutSession.sessionExercises || []).length === 0
             );
         },
         timeStats() {
-            const total = differenceInSeconds(
-                new Date(this.workoutSession.endedAt || utcNow()),
-                new Date(this.workoutSession.startedAt)
-            );
+            if (!this.workoutSession.startedAt) {
+                return {
+                    total: 0,
+                    working: 0,
+                    nonWorking: 0,
+                    warmUp: 0,
+                    rest: 0,
+                };
+            }
+
+            let total;
+            if (this.workoutSession.endedAt) {
+                total = differenceInSeconds(
+                    new Date(this.workoutSession.endedAt),
+                    new Date(this.workoutSession.startedAt),
+                );
+            } else {
+                // For ongoing workouts, calculate from start to now
+                total = differenceInSeconds(
+                    new Date(), // Current local time
+                    new Date(this.workoutSession.startedAt),
+                );
+            }
+
+            // Ensure we never have negative duration
+            total = Math.max(0, total);
 
             let rest = 0;
             let warmUp = 0;
 
-            this.workoutSession.sessionExercises.forEach((exercise) => {
+            (this.workoutSession.sessionExercises || []).forEach((exercise) => {
                 warmUp +=
                     exercise.warmUpEndedAt && exercise.warmUpStartedAt
                         ? differenceInSeconds(
                               new Date(exercise.warmUpEndedAt),
-                              new Date(exercise.warmUpStartedAt)
+                              new Date(exercise.warmUpStartedAt),
                           )
                         : 0;
 
@@ -150,7 +176,7 @@ export default {
                         set.restPeriodStartedAt && set.restPeriodEndedAt
                             ? differenceInSeconds(
                                   new Date(set.restPeriodEndedAt),
-                                  new Date(set.restPeriodStartedAt)
+                                  new Date(set.restPeriodStartedAt),
                               )
                             : 0;
                 });

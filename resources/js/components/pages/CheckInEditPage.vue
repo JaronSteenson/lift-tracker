@@ -16,21 +16,27 @@
 <script>
 import NotFoundPage from '../pages/NotFoundPage';
 import SessionOverviewLoadingSkeleton from '../domain/workoutSessions/SessionOverviewLoadingSkeleton';
-import { mapGetters } from 'vuex';
+import { useAppStore } from '../../stores/app';
+import { useWorkoutSessionStore } from '../../stores/workoutSession';
 import CheckInEditForm from '../domain/workoutSessions/CheckInEditForm';
 
 export default {
+    name: 'CheckInEditPage',
     components: {
         CheckInEditForm,
         NotFoundPage,
         SessionOverviewLoadingSkeleton,
+    },
+    setup() {
+        const appStore = useAppStore();
+        const workoutSessionStore = useWorkoutSessionStore();
+        return { appStore, workoutSessionStore };
     },
     props: {
         workoutSessionUuid: {
             type: String,
             required: false,
         },
-        toFirstSetAfterSave: Boolean,
     },
     data() {
         return {
@@ -49,9 +55,14 @@ export default {
         },
     },
     computed: {
-        ...mapGetters('app', ['userIsAuthenticated']),
+        userIsAuthenticated() {
+            return this.appStore.userIsAuthenticated;
+        },
         notFound() {
             return !this.loading && this.fetchError;
+        },
+        toFirstSetAfterSave() {
+            return this.$route.query.toFirstSetAfterSave === 'true';
         },
     },
     methods: {
@@ -62,8 +73,8 @@ export default {
             }
 
             if (
-                this.$store.getters['workoutSession/workoutSessionIsLoaded'](
-                    this.workoutSessionUuid
+                this.workoutSessionStore.workoutSessionIsLoaded(
+                    this.workoutSessionUuid,
                 )
             ) {
                 this.loading = false;
@@ -71,11 +82,11 @@ export default {
             }
 
             this.loading = true;
+            this.fetchError = false;
 
             try {
-                await this.$store.dispatch(
-                    'workoutSession/fetch',
-                    this.workoutSessionUuid
+                await this.workoutSessionStore.fetchWorkoutSession(
+                    this.workoutSessionUuid,
                 );
             } catch (e) {
                 this.fetchError = true;

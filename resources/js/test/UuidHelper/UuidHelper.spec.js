@@ -43,7 +43,7 @@ describe('dates', () => {
             'It should find the object in - "%s"',
             (explanation, subject, uuid, expected) => {
                 expect(UuidHelper.findDeep(subject, uuid)).toBe(expected);
-            }
+            },
         );
     });
 });

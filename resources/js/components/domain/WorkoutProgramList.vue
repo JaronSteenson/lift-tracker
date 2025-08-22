@@ -12,9 +12,9 @@
             </template>
             <template v-slot:item.menu="{ item: program }">
                 <VMenu bottom left>
-                    <template v-slot:activator="{ on }">
-                        <VBtn icon v-on="on">
-                            <VIcon>{{ $svgIcons.mdiDotsVertical }}</VIcon>
+                    <template v-slot:activator="{ props }">
+                        <VBtn icon flat v-bind="props">
+                            <VIcon>{{ svgIcons.mdiDotsVertical }}</VIcon>
                         </VBtn>
                     </template>
 
@@ -56,15 +56,21 @@
 
 <script>
 import NewSessionModal from './workoutSessions/NewSessionModal';
-import { mapActions, mapGetters } from 'vuex';
 import ProgramName from '../domain/programBuilder/ProgramName';
 import AddNewButton from '../formFields/AddNewButton.vue';
+import { useProgramBuilderStore } from '../../stores/programBuilder';
+import { svgIcons } from '../../vuetify';
 
 export default {
+    name: 'WorkoutProgramList',
     components: {
         AddNewButton,
         ProgramName,
         NewSessionModal,
+    },
+    setup() {
+        const programBuilderStore = useProgramBuilderStore();
+        return { programBuilderStore, svgIcons };
     },
     data() {
         return {
@@ -72,7 +78,9 @@ export default {
         };
     },
     computed: {
-        ...mapGetters('programBuilder', ['myWorkoutPrograms']),
+        myWorkoutPrograms() {
+            return this.programBuilderStore.myWorkoutPrograms;
+        },
         headers() {
             return [
                 {
@@ -98,17 +106,23 @@ export default {
         },
     },
     methods: {
-        ...mapActions('programBuilder', ['delete']),
         showNewSessionModal(programUuid) {
             this.newSessionModalProgramUuid = programUuid;
         },
         async showDeleteConfirmation(programUuid) {
             const deleteConfirmed = window.confirm(
-                'Are you sure you want to delete this program?'
+                'Are you sure you want to delete this program?',
             );
 
             if (deleteConfirmed) {
-                await this.delete(programUuid);
+                try {
+                    await this.programBuilderStore.deleteProgram(programUuid);
+                    // Refresh the programs list after successful deletion
+                    await this.programBuilderStore.fetchMyWorkoutPrograms();
+                } catch (error) {
+                    console.error('Error deleting program:', error);
+                    alert('Failed to delete program. Please try again.');
+                }
             }
         },
     },

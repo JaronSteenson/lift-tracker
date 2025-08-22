@@ -59,9 +59,9 @@ describe('dates', () => {
             'It should return the correct duration between "%s" and "%s - "%s"',
             (start, end, explanation, expected) => {
                 expect(hoursMinutesSecondsFromStartEnd(start, end)).toBe(
-                    expected
+                    expected,
                 );
-            }
+            },
         );
 
         each([
@@ -73,9 +73,9 @@ describe('dates', () => {
             'It should handle open ended calculations with  "%s and %s"',
             (start, end) => {
                 expect(
-                    hoursMinutesSecondsFromStartEnd(start, end).includes('NaN')
+                    hoursMinutesSecondsFromStartEnd(start, end).includes('NaN'),
                 ).toBe(false);
-            }
+            },
         );
     });
 
@@ -90,7 +90,7 @@ describe('dates', () => {
             'It should return the time description for "%s", noRecent flag: "%s"',
             (time, noRecent, expected) => {
                 expect(timeDescription(time, noRecent)).toBe(expected);
-            }
+            },
         );
     });
 
@@ -100,8 +100,8 @@ describe('dates', () => {
                 dateDescription(
                     '2021-02-19 12:00:00',
                     true,
-                    '2021-02-19 12:00:00'
-                )
+                    '2021-02-19 12:00:00',
+                ),
             ).toBe('Today');
         });
 
@@ -110,8 +110,8 @@ describe('dates', () => {
                 dateDescription(
                     '2021-02-19 12:00:00',
                     false,
-                    '2021-02-19 13:00:00'
-                )
+                    '2021-02-19 13:00:00',
+                ),
             ).toBe('Today');
         });
 
@@ -120,22 +120,22 @@ describe('dates', () => {
                 dateDescription(
                     '2021-02-19 12:00:00',
                     false,
-                    '2021-02-19 12:00:00'
-                )
+                    '2021-02-19 12:00:00',
+                ),
             ).toBe('A moment ago');
             expect(
                 dateDescription(
                     '2021-02-19 12:00:00',
                     false,
-                    '2021-02-19 12:00:01'
-                )
+                    '2021-02-19 12:00:01',
+                ),
             ).toBe('A moment ago');
             expect(
                 dateDescription(
                     '2021-02-19 12:00:00',
                     false,
-                    '2021-02-19 12:00:10'
-                )
+                    '2021-02-19 12:00:10',
+                ),
             ).toBe('A moment ago');
         });
 
@@ -144,15 +144,15 @@ describe('dates', () => {
                 dateDescription(
                     '2021-02-19 12:00:00',
                     false,
-                    '2021-02-19 12:00:11'
-                )
+                    '2021-02-19 12:00:11',
+                ),
             ).toBe('11 seconds ago');
             expect(
                 dateDescription(
                     '2021-02-19 12:00:00',
                     false,
-                    '2021-02-19 12:00:59'
-                )
+                    '2021-02-19 12:00:59',
+                ),
             ).toBe('59 seconds ago');
         });
 
@@ -161,15 +161,15 @@ describe('dates', () => {
                 dateDescription(
                     '2021-02-19 12:00:00',
                     false,
-                    '2021-02-19 12:01:00'
-                )
+                    '2021-02-19 12:01:00',
+                ),
             ).toBe('1 minute ago');
             expect(
                 dateDescription(
                     '2021-02-19 12:00:00',
                     false,
-                    '2021-02-19 12:01:59'
-                )
+                    '2021-02-19 12:01:59',
+                ),
             ).toBe('1 minute ago');
         });
 
@@ -178,15 +178,15 @@ describe('dates', () => {
                 dateDescription(
                     '2021-02-19 12:00:00',
                     false,
-                    '2021-02-19 12:02:00'
-                )
+                    '2021-02-19 12:02:00',
+                ),
             ).toBe('2 minutes ago');
             expect(
                 dateDescription(
                     '2021-02-19 12:00:00',
                     false,
-                    '2021-02-19 12:02:59'
-                )
+                    '2021-02-19 12:02:59',
+                ),
             ).toBe('2 minutes ago');
         });
 
@@ -195,15 +195,15 @@ describe('dates', () => {
                 dateDescription(
                     '2021-02-20 12:00:00',
                     true,
-                    '2021-02-21 13:00:00'
-                )
+                    '2021-02-21 13:00:00',
+                ),
             ).toBe('Yesterday');
             expect(
                 dateDescription(
                     '2021-02-20 12:00:00',
                     false,
-                    '2021-02-21 13:00:00'
-                )
+                    '2021-02-21 13:00:00',
+                ),
             ).toBe('Yesterday');
         });
 
@@ -213,15 +213,15 @@ describe('dates', () => {
                 dateDescription(
                     '2021-02-15 12:00:00',
                     false,
-                    '2021-02-18 12:00:00'
-                )
+                    '2021-02-18 12:00:00',
+                ),
             ).toBe('15 Feb (this Monday)');
             expect(
                 dateDescription(
                     '2021-02-16 12:00:00',
                     false,
-                    '2021-02-18 12:00:00'
-                )
+                    '2021-02-18 12:00:00',
+                ),
             ).toBe('16 Feb (this Tuesday)');
 
             // Looking forward, not fully supported, won't work with noRecent=false.
@@ -229,8 +229,8 @@ describe('dates', () => {
                 dateDescription(
                     '2021-02-18 12:00:00',
                     true,
-                    '2021-02-16 12:00:00'
-                )
+                    '2021-02-16 12:00:00',
+                ),
             ).toBe('18 Feb (this Thursday)');
         });
 
@@ -240,15 +240,15 @@ describe('dates', () => {
                 dateDescription(
                     '2021-02-08 12:00:00',
                     false,
-                    '2021-02-18 12:00:00'
-                )
+                    '2021-02-18 12:00:00',
+                ),
             ).toBe('8 Feb (last Monday)');
             expect(
                 dateDescription(
                     '2021-02-09 12:00:00',
                     false,
-                    '2021-02-18 12:00:00'
-                )
+                    '2021-02-18 12:00:00',
+                ),
             ).toBe('9 Feb (last Tuesday)');
 
             // Looking forward.
@@ -256,8 +256,8 @@ describe('dates', () => {
                 dateDescription(
                     '2021-02-11 12:00:00',
                     false,
-                    '2021-02-16 12:00:00'
-                )
+                    '2021-02-16 12:00:00',
+                ),
             ).toBe('11 Feb (last Thursday)');
         });
 
@@ -266,15 +266,15 @@ describe('dates', () => {
                 dateDescription(
                     '2021-01-01 12:00:00',
                     false,
-                    '2021-02-18 12:00:00'
-                )
+                    '2021-02-18 12:00:00',
+                ),
             ).toBe('1 Jan');
             expect(
                 dateDescription(
                     '2021-02-07 12:00:00',
                     false,
-                    '2021-02-18 12:00:00'
-                )
+                    '2021-02-18 12:00:00',
+                ),
             ).toBe('7 Feb');
         });
 
@@ -283,8 +283,8 @@ describe('dates', () => {
                 dateDescription(
                     '2020-01-01 12:00:00',
                     false,
-                    '2021-02-18 12:00:00'
-                )
+                    '2021-02-18 12:00:00',
+                ),
             ).toBe('1 Jan 2020');
 
             // Future does not work with the noRecent=true.
@@ -292,8 +292,8 @@ describe('dates', () => {
                 dateDescription(
                     '2022-01-01 12:00:00',
                     true,
-                    '2021-02-18 12:00:00'
-                )
+                    '2021-02-18 12:00:00',
+                ),
             ).toBe('1 Jan 2022');
         });
     });
@@ -312,9 +312,9 @@ describe('dates', () => {
             'It should return the correct micro time updated at description for "%s"',
             (testCase, time, expected) => {
                 expect(updatedAtMicro(time, '2019-01-02 12:00:00')).toBe(
-                    expected
+                    expected,
                 );
-            }
+            },
         );
     });
 });

@@ -54,13 +54,13 @@ export function utcNow() {
     const utcDate = `${date.getUTCFullYear()}-${paddedMonth}-${paddedDay}`;
     const utcTime = `${paddedHour}:${paddedMinutes}:${paddedSeconds}`;
 
-    return `${utcDate}T${utcTime}+00:00`;
+    return `${utcDate}T${utcTime}Z`;
 }
 
 export function minsSecDuration(
     valueInSeconds,
     noZeroTreatment,
-    roundOffSeconds
+    roundOffSeconds,
 ) {
     if (typeof noZeroTreatment === 'undefined' && !valueInSeconds) {
         return 'None';
@@ -86,7 +86,7 @@ export function minsSecDuration(
  * @return {string}
  */
 export function hoursMinutesSecondsFromStartEnd(start, end) {
-    if (end === null || end === undefined) {
+    if (!end) {
         end = utcNow();
     }
 
@@ -126,7 +126,7 @@ export function dateTimeDescription(utcDate, noRecent) {
 }
 
 export function timeDescription(utcDate, noRecent) {
-    if (utcDate === null) {
+    if (!utcDate) {
         return 'Unfinished';
     }
 
@@ -140,7 +140,7 @@ export function timeDescription(utcDate, noRecent) {
 }
 
 export function updatedAtMicro(utcDate, now) {
-    if (utcDate === null) {
+    if (!utcDate) {
         return '0s';
     }
 

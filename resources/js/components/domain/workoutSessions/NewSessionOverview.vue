@@ -20,6 +20,7 @@ import NotFound from '../../routing/NotFound';
 import SessionOverviewLoadingSkeleton from './SessionOverviewLoadingSkeleton';
 import WorkoutCard from './../programBuilder/WorkoutCard';
 import NarrowContentContainer from '../../layouts/NarrowContentContainer';
+import { useProgramBuilderStore } from '../../../stores/programBuilder';
 
 export default {
     components: {
@@ -27,6 +28,10 @@ export default {
         NotFound,
         SessionOverviewLoadingSkeleton,
         WorkoutCard,
+    },
+    setup() {
+        const programBuilderStore = useProgramBuilderStore();
+        return { programBuilderStore };
     },
     props: {
         originRoutineUuid: String,
@@ -41,11 +46,15 @@ export default {
     async created() {
         if (this.originRoutineUuid) {
             this.loading = true;
-            await this.$store.dispatch(
-                'programBuilder/prepareForSessionOverview',
-                this.originRoutineUuid
-            );
-            this.loading = false;
+            try {
+                await this.programBuilderStore.prepareForSessionOverview(
+                    this.originRoutineUuid,
+                );
+                this.loading = false;
+            } catch (error) {
+                this.fetchError = true;
+                this.loading = false;
+            }
         }
     },
     computed: {

@@ -21,6 +21,7 @@
         </VCardText>
         <VCardActions>
             <VBtn
+                elevation="1"
                 small
                 width="50%"
                 :to="{
@@ -29,13 +30,21 @@
                 }"
             >
                 Prepare
-                <VIcon small color="primary">
+                <VIcon size="small" color="primary">
                     {{ $svgIcons.workoutProgram }}
                 </VIcon>
             </VBtn>
-            <VBtn small width="50%" :loading="starting" @click="startNow">
+            <VBtn
+                elevation="1"
+                size="small"
+                width="50%"
+                :loading="starting"
+                @click="startNow"
+            >
                 Start now
-                <VIcon small color="green">{{ $svgIcons.mdiPlay }}</VIcon>
+                <VIcon size="small" color="green">{{
+                    $svgIcons.mdiPlay
+                }}</VIcon>
             </VBtn>
         </VCardActions>
     </VCard>
@@ -45,11 +54,16 @@
 import MissingValue from '../util/MissingValue';
 import ProgramName from '../domain/programBuilder/ProgramName';
 import { dateTimeDescription } from '../../dates';
+import { useWorkoutSessionStore } from '../../stores/workoutSession';
 
 export default {
     components: {
         MissingValue,
         ProgramName,
+    },
+    setup() {
+        const workoutSessionStore = useWorkoutSessionStore();
+        return { workoutSessionStore };
     },
     props: {
         routine: {
@@ -64,8 +78,8 @@ export default {
     },
     computed: {
         mostRecentDate() {
-            const mostRecent = this.$store.getters['workoutSession/mostRecent'](
-                this.routine.uuid
+            const mostRecent = this.workoutSessionStore.mostRecent(
+                this.routine.uuid,
             );
             if (mostRecent) {
                 return dateTimeDescription(mostRecent.endedAt);
@@ -79,7 +93,7 @@ export default {
             this.starting = true;
 
             // Create a new workout session from the updated master routine.
-            await this.$store.dispatch('workoutSession/startWorkout', {
+            await this.workoutSessionStore.startWorkout({
                 originWorkout: this.routine,
             });
 
@@ -88,8 +102,9 @@ export default {
                 name: 'CheckInEditPage',
                 params: {
                     workoutSessionUuid:
-                        this.$store.getters['workoutSession/workoutSession']
-                            .uuid,
+                        this.workoutSessionStore.workoutSession.uuid,
+                },
+                query: {
                     toFirstSetAfterSave: true,
                 },
             });

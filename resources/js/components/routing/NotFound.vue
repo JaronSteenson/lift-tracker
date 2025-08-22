@@ -1,10 +1,11 @@
-<template functional>
+<template>
     <VContainer fluid class="text-center">
         <VRow justify="center">
             <VCol cols="12">
                 <h1 class="display-2 primary--text">404</h1>
                 <p><slot></slot></p>
                 <VBtn
+                    elevation="1"
                     class="home-button"
                     :to="{ name: 'HomePage' }"
                     depressed

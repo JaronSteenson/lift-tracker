@@ -54,7 +54,13 @@
             </VCardText>
             <VDivider />
             <VCardActions>
-                <VBtn color="red" text :disabled="starting" @click="cancel">
+                <VBtn
+                    elevation="1"
+                    color="red"
+                    text
+                    :disabled="starting"
+                    @click="cancel"
+                >
                     Cancel
                 </VBtn>
                 <VSpacer />
@@ -78,11 +84,17 @@
 
 <script>
 import WorkoutProgramService from '../../../api/WorkoutProgramService';
-import { mapGetters } from 'vuex';
+import { useAppStore } from '../../../stores/app';
+import { useProgramBuilderStore } from '../../../stores/programBuilder';
 
 export default {
     props: {
         programUuid: String,
+    },
+    setup() {
+        const appStore = useAppStore();
+        const programBuilderStore = useProgramBuilderStore();
+        return { appStore, programBuilderStore };
     },
     data() {
         return {
@@ -99,8 +111,8 @@ export default {
             async handler(newValue) {
                 if (newValue !== null) {
                     if (this.userIsLocalOnly) {
-                        this.workoutProgram = this.myWorkoutPrograms.find(
-                            ({ uuid }) => uuid === this.programUuid
+                        this.workoutProgram = this.myWorkoutPrograms?.find(
+                            ({ uuid }) => uuid === this.programUuid,
                         );
                         this.loading = false;
                         return;
@@ -108,7 +120,7 @@ export default {
 
                     this.loading = true;
                     const response = await WorkoutProgramService.get(
-                        this.programUuid
+                        this.programUuid,
                     );
                     this.workoutProgram = response.data;
                     this.loading = false;
@@ -117,8 +129,12 @@ export default {
         },
     },
     computed: {
-        ...mapGetters('app', ['userIsLocalOnly']),
-        ...mapGetters('programBuilder', ['myWorkoutPrograms']),
+        userIsLocalOnly() {
+            return this.appStore.userIsLocalOnly;
+        },
+        myWorkoutPrograms() {
+            return this.programBuilderStore.myWorkoutPrograms;
+        },
         routines() {
             if (!this.workoutProgram) {
                 return [];

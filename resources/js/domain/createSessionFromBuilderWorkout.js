@@ -1,4 +1,4 @@
-import { utcNow } from '../dates';
+import { utcNow } from '../dates/index';
 import UuidHelper from '../UuidHelper';
 
 /**
@@ -34,10 +34,13 @@ export default function createSessionFromBuilderWorkout({
         : {
               uuid: UuidHelper.assign(),
               name: originWorkout.name,
+              notes: null,
+              bodyWeight: null,
               startedAt,
               endedAt: null,
               createdAt: null, // Critical for knowing when we can fetch the previous exercises.
               workoutProgramRoutine: originWorkout,
+              sessionExercises: [], // Will be populated below
           };
 
     if (originWorkout.routineExercises.length === 0) {
@@ -46,11 +49,19 @@ export default function createSessionFromBuilderWorkout({
         ];
     } else {
         session.sessionExercises = originWorkout.routineExercises.map(
-            createSessionExerciseFromBuilderExercise
+            createSessionExerciseFromBuilderExercise,
         );
     }
 
-    session.sessionExercises[0].sessionSets[0].startedAt = startedAt;
+    // Set startedAt on the first set if it exists
+    if (
+        session.sessionExercises &&
+        session.sessionExercises.length > 0 &&
+        session.sessionExercises[0].sessionSets &&
+        session.sessionExercises[0].sessionSets.length > 0
+    ) {
+        session.sessionExercises[0].sessionSets[0].startedAt = startedAt;
+    }
 
     return session;
 }
@@ -79,11 +90,13 @@ function createSessionExerciseFromBuilderExercise(builderExercise) {
     return {
         uuid: UuidHelper.assign(),
         name: builderExercise.name || 'Unnamed exercise',
+        notes: builderExercise.notes || null,
         plannedWeight: builderExercise.weight,
-        plannedRestPeriodDuration: builderExercise.restPeriod,
-        plannedWarmUp: builderExercise.warmUp,
+        plannedRestPeriodDuration: builderExercise.restPeriodInSeconds,
+        plannedWarmUp: builderExercise.warmUp || 0,
         position: builderExercise.position,
-        sessionSets: Array.from({ length: builderExercise.numberOfSets }).map(
+        skipped: false,
+        sessionSets: Array.from({ length: builderExercise.sets || 3 }).map(
             (value, index) => {
                 return {
                     uuid: UuidHelper.assign(),
@@ -92,7 +105,7 @@ function createSessionExerciseFromBuilderExercise(builderExercise) {
                     startedAt: null,
                     createdAt: utcNow(),
                 };
-            }
+            },
         ),
         routineExercise: {
             uuid: builderExercise.uuid,

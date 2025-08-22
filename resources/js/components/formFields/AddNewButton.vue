@@ -3,7 +3,7 @@
         class="add-new-button"
         :to="to"
         @click="$emit('click', $event)"
-        outlined
+        variant="outlined"
         :disabled="disabled"
         :width="width"
         height="72"
@@ -30,7 +30,7 @@ export default {
 .add-new-button {
     border-style: dashed;
 
-    ::v-deep .v-btn__content {
+    :deep(.v-btn__content) {
         width: 0;
     }
 }

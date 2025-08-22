@@ -4,7 +4,7 @@ const RESOURCE_NAME = 'workout-sessions';
 const SET_RESOURCE_NAME = 'session-sets';
 const EXERCISE_RESOURCE_NAME = 'session-exercises';
 
-const WorkoutProgramService = {
+const WorkoutSessionService = {
     get(uuid) {
         return ApiService.get(RESOURCE_NAME, uuid);
     },
@@ -14,7 +14,7 @@ const WorkoutProgramService = {
      */
     index({ pageIndex, pageSize = 10 }) {
         return ApiService.get(
-            `${RESOURCE_NAME}?pageIndex=${pageIndex}&pageSize=${pageSize}`
+            `${RESOURCE_NAME}?pageIndex=${pageIndex}&pageSize=${pageSize}`,
         );
     },
 
@@ -43,4 +43,4 @@ const WorkoutProgramService = {
     },
 };
 
-export default WorkoutProgramService;
+export default WorkoutSessionService;

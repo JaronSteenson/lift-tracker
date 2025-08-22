@@ -7,8 +7,41 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.EntityFrameworkCore;
+using NewRelic.LogEnrichers.Serilog;
+using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
+
+// Hook Serilog into ASP.NET Core
+var env = builder.Environment.EnvironmentName;
+Log.Information("Current environment: {Environment}", env);
+
+// Partly \fFiler permssions woes, but also colocating convenice on dev.
+var logFileDirectory = env == "Production" ? "/var/log/lift-tracker-api" : "logs";
+var logFilePath = $"{logFileDirectory}/log.ndjson";
+
+// Rotate the existing file if it exists,
+// we do this "manually" because new relic ingestion is easiest with a static log file path (and this is only a toy app).
+if (File.Exists(logFilePath))
+{
+    var backupFileName = $"{logFileDirectory}/log-{DateTime.UtcNow:yyyy-MM-dd-HH-mm-ss}.ndjson";
+    File.Delete(backupFileName);
+    File.Move(logFilePath, backupFileName);
+}
+
+Log.Logger = new LoggerConfiguration()
+    .Enrich.WithNewRelicLogsInContext() // correlates logs with APM traces
+    .WriteTo.Console(new Serilog.Formatting.Json.JsonFormatter())
+    .WriteTo.File(
+        new Serilog.Formatting.Json.JsonFormatter(renderMessage: true),
+        logFilePath,
+        shared: true, // allows multiple processes to write safely
+        fileSizeLimitBytes: 10_000_000 // optional 10MB max per file
+    )
+    .CreateLogger();
+
+builder.Host.UseSerilog();
+Log.Logger.Information("Building application");
 
 // Allow CORS for the frontend (Vue dev server on localhost:8081).
 builder.Services.AddCors(options =>
@@ -107,6 +140,7 @@ using (var scope = app.Services.CreateScope())
     db.Database.Migrate();
 }
 
+Log.Logger.Information("Running application");
 app.Run();
 
 public partial class Program { }

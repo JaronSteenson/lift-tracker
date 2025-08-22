@@ -487,3 +487,6 @@ $RECYCLE.BIN/
 Debug/
 bin/
 obj/
+
+# Logs
+logs/

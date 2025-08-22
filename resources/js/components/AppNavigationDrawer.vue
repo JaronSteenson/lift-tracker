@@ -7,52 +7,69 @@
     >
         <VList dense>
             <VListItem link :to="{ name: 'HomePage' }">
-                <VListItemAction>
+                <template v-slot:prepend>
                     <VIcon color="primary">
-                        {{ $svgIcons.workoutSession }}
+                        {{ svgIcons.workoutSession }}
                     </VIcon>
-                </VListItemAction>
-                <VListItemContent>
-                    <VListItemTitle>Timeline</VListItemTitle>
-                </VListItemContent>
+                </template>
+                <VListItemTitle>Timeline</VListItemTitle>
             </VListItem>
             <VDivider />
             <VListItem link :to="{ name: 'MyWorkoutProgramsPage' }">
-                <VListItemAction>
+                <template v-slot:prepend>
                     <VIcon color="primary">
-                        {{ $svgIcons.workoutProgram }}
+                        {{ svgIcons.workoutProgram }}
                     </VIcon>
-                </VListItemAction>
-                <VListItemContent>
-                    <VListItemTitle>My workout programs</VListItemTitle>
-                </VListItemContent>
+                </template>
+                <VListItemTitle>My workout programs</VListItemTitle>
             </VListItem>
         </VList>
     </VNavigationDrawer>
 </template>
 
 <script>
-import { mapState, mapGetters } from 'vuex';
+import { useAppStore } from '../stores/app';
+import { useWorkoutSessionStore } from '../stores/workoutSession';
+import { svgIcons } from '../vuetify';
+import { computed } from 'vue';
 
 export default {
-    computed: {
-        ...mapState('app', ['navigationDrawerOpen']),
-        ...mapGetters('app', ['userIsAuthenticated']),
-        ...mapGetters('workoutSession', [
-            'hasLoadedInProgressWorkouts',
-            'inProgressWorkouts',
-        ]),
-        drawer: {
+    name: 'AppNavigationDrawer',
+    setup() {
+        const appStore = useAppStore();
+        const workoutSessionStore = useWorkoutSessionStore();
+
+        const drawer = computed({
             get() {
-                return this.navigationDrawerOpen;
+                return appStore.navigationDrawerOpen;
             },
             set(value) {
-                this.$store.dispatch('app/setNavigationDrawerOpen', value);
+                appStore.setNavigationDrawerOpen(value);
             },
+        });
+
+        return {
+            appStore,
+            workoutSessionStore,
+            svgIcons,
+            drawer,
+        };
+    },
+    computed: {
+        userIsAuthenticated() {
+            return this.appStore.userIsAuthenticated;
+        },
+        hasLoadedInProgressWorkouts() {
+            // TODO: Implement in workoutSession store
+            return false;
+        },
+        inProgressWorkouts() {
+            // TODO: Implement in workoutSession store
+            return [];
         },
     },
     methods: {
-        workoutIsInFocus(workoutSessionUuid) {
+        workoutIsInFocus() {
             if (
                 this.$route.name !== 'SetOverviewPage' &&
                 this.$route.name !== 'SessionOverviewPage'
@@ -60,10 +77,8 @@ export default {
                 return false;
             }
 
-            return (
-                this.$store.getters['workoutSession/workoutSession']?.uuid ===
-                workoutSessionUuid
-            );
+            // TODO: Implement workoutSession getter in store
+            return false;
         },
         setIsInFocus(set) {
             return (
@@ -71,10 +86,9 @@ export default {
                 this.$route.params.sessionSetUuid === set.uuid
             );
         },
-        getCurrentSet(workoutSessionUuid) {
-            return this.$store.getters[
-                'workoutSession/currentSetForInProgressWorkout'
-            ](workoutSessionUuid);
+        getCurrentSet() {
+            // TODO: Implement getter in workoutSession store
+            return null;
         },
     },
 };

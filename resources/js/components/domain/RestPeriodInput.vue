@@ -1,54 +1,37 @@
 <template>
     <div class="rest-period-input">
         <VTextField
-            :disabled="disabled"
-            :value="minsSecDuration"
+            v-if="disabled"
+            :disabled="true"
+            :model-value="minsSecDuration"
             :label="label"
             type="text"
-            v-if="disabled"
+            readonly
         />
-        <div class="rest-period-input__container" v-else>
+        <div v-else class="d-flex align-center gap-2">
             <VTextField
-                class="rest-period-input__input rest-period-input__input--mins"
-                :class="{
-                    'rest-period-input__input--small':
-                        this.$vuetify.breakpoint.xsOnly,
-                }"
                 :label="label"
                 type="number"
                 min="0"
-                v-model.number="mins"
+                max="59"
+                :model-value="mins"
+                @update:model-value="updateMins"
+                style="width: 80px"
+                density="compact"
+                hide-details
             />
-            <span
-                :class="{
-                    'rest-period-input__label--small':
-                        this.$vuetify.breakpoint.xsOnly,
-                    'pr-1': this.$vuetify.breakpoint.xsOnly,
-                    'pr-3': this.$vuetify.breakpoint.smAndUp,
-                }"
-                class="rest-period-input__label"
-            >
-                mins
-            </span>
+            <span class="text-body-2">mins</span>
             <VTextField
-                class="rest-period-input__input rest-period-input__input--secs"
-                :class="{
-                    'rest-period-input__input--small':
-                        this.$vuetify.breakpoint.xsOnly,
-                }"
                 type="number"
                 min="0"
-                v-model.number="secs"
+                max="59"
+                :model-value="secs"
+                @update:model-value="updateSecs"
+                style="width: 80px"
+                density="compact"
+                hide-details
             />
-            <span
-                class="rest-period-input__label"
-                :class="{
-                    'rest-period-input__label--small':
-                        this.$vuetify.breakpoint.xsOnly,
-                }"
-            >
-                secs
-            </span>
+            <span class="text-body-2">secs</span>
         </div>
     </div>
 </template>
@@ -61,62 +44,42 @@ export default {
         label: {
             type: String,
         },
-        value: {
+        modelValue: {
             type: Number,
             required: false,
+            default: 0,
         },
         disabled: Boolean,
     },
+    emits: ['update:modelValue'],
     computed: {
-        mins: {
-            get() {
-                return Math.floor(this.value / 60);
-            },
-            set(value) {
-                this.$emit('input', this.secs + value * 60);
-            },
+        mins() {
+            return Math.floor((this.modelValue || 0) / 60);
         },
-        secs: {
-            get() {
-                return Math.round(this.value - this.mins * 60);
-            },
-            set(value) {
-                this.$emit('input', value + this.mins * 60);
-            },
+        secs() {
+            return Math.round((this.modelValue || 0) - this.mins * 60);
         },
         minsSecDuration() {
-            return minsSecDuration(this.value);
+            return minsSecDuration(this.modelValue || 0);
+        },
+    },
+    methods: {
+        updateMins(value) {
+            const newValue = Number(value) || 0;
+            this.$emit('update:modelValue', this.secs + newValue * 60);
+        },
+        updateSecs(value) {
+            const newValue = Number(value) || 0;
+            this.$emit('update:modelValue', newValue + this.mins * 60);
         },
     },
 };
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
 .rest-period-input {
-    &__input {
-        display: inline-block !important;
-        width: 2.5rem;
-
-        &--small {
-            width: 2rem;
-        }
-
-        .v-text-field input {
-            width: 2.5rem !important;
-        }
-
-        .v-label {
-            overflow: visible !important;
-        }
-    }
-
-    &__label {
-        top: 12px;
-        position: relative;
-
-        &--small {
-            font-size: 0.8em;
-        }
+    .gap-2 {
+        gap: 8px;
     }
 }
 </style>

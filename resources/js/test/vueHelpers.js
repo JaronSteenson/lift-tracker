@@ -1,7 +1,6 @@
-import { createLocalVue } from '@vue/test-utils';
-import Vuetify from 'vuetify';
-import Vue from 'vue';
-import Vuex from 'vuex';
+// import { createApp } from 'vue';
+import { createVuetify } from 'vuetify';
+import { createPinia } from 'pinia';
 import svgIcons from '../vuetify/svgIcons';
 
 export function prepareForLocalVueMount() {
@@ -20,20 +19,15 @@ function ensureVuetifyAppDivExists() {
 }
 
 function localMountOptions() {
-    const localVue = createLocalVue();
-    const vuetify = new Vuetify();
-
-    Vue.use(Vuetify);
-    Vue.use(Vuex);
-
-    Vue.config.productionTip = false;
+    const vuetify = createVuetify();
+    const pinia = createPinia();
 
     return {
-        localVue,
-        vuetify,
-        mocks: {
-            // $vuetify: { breakpoint: {} },
-            $svgIcons: svgIcons,
+        global: {
+            plugins: [vuetify, pinia],
+            mocks: {
+                $svgIcons: svgIcons,
+            },
         },
     };
 }

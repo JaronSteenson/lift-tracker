@@ -9,21 +9,30 @@
 
 <script>
 import WorkoutProgramList from '../domain/WorkoutProgramList';
-import { mapGetters, mapState } from 'vuex';
 import NoProgramsHint from '../domain/userHints/NoProgramsHint';
 import AppBar from '../AppBar';
 import SessionOverviewLoadingSkeleton from '../domain/workoutSessions/SessionOverviewLoadingSkeleton.vue';
+import { useProgramBuilderStore } from '../../stores/programBuilder';
 
 export default {
+    name: 'MyWorkoutProgramsPage',
     components: {
         SessionOverviewLoadingSkeleton,
         NoProgramsHint,
         AppBar,
         WorkoutProgramList,
     },
+    setup() {
+        const programBuilderStore = useProgramBuilderStore();
+        return { programBuilderStore };
+    },
     computed: {
-        ...mapState('programBuilder', ['myWorkoutProgramsIsLoading']),
-        ...mapGetters('programBuilder', ['myWorkoutPrograms']),
+        myWorkoutProgramsIsLoading() {
+            return this.programBuilderStore.myWorkoutProgramsIsLoading;
+        },
+        myWorkoutPrograms() {
+            return this.programBuilderStore.myWorkoutPrograms;
+        },
     },
 };
 </script>

@@ -1,18 +1,20 @@
 <template>
     <div>
-        <VMessages :value="[labelFull]" />
+        <label class="v-label">{{ labelFull }}</label>
         <VSlider
             :disabled="disabled"
             :label="null"
             :max="10 * 60"
             :min="0"
-            :prepend-icon="$svgIcons.restPeriod"
-            :value="value"
-            @input="$emit('input', $event)"
+            :prepend-icon="
+                label === 'Warm-up' ? $svgIcons.warmUp : $svgIcons.restPeriod
+            "
+            :model-value="modelValue || 0"
+            @update:model-value="$emit('update:modelValue', $event)"
             class="px-0"
             :step="15"
-            thumb
-            ticks
+            :show-ticks="true"
+            color="primary"
         >
         </VSlider>
     </div>
@@ -28,21 +30,23 @@ export default {
             required: false,
             default: 'Rest period',
         },
-        value: {
+        modelValue: {
             type: Number,
             required: false,
+            default: 0,
         },
         disabled: {
             type: Boolean,
             required: false,
         },
     },
+    emits: ['update:modelValue'],
     computed: {
         labelFull() {
             return `${this.label} ${this.minsSecDuration}`;
         },
         minsSecDuration() {
-            return minsSecDuration(this.value);
+            return minsSecDuration(this.modelValue);
         },
     },
 };

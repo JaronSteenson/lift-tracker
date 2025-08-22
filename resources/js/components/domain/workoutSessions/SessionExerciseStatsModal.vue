@@ -1,7 +1,7 @@
 <template>
     <VDialog
-        :fullscreen="$vuetify.breakpoint.xsOnly"
-        :max-width="$vuetify.breakpoint.xsOnly ? null : '400px'"
+        :fullscreen="mobile"
+        :max-width="mobile ? null : '400px'"
         :value="$route.query[urlSearchParam] === urlSearchShowValue"
         hide-overlay
         transition="dialog-bottom-transition"
@@ -114,9 +114,14 @@
 import { dateDescription, minsSecDuration } from '../../../dates';
 import BackForwardToolbar from './../../BackForwardToolbar.vue';
 import MissingValue from '../../util/MissingValue';
+import { useDisplay } from 'vuetify';
 
 export default {
     components: { MissingValue, BackForwardToolbar },
+    setup() {
+        const { mobile } = useDisplay();
+        return { mobile };
+    },
     props: {
         urlSearchParam: {
             type: String,
@@ -245,7 +250,7 @@ export default {
         },
         singleSetRest() {
             return `${minsSecDuration(
-                this.sessionExercise.sessionSets[0].restPeriodDuration
+                this.sessionExercise.sessionSets[0].restPeriodDuration,
             )}`;
         },
         rest() {

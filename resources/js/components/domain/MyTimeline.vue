@@ -15,11 +15,10 @@
                     Session
                 </AddNewButton>
             </div>
-            <VToolbar dense>
-                <VToolbarTitle>Timeline</VToolbarTitle>
-                <VSpacer />
+            <VToolbar :color="toolbarColor" elevation="1">
+                <VToolbarTitle class="text-left">Timeline</VToolbarTitle>
                 <VSwitch
-                    class="mt-4 pt-1"
+                    class="mt-4 pt-1 mr-4"
                     v-model="showTable"
                     @change="setHomePageShowTable"
                     :append-icon="$svgIcons.mdiTable"
@@ -59,15 +58,15 @@
                         session.startedAt
                             ? hoursMinutesSecondsFromStartEnd(
                                   session.startedAt,
-                                  session.endedAt
+                                  session.endedAt,
                               )
                             : ''
                     }}
                 </template>
                 <template v-slot:item.menu="{ item: session }">
                     <VMenu bottom left>
-                        <template v-slot:activator="{ on }">
-                            <VBtn icon v-on="on">
+                        <template v-slot:activator="{ props }">
+                            <VBtn icon flat v-bind="props">
                                 <VIcon>{{ $svgIcons.mdiDotsVertical }}</VIcon>
                             </VBtn>
                         </template>
@@ -108,6 +107,12 @@
                 </template>
             </VDataTable>
             <!-- eslint-enable -->
+            <div v-if="loadingNextPage" class="text-center py-4">
+                <VProgressCircular indeterminate color="primary" />
+                <div class="mt-2 text-body-2 text-medium-emphasis">
+                    Loading more...
+                </div>
+            </div>
         </VContainer>
 
         <NarrowContentContainer
@@ -129,11 +134,14 @@
                     Session
                 </AddNewButton>
             </div>
-            <VToolbar class="sticky-toolbar" dense>
-                <VToolbarTitle>Timeline</VToolbarTitle>
-                <VSpacer />
+            <VToolbar
+                class="sticky-toolbar"
+                :color="toolbarColor"
+                elevation="1"
+            >
+                <VToolbarTitle class="text-left">Timeline</VToolbarTitle>
                 <VSwitch
-                    class="mt-4 pt-1"
+                    class="mt-4 pt-1 mr-4"
                     v-model="showTable"
                     @change="setHomePageShowTable"
                     :append-icon="$svgIcons.mdiTable"
@@ -145,17 +153,25 @@
                 :workout-session="workoutSession"
                 link-title
             />
+            <div v-if="loadingNextPage" class="text-center py-4">
+                <VProgressCircular indeterminate color="primary" />
+                <div class="mt-2 text-body-2 text-medium-emphasis">
+                    Loading more...
+                </div>
+            </div>
         </NarrowContentContainer>
     </div>
 </template>
 
 <script>
 import NarrowContentContainer from '../layouts/NarrowContentContainer';
-import { mapState, mapGetters } from 'vuex';
+import { useWorkoutSessionStore } from '../../stores/workoutSession';
 import SessionStatsCard from '../domain/workoutSessions/SessionStatsCard';
 import { dateDescription, hoursMinutesSecondsFromStartEnd } from '../../dates';
 import ProgramName from '../domain/programBuilder/ProgramName';
 import AddNewButton from '../formFields/AddNewButton.vue';
+import { useDisplay } from 'vuetify';
+import { useTheme } from 'vuetify/framework';
 
 export default {
     components: {
@@ -163,6 +179,14 @@ export default {
         NarrowContentContainer,
         SessionStatsCard,
         ProgramName,
+    },
+    setup() {
+        const workoutSessionStore = useWorkoutSessionStore();
+        const display = useDisplay();
+        const theme = useTheme();
+
+        const toolbarColor = theme.current.value.colors.toolbar;
+        return { workoutSessionStore, display, toolbarColor };
     },
     data() {
         return {
@@ -179,28 +203,34 @@ export default {
         window.removeEventListener('scroll', this.infiniteScroll);
     },
     computed: {
-        ...mapState('workoutSession', [
-            'allPagesLoaded',
-            'myWorkoutSessionsIsLoading',
-            'myWorkoutSessions',
-        ]),
-        ...mapGetters('workoutSession', ['isInProgressWorkout']),
+        allPagesLoaded() {
+            return this.workoutSessionStore.allPagesLoaded;
+        },
+        myWorkoutSessionsIsLoading() {
+            return this.workoutSessionStore.myWorkoutSessionsIsLoading;
+        },
+        myWorkoutSessions() {
+            return this.workoutSessionStore.myWorkoutSessions;
+        },
+        isInProgressWorkout() {
+            return this.workoutSessionStore.isInProgressWorkout;
+        },
         headers() {
-            if (this.$vuetify.breakpoint.xsOnly) {
+            if (this.display.xs.value) {
                 return [
                     {
-                        text: 'Date',
-                        value: 'startedAt',
+                        title: 'Date',
+                        key: 'startedAt',
                         sortable: false,
                     },
                     {
-                        text: 'Routine',
-                        value: 'name',
+                        title: 'Routine',
+                        key: 'name',
                         sortable: false,
                     },
                     {
-                        text: 'BW',
-                        value: 'bodyWeight',
+                        title: 'BW',
+                        key: 'bodyWeight',
                         sortable: false,
                     },
                 ];
@@ -208,38 +238,38 @@ export default {
 
             return [
                 {
-                    text: 'Date',
-                    value: 'startedAt',
+                    title: 'Date',
+                    key: 'startedAt',
                     width: '20%',
                     sortable: false,
                 },
                 {
-                    text: 'Routine',
-                    value: 'name',
+                    title: 'Routine',
+                    key: 'name',
                     width: '20%',
                     sortable: false,
                 },
                 {
-                    text: 'Program',
-                    value: 'programName',
+                    title: 'Program',
+                    key: 'programName',
                     width: '20%',
                     sortable: false,
                 },
                 {
-                    text: 'Body weight',
-                    value: 'bodyWeight',
+                    title: 'Body weight',
+                    key: 'bodyWeight',
                     width: '20%',
                     sortable: false,
                 },
                 {
-                    text: 'Total duration',
-                    value: 'duration',
+                    title: 'Total duration',
+                    key: 'duration',
                     width: '20%',
                     sortable: false,
                 },
                 {
-                    text: '',
-                    value: 'menu',
+                    title: '',
+                    key: 'menu',
                     align: 'end',
                     sortable: false,
                 },
@@ -248,10 +278,10 @@ export default {
     },
     methods: {
         hoursMinutesSecondsFromStartEnd,
-        setHomePageShowTable(value) {
+        setHomePageShowTable() {
             localStorage.setItem(
                 'homePageShowTable',
-                Boolean(value).toString()
+                Boolean(this.showTable).toString(),
             );
         },
         infiniteScroll() {
@@ -268,24 +298,21 @@ export default {
         },
         async loadNextPage() {
             this.loadingNextPage = true;
-            await this.$store.dispatch('workoutSession/fetchNextPage');
+            await this.workoutSessionStore.fetchNextPage();
             this.loadingNextPage = false;
         },
         showDeleteConfirmation(workoutSessionUuid) {
             const deleteConfirmed = window.confirm(
-                'Are you sure you want to delete this workout?'
+                'Are you sure you want to delete this workout?',
             );
 
             if (deleteConfirmed) {
-                this.$store.dispatch(
-                    'workoutSession/delete',
-                    workoutSessionUuid
-                );
+                this.workoutSessionStore.delete(workoutSessionUuid);
             }
         },
         getFormattedDate(workoutSession) {
             let startedAt = dateDescription(
-                workoutSession.startedAt || workoutSession.createdAt
+                workoutSession.startedAt || workoutSession.createdAt,
             );
 
             if (this.isInProgressWorkout(workoutSession.uuid)) {

@@ -6,81 +6,69 @@
         :ripple="false"
         @click="showEditModal = true"
     >
-        <VCardTitle v-if="isAddingNew">
-            <VTextField
-                :autofocus="isAddingNew"
-                @blur="finishAddingNew"
-                @keydown.enter="finishAddingNew"
-                @keydown.esc="abortAddingNew"
-                label="Exercise name"
-                v-model="localState.name"
+        <VCardTitle class="exercise-card-title-wrapper d-flex align-center">
+            <div
+                class="exercise-card-title flex-grow-1"
+                @click="showEditModal = true"
             >
-                <template v-slot:append-outer>
-                    <VBtn icon @click="abortAddingNew" ref="abortAddNewButton">
-                        <VIcon>{{ $svgIcons.mdiClose }}</VIcon>
+                {{ nameDisplay }}
+            </div>
+            <VMenu bottom left>
+                <template v-slot:activator="{ props }">
+                    <VBtn icon flat v-bind="props">
+                        <VIcon>{{ $svgIcons.mdiDotsVertical }}</VIcon>
                     </VBtn>
                 </template>
-            </VTextField>
+
+                <VList>
+                    <VListItem @click="showEditModal = true">
+                        <VListItemTitle>Edit</VListItemTitle>
+                    </VListItem>
+                    <VListItem @click="deleteExercise">
+                        <VListItemTitle>Delete</VListItemTitle>
+                    </VListItem>
+                </VList>
+            </VMenu>
         </VCardTitle>
-        <template v-else>
-            <VCardTitle class="exercise-card-title-wrapper">
-                <EditableTitle
-                    class="exercise-card-title"
-                    @click="showEditModal = true"
-                    >{{ nameDisplay }}</EditableTitle
-                >
-                <VMenu bottom left>
-                    <template v-slot:activator="{ on }">
-                        <VBtn icon v-on="on">
-                            <VIcon>{{ $svgIcons.mdiDotsVertical }}</VIcon>
-                        </VBtn>
-                    </template>
+        <VCardText class="py-0">
+            <VContainer>
+                <VRow justify="space-between">
+                    <VCol class="px-0 py-0">{{ setsAndRepsBlurb }}</VCol>
+                    <VCol
+                        v-if="exercise.restPeriod"
+                        class="px-4 py-0"
+                        style="text-align: right"
+                    >
+                        <VIcon class="v-icon--small">{{
+                            $svgIcons.restPeriod
+                        }}</VIcon>
+                        {{ restPeriod }} rest
+                    </VCol>
+                </VRow>
+            </VContainer>
+        </VCardText>
 
-                    <VList>
-                        <VList-item @click="showEditModal = true">
-                            <VListItemTitle>Edit</VListItemTitle>
-                        </VList-item>
-                        <VList-item @click="deleteExercise">
-                            <VListItemTitle>Delete</VListItemTitle>
-                        </VList-item>
-                    </VList>
-                </VMenu>
-            </VCardTitle>
-            <VCardText class="py-0">
-                <VContainer>
-                    <VRow justify="space-between">
-                        <VCol class="px-0 py-0">{{ setsAndRepsBlurb }}</VCol>
-                        <VCol
-                            v-if="exercise.restPeriod"
-                            class="px-4 py-0"
-                            style="text-align: right"
-                        >
-                            <VIcon class="v-icon--small">{{
-                                $svgIcons.restPeriod
-                            }}</VIcon>
-                            {{ restPeriod }} rest
-                        </VCol>
-                    </VRow>
-                </VContainer>
-            </VCardText>
-
+        <!-- Use Teleport to render modal outside this component's DOM tree -->
+        <Teleport to="body">
             <EditExerciseModal
                 v-if="showEditModal"
                 :exercise-uuid="exercise.uuid"
                 v-model="showEditModal"
             />
-        </template>
+        </Teleport>
     </VCard>
 </template>
 <script>
-import EditableTitle from '../../formFields/EditableTitle';
 import EditExerciseModal from './EditExerciseModal';
-import exerciseMixin from './mixins/exerciseMixin';
 import { minsSecDuration } from '../../../dates';
+import { useProgramBuilderStore } from '../../../stores/programBuilder';
 
 export default {
-    mixins: [exerciseMixin],
-    components: { EditableTitle, EditExerciseModal },
+    components: { EditExerciseModal },
+    setup() {
+        const programBuilderStore = useProgramBuilderStore();
+        return { programBuilderStore };
+    },
     props: {
         exerciseUuid: {
             type: String,
@@ -89,24 +77,53 @@ export default {
     },
     data() {
         return {
-            isAddingNew: false,
             showEditModal: false,
+            localState: {
+                ...this.programBuilderStore.getExercise(this.exerciseUuid),
+            },
+            numberOfSetsOptions: [
+                { text: 'One', value: 1 },
+                { text: 'Two', value: 2 },
+                { text: 'Three', value: 3 },
+                { text: 'Four', value: 4 },
+                { text: 'Five', value: 5 },
+                { text: 'Six', value: 6 },
+                { text: 'Seven', value: 7 },
+                { text: 'Eight', value: 8 },
+                { text: 'Nine', value: 9 },
+                { text: 'Ten', value: 10 },
+            ],
         };
     },
     mounted() {
-        if (
-            this.$store.getters['programBuilder/isJustAddedModelUuid'](
-                this.exerciseUuid
-            )
-        ) {
-            this.isAddingNew = true;
-
+        if (this.programBuilderStore.justAddedModelUuid === this.exerciseUuid) {
             this.$nextTick(() => {
-                this.$store.dispatch('programBuilder/forgetJustAddedUuid');
+                this.showEditModal = true;
+                this.programBuilderStore.justAddedModelUuid = null;
             });
         }
     },
     computed: {
+        exercise: {
+            get() {
+                return this.programBuilderStore.getExercise(this.exerciseUuid);
+            },
+            set(newState) {
+                this.programBuilderStore.updateExercise({
+                    exerciseUuid: this.exerciseUuid,
+                    ...newState,
+                });
+            },
+        },
+        isDirty() {
+            return Object.entries(this.localState).some((entry) => {
+                const entryKey = entry[0];
+                return this.localState[entryKey] !== this.exercise[entryKey];
+            });
+        },
+        nameDisplay() {
+            return this.localState.name || 'Unnamed exercise';
+        },
         warmUp() {
             return minsSecDuration(this.exercise.warmUp);
         },
@@ -142,18 +159,10 @@ export default {
         },
     },
     methods: {
-        finishAddingNew(e) {
-            // Allow canceling addition of element by clicking the cancel cross.
-            if (e.relatedTarget === this.$refs.abortAddNewButton.$el) {
-                this.abortAddingNew();
-                return;
-            }
-
-            this.isAddingNew = false;
-            this.exercise = this.localState;
-        },
-        abortAddingNew() {
-            this.deleteExercise();
+        deleteExercise() {
+            return this.programBuilderStore.deleteExercise({
+                exerciseUuid: this.exerciseUuid,
+            });
         },
     },
 };
@@ -170,24 +179,36 @@ export default {
 
 .exercise-card-title {
     width: 80%;
+    cursor: pointer;
 }
 
-.exercise-card.v-sheet--outlined {
-    border: solid 1px var(--v-primary-base);
+.drag-exercise {
+    border: solid 1px rgb(var(--v-theme-warning));
+    animation: blink 0.5s step-end infinite alternate;
+}
 
-    &.sortable-chosen {
-        border: 1px solid lightgray;
-        animation: blink 0.5s step-end infinite alternate;
-    }
+.ghost-exercise {
+    border: solid 1px rgb(var(--v-theme-warning));
+    animation: blink 0.5s step-end infinite alternate;
+}
 
-    &.drop-placeholder-exercise {
-        border: solid 1px var(--v-warning-base);
+@keyframes blink {
+    50% {
+        border: solid 1px rgb(var(--v-theme-warning));
     }
+}
 
-    @keyframes blink {
-        50% {
-            border: solid 1px var(--v-warning-base);
-        }
-    }
+.exercise-card.v-card {
+    border: solid 1px rgb(var(--v-theme-primary));
+}
+
+/* Higher z-index for dragged exercise cards - above everything */
+.sortable-chosen {
+    z-index: 9998 !important;
+}
+
+/* Ensure workout-card-wrapper doesn't block dragged exercises */
+.workout-card-wrapper {
+    z-index: 1;
 }
 </style>

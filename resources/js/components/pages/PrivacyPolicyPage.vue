@@ -1,7 +1,7 @@
 <template>
     <div>
         <AppBar :back-to="previousRoute" />
-        <VCard class="pa-7" :dark="$vuetify.theme.dark">
+        <VCard class="pa-7" :class="{ 'theme--dark': isDark }">
             <h1>Privacy policy</h1>
 
             <p>Last updated: October 12, 2021</p>
@@ -422,12 +422,25 @@
 </template>
 <script>
 import AppBar from '../AppBar';
-import { mapState } from 'vuex';
+import { useAppStore } from '../../stores/app';
+import { useTheme } from 'vuetify';
 
 export default {
+    name: 'PrivacyPolicyPage',
     components: { AppBar },
+    setup() {
+        const appStore = useAppStore();
+        const theme = useTheme();
+
+        return {
+            appStore,
+            isDark: theme.global.current.dark,
+        };
+    },
     computed: {
-        ...mapState('app', ['previousRoute']),
+        previousRoute() {
+            return this.appStore.previousRoute;
+        },
     },
 };
 </script>

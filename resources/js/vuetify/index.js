@@ -1,23 +1,24 @@
-import Vue from 'vue';
-import Vuetify from 'vuetify/lib';
+import { createVuetify as _createVuetify } from 'vuetify';
+import 'vuetify/styles';
+import { aliases, mdi } from 'vuetify/iconsets/mdi-svg';
+import * as components from 'vuetify/components';
+import * as directives from 'vuetify/directives';
 import svgIcons from './svgIcons';
-import * as components from './components';
 import { getInitialVuetifyOptions } from './themes';
 
-/**
- * Make all svg icon paths globally accessible.
- * @global
- */
-Vue.prototype.$svgIcons = svgIcons;
-
-Vue.use(Vuetify, {
-    components,
-});
-
-export default function createVuetify() {
-    return new Vuetify({
+export function createVuetify() {
+    return _createVuetify({
+        components,
+        directives,
         icons: {
-            iconfont: 'mdiSvg',
+            defaultSet: 'mdi',
+            aliases: {
+                ...aliases,
+                ...svgIcons,
+            },
+            sets: {
+                mdi,
+            },
         },
         theme: {
             options: {
@@ -27,3 +28,6 @@ export default function createVuetify() {
         },
     });
 }
+
+// Make svg icons available globally for components that need them
+export { svgIcons };

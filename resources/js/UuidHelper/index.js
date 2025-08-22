@@ -57,7 +57,7 @@ export default {
         const copy = [...array];
 
         const index = copy.findIndex(
-            (object) => object.uuid === replaceWith.uuid
+            (object) => object.uuid === replaceWith.uuid,
         );
 
         if (index === -1) {

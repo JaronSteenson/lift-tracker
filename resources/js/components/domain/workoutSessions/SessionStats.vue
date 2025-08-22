@@ -2,11 +2,11 @@
     <VRow>
         <VCol
             :key="index"
-            class="py-0"
+            class=""
             v-for="(stat, index) in stats"
             :cols="stat.cols"
         >
-            <VIcon small>{{ stat.icon }}</VIcon>
+            <VIcon size="small">{{ stat.icon }}</VIcon>
             <span>{{ stat.value }}</span>
         </VCol>
     </VRow>

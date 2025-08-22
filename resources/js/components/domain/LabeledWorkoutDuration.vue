@@ -34,7 +34,7 @@ export default {
             this.refreshForce;
             return hoursMinutesSecondsFromStartEnd(
                 this.workoutSession.startedAt,
-                this.workoutSession.endedAt
+                this.workoutSession.endedAt,
             );
         },
     },

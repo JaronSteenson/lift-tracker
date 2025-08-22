@@ -12,22 +12,29 @@
 <script>
 import StartRoutineSelectionList from '../domain/StartRoutineSelectionList';
 import NoProgramsStartNewSessionHint from '../domain/userHints/NoProgramsStartNewSessionHint';
-import { mapGetters } from 'vuex';
 import NoProgramsWelcomeHint from '../domain/userHints/NoProgramsWelcomeHint';
 import AppBar from '../AppBar';
+import { useAppStore } from '../../stores/app';
 
 export default {
+    name: 'NewSessionRoutineSelectPage',
     components: {
         AppBar,
         NoProgramsWelcomeHint,
         StartRoutineSelectionList,
         NoProgramsStartNewSessionHint,
     },
+    setup() {
+        const appStore = useAppStore();
+        return { appStore };
+    },
     computed: {
-        ...mapGetters('app', [
-            'shouldShowNoProgramsWelcomeHint',
-            'shouldShowNoProgramsHintStartNewSession',
-        ]),
+        shouldShowNoProgramsWelcomeHint() {
+            return this.appStore.shouldShowNoProgramsWelcomeHint;
+        },
+        shouldShowNoProgramsHintStartNewSession() {
+            return this.appStore.shouldShowNoProgramsHintStartNewSession;
+        },
     },
 };
 </script>

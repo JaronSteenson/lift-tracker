@@ -3,8 +3,8 @@
         <AppBar :title="pageTitle" :back-to="{ name: 'HomePage' }">
             <template v-slot:right>
                 <VMenu bottom left>
-                    <template v-slot:activator="{ on }">
-                        <VBtn icon v-on="on">
+                    <template v-slot:activator="{ props }">
+                        <VBtn icon flat v-bind="props">
                             <VIcon>{{ $svgIcons.mdiDotsVertical }}</VIcon>
                         </VBtn>
                     </template>
@@ -22,35 +22,18 @@
         </AppBar>
 
         <NarrowContentContainer>
-            <VAlert v-if="isInProgress" dense text type="info">
-                <div class="d-flex justify-space-between align-center">
-                    <span>This workout is still in progress.</span>
-                    <VBtn
-                        class="ml-5"
-                        small
-                        color="green"
-                        :to="{
-                            name: 'SetOverviewPage',
-                            params: { sessionSetUuid: currentSet?.uuid },
-                        }"
-                    >
-                        Resume
-                        <VIcon>{{ $svgIcons.mdiPlayPause }}</VIcon>
-                    </VBtn>
-                </div>
-            </VAlert>
-
             <SessionStatsCard :workout-session="workoutSession" />
 
             <VTimeline
                 v-if="workoutSession.sessionExercises.length !== 0"
-                :dense="$vuetify.breakpoint.xsOnly"
+                :dense="display.xs.value"
             >
                 <VTimelineItem
                     v-for="(sessionExercise, i) in exercises"
                     :key="sessionExercise.uuid"
                     :icon="i === 0 ? $svgIcons.mdiPlay : undefined"
                     :fill-dot="i === 0"
+                    :color="i === 0 ? 'success' : 'primary'"
                 >
                     <template v-slot:opposite>
                         <div :class="`pt-1 font-weight-bold text--primary`">
@@ -60,14 +43,14 @@
                     </template>
                     <ExerciseSummaryCard :exercise="sessionExercise" />
                 </VTimelineItem>
-                <VTimelineItem :icon="$svgIcons.mdiStop" fill-dot>
+                <VTimelineItem :icon="$svgIcons.mdiStop" fill-dot color="error">
                     <template v-slot:opposite>
                         <div :class="`pt-1 font-weight-bold text--primary`">
                             +{{ workoutDuration }}
                         </div>
                         <div>{{ workoutEndedAt }}</div>
                     </template>
-                    <VCard v-if="$vuetify.breakpoint.xsOnly">
+                    <VCard v-if="display.xs.value">
                         <VCardSubtitle>
                             <span
                                 :class="`pt-1 font-weight-bold text--primary`"
@@ -80,20 +63,26 @@
                 </VTimelineItem>
             </VTimeline>
         </NarrowContentContainer>
+        <ResumeWorkoutFab
+            :show-when="isInProgress"
+            :target-set-uuid="currentSet?.uuid"
+        />
     </div>
 </template>
 
 <script>
 import SessionStatsCard from './SessionStatsCard';
-import { mapGetters } from 'vuex';
 import ExerciseSummaryCard from './ExerciseSummaryCard';
 import NarrowContentContainer from '../../layouts/NarrowContentContainer';
 import AppBar from '../../AppBar';
+import { useWorkoutSessionStore } from '../../../stores/workoutSession';
 import {
     hoursMinutesSecondsFromStartEnd,
     minsSecDuration,
     timeDescription,
 } from '../../../dates';
+import { useDisplay } from 'vuetify';
+import ResumeWorkoutFab from '../../ResumeWorkoutFab';
 
 export default {
     components: {
@@ -101,13 +90,39 @@ export default {
         AppBar,
         SessionStatsCard,
         ExerciseSummaryCard,
+        ResumeWorkoutFab,
+    },
+    props: {
+        workoutSessionUuid: {
+            type: String,
+            required: true,
+        },
+    },
+    setup() {
+        const workoutSessionStore = useWorkoutSessionStore();
+        const display = useDisplay();
+        return { workoutSessionStore, display };
     },
     computed: {
-        ...mapGetters('workoutSession', [
-            'workoutName',
-            'workoutSession',
-            'notSkippedSessionExercises',
-        ]),
+        workoutName() {
+            // TODO: Implement workoutName getter in store
+            return this.workoutSessionStore.workoutName || 'Workout';
+        },
+        workoutSession() {
+            // TODO: Implement workoutSession getter in store
+            return (
+                this.workoutSessionStore.workoutSession || {
+                    sessionExercises: [],
+                    startedAt: null,
+                    endedAt: null,
+                    uuid: null,
+                    createdAt: null,
+                }
+            );
+        },
+        notSkippedSessionExercises() {
+            return this.workoutSessionStore.notSkippedSessionExercises;
+        },
         isCheckInOnly() {
             return this.workoutSession.sessionExercises.length === 0;
         },
@@ -123,24 +138,28 @@ export default {
                         ? minsSecDuration(0, true)
                         : hoursMinutesSecondsFromStartEnd(
                               this.workoutSession.startedAt,
-                              exercise.sessionSets[0].startedAt
+                              exercise.sessionSets[0].startedAt,
                           ),
             }));
         },
         isInProgress() {
-            return this.$store.getters['workoutSession/isInProgressWorkout'](
-                this.workoutSession.uuid
+            // TODO: Implement isInProgressWorkout getter in store
+            return (
+                this.workoutSessionStore.isInProgressWorkout?.(
+                    this.workoutSession.uuid,
+                ) || false
             );
         },
         currentSet() {
-            return this.$store.getters[
-                'workoutSession/currentSetForInProgressWorkout'
-            ](this.workoutSession.uuid);
+            // TODO: Implement currentSetForInProgressWorkout getter in store
+            return this.workoutSessionStore.currentSetForInProgressWorkout?.(
+                this.workoutSession.uuid,
+            );
         },
         workoutDuration() {
             return hoursMinutesSecondsFromStartEnd(
                 this.workoutSession.startedAt,
-                this.workoutSession.endedAt
+                this.workoutSession.endedAt,
             );
         },
         workoutEndedAt() {
@@ -152,16 +171,13 @@ export default {
         },
     },
     methods: {
-        showDeleteConfirmation() {
+        async showDeleteConfirmation() {
             const deleteConfirmed = window.confirm(
-                'Are you sure you want to delete this workout?'
+                'Are you sure you want to delete this workout?',
             );
 
             if (deleteConfirmed) {
-                this.$store.dispatch(
-                    'workoutSession/delete',
-                    this.workoutSession.uuid
-                );
+                await this.workoutSessionStore.delete(this.workoutSession.uuid);
                 this.$router.replace({ name: 'HomePage' });
             }
         },

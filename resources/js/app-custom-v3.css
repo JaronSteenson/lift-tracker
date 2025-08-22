@@ -1,0 +1,634 @@
+/* Custom styles for Vuetify 3 compatibility */
+
+/* Anchor styles */
+.v-application a:not(.v-btn) {
+    color: rgb(var(--v-theme-anchor));
+}
+
+/* Toolbar styles */
+.toolbar-content-container {
+    width: 100%;
+}
+
+.fixed-outside-flex-basis {
+    flex-basis: 30%;
+}
+
+.left-align-title {
+    display: flex;
+    align-items: center;
+    flex-grow: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* Login page styles */
+.heading {
+    color: #f5f5f5;
+    text-align: center;
+    font-size: 1.3em;
+}
+
+.heading--small {
+    font-size: 1em;
+}
+
+.banner-image {
+    opacity: 0;
+    width: 100vw;
+}
+
+@media (min-width: 600px) {
+    .banner-image {
+        height: 260px;
+        width: 390px;
+        border: 8px solid #f5f5f5;
+        border-radius: 5px;
+    }
+}
+
+.banner-image--fade-in {
+    opacity: 1;
+    transition: opacity 0.6s ease-in-out;
+}
+
+.hr {
+    width: 100%;
+}
+
+/* Theme picker styles */
+.is-active-text {
+    min-height: 2.5em;
+    font-size: 0.7em;
+}
+
+/* Layout styles */
+.narrow-content-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.narrow-content-container__content {
+    display: flex;
+    flex-direction: column;
+    max-width: 700px;
+}
+
+/* Form styles */
+.editable-title {
+    flex-grow: 1;
+}
+
+/* Slider override */
+.v-slider {
+    margin-left: 0 !important;
+}
+
+/* Exercise card styles - Updated for Vuetify 3 */
+.exercise-card-title-wrapper {
+    align-items: flex-start;
+}
+
+.exercise-card {
+    padding-bottom: 10px;
+}
+
+.exercise-card-title {
+    width: 80%;
+}
+
+.exercise-card.v-sheet--outlined {
+    border: solid 1px rgb(var(--v-theme-primary));
+}
+
+.exercise-card.v-sheet--outlined.sortable-chosen {
+    border: 1px solid #d3d3d3;
+    animation: exercise-blink 0.5s step-end infinite alternate;
+}
+
+.exercise-card.v-sheet--outlined.ghost-exercise {
+    border: solid 1px rgb(var(--v-theme-warning));
+}
+
+@keyframes exercise-blink {
+    50% {
+        border: solid 1px rgb(var(--v-theme-warning));
+    }
+}
+
+/* Missing value styles */
+.missing-value {
+    opacity: 0.7;
+    font-style: italic;
+}
+
+.missing-value--full-opacity {
+    opacity: 1;
+}
+
+/* Workout card styles - Updated for Vuetify 3 */
+.workout-card.v-card {
+    border: solid 1px rgb(var(--v-theme-primary));
+}
+
+.workout-title-edit--editing-card {
+    margin-top: 10px;
+    padding-left: 0;
+    margin-left: 0;
+    width: 100%;
+}
+
+.sortable-chosen .workout-card.v-card {
+    border: 1px solid #d3d3d3;
+    animation: workout-blink 0.5s step-end infinite alternate;
+}
+
+.workout-ghost .workout-card.v-card {
+    border: solid 1px rgb(var(--v-theme-warning));
+}
+
+@keyframes workout-blink {
+    50% {
+        border: solid 1px rgb(var(--v-theme-warning));
+    }
+}
+
+/* Home button styles - Updated for Vuetify 3 */
+.home-button {
+    border: 1px solid rgb(var(--v-theme-primary)) !important;
+}
+
+.home-button.v-btn:before {
+    opacity: 0 !important;
+}
+
+/* Loading skeleton styles */
+.heading-bone {
+    width: 600px;
+}
+
+.exercise-card-bone {
+    height: 100px;
+    margin: 10px;
+}
+
+.add-exercise-button-bone {
+    height: 50px;
+    margin: 10px;
+}
+
+.add-workout-button-bone {
+    height: 40px;
+}
+
+/* Server sync info styles */
+.updated-at--small {
+    font-size: 0.8rem;
+}
+
+/* Program builder styles */
+.program-builder-title {
+    max-width: 390px;
+}
+
+.builder-workouts-container {
+    padding: 10px;
+    max-height: calc(90vh - 48px);
+}
+
+.main-draggable-container {
+    padding: 0;
+    display: flex;
+    gap: 16px;
+    overflow-x: auto;
+    overflow-y: hidden;
+}
+
+.workout-card-wrapper {
+    flex: 0 0 auto;
+    width: 420px;
+    min-width: 330px;
+    max-width: 400px;
+    max-height: 90vh;
+    overflow-y: scroll;
+    overflow-x: hidden;
+}
+
+/* Desktop optimizations */
+@media (min-width: 1200px) {
+    .main-draggable-container {
+        padding: 24px;
+        gap: 24px;
+    }
+
+    .workout-card-wrapper {
+        width: 450px;
+        max-width: 450px;
+    }
+}
+
+@media (min-width: 769px) and (max-width: 1199px) {
+    .main-draggable-container {
+        padding: 20px;
+        gap: 20px;
+    }
+
+    .workout-card-wrapper {
+        width: 400px;
+        max-width: 400px;
+    }
+}
+
+/* Mobile optimizations */
+@media (max-width: 768px) {
+    .workout-card-wrapper {
+        width: 320px;
+        min-width: 280px;
+        max-width: 320px;
+    }
+
+    .main-draggable-container {
+        padding: 8px;
+        gap: 8px;
+    }
+}
+
+/* Card title fix */
+.v-card__title {
+    word-break: break-word;
+}
+
+/* Rest period input styles */
+.rest-period-input__input {
+    display: inline-block !important;
+    width: 2.5rem;
+}
+
+.rest-period-input__input--small {
+    width: 2rem;
+}
+
+.rest-period-input__input .v-text-field input {
+    width: 2.5rem !important;
+}
+
+.rest-period-input__input .v-label {
+    overflow: visible !important;
+}
+
+.rest-period-input__label {
+    top: 12px;
+    position: relative;
+}
+
+.rest-period-input__label--small {
+    font-size: 0.8em;
+}
+
+/* Timer styles - Updated for Vuetify 3 */
+.timer--almost-finished {
+    color: rgb(var(--v-theme-warning));
+}
+
+.timer--overdue {
+    color: rgb(var(--v-theme-error));
+}
+
+.timer__time-part {
+    font-size: 3.5em;
+}
+
+/* Toolbar styles */
+.v-toolbar {
+    text-align: center;
+}
+
+.back-forward-toolbar {
+    position: sticky;
+    top: 0;
+    display: flex;
+    justify-content: space-between;
+    padding-left: 12px !important;
+    padding-right: 12px !important;
+}
+
+/* Notes styles */
+.notes {
+    white-space: pre-line;
+}
+
+/* Workout duration */
+.workout-duration {
+    font-size: 1.5rem;
+}
+
+/* Stepper styles - Updated for Vuetify 3 */
+.v-stepper {
+    margin-top: 5px;
+    box-shadow: none;
+    max-width: 100vw;
+    overflow-x: hidden;
+    overflow-y: hidden;
+}
+
+.v-stepper__header {
+    height: 40px;
+    box-shadow: none;
+    flex-wrap: nowrap;
+}
+
+.v-stepper__step {
+    padding-top: 0;
+    padding-bottom: 0;
+}
+
+.start-rest-button {
+    margin-bottom: 15px;
+}
+
+.set-navigation:after {
+    background: none !important;
+}
+
+.set-navigation--disabled {
+    color: rgb(var(--v-theme-secondary)) !important;
+}
+
+/* Global app styles - Updated for Vuetify 3 */
+.w-100 {
+    width: 100%;
+}
+
+.v-hidden {
+    visibility: hidden;
+}
+
+.app-name {
+    text-decoration: none;
+    color: rgb(var(--v-theme-primary)) !important;
+}
+
+.small-login-page-link {
+    color: #f5f5f5 !important;
+    font-size: 0.8em;
+}
+
+.full-page-form {
+    width: 100%;
+    min-width: 300px;
+}
+
+.container-large {
+    margin-top: 15vh;
+}
+
+@media (min-width: 600px) {
+    .container-large {
+        margin-top: 15vh;
+    }
+}
+
+.login-error {
+    color: rgb(var(--v-theme-error));
+}
+
+.v-main--not-logged-in {
+    background-color: #00324f;
+}
+
+.v-dialog .v-card {
+    border-width: 2px !important;
+}
+
+@media (max-width: 600px) {
+    .v-dialog:not(.v-dialog--fullscreen) {
+        margin: 12px;
+    }
+}
+
+.v-icon--small {
+    height: 1rem;
+    width: 1rem;
+}
+
+.v-btn__content .v-icon.v-icon--left,
+.v-btn__content .v-icon.v-icon--right {
+    height: 2rem;
+    width: 2rem;
+}
+
+.theme--light.v-icon {
+    color: rgb(var(--v-theme-primary));
+}
+
+.prevent-text-select {
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+
+.row {
+    margin-top: 0;
+    margin-bottom: 0;
+}
+
+.disable-btn-active.v-btn--active::before {
+    background-color: transparent;
+}
+
+.gap-1 {
+    gap: 4px;
+}
+
+.gap-4 {
+    gap: 16px;
+}
+
+/* Disable the v-main transition that causes fade-in from top */
+.v-main {
+    transition: none !important;
+}
+
+/* Disable other page-level transitions */
+.router-view,
+.fade-transition,
+.slide-y-transition,
+.slide-y-reverse-transition,
+.v-enter-active,
+.v-leave-active,
+.v-enter-from,
+.v-leave-to {
+    transition: none !important;
+    animation: none !important;
+    transform: none !important;
+}
+
+/* Preserve banner image fade-in specifically */
+.banner-image {
+    opacity: 0;
+    transition: none;
+}
+
+.banner-image--fade-in {
+    opacity: 1 !important;
+    transition: opacity 0.6s ease-in-out !important;
+}
+
+/* Restore button and component transitions/colors that may have been affected */
+.v-btn,
+.v-card,
+.v-list-item,
+.v-toolbar,
+.v-navigation-drawer,
+.v-dialog,
+.v-menu,
+.v-sheet,
+.v-chip,
+.v-badge,
+.v-avatar,
+.v-icon {
+    transition: box-shadow 0.28s cubic-bezier(0.4, 0, 0.2, 1),
+                opacity 0.28s cubic-bezier(0.4, 0, 0.2, 1),
+                background-color 0.28s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+/* Custom scrollbar styles */
+::-webkit-scrollbar {
+    width: 5px;
+    height: 10px;
+}
+
+::-webkit-scrollbar-track {
+    opacity: 0;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #b9b9b9;
+    border-radius: 15px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #787777;
+}
+
+/* Dark theme v-sheet background for cards - Vue 3/Vuetify 3 */
+.v-theme--dark .v-sheet {
+    background-color: #1e1e1e !important;
+    border-color: #1e1e1e !important;
+}
+
+/* Ensure cards have proper dark background */
+.v-theme--dark .v-card {
+    background-color: #1e1e1e;
+    box-shadow: 0 3px 1px -2px rgba(0, 0, 0, .2), 0 2px 2px 0 rgba(0, 0, 0, .14), 0 1px 5px 0 rgba(0, 0, 0, .12) !important;
+}
+
+/* Dark theme for various card components */
+.v-theme--dark .v-list {
+    background-color: #1e1e1e !important;
+}
+
+.v-theme--dark .v-toolbar {
+    background-color: #1e1e1e !important;
+}
+
+/* Specific card types that need dark backgrounds */
+.v-theme--dark .session-stats-card,
+.v-theme--dark .exercise-card,
+.v-theme--dark .workout-card,
+.v-theme--dark .v-timeline-item .v-card {
+    background-color: #1e1e1e !important;
+}
+
+/* Card elevation/shadow for non-outlined cards */
+.v-sheet.v-card:not(.v-sheet--outlined) {
+    box-shadow: 0 3px 1px -2px rgba(0, 0, 0, .2), 0 2px 2px 0 rgba(0, 0, 0, .14), 0 1px 5px 0 rgba(0, 0, 0, .12);
+}
+
+/* Dark theme button background - Vue 3/Vuetify 3 */
+.v-theme--dark .v-btn:not(.v-btn--variant-elevated):not(.v-btn--variant-tonal):not(.v-btn--variant-outlined):not(.v-btn--variant-flat) {
+    background-color: #272727 !important;
+}
+
+/* Dark theme table background - Vue 3/Vuetify 3 */
+.v-theme--dark .v-data-table {
+    background-color: #1e1e1e !important;
+}
+
+.v-theme--dark .v-data-table .v-data-table__tr {
+    background-color: #1e1e1e !important;
+}
+
+.v-theme--dark .v-data-table .v-data-table__th {
+    background-color: #1e1e1e !important;
+    color: #ffffff !important;
+}
+
+.v-theme--dark .v-data-table .v-data-table__td {
+    background-color: #1e1e1e !important;
+    color: #ffffff !important;
+}
+
+/* Dark theme table wrapper */
+.v-theme--dark .v-table {
+    background-color: #1e1e1e !important;
+}
+
+/* Dark theme table action buttons - match table background or transparent */
+.v-theme--dark .v-data-table .v-btn[icon] {
+    background-color: transparent !important;
+    box-shadow: none !important;
+}
+
+.v-theme--dark .v-data-table .v-btn.v-btn--icon {
+    background-color: transparent !important;
+    box-shadow: none !important;
+}
+
+/* Dark theme icon buttons - transparent background and no shadow for all small circular buttons */
+.v-theme--dark .v-btn[icon] {
+    background-color: transparent !important;
+    box-shadow: none !important;
+}
+
+.v-theme--dark .v-btn.v-btn--icon {
+    background-color: transparent !important;
+    box-shadow: none !important;
+}
+
+.v-theme--dark .v-btn.v-btn--size-small.v-btn--icon {
+    background-color: transparent !important;
+    box-shadow: none !important;
+}
+
+/* Theme preview cards - override dark theme to show proper colors */
+.v-theme--dark .v-item-group .v-card {
+    background-color: #ffffff;
+    color: inherit !important;
+}
+
+.v-theme--dark .v-item-group .v-card .v-card-title {
+    color: inherit !important;
+}
+
+/* Dark theme navigation drawer text - Vue 3/Vuetify 3 */
+.v-theme--dark .v-navigation-drawer__content {
+    color: #ffffff !important;
+}
+
+.v-theme--dark .v-navigation-drawer .v-list-item {
+    color: #ffffff !important;
+}
+
+.v-theme--dark .v-navigation-drawer .v-list-item-title {
+    color: #ffffff !important;
+}
+
+/* VTimeline color fix for Vuetify 3 */
+.v-timeline .v-timeline-divider__inner-dot {
+    background: rgb(var(--v-theme-primary));
+}

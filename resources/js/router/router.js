@@ -1,4 +1,4 @@
-import Vue from 'vue';
+import { createRouter, createWebHistory } from 'vue-router';
 import LoginPage from '../components/pages/LoginPage';
 import AccountPage from '../components/pages/AccountPage';
 import ProgramBuilderPage from '../components/pages/ProgramBuilderPage';
@@ -9,69 +9,82 @@ import NewSessionRoutineSelectPage from '../components/pages/NewSessionRoutineSe
 import SessionOverviewPage from '../components/pages/SessionOverviewPage';
 import NotFoundPage from '../components/pages/NotFoundPage';
 import CheckInEditPage from '../components/pages/CheckInEditPage';
-import VueRouter from 'vue-router';
-import store from './../store';
 import SetOverviewPage from '../components/pages/SetOverviewPage';
 import PrivacyPolicyPage from '../components/pages/PrivacyPolicyPage';
+import { useAppStore } from '../stores/app';
 
-Vue.use(VueRouter);
+async function checkAuthGuards(to, from) {
+    const appStore = useAppStore();
 
-async function checkAuthGuards(to, from, next) {
-    const isAuthed = store.getters['app/userIsAuthenticated'];
-    await store.dispatch('app/setPreviousRoute', from);
+    // Wait for app to be bootstrapped before checking auth
+    if (!appStore.isBootstrapped) {
+        // Wait for bootstrap to complete
+        let attempts = 0;
+        while (!appStore.isBootstrapped && attempts < 50) {
+            await new Promise((resolve) => setTimeout(resolve, 100));
+            attempts++;
+        }
+
+        // If still not bootstrapped after 5 seconds, let it proceed
+        if (!appStore.isBootstrapped) {
+            return true;
+        }
+    }
+
+    const isAuthed = appStore.userIsAuthenticated;
+    await appStore.setPreviousRoute(from);
 
     if (to.meta.guard === GUARD_NONE) {
-        next();
-        return;
+        return true;
     }
 
     if (isAuthed && to.meta.guard === GUARD_AUTHED) {
         if (to.name === 'AuthCallback') {
-            next({ name: 'HomePage' });
+            return { name: 'HomePage' };
         }
-
-        next();
-        return;
+        return true;
     }
 
     if (isAuthed && to.meta.guard === GUARD_UNAUTHED_ONLY) {
-        next({ name: 'HomePage' });
-        return;
+        return { name: 'HomePage' };
     }
 
     if (!isAuthed && to.meta.guard === GUARD_AUTHED) {
-        next({ name: 'LoginPage' });
-        return;
+        return { name: 'LoginPage' };
     }
 
-    next();
+    return true;
 }
 
-function checkPwaStart(to, from, next) {
-    const isAuthed = store.getters['app/userIsAuthenticated'];
+function checkPwaStart(to) {
+    const appStore = useAppStore();
+
+    // Wait for bootstrap before checking auth
+    if (!appStore.isBootstrapped) {
+        return true;
+    }
+
+    const isAuthed = appStore.userIsAuthenticated;
     const toPwaStart = to.fullPath === '/pwa-start';
 
     if (!isAuthed || !toPwaStart) {
-        next();
-        return;
+        return true;
     }
 
-    next({ name: 'HomePage' });
+    return { name: 'HomePage' };
 }
 
-function checkForceDrawerHide(to, from, next) {
+function checkForceDrawerHide(to) {
     const goingToForceHideRoute = [
         'ProgramBuilderPage',
         'ProgramBuilderPageNew',
     ].includes(to.name);
 
-    const isVisible = store.getters['app/navigationDrawerOpen'];
-    store.dispatch(
-        'app/setNavigationDrawerOpen',
-        isVisible && !goingToForceHideRoute
-    );
+    const appStore = useAppStore();
+    const isVisible = appStore.navigationDrawerOpen;
+    appStore.setNavigationDrawerOpen(isVisible && !goingToForceHideRoute);
 
-    next();
+    return true;
 }
 
 // The default is only authed.
@@ -191,7 +204,7 @@ const routes = [
     },
     {
         name: 'SetOverviewPage',
-        path: '/set-overview/:sessionSetUuid',
+        path: '/set-overview/:sessionSetUuid/:fromCheckIn?',
         component: SetOverviewPage,
         props: true,
         meta: {
@@ -199,7 +212,7 @@ const routes = [
         },
     },
     {
-        path: '*',
+        path: '/:pathMatch(.*)*',
         name: '404',
         component: NotFoundPage,
         meta: {
@@ -208,14 +221,14 @@ const routes = [
     },
 ];
 
-const router = new VueRouter({
+const router = createRouter({
+    history: createWebHistory(),
     routes,
-    mode: 'history',
     scrollBehavior(to, from, savedPosition) {
         if (savedPosition) {
             return savedPosition;
         } else {
-            return { x: 0, y: 0 };
+            return { left: 0, top: 0 };
         }
     },
 });

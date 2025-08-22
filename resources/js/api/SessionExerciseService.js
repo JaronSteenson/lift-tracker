@@ -5,7 +5,7 @@ const RESOURCE_NAME = 'session-exercises';
 const SessionExerciseService = {
     getHistory(sessionExerciseUuid) {
         return ApiService.get(
-            `${RESOURCE_NAME}/history/${sessionExerciseUuid}`
+            `${RESOURCE_NAME}/history/${sessionExerciseUuid}`,
         );
     },
 };

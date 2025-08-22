@@ -5,8 +5,8 @@
         bottom
         offset-y
     >
-        <template v-slot:activator="{ on }">
-            <VBtn icon v-on="on">
+        <template v-slot:activator="{ props }">
+            <VBtn icon v-bind="props">
                 <VAvatar color="secondary" :size="32">
                     {{ avatarInitials }}
                 </VAvatar>
@@ -23,15 +23,24 @@
     </VMenu>
 </template>
 <script>
-import { mapGetters } from 'vuex';
+import { useAppStore } from '../stores/app';
 
 export default {
+    name: 'AvatarInitials',
+    setup() {
+        const appStore = useAppStore();
+        return { appStore };
+    },
     computed: {
-        ...mapGetters('app', [
-            'avatarInitials',
-            'userIsAuthenticated',
-            'userIsLocalOnly',
-        ]),
+        avatarInitials() {
+            return this.appStore.avatarInitials;
+        },
+        userIsAuthenticated() {
+            return this.appStore.userIsAuthenticated;
+        },
+        userIsLocalOnly() {
+            return this.appStore.userIsLocalOnly;
+        },
     },
     methods: {
         async logout() {
@@ -40,7 +49,7 @@ export default {
                 return;
             }
 
-            await this.$store.dispatch('app/logout');
+            await this.appStore.logout();
         },
     },
 };
