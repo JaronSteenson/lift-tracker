@@ -9,7 +9,7 @@
             </span>
             <span>{{ exercise.startedAt }}</span>
         </VCardSubtitle>
-        <VCardText class="mb-0 pb-0 d-flex gap-4">
+        <div class="mb-0 pb-0 d-flex gap-4">
             <div
                 class="pb-1"
                 :key="index"
@@ -57,7 +57,7 @@
                     variant="outlined"
                 />
             </div>
-        </VCardText>
+        </div>
         <VCardActions class="mt-0 pt-0">
             <VBtn
                 elevation="1"

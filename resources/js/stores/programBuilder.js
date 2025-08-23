@@ -540,13 +540,11 @@ export const useProgramBuilderStore = defineStore('programBuilder', {
         async prepareForSessionOverview(routineUuid) {
             const appStore = useAppStore();
             if (appStore.localOnlyUser) {
-                console.log(this.myWorkoutPrograms);
                 const foundLocally = this.myWorkoutPrograms.find((program) =>
                     program.workoutProgramRoutines.some(
                         (routine) => routine.uuid === routineUuid,
                     ),
                 );
-                console.log('foundLocally', foundLocally);
                 this.setInFocusProgram(foundLocally);
                 return; // Skip fetching for local-only users
             }
@@ -556,7 +554,6 @@ export const useProgramBuilderStore = defineStore('programBuilder', {
                 const response =
                     await WorkoutProgramService.getByRoutine(routineUuid);
                 if (response.data) {
-                    console.log('response.data', response.data);
                     this.setInFocusProgram(response.data);
                     return response.data;
                 }

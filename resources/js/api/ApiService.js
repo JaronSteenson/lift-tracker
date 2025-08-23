@@ -3,9 +3,7 @@ import config from '../../../config.json';
 
 let baseUrl = config.apiBaseUrl;
 
-if (typeof baseUrl === 'string') {
-    console.log(`${baseUrl} api base url configured.`);
-} else {
+if (typeof baseUrl !== 'string') {
     console.error('No api base url configured.');
 }
 

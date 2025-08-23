@@ -152,9 +152,7 @@ export default {
 
                     // Use the composition API theme from setup
                     if (this.vuetifyTheme) {
-                        console.log('Applying theme:', selectedTheme.key);
                         applyTheme(this.vuetifyTheme, selectedTheme);
-                        console.log('Calling forceRerender...');
                         this.appStore.forceRerender();
                     } else {
                         console.error(
@@ -174,11 +172,6 @@ export default {
         forceThemeSelection(theme) {
             // Force the theme setter to be called even if it's the same theme
             // This ensures the re-render always happens
-            console.log('forceThemeSelection called with theme:', theme.key);
-            console.log(
-                'Current forceRerenderKey before:',
-                this.appStore.forceRerenderKey,
-            );
 
             // Always apply the theme and force re-render, even if it's the same theme
             try {
@@ -186,15 +179,11 @@ export default {
                 this.localStorageKey = theme.key;
 
                 if (this.vuetifyTheme) {
-                    console.log('Applying theme:', theme.key);
                     applyTheme(this.vuetifyTheme, theme);
 
                     // Use multiple nextTicks to ensure theme changes are fully applied
                     this.$nextTick(() => {
                         this.$nextTick(() => {
-                            console.log(
-                                'Calling forceRerender after double nextTick...',
-                            );
                             this.appStore.forceRerender();
 
                             // Force a complete style recalculation
@@ -207,30 +196,11 @@ export default {
                                 const style = getComputedStyle(
                                     document.documentElement,
                                 );
-                                console.log(
-                                    'CSS custom properties after theme change:',
-                                );
-                                console.log(
-                                    '--v-theme-primary:',
-                                    style.getPropertyValue('--v-theme-primary'),
-                                );
-                                console.log(
-                                    '--v-theme-anchor:',
-                                    style.getPropertyValue('--v-theme-anchor'),
-                                );
-                                console.log(
-                                    'Applied theme anchor color:',
-                                    theme.definition.anchor,
-                                );
 
                                 // Always manually update the anchor CSS custom property since Vuetify doesn't update custom colors
                                 const currentAnchorColor = style
                                     .getPropertyValue('--v-theme-anchor')
                                     .trim();
-                                console.log(
-                                    'Current --v-theme-anchor in DOM:',
-                                    currentAnchorColor,
-                                );
 
                                 // Convert hex color to RGB values for CSS custom property
                                 const hex = theme.definition.anchor.replace(
@@ -243,16 +213,9 @@ export default {
                                 const expectedRgb = `${r}, ${g}, ${b}`;
 
                                 if (currentAnchorColor !== expectedRgb) {
-                                    console.log(
-                                        `Updating --v-theme-anchor from ${currentAnchorColor} to ${expectedRgb}`,
-                                    );
                                     document.documentElement.style.setProperty(
                                         '--v-theme-anchor',
                                         expectedRgb,
-                                    );
-                                } else {
-                                    console.log(
-                                        '--v-theme-anchor already matches expected value',
                                     );
                                 }
 
@@ -277,9 +240,6 @@ export default {
                                 const expectedPrimaryRgb = `${pr}, ${pg}, ${pb}`;
 
                                 if (currentPrimary !== expectedPrimaryRgb) {
-                                    console.log(
-                                        `Updating --v-theme-primary from ${currentPrimary} to ${expectedPrimaryRgb}`,
-                                    );
                                     document.documentElement.style.setProperty(
                                         '--v-theme-primary',
                                         expectedPrimaryRgb,
@@ -290,38 +250,19 @@ export default {
                                 const anchors = document.querySelectorAll(
                                     '.v-application a:not(.v-btn)',
                                 );
-                                console.log(
-                                    `Found ${anchors.length} anchor elements to update`,
-                                );
 
                                 // Set color directly on each anchor element
                                 anchors.forEach((anchor) => {
                                     anchor.style.color =
                                         theme.definition.anchor;
-                                    console.log(
-                                        `Set anchor color directly to: ${theme.definition.anchor}`,
-                                    );
                                 });
-
-                                console.log(
-                                    'Directly updated anchor colors after theme change',
-                                );
                             });
                         });
                     });
-                } else {
-                    console.error(
-                        'Could not access Vuetify theme object from composition API',
-                    );
                 }
             } catch (error) {
                 console.error('Error in forceThemeSelection:', error);
             }
-
-            console.log(
-                'Current forceRerenderKey after:',
-                this.appStore.forceRerenderKey,
-            );
         },
     },
 };

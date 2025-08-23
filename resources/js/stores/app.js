@@ -104,15 +104,7 @@ export const useAppStore = defineStore('app', {
         },
 
         forceRerender() {
-            console.log(
-                'forceRerender called, old key:',
-                this.forceRerenderKey,
-            );
             this.forceRerenderKey++;
-            console.log(
-                'forceRerender called, new key:',
-                this.forceRerenderKey,
-            );
         },
 
         async bootstrap() {

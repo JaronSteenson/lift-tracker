@@ -60,29 +60,18 @@ export default {
             return this.programBuilderStore.myWorkoutPrograms;
         },
         rerenderKey() {
-            console.log(
-                'rerenderKey computed called with:',
-                this.appStore.forceRerenderKey,
-            );
             return this.appStore.forceRerenderKey;
         },
     },
     mounted() {
-        console.log(
-            'App mounted with forceRerenderKey:',
-            this.appStore.forceRerenderKey,
-        );
         this.setSupportsTextSelect();
     },
     updated() {
-        console.log(
-            'App updated with forceRerenderKey:',
-            this.appStore.forceRerenderKey,
-        );
+        // Component updated
     },
     watch: {
-        rerenderKey(newVal, oldVal) {
-            console.log('rerenderKey watcher triggered:', oldVal, '->', newVal);
+        rerenderKey() {
+            // Re-render key changed
         },
     },
     methods: {

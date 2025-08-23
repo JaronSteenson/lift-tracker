@@ -170,7 +170,6 @@ export const useWorkoutSessionStore = defineStore('workoutSession', {
             state.workoutSession.sessionExercises?.some((exercise) => {
                 return exercise.sessionSets?.some((set) => {
                     if (!set.endedAt && set.startedAt) {
-                        console.log(set.endedAt, set.startedAt);
                         currentSet = set;
                         return true;
                     }
@@ -686,14 +685,12 @@ export const useWorkoutSessionStore = defineStore('workoutSession', {
             }
         },
 
-        async fetchExerciseHistory(exerciseUuid) {
+        async fetchExerciseHistory() {
             // Placeholder - implement exercise history fetching if needed
-            console.log('fetchExerciseHistory called for:', exerciseUuid);
             return Promise.resolve();
         },
 
         async updateSetWeight({ uuid, weight }) {
-            console.log('updateSetWeight called:', { uuid, weight });
             // Find and update the set in the current workout session
             if (this.workoutSession) {
                 this.workoutSession.sessionExercises?.forEach((exercise) => {
@@ -715,7 +712,6 @@ export const useWorkoutSessionStore = defineStore('workoutSession', {
         },
 
         async updateSetReps({ uuid, reps }) {
-            console.log('updateSetReps called:', { uuid, reps });
             // Find and update the set in the current workout session
             if (this.workoutSession) {
                 this.workoutSession.sessionExercises?.forEach((exercise) => {
@@ -732,10 +728,6 @@ export const useWorkoutSessionStore = defineStore('workoutSession', {
 
         // Exercise and set management actions
         async updateExerciseWarmUpDuration({ uuid, warmUpDuration }) {
-            console.log('updateExerciseWarmUpDuration called:', {
-                uuid,
-                warmUpDuration,
-            });
             // Find and update the exercise warm-up duration
             if (this.workoutSession) {
                 this.workoutSession.sessionExercises?.forEach((exercise) => {
@@ -749,10 +741,6 @@ export const useWorkoutSessionStore = defineStore('workoutSession', {
         },
 
         async updateSetRestPeriodDuration({ uuid, restPeriodDuration }) {
-            console.log('updateSetRestPeriodDuration called:', {
-                uuid,
-                restPeriodDuration,
-            });
             // Find and update the set rest period duration
             if (this.workoutSession) {
                 this.workoutSession.sessionExercises?.forEach((exercise) => {
@@ -768,7 +756,6 @@ export const useWorkoutSessionStore = defineStore('workoutSession', {
         },
 
         async updateExerciseNotes({ uuid, notes }) {
-            console.log('updateExerciseNotes called:', { uuid, notes });
             // Find and update the exercise notes in the current workout session
             if (this.workoutSession) {
                 this.workoutSession.sessionExercises?.forEach((exercise) => {
@@ -806,7 +793,6 @@ export const useWorkoutSessionStore = defineStore('workoutSession', {
         },
 
         async resetWarmUp({ uuid }) {
-            console.log('resetWarmUp called:', { uuid });
             // Find and reset the exercise warm-up timers
             if (this.workoutSession) {
                 this.workoutSession.sessionExercises?.forEach((exercise) => {
@@ -822,7 +808,6 @@ export const useWorkoutSessionStore = defineStore('workoutSession', {
         },
 
         async resetRestPeriod({ uuid }) {
-            console.log('resetRestPeriod called:', { uuid });
             // Find and reset the set rest period timers
             if (this.workoutSession) {
                 this.workoutSession.sessionExercises?.forEach((exercise) => {
@@ -853,7 +838,6 @@ export const useWorkoutSessionStore = defineStore('workoutSession', {
         },
 
         async startSet({ uuid }) {
-            console.log('startSet called:', { uuid });
             // Find and start the set in the current workout session
             if (this.workoutSession) {
                 const startedAt = utcNow();
@@ -865,7 +849,6 @@ export const useWorkoutSessionStore = defineStore('workoutSession', {
                     });
                 });
 
-                console.log(this.workoutSession.sessionExercises);
                 // Save the set to the server
                 await this.saveSet(uuid);
             }
@@ -935,7 +918,6 @@ export const useWorkoutSessionStore = defineStore('workoutSession', {
         },
 
         async skipExercise({ uuid }) {
-            console.log('skipExercise called:', { uuid });
             // Find and skip the exercise in the current workout session
             if (this.workoutSession) {
                 this.workoutSession.sessionExercises?.forEach((exercise) => {
@@ -949,7 +931,6 @@ export const useWorkoutSessionStore = defineStore('workoutSession', {
         },
 
         async updateExerciseSkipped({ uuid, skipped }) {
-            console.log('updateExerciseSkipped called:', { uuid, skipped });
             // Find and update the exercise skipped status
             if (this.workoutSession) {
                 this.workoutSession.sessionExercises?.forEach((exercise) => {
@@ -963,7 +944,6 @@ export const useWorkoutSessionStore = defineStore('workoutSession', {
         },
 
         async startRestPeriod({ uuid }) {
-            console.log('startRestPeriod called:', { uuid });
             const restPeriodStartedAt = utcNow();
 
             // Find and update the set in local state
@@ -983,7 +963,6 @@ export const useWorkoutSessionStore = defineStore('workoutSession', {
         },
 
         async startWarmUp({ uuid }) {
-            console.log('startWarmUp called:', { uuid });
             const warmUpStartedAt = utcNow();
 
             // Update the exercise in local state
@@ -1001,8 +980,6 @@ export const useWorkoutSessionStore = defineStore('workoutSession', {
         },
 
         async endRestPeriod({ uuid }) {
-            console.log('endRestPeriod called:', { uuid });
-
             // Find the set
             let set = null;
             if (this.workoutSession) {
@@ -1032,8 +1009,6 @@ export const useWorkoutSessionStore = defineStore('workoutSession', {
         },
 
         async endWarmUp({ uuid }) {
-            console.log('endWarmUp called:', { uuid });
-
             // Find the exercise
             let exercise = null;
             if (this.workoutSession) {
