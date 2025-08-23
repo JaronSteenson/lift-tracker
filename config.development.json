@@ -6,5 +6,7 @@
         "audience": "https://dev.lift-tracker.app",
         "cacheLocation": "localstorage"
     },
-    "rollbarAccessToken": null
+    "rollbarAccessToken": null,
+    "newRelicApplicationID": null,
+    "newRelicLicenseKey": null
 }

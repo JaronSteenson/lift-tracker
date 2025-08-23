@@ -600,8 +600,7 @@ export const useWorkoutSessionStore = defineStore('workoutSession', {
                 this.saveStatus = 'saving';
                 // Use the save method for both create and update operations
                 const savePayload = {
-                    createdAt: this.workoutSession.createdAt,
-                    startedAt: this.workoutSession.startedAt,
+                    ...this.workoutSession,
                     ...checkInData,
                 };
                 const response = await WorkoutSessionService.save(savePayload);
