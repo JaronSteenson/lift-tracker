@@ -27,7 +27,7 @@ pipelines:
                 - echo 'Running tests'
                 - npm test
                 - echo 'Building'
-                - node ci/replace-auth-config.js
+                - node ci/replace-config.js
                 - npm run prod
                 - echo 'Starting deploy'
                 - tar -czf artifacts-frontend.tar.gz -C dist .
