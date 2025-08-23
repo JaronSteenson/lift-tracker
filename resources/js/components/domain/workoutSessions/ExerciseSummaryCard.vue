@@ -4,11 +4,11 @@
         <VCardTitle>
             {{ exercise.name }}
         </VCardTitle>
-        <VCardSubtitle v-if="display.xs.value">
-            <span class="font-weight-bold text-primary">
-                +{{ exercise.duration }},
-            </span>
-            <span>{{ exercise.startedAt }}</span>
+        <VCardSubtitle>
+            {{ exercise.startedAt }}
+            <em v-if="display.xs.value" class="subtitle--small">
+                +{{ exercise.duration }}
+            </em>
         </VCardSubtitle>
         <VCardText>
             <VRow>
@@ -22,9 +22,11 @@
                     <span class="pl-2">{{ stat.value }}</span>
                 </VCol>
             </VRow>
-            <VRow class="pt-4">
+            <VRow
+                v-if="exercise.notes && exercise.notes.trim().length > 0"
+                class="pt-4"
+            >
                 <VTextarea
-                    v-if="exercise.notes && exercise.notes.trim().length > 0"
                     :value="exercise.notes"
                     readonly
                     variant="outlined"

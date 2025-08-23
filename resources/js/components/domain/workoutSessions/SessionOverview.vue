@@ -26,7 +26,8 @@
 
             <VTimeline
                 v-if="workoutSession.sessionExercises.length !== 0"
-                :dense="display.xs.value"
+                :class="display.smAndDown.value ? 'py-1 min-h-0' : ''"
+                :side="display.smAndDown.value ? 'start' : 'default'"
             >
                 <VTimelineItem
                     v-for="(sessionExercise, i) in exercises"
@@ -35,29 +36,29 @@
                     :fill-dot="i === 0"
                     :color="i === 0 ? 'success' : 'primary'"
                 >
-                    <template v-slot:opposite>
+                    <template v-if="!display.smAndDown.value" v-slot:opposite>
                         <div :class="`pt-1 font-weight-bold text--primary`">
                             +{{ sessionExercise.duration }}
                         </div>
-                        <div>{{ sessionExercise.startedAt }}</div>
                     </template>
                     <ExerciseSummaryCard :exercise="sessionExercise" />
                 </VTimelineItem>
                 <VTimelineItem :icon="$svgIcons.mdiStop" fill-dot color="error">
-                    <template v-slot:opposite>
+                    <template v-if="!display.smAndDown.value" v-slot:opposite>
                         <div :class="`pt-1 font-weight-bold text--primary`">
                             +{{ workoutDuration }}
                         </div>
                         <div>{{ workoutEndedAt }}</div>
                     </template>
-                    <VCard v-if="display.xs.value">
+                    <VCard v-if="display.smAndDown.value">
                         <VCardSubtitle>
-                            <span
-                                :class="`pt-1 font-weight-bold text--primary`"
+                            {{ workoutEndedAt }}
+                            <em
+                                v-if="display.smAndDown.value"
+                                class="subtitle--small"
                             >
-                                +{{ workoutDuration }},
-                            </span>
-                            <span>{{ workoutEndedAt }}</span>
+                                +{{ workoutDuration }}
+                            </em>
                         </VCardSubtitle>
                     </VCard>
                 </VTimelineItem>
@@ -104,10 +105,6 @@ export default {
         return { workoutSessionStore, display };
     },
     computed: {
-        workoutName() {
-            // TODO: Implement workoutName getter in store
-            return this.workoutSessionStore.workoutName || 'Workout';
-        },
         workoutSession() {
             // TODO: Implement workoutSession getter in store
             return (

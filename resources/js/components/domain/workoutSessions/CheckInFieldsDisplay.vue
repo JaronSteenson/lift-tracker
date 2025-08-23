@@ -12,12 +12,13 @@
                 <span class="pl-2">{{ stat.value }}</span>
             </VCol>
         </VRow>
-        <VRow class="pt-4">
+        <VRow
+            v-if="
+                workoutSession.notes && workoutSession.notes.trim().length > 0
+            "
+            class="pt-4"
+        >
             <VTextarea
-                v-if="
-                    workoutSession.notes &&
-                    workoutSession.notes.trim().length > 0
-                "
                 :value="workoutSession.notes"
                 readonly
                 variant="outlined"

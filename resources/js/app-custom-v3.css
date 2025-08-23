@@ -34,6 +34,10 @@
     font-size: 1em;
 }
 
+.subtitle--small {
+    font-size: 0.8em;
+}
+
 .banner-image {
     opacity: 0;
     width: 100vw;
@@ -491,9 +495,10 @@
 .v-badge,
 .v-avatar,
 .v-icon {
-    transition: box-shadow 0.28s cubic-bezier(0.4, 0, 0.2, 1),
-                opacity 0.28s cubic-bezier(0.4, 0, 0.2, 1),
-                background-color 0.28s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    transition:
+        box-shadow 0.28s cubic-bezier(0.4, 0, 0.2, 1),
+        opacity 0.28s cubic-bezier(0.4, 0, 0.2, 1),
+        background-color 0.28s cubic-bezier(0.4, 0, 0.2, 1) !important;
 }
 
 /* Custom scrollbar styles */
@@ -520,8 +525,21 @@
     display: none;
 }
 
-.v-card  {
-    min-width: min(300px,  calc(100vw - 40px));
+.v-timeline--vertical.v-timeline--justify-auto {
+    @media (max-width: 600px) {
+        grid-template-columns: auto min-content 0 !important;
+        font-size: 0.9rem !important;
+    }
+}
+
+.v-card {
+    @media (min-width: 600px) {
+        min-width: min(300px, calc(100vw - 40px));
+    }
+}
+
+.v-timeline-item__body {
+    width: 100%;
 }
 
 /* Dark theme v-sheet background for cards - Vue 3/Vuetify 3 */
@@ -533,7 +551,10 @@
 /* Ensure cards have proper dark background */
 .v-theme--dark .v-card {
     background-color: #1e1e1e;
-    box-shadow: 0 3px 1px -2px rgba(0, 0, 0, .2), 0 2px 2px 0 rgba(0, 0, 0, .14), 0 1px 5px 0 rgba(0, 0, 0, .12) !important;
+    box-shadow:
+        0 3px 1px -2px rgba(0, 0, 0, 0.2),
+        0 2px 2px 0 rgba(0, 0, 0, 0.14),
+        0 1px 5px 0 rgba(0, 0, 0, 0.12) !important;
 }
 
 /* Dark theme for various card components */
@@ -555,11 +576,17 @@
 
 /* Card elevation/shadow for non-outlined cards */
 .v-sheet.v-card:not(.v-sheet--outlined) {
-    box-shadow: 0 3px 1px -2px rgba(0, 0, 0, .2), 0 2px 2px 0 rgba(0, 0, 0, .14), 0 1px 5px 0 rgba(0, 0, 0, .12);
+    box-shadow:
+        0 3px 1px -2px rgba(0, 0, 0, 0.2),
+        0 2px 2px 0 rgba(0, 0, 0, 0.14),
+        0 1px 5px 0 rgba(0, 0, 0, 0.12);
 }
 
 /* Dark theme button background - Vue 3/Vuetify 3 */
-.v-theme--dark .v-btn:not(.v-btn--variant-elevated):not(.v-btn--variant-tonal):not(.v-btn--variant-outlined):not(.v-btn--variant-flat) {
+.v-theme--dark
+    .v-btn:not(.v-btn--variant-elevated):not(.v-btn--variant-tonal):not(
+        .v-btn--variant-outlined
+    ):not(.v-btn--variant-flat) {
     background-color: #272727 !important;
 }
 
