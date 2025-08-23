@@ -1,64 +1,37 @@
 <template>
+    <!--    Should match  CheckInFieldsDisplay  -->
     <VCard>
         <VCardTitle>
             {{ exercise.name }}
         </VCardTitle>
         <VCardSubtitle v-if="display.xs.value">
-            <span class="pt-1 font-weight-bold text-primary">
+            <span class="font-weight-bold text-primary">
                 +{{ exercise.duration }},
             </span>
             <span>{{ exercise.startedAt }}</span>
         </VCardSubtitle>
-        <div class="mb-0 pb-0 d-flex gap-4">
-            <div
-                class="pb-1"
-                :key="index"
-                v-for="(weightGroup, index) in weightGroups"
-            >
-                <VIcon size="small">
-                    {{ $svgIcons.mdiDumbbell }}
-                </VIcon>
-                {{ weightGroup.weight }} x
-                <span
-                    v-for="(repBreakDown, index) in weightGroup.repBreakDown"
-                    :key="repBreakDown.uuid"
+        <VCardText>
+            <VRow>
+                <VCol
+                    :key="index"
+                    class="py-1"
+                    v-for="(stat, index) in allStats"
+                    :cols="stat.cols"
                 >
-                    <RouterLink :to="repBreakDown.to">
-                        {{ repBreakDown.text }}</RouterLink
-                    ><span v-if="index < weightGroup.repBreakDown.length - 1"
-                        >,
-                    </span>
-                </span>
-            </div>
-            <div v-if="totalDuration" class="pb-4 py-4">
-                <VIcon size="small">
-                    {{ $svgIcons.mdiClockOutline }}
-                </VIcon>
-                {{ totalDuration }}
-            </div>
-            <div v-if="totalWarmUp" class="pb-4 py-4">
-                <VIcon size="small">
-                    {{ $svgIcons.warmUp }}
-                </VIcon>
-                {{ totalWarmUp }} warm-up
-            </div>
-            <div v-if="averageRestPeriod" class="pb-4 py-4">
-                <VIcon size="small">
-                    {{ $svgIcons.restPeriod }}
-                </VIcon>
-                {{ averageRestPeriod }} avg rest
-            </div>
-            <div v-if="exercise.notes" class="mt-2">
+                    <VIcon size="small">{{ stat.icon }}</VIcon>
+                    <span class="pl-2">{{ stat.value }}</span>
+                </VCol>
+            </VRow>
+            <VRow class="pt-4">
                 <VTextarea
                     v-if="exercise.notes && exercise.notes.trim().length > 0"
-                    label="Notes"
                     :value="exercise.notes"
                     readonly
                     variant="outlined"
                 />
-            </div>
-        </div>
-        <VCardActions class="mt-0 pt-0">
+            </VRow>
+        </VCardText>
+        <VCardActions>
             <VBtn
                 elevation="1"
                 size="small"
@@ -66,10 +39,11 @@
                     name: 'SetOverviewPage',
                     params: { sessionSetUuid: firstSet.uuid },
                 }"
-                >Edit
-                <VIcon size="small" color="success">{{
-                    $svgIcons.mdiClipboardTextOutline
-                }}</VIcon>
+            >
+                Edit
+                <VIcon size="small" color="success">
+                    {{ $svgIcons.mdiClipboardTextOutline }}
+                </VIcon>
             </VBtn>
         </VCardActions>
     </VCard>
@@ -102,7 +76,15 @@ export default {
                 this.exercise.sessionSets.length - 1
             ];
         },
-        weightGroups() {
+        allStats() {
+            return [
+                this.weightAndReps,
+                this.totalDuration,
+                this.totalWarmUp,
+                this.averageRestPeriod,
+            ].filter(Boolean);
+        },
+        weightAndReps() {
             let weightGroups = [];
 
             this.exercise.sessionSets.forEach((set) => {
@@ -122,7 +104,7 @@ export default {
                 }
             });
 
-            return weightGroups.map((weightGroup) => {
+            const repsByWeight = weightGroups.map((weightGroup) => {
                 const weight = weightGroup[0].weight
                     ? `${weightGroup[0].weight}kg`
                     : '?kg';
@@ -143,6 +125,15 @@ export default {
                     repBreakDown,
                 };
             });
+
+            const value = repsByWeight
+                .map(
+                    ({ weight, repBreakDown }) =>
+                        `${weight} -  ${repBreakDown.map((r) => r.text).join(', ')}`,
+                )
+                .join(' | ');
+
+            return { icon: this.$svgIcons.mdiDumbbell, cols: 12, value };
         },
         totalDuration() {
             const startedAt = this.firstSet.startedAt;
@@ -152,7 +143,21 @@ export default {
                 return undefined;
             }
 
-            return hoursMinutesSecondsFromStartEnd(startedAt, endedAt);
+            const value = hoursMinutesSecondsFromStartEnd(startedAt, endedAt);
+
+            return { icon: this.$svgIcons.mdiClockOutline, cols: 12, value };
+        },
+        totalWarmUp() {
+            if (!this.exercise.warmUpEndedAt) {
+                return undefined;
+            }
+
+            const value = hoursMinutesSecondsFromStartEnd(
+                this.exercise.warmUpStartedAt,
+                this.exercise.warmUpEndedAt,
+            );
+
+            return { icon: this.$svgIcons.warmUp, cols: 12, value };
         },
         averageRestPeriod() {
             const setsWithoutLast = [...this.exercise.sessionSets];
@@ -171,17 +176,9 @@ export default {
                 return undefined;
             }
 
-            return minsSecDuration(average);
-        },
-        totalWarmUp() {
-            if (!this.exercise.warmUpEndedAt) {
-                return undefined;
-            }
+            const value = minsSecDuration(average);
 
-            return hoursMinutesSecondsFromStartEnd(
-                this.exercise.warmUpStartedAt,
-                this.exercise.warmUpEndedAt,
-            );
+            return { icon: this.$svgIcons.restPeriod, cols: 12, value };
         },
     },
 };

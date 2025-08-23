@@ -1,5 +1,6 @@
 <template>
-    <div>
+    <!--    Should match ExerciseSummaryCard  -->
+    <VCardText>
         <VRow>
             <VCol
                 :key="index"
@@ -11,21 +12,18 @@
                 <span class="pl-2">{{ stat.value }}</span>
             </VCol>
         </VRow>
-        <VRow class="pb-0">
-            <VCol class="pb-0">
-                <VTextarea
-                    v-if="
-                        workoutSession.notes &&
-                        workoutSession.notes.trim().length > 0
-                    "
-                    class="mt-2"
-                    :value="workoutSession.notes"
-                    readonly
-                    variant="outlined"
-                />
-            </VCol>
+        <VRow class="pt-4">
+            <VTextarea
+                v-if="
+                    workoutSession.notes &&
+                    workoutSession.notes.trim().length > 0
+                "
+                :value="workoutSession.notes"
+                readonly
+                variant="outlined"
+            />
         </VRow>
-    </div>
+    </VCardText>
 </template>
 <script>
 import { hoursMinutesSecondsDuration } from '../../../dates';

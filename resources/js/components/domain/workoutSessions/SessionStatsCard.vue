@@ -17,12 +17,10 @@
         <VCardSubtitle>
             {{ date }}
         </VCardSubtitle>
-        <VCardText class="pb-0">
-            <CheckInFieldsDisplay
-                :workoutSession="workoutSession"
-                :timeStats="timeStats"
-            />
-        </VCardText>
+        <CheckInFieldsDisplay
+            :workoutSession="workoutSession"
+            :timeStats="timeStats"
+        />
         <VCardActions>
             <VBtn
                 size="small"
