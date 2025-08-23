@@ -574,16 +574,12 @@ export const useWorkoutSessionStore = defineStore('workoutSession', {
                     // Update the current workout session
                     this.workoutSession = savePayload;
 
-                    // Update or add to the sessions list
-                    const existingIndex = this.myWorkoutSessions.findIndex(
-                        (session) => session.uuid === savePayload.uuid,
+                    // Update the home page feed
+                    this.myWorkoutSessions = UuidHelper.replaceInCopy(
+                        this.myWorkoutSessions,
+                        this.workoutSession,
+                        true,
                     );
-
-                    if (existingIndex !== -1) {
-                        this.myWorkoutSessions[existingIndex] = savePayload;
-                    } else {
-                        this.myWorkoutSessions.unshift(savePayload);
-                    }
 
                     this.saveStatus = 'saved';
                     this.saveToLocalStorage();
@@ -607,18 +603,12 @@ export const useWorkoutSessionStore = defineStore('workoutSession', {
                 // Update the current workout session
                 this.workoutSession = response.data;
 
-                // Update or add to the sessions list
-                if (checkInData.uuid) {
-                    const index = this.myWorkoutSessions.findIndex(
-                        (session) => session.uuid === checkInData.uuid,
-                    );
-                    if (index !== -1) {
-                        this.myWorkoutSessions[index] = response.data;
-                    }
-                } else {
-                    // Add new session to the beginning of the list
-                    this.myWorkoutSessions.unshift(response.data);
-                }
+                // Update the home page feed
+                this.myWorkoutSessions = UuidHelper.replaceInCopy(
+                    this.myWorkoutSessions,
+                    this.workoutSession,
+                    true,
+                );
 
                 this.saveStatus = 'saved';
                 return response.data;
