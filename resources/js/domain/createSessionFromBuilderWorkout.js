@@ -54,14 +54,7 @@ export default function createSessionFromBuilderWorkout({
     }
 
     // Set startedAt on the first set if it exists
-    if (
-        session.sessionExercises &&
-        session.sessionExercises.length > 0 &&
-        session.sessionExercises[0].sessionSets &&
-        session.sessionExercises[0].sessionSets.length > 0
-    ) {
-        session.sessionExercises[0].sessionSets[0].startedAt = startedAt;
-    }
+    session.sessionExercises[0].sessionSets[0].startedAt = startedAt;
 
     return session;
 }
@@ -96,7 +89,7 @@ function createSessionExerciseFromBuilderExercise(builderExercise) {
         plannedWarmUp: builderExercise.warmUp || 0,
         position: builderExercise.position,
         skipped: false,
-        sessionSets: Array.from({ length: builderExercise.sets || 3 }).map(
+        sessionSets: Array.from({ length: builderExercise.numberOfSets }).map(
             (value, index) => {
                 return {
                     uuid: UuidHelper.assign(),

@@ -2,7 +2,7 @@ import { defineStore } from 'pinia';
 import WorkoutSessionService from '../api/WorkoutSessionService';
 import createSessionFromBuilderWorkout from '../domain/createSessionFromBuilderWorkout';
 import { utcNow } from '../dates';
-import { differenceInSeconds } from 'date-fns';
+import { differenceInSeconds, isToday } from 'date-fns';
 import UuidHelper from '../UuidHelper';
 import { useAppStore } from './app';
 
@@ -547,7 +547,8 @@ export const useWorkoutSessionStore = defineStore('workoutSession', {
 
                 if (appStore.localOnlyUser) {
                     this.workoutSession.updatedAt = utcNow();
-                    this.workoutSession.createdAt ??= utcNow();
+                    this.workoutSession.createdAt =
+                        this.workoutSession.createdAt || utcNow();
                 } else {
                     const savePayload = {
                         ...this.workoutSession,
@@ -577,16 +578,22 @@ export const useWorkoutSessionStore = defineStore('workoutSession', {
         async startWorkout({ originWorkout }) {
             const appStore = useAppStore();
             try {
+                const existingCheckIn = this.myWorkoutSessions.find(
+                    (session) =>
+                        isToday(session.createdAt) && !session.startedAt,
+                );
+
                 // Create a new workout session from the routine using the helper function
                 const sessionData = createSessionFromBuilderWorkout({
-                    existingCheckIn: null,
+                    existingCheckIn,
                     originWorkout,
                 });
 
                 // Save the session using the existing save method
                 if (appStore.localOnlyUser) {
                     this.workoutSession.updatedAt = utcNow();
-                    this.workoutSession.createdAt ??= utcNow();
+                    this.workoutSession.createdAt =
+                        this.workoutSession.createdAt || utcNow();
                 } else {
                     const response =
                         await WorkoutSessionService.save(sessionData);
@@ -782,7 +789,8 @@ export const useWorkoutSessionStore = defineStore('workoutSession', {
 
             if (appStore.localOnlyUser) {
                 this.workoutSession.updatedAt = utcNow();
-                this.workoutSession.createdAt ??= utcNow();
+                this.workoutSession.createdAt =
+                    this.workoutSession.createdAt || utcNow();
             } else {
                 const response = await WorkoutSessionService.save(
                     this.workoutSession,
