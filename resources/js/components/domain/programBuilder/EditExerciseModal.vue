@@ -37,12 +37,23 @@
                             />
                         </VCol>
                         <VCol cols="12">
-                            <RestPeriodInput label="Warm-up" v-model="warmUp" />
+                            <VTextField
+                                label="Warm-up"
+                                type="number"
+                                :max="9999"
+                                :min="0"
+                                variant="outlined"
+                                v-model.number="warmUp"
+                            />
                         </VCol>
                         <VCol cols="12">
-                            <RestPeriodInput
+                            <VTextField
                                 label="Rest period"
-                                v-model="restPeriod"
+                                type="number"
+                                :max="9999"
+                                :min="0"
+                                variant="outlined"
+                                v-model.number="restPeriod"
                             />
                         </VCol>
                     </VRow>
@@ -63,13 +74,10 @@
 
 <script>
 import { useProgramBuilderStore } from '../../../stores/programBuilder';
-import RestPeriodInput from '../RestPeriodInput.vue';
 import { useDisplay } from 'vuetify';
 
 export default {
-    components: {
-        RestPeriodInput,
-    },
+    components: {},
     setup() {
         const programBuilderStore = useProgramBuilderStore();
         return { programBuilderStore };
@@ -141,7 +149,7 @@ export default {
             },
             set(value) {
                 this.programBuilderStore.updateExercise(this.exerciseUuid, {
-                    warmUp: value,
+                    warmUp: value || 0,
                 });
             },
         },
@@ -151,7 +159,7 @@ export default {
             },
             set(value) {
                 this.programBuilderStore.updateExercise(this.exerciseUuid, {
-                    restPeriod: value,
+                    restPeriod: value || 0,
                 });
             },
         },

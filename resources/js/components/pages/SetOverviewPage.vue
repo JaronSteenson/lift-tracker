@@ -68,33 +68,25 @@ export default {
     },
     methods: {
         async ensureWorkoutSessionIsLoadedLoaded() {
-            const appStore = useAppStore();
-
             if (
-                !this.fromCheckIn &&
-                !appStore.localOnlyUser &&
-                this.workoutSessionStore.setIsInFocusedSession(
-                    this.sessionSetUuid,
+                this.workoutSessionStore.workoutSessionIsLoaded(
+                    this.workoutSessionUuid,
                 )
             ) {
                 this.loading = false;
                 return;
             }
+
             this.loading = true;
+            this.fetchError = false;
 
             try {
                 await this.workoutSessionStore.fetchBySet(this.sessionSetUuid);
-                const workoutProgramRoutine =
-                    this.workoutSessionStore.workoutSession
-                        ?.workoutProgramRoutine;
-                if (workoutProgramRoutine) {
-                    await this.programBuilderStore.prepareForSessionOverview(
-                        workoutProgramRoutine.uuid,
-                    );
-                }
             } catch (e) {
                 this.fetchError = true;
             }
+
+            this.loading = false;
 
             if (this.fromCheckIn) {
                 await this.$router.replace({

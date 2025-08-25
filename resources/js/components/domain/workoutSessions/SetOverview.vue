@@ -199,11 +199,11 @@
                             />
                         </VCol>
                         <VCol class="pt-0" cols="6">
-                            <RestPeriodInput
+                            <VTextField
                                 v-if="!isLastSetOfExercise || !warmUpStarted"
                                 :label="activeTimerLabel"
-                                v-model="activeTimer"
                                 :disabled="isTimerRunning"
+                                v-model.number="activeTimer"
                             />
                         </VCol>
                     </VRow>
@@ -392,7 +392,6 @@ import { useWorkoutSessionStore } from '../../../stores/workoutSession';
 import { useAppStore } from '../../../stores/app';
 import { useProgramBuilderStore } from '../../../stores/programBuilder';
 import { useDisplay } from 'vuetify';
-import RestPeriodInput from '../RestPeriodInput';
 import RestPeriodTimer from '../RestPeriodTimer';
 import SessionExerciseStatsModal from './SessionExerciseStatsModal';
 import ServerSyncInfo from './../../ServerSyncInfo';
@@ -410,7 +409,6 @@ export default {
         LabeledWorkoutDuration,
         ServerSyncInfo,
         SessionExerciseStatsModal,
-        RestPeriodInput,
         RestPeriodTimer,
         ResumeWorkoutFab,
     },

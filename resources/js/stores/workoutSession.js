@@ -194,13 +194,7 @@ export const useWorkoutSessionStore = defineStore('workoutSession', {
 
         // Check if the current session contains a specific set
         setIsInFocusedSession: (state) => (sessionSetUuid) => {
-            return (
-                state.workoutSession?.sessionExercises?.some((exercise) =>
-                    exercise.sessionSets?.some(
-                        (set) => set.uuid === sessionSetUuid,
-                    ),
-                ) || false
-            );
+            return UuidHelper.findDeep(state?.workoutSession, sessionSetUuid);
         },
 
         // Set position getters
@@ -327,16 +321,20 @@ export const useWorkoutSessionStore = defineStore('workoutSession', {
 
         // Timer value getters
         restPeriodForCurrentSet: (state) => (sessionSetUuid) => {
-            const set = state.workoutSession?.sessionExercises
-                ?.flatMap((ex) => ex.sessionSets)
-                ?.find((set) => set.uuid === sessionSetUuid);
+            const set = UuidHelper.findDeep(
+                state.workoutSession,
+                sessionSetUuid,
+            );
+
             return set?.restPeriodDuration || 0;
         },
 
         warmUpForCurrentExercise: (state) => (exerciseUuid) => {
-            const exercise = state.workoutSession?.sessionExercises?.find(
-                (ex) => ex.uuid === exerciseUuid,
+            const exercise = UuidHelper.findDeep(
+                state.workoutSession,
+                exerciseUuid,
             );
+
             return exercise?.warmUpDuration || 0;
         },
 
@@ -495,8 +493,18 @@ export const useWorkoutSessionStore = defineStore('workoutSession', {
         async fetchBySet(sessionSetUuid) {
             const appStore = useAppStore();
             if (appStore.localOnlyUser) {
-                this.myWorkoutSessionsIsLoading = false;
-                return; // Skip fetching for local-only users
+                // For local-only users, find in local storage
+                const localSession = this.myWorkoutSessions.find(
+                    (session) =>
+                        session.uuid ===
+                        Boolean(UuidHelper.findDeep(session, sessionSetUuid)),
+                );
+                if (localSession) {
+                    this.workoutSession = localSession;
+                    this.myWorkoutSessionsIsLoading = false;
+                    return localSession;
+                }
+                return null;
             }
 
             try {
@@ -514,6 +522,7 @@ export const useWorkoutSessionStore = defineStore('workoutSession', {
         },
 
         workoutSessionIsLoaded(workoutSessionUuid) {
+            console.log('loaded already?', this.workoutSession.uuid);
             return (
                 this.workoutSession &&
                 this.workoutSession.uuid === workoutSessionUuid
