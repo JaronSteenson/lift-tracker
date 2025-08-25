@@ -377,12 +377,13 @@
                 </VCardActions>
             </VCardText>
         </NarrowContentContainer>
-        <EditExerciseModal
-            v-if="editingSource"
-            :exercise-uuid="exercise.routineExercise.uuid"
-            v-model="editingSource"
-        />
-        <ResumeWorkoutFab :current-set-uuid="set.uuid" />
+        <Teleport to="body">
+            <EditExerciseModal
+                v-model:value="editingSource"
+                :exerciseUuid="exercise.routineExercise.uuid"
+            />
+            <ResumeWorkoutFab :current-set-uuid="set.uuid" />
+        </Teleport>
     </div>
 </template>
 
@@ -682,10 +683,10 @@ export default {
                     weight,
                 });
 
-                this.programBuilderStore.updateExercise({
-                    exerciseUuid: this.exercise.routineExercise.uuid,
-                    weight,
-                });
+                this.programBuilderStore.updateExercise(
+                    this.exercise.routineExercise.uuid,
+                    { weight },
+                );
             },
         },
         reps: {

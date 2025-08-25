@@ -125,9 +125,6 @@ export default {
             loading: false,
             fetchError: false,
             isAddingWorkout: false,
-            localState: {
-                name: null,
-            },
         };
     },
     watch: {
@@ -156,9 +153,6 @@ export default {
         saveStatus() {
             return this.programBuilderStore.saveStatus;
         },
-        hasMadeSignificantChangesFromNew() {
-            return this.programBuilderStore.hasMadeSignificantChangesFromNew;
-        },
         uuid() {
             return this.inFocusProgram.uuid;
         },
@@ -171,9 +165,6 @@ export default {
                     orderedWorkouts,
                 );
             },
-        },
-        nameForDisplay() {
-            return this.name || 'Unnamed program';
         },
         name: {
             get() {
@@ -198,9 +189,6 @@ export default {
                 this.isAddingWorkout = false;
             });
         },
-        delete() {
-            return this.programBuilderStore.delete();
-        },
         async loadProgram() {
             if (!this.workoutProgramUuid) {
                 await this.programBuilderStore.startNew();
@@ -223,7 +211,7 @@ export default {
             );
 
             if (deleteConfirmed) {
-                await this.delete();
+                await this.programBuilderStore.deleteProgram();
                 await this.$router.push({ name: 'MyWorkoutProgramsPage' });
             }
         },

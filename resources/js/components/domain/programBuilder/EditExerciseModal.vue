@@ -1,77 +1,81 @@
 <template>
-    <VRow justify="center">
-        <VDialog
-            :model-value="modelValue"
-            @update:model-value="close"
-            max-width="600px"
-        >
-            <VCard>
-                <VCardText>
-                    <VContainer>
-                        <VRow>
-                            <VCol cols="12">
-                                <VTextField
-                                    v-model="localState.name"
-                                    label="Exercise name"
-                                    variant="outlined"
-                                    autofocus
-                                    @blur="finishEditingName"
-                                    @keydown.enter="finishEditingName"
-                                />
-                            </VCol>
-                            <VCol cols="12" md="6" sm="6">
-                                <VTextField
-                                    label="Weight (kg)"
-                                    type="number"
-                                    :step="2.5"
-                                    :max="9999"
-                                    :min="0"
-                                    variant="outlined"
-                                    v-model="localState.weight"
-                                />
-                            </VCol>
-                            <VCol cols="12" md="6" sm="6">
-                                <VSelect
-                                    :items="numberOfSetsOptions"
-                                    label="Number of sets"
-                                    variant="outlined"
-                                    v-model="localState.numberOfSets"
-                                ></VSelect>
-                            </VCol>
-                            <VCol cols="12">
-                                <RestPeriodSlider
-                                    label="Warm-up"
-                                    v-model="localState.warmUp"
-                                />
-                            </VCol>
-                            <VCol cols="12">
-                                <RestPeriodSlider
-                                    label="Rest period"
-                                    v-model="localState.restPeriodInSeconds"
-                                />
-                            </VCol>
-                        </VRow>
-                    </VContainer>
-                </VCardText>
-            </VCard>
-        </VDialog>
-    </VRow>
+    <VDialog
+        :model-value="value"
+        @update:model-value="$emit('update:value', $event)"
+        max-width="600px"
+        :fullscreen="display.xs"
+    >
+        <VCard>
+            <VCardText>
+                <VContainer>
+                    <VRow>
+                        <VCol cols="12">
+                            <VTextField
+                                v-model="name"
+                                label="Exercise name"
+                                variant="outlined"
+                                autofocus
+                            />
+                        </VCol>
+                        <VCol cols="12" md="6" sm="6">
+                            <VTextField
+                                label="Weight (kg)"
+                                type="number"
+                                :step="2.5"
+                                :max="9999"
+                                :min="0"
+                                variant="outlined"
+                                v-model="weight"
+                            />
+                        </VCol>
+                        <VCol cols="12" md="6" sm="6">
+                            <VSelect
+                                :items="numberOfSetsOptions"
+                                label="Number of sets"
+                                variant="outlined"
+                                v-model="numberOfSets"
+                            />
+                        </VCol>
+                        <VCol cols="12">
+                            <RestPeriodInput label="Warm-up" v-model="warmUp" />
+                        </VCol>
+                        <VCol cols="12">
+                            <RestPeriodInput
+                                label="Rest period"
+                                v-model="restPeriod"
+                            />
+                        </VCol>
+                    </VRow>
+                </VContainer>
+            </VCardText>
+            <VCardActions>
+                <VBtn
+                    size="small"
+                    variant="outlined"
+                    @click="$emit('update:value', false)"
+                >
+                    Close
+                </VBtn>
+            </VCardActions>
+        </VCard>
+    </VDialog>
 </template>
 
 <script>
-import RestPeriodSlider from '../RestPeriodSlider';
 import { useProgramBuilderStore } from '../../../stores/programBuilder';
+import RestPeriodInput from '../RestPeriodInput.vue';
+import { useDisplay } from 'vuetify';
 
 export default {
     components: {
-        RestPeriodSlider,
+        RestPeriodInput,
     },
     setup() {
         const programBuilderStore = useProgramBuilderStore();
         return { programBuilderStore };
     },
     props: {
-        modelValue: {
+        value: {
             required: true,
             type: Boolean,
         },
@@ -80,11 +84,12 @@ export default {
             type: String,
         },
     },
+    emits: ['update:value'],
     data() {
+        const display = useDisplay();
+
         return {
-            localState: {
-                ...this.programBuilderStore.getExercise(this.exerciseUuid),
-            },
+            display,
             numberOfSetsOptions: [
                 { title: 'One', value: 1 },
                 { title: 'Two', value: 2 },
@@ -100,36 +105,58 @@ export default {
         };
     },
     computed: {
-        exercise: {
+        name: {
             get() {
-                return this.programBuilderStore.getExercise(this.exerciseUuid);
+                return this.exercise.name;
             },
-            set(newState) {
-                this.programBuilderStore.updateExercise({
-                    exerciseUuid: this.exerciseUuid,
-                    ...newState,
+            set(value) {
+                this.programBuilderStore.updateExercise(this.exerciseUuid, {
+                    name: value,
                 });
             },
         },
-        isDirty() {
-            return Object.entries(this.localState).some((entry) => {
-                const entryKey = entry[0];
-                return this.localState[entryKey] !== this.exercise[entryKey];
-            });
+        weight: {
+            get() {
+                return this.exercise.weight;
+            },
+            set(value) {
+                this.programBuilderStore.updateExercise(this.exerciseUuid, {
+                    weight: value,
+                });
+            },
         },
-        nameDisplay() {
-            return this.localState.name || 'Unnamed exercise';
+        numberOfSets: {
+            get() {
+                return this.exercise.numberOfSets;
+            },
+            set(value) {
+                this.programBuilderStore.updateExercise(this.exerciseUuid, {
+                    numberOfSets: value,
+                });
+            },
         },
-    },
-    methods: {
-        finishEditingName() {
-            this.exercise = this.localState;
+        warmUp: {
+            get() {
+                return this.exercise.warmUp;
+            },
+            set(value) {
+                this.programBuilderStore.updateExercise(this.exerciseUuid, {
+                    warmUp: value,
+                });
+            },
         },
-        close() {
-            if (this.isDirty) {
-                this.exercise = this.localState;
-            }
-            this.$emit('update:modelValue', false);
+        restPeriod: {
+            get() {
+                return this.exercise.restPeriod;
+            },
+            set(value) {
+                this.programBuilderStore.updateExercise(this.exerciseUuid, {
+                    restPeriod: value,
+                });
+            },
+        },
+        exercise() {
+            return this.programBuilderStore.getExercise(this.exerciseUuid);
         },
     },
 };

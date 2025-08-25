@@ -7,10 +7,7 @@
         @click="showEditModal = true"
     >
         <VCardTitle class="exercise-card-title-wrapper d-flex align-center">
-            <div
-                class="exercise-card-title flex-grow-1"
-                @click="showEditModal = true"
-            >
+            <div class="exercise-card-title flex-grow-1">
                 {{ nameDisplay }}
             </div>
             <VMenu bottom left>
@@ -48,12 +45,10 @@
             </VContainer>
         </VCardText>
 
-        <!-- Use Teleport to render modal outside this component's DOM tree -->
         <Teleport to="body">
             <EditExerciseModal
-                v-if="showEditModal"
-                :exercise-uuid="exercise.uuid"
-                v-model="showEditModal"
+                v-model:value="showEditModal"
+                :exerciseUuid="exercise.uuid"
             />
         </Teleport>
     </VCard>
@@ -78,9 +73,6 @@ export default {
     data() {
         return {
             showEditModal: false,
-            localState: {
-                ...this.programBuilderStore.getExercise(this.exerciseUuid),
-            },
             numberOfSetsOptions: [
                 { text: 'One', value: 1 },
                 { text: 'Two', value: 2 },
@@ -95,34 +87,12 @@ export default {
             ],
         };
     },
-    mounted() {
-        if (this.programBuilderStore.justAddedModelUuid === this.exerciseUuid) {
-            this.$nextTick(() => {
-                this.showEditModal = true;
-                this.programBuilderStore.justAddedModelUuid = null;
-            });
-        }
-    },
     computed: {
-        exercise: {
-            get() {
-                return this.programBuilderStore.getExercise(this.exerciseUuid);
-            },
-            set(newState) {
-                this.programBuilderStore.updateExercise({
-                    exerciseUuid: this.exerciseUuid,
-                    ...newState,
-                });
-            },
-        },
-        isDirty() {
-            return Object.entries(this.localState).some((entry) => {
-                const entryKey = entry[0];
-                return this.localState[entryKey] !== this.exercise[entryKey];
-            });
+        exercise() {
+            return this.programBuilderStore.getExercise(this.exerciseUuid);
         },
         nameDisplay() {
-            return this.localState.name || 'Unnamed exercise';
+            return this.exercise.name || 'Unnamed exercise';
         },
         warmUp() {
             return minsSecDuration(this.exercise.warmUp);
@@ -148,14 +118,6 @@ export default {
             }
 
             return '';
-        },
-    },
-    watch: {
-        exercise: {
-            deep: true,
-            handler(globalState) {
-                this.localState = { ...globalState };
-            },
         },
     },
     methods: {

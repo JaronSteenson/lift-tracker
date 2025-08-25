@@ -26,5 +26,6 @@ module.exports = {
                 singleQuote: true,
             },
         ],
+        'vue/no-v-model-argument': 'off',
     },
 };

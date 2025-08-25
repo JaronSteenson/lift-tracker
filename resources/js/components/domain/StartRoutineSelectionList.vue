@@ -29,9 +29,6 @@ export default {
         const programBuilderStore = useProgramBuilderStore();
         return { programBuilderStore };
     },
-    async created() {
-        await this.programBuilderStore.fetchMyWorkoutProgramsWithRoutines();
-    },
     computed: {
         myWorkoutProgramsIsLoading() {
             return this.programBuilderStore.myWorkoutProgramsIsLoading;

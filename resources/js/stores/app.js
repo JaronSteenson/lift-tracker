@@ -108,24 +108,17 @@ export const useAppStore = defineStore('app', {
         },
 
         async bootstrap() {
+            const workoutSessionStore = useWorkoutSessionStore();
+            const programBuilderStore = useProgramBuilderStore();
+
             await this.bootstrapAuth0();
 
             const localStorageData = this.fromLocalStorage || {};
             let localOnlyUser = localStorageData?.app?.localOnlyUser ?? false;
 
-            if (localOnlyUser) {
-                this.$patch(localStorageData?.app || {});
-                const workoutSessionStore = useWorkoutSessionStore();
-                const programBuilderStore = useProgramBuilderStore();
-                workoutSessionStore.$patch(
-                    localStorageData.workoutSession || {},
-                );
-                programBuilderStore.$patch(
-                    localStorageData.programBuilder || {},
-                );
-                this.$patch({ ...localStorageData?.app, isBootstrapped: true });
-                return;
-            }
+            this.$patch(localStorageData?.app || {});
+            workoutSessionStore.$patch(localStorageData.workoutSession || {});
+            programBuilderStore.$patch(localStorageData.programBuilder || {});
 
             if (this.isAuthenticated) {
                 const programBuilderStore = useProgramBuilderStore();

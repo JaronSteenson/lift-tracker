@@ -8,12 +8,10 @@
     >
         <div class="px-4 py-2 d-flex justify-space-between align-center">
             <VTextField
-                v-model="localState.name"
+                v-model="name"
                 label="Workout name"
                 hide-details
                 variant="underlined"
-                @blur="finishEditingTitle"
-                @keydown.enter="finishEditingTitle"
             />
 
             <VMenu v-if="!isSessionOverview" bottom left>
@@ -136,9 +134,6 @@ export default {
     },
     data() {
         return {
-            localState: {
-                ...this.programBuilderStore.getWorkout(this.workoutUuid),
-            },
             starting: false,
             isAddingExercise: false,
         };
@@ -150,37 +145,19 @@ export default {
         },
         isSessionOverview: Boolean,
     },
-    mounted() {
-        if (this.programBuilderStore.justAddedModelUuid === this.workoutUuid) {
-            this.$nextTick(() => {
-                this.programBuilderStore.justAddedModelUuid = null;
-            });
-        }
-    },
     computed: {
-        workout: {
+        name: {
             get() {
-                return this.programBuilderStore.getWorkout(this.workoutUuid);
+                return this.workout.name;
             },
-            set(newState) {
-                // TODO: Implement updateWorkout action in Pinia store
-                this.programBuilderStore.updateWorkout({
-                    uuid: this.workoutUuid,
-                    ...newState,
+            set(value) {
+                this.programBuilderStore.updateRoutine(this.workoutUuid, {
+                    name: value,
                 });
             },
         },
-        name: {
-            get() {
-                return this.localState.name;
-            },
-            set(name) {
-                this.localState.name = name;
-                this.finishEditingTitle();
-            },
-        },
-        nameDisplay() {
-            return this.localState.name || 'Unnamed workout';
+        workout() {
+            return this.programBuilderStore.getRoutine(this.workoutUuid);
         },
         orderedExercises: {
             get() {
@@ -201,9 +178,6 @@ export default {
         },
     },
     methods: {
-        finishEditingTitle() {
-            this.workout = this.localState;
-        },
         addExercise() {
             if (this.isAddingExercise) {
                 return;
