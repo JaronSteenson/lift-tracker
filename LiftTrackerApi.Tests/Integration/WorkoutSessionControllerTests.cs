@@ -226,8 +226,8 @@ public class WorkoutSessionControllerTests(WorkoutDbFixture fixture)
             createdSession.WorkoutProgramRoutine.Uuid
         );
         var sourceExercise = editedSession.SessionExercises.First().RoutineExercise;
-        Assert.Equal("Push Ups", sourceExercise.Name);
-        Assert.Equal(Guid.Parse("231f3f81-4680-4086-b228-168116ae330a"), sourceExercise.Uuid);
+        Assert.Equal("Push Ups", sourceExercise?.Name);
+        Assert.Equal(Guid.Parse("231f3f81-4680-4086-b228-168116ae330a"), sourceExercise?.Uuid);
 
         var responseFromDelete = await _client.DeleteAsync(
             "/api/workout-sessions/80412f8c-49dd-4f0e-b9b2-1021f9308106"
@@ -262,6 +262,7 @@ public class WorkoutSessionControllerTests(WorkoutDbFixture fixture)
         // Assert
         var json = await response.Content.ReadAsStringAsync();
         var createdSession = JsonConvert.DeserializeObject<WorkoutSession>(json);
+        Assert.NotNull(createdSession);
         Assert.Null(createdSession.BodyWeight);
         Assert.Null(createdSession.StartedAt);
         Assert.Equal("Weight recording", createdSession.Name);
@@ -284,6 +285,7 @@ public class WorkoutSessionControllerTests(WorkoutDbFixture fixture)
         );
         var jsonEdited = await responseFromEdit.Content.ReadAsStringAsync();
         var editedSession = JsonConvert.DeserializeObject<WorkoutSession>(jsonEdited);
+        Assert.NotNull(editedSession);
         Assert.Equal(85, editedSession.BodyWeight);
 
         var responseFromDelete = await _client.DeleteAsync(

@@ -16,9 +16,13 @@ public class UserIdMiddleware(RequestDelegate next)
     public async Task InvokeAsync(HttpContext context, LiftTrackerDbContext db)
     {
         // Skip for root/health check.
-        var path = context.Request.Path.Value ?? "";
-        if (path.Equals("/", StringComparison.OrdinalIgnoreCase))
+        var endpoint = context.GetEndpoint();
+        if (
+            endpoint?.Metadata?.GetMetadata<Microsoft.AspNetCore.Authorization.IAllowAnonymous>()
+            != null
+        )
         {
+            // Endpoint allows anonymous access → skip JWT check
             await next(context);
             return;
         }

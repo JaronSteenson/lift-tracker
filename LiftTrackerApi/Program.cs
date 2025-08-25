@@ -50,7 +50,10 @@ builder.Services.AddCors(options =>
         "AllowVueDev",
         policy =>
         {
-            policy.WithOrigins("http://localhost:8081").AllowAnyHeader().AllowAnyMethod();
+            policy
+                .SetIsOriginAllowed(origin => new Uri(origin).Host == "localhost")
+                .AllowAnyHeader()
+                .AllowAnyMethod();
         }
     );
 });
