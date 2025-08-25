@@ -853,7 +853,7 @@ export default {
                     }),
                 );
             }
-
+            debugger;
             const nextSetUuid = this.nextSet.uuid;
             dispatches.push(
                 this.workoutSessionStore.startSet({

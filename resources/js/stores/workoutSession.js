@@ -415,18 +415,13 @@ export const useWorkoutSessionStore = defineStore('workoutSession', {
 
     actions: {
         saveToLocalStorage() {
-            const { useAppStore } = require('./app');
-            const appStore = useAppStore();
-            if (appStore.localOnlyUser) {
-                localStorage.setItem(
-                    LOCAL_STORAGE_KEY,
-                    JSON.stringify(this.forLocalStorageSave),
-                );
-            }
+            localStorage.setItem(
+                LOCAL_STORAGE_KEY,
+                JSON.stringify(this.forLocalStorageSave),
+            );
         },
 
         async fetchNextPage() {
-            const { useAppStore } = require('./app');
             const appStore = useAppStore();
             if (appStore.localOnlyUser) {
                 return; // Skip fetching for local-only users
@@ -468,7 +463,6 @@ export const useWorkoutSessionStore = defineStore('workoutSession', {
         },
 
         async fetchWorkoutSession(workoutSessionUuid) {
-            const { useAppStore } = require('./app');
             const appStore = useAppStore();
 
             if (appStore.localOnlyUser) {
@@ -546,62 +540,23 @@ export const useWorkoutSessionStore = defineStore('workoutSession', {
         },
 
         async saveCheckIn(checkInData) {
-            const { useAppStore } = require('./app');
             const appStore = useAppStore();
-
-            if (appStore.localOnlyUser) {
-                try {
-                    this.saveStatus = 'saving';
-
-                    // For local-only users, handle locally
-                    const savePayload = {
-                        createdAt:
-                            this.workoutSession?.createdAt ||
-                            new Date().toISOString(),
-                        startedAt:
-                            this.workoutSession?.startedAt ||
-                            new Date().toISOString(),
-                        ...checkInData,
-                    };
-
-                    // Assign UUID if new
-                    if (!savePayload.uuid) {
-                        savePayload.uuid = UuidHelper.assign();
-                    }
-
-                    savePayload.updatedAt = new Date().toISOString();
-
-                    // Update the current workout session
-                    this.workoutSession = savePayload;
-
-                    // Update the home page feed
-                    this.myWorkoutSessions = UuidHelper.replaceInCopy(
-                        this.myWorkoutSessions,
-                        this.workoutSession,
-                        true,
-                    );
-
-                    this.saveStatus = 'saved';
-                    this.saveToLocalStorage();
-                    return savePayload;
-                } catch (error) {
-                    this.saveStatus = 'error';
-                    console.error('Error saving check-in locally:', error);
-                    throw error;
-                }
-            }
 
             try {
                 this.saveStatus = 'saving';
-                // Use the save method for both create and update operations
-                const savePayload = {
-                    ...this.workoutSession,
-                    ...checkInData,
-                };
-                const response = await WorkoutSessionService.save(savePayload);
 
-                // Update the current workout session
-                this.workoutSession = response.data;
+                if (appStore.localOnlyUser) {
+                    this.workoutSession.updatedAt = utcNow();
+                    this.workoutSession.createdAt ??= utcNow();
+                } else {
+                    const savePayload = {
+                        ...this.workoutSession,
+                        ...checkInData,
+                    };
+                    const response =
+                        await WorkoutSessionService.save(savePayload);
+                    this.workoutSession = response.data;
+                }
 
                 // Update the home page feed
                 this.myWorkoutSessions = UuidHelper.replaceInCopy(
@@ -610,45 +565,17 @@ export const useWorkoutSessionStore = defineStore('workoutSession', {
                     true,
                 );
 
+                this.saveToLocalStorage();
+
                 this.saveStatus = 'saved';
-                return response.data;
             } catch (error) {
                 this.saveStatus = 'error';
-                console.error('Error saving check-in:', error);
                 throw error;
             }
         },
 
         async startWorkout({ originWorkout }) {
-            const { useAppStore } = require('./app');
             const appStore = useAppStore();
-
-            if (appStore.localOnlyUser) {
-                try {
-                    // Create a new workout session from the routine using the helper function
-                    const sessionData = createSessionFromBuilderWorkout({
-                        existingCheckIn: null,
-                        originWorkout,
-                    });
-
-                    // Assign UUID and timestamps for local storage
-                    sessionData.uuid = UuidHelper.assign();
-                    sessionData.createdAt = new Date().toISOString();
-                    sessionData.updatedAt = new Date().toISOString();
-
-                    this.workoutSession = sessionData;
-
-                    // Add to sessions list
-                    this.myWorkoutSessions.unshift(sessionData);
-                    this.saveToLocalStorage();
-
-                    return this.workoutSession;
-                } catch (error) {
-                    console.error('Error starting workout locally:', error);
-                    throw error;
-                }
-            }
-
             try {
                 // Create a new workout session from the routine using the helper function
                 const sessionData = createSessionFromBuilderWorkout({
@@ -657,17 +584,23 @@ export const useWorkoutSessionStore = defineStore('workoutSession', {
                 });
 
                 // Save the session using the existing save method
-                const response = await WorkoutSessionService.save(sessionData);
-                this.workoutSession = response.data;
-
-                // Add to sessions list if not already there
-                const exists = this.myWorkoutSessions.some(
-                    (session) => session.uuid === response.data.uuid,
-                );
-                if (!exists) {
-                    this.myWorkoutSessions.unshift(response.data);
+                if (appStore.localOnlyUser) {
+                    this.workoutSession.updatedAt = utcNow();
+                    this.workoutSession.createdAt ??= utcNow();
+                } else {
+                    const response =
+                        await WorkoutSessionService.save(sessionData);
+                    this.workoutSession = response.data;
                 }
 
+                // Update the home page feed
+                this.myWorkoutSessions = UuidHelper.replaceInCopy(
+                    this.myWorkoutSessions,
+                    this.workoutSession,
+                    true,
+                );
+
+                this.saveToLocalStorage();
                 return this.workoutSession;
             } catch (error) {
                 console.error('Error starting workout:', error);
@@ -693,7 +626,6 @@ export const useWorkoutSessionStore = defineStore('workoutSession', {
                 // Save the set to the server or localStorage
                 await this.saveSet(uuid);
 
-                const { useAppStore } = require('./app');
                 const appStore = useAppStore();
                 if (appStore.localOnlyUser) {
                     this.saveToLocalStorage();
@@ -845,66 +777,28 @@ export const useWorkoutSessionStore = defineStore('workoutSession', {
         },
 
         async saveWorkout() {
-            if (!this.workoutSession) return;
-
-            const { useAppStore } = require('./app');
             const appStore = useAppStore();
+            this.saveStatus = 'saving';
 
             if (appStore.localOnlyUser) {
-                try {
-                    this.saveStatus = 'saving';
-
-                    // Update the updatedAt timestamp
-                    this.workoutSession.updatedAt = utcNow();
-
-                    // Update the home page feed
-                    this.myWorkoutSessions = UuidHelper.replaceInCopy(
-                        this.myWorkoutSessions,
-                        this.workoutSession,
-                        true,
-                    );
-
-                    this.saveStatus = 'saved';
-                    this.saveToLocalStorage();
-                    return this.workoutSession;
-                } catch (error) {
-                    this.saveStatus = 'error';
-                    console.error('Error saving workout locally:', error);
-                    throw error;
-                }
-            }
-
-            try {
-                this.saveStatus = 'saving';
-
-                // Update the updatedAt timestamp
                 this.workoutSession.updatedAt = utcNow();
-
-                // Save the entire workout session to the server
+                this.workoutSession.createdAt ??= utcNow();
+            } else {
                 const response = await WorkoutSessionService.save(
                     this.workoutSession,
                 );
-
-                // Update the workout session with the response data
-                this.workoutSession = {
-                    ...this.workoutSession,
-                    ...response.data,
-                };
-
-                // Update the home page feed
-                this.myWorkoutSessions = UuidHelper.replaceInCopy(
-                    this.myWorkoutSessions,
-                    this.workoutSession,
-                    true,
-                );
-
-                this.saveStatus = 'saved';
-                return response.data;
-            } catch (error) {
-                this.saveStatus = 'error';
-                console.error('Error saving workout:', error);
-                throw error;
+                this.workoutSession = response.data;
             }
+
+            // Update the home page feed
+            this.myWorkoutSessions = UuidHelper.replaceInCopy(
+                this.myWorkoutSessions,
+                this.workoutSession,
+                true,
+            );
+
+            this.saveToLocalStorage();
+            this.saveStatus = 'saved';
         },
 
         async skipExercise({ uuid }) {
@@ -1026,15 +920,12 @@ export const useWorkoutSessionStore = defineStore('workoutSession', {
         },
 
         async saveExercise(exerciseUuid) {
-            if (!this.workoutSession) return;
-
             // Find the exercise to save
             const exercise = this.workoutSession.sessionExercises?.find(
                 (ex) => ex.uuid === exerciseUuid,
             );
             if (!exercise) return;
 
-            const { useAppStore } = require('./app');
             const appStore = useAppStore();
 
             if (appStore.localOnlyUser) {
@@ -1044,41 +935,37 @@ export const useWorkoutSessionStore = defineStore('workoutSession', {
             }
 
             try {
-                await WorkoutSessionService.saveExercise(exercise);
+                if (appStore.localOnlyUser) {
+                    exercise.updatedAt = utcNow();
+                } else {
+                    await WorkoutSessionService.saveExercise(exercise);
+                }
             } catch (error) {
                 console.error('Error saving exercise:', error);
                 throw error;
             }
+
+            this.saveToLocalStorage();
         },
 
         async saveSet(setUuid) {
-            if (!this.workoutSession) {
-                return;
-            }
-
-            // Find the set to save
-            let set = UuidHelper.findDeep(this.workoutSession, setUuid);
-            if (!set) {
-                return;
-            }
-
-            const { useAppStore } = require('./app');
             const appStore = useAppStore();
 
-            if (appStore.localOnlyUser) {
-                // For local-only users, just save to localStorage
-                this.saveToLocalStorage();
-
-                return;
-            }
+            let set = UuidHelper.findDeep(this.workoutSession, setUuid);
 
             try {
-                await WorkoutSessionService.saveSet(set);
+                if (appStore.localOnlyUser) {
+                    set.updatedAt = utcNow();
+                } else {
+                    await WorkoutSessionService.saveSet(set);
+                }
             } catch (error) {
                 console.error('Error saving set:', error);
 
                 throw error;
             }
+
+            this.saveToLocalStorage();
         },
 
         // Add more actions as needed - this is a basic structure

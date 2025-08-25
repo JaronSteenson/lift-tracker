@@ -24,7 +24,7 @@
 
                     <VList>
                         <VListItem
-                            :disabled="createdAt === null"
+                            :disabled="workoutSession.createdAt === null"
                             @click="showDeleteConfirmation"
                         >
                             <VListItemTitle>Delete</VListItemTitle>
@@ -39,7 +39,7 @@
                 <VForm @submit.prevent="save">
                     <VTextField
                         class=""
-                        v-model="name"
+                        v-model="workoutSession.name"
                         label="Title"
                         hide-details
                         single-line
@@ -52,9 +52,14 @@
                         :step="1"
                         :max="9999"
                         :min="0"
-                        v-model.number="bodyWeight"
+                        v-model.number="workoutSession.bodyWeight"
                     />
-                    <VTextarea auto-grow filled label="Notes" v-model="notes" />
+                    <VTextarea
+                        auto-grow
+                        filled
+                        label="Notes"
+                        v-model="workoutSession.notes"
+                    />
                     <VBtn elevation="1" width="100%" type="submit">Save</VBtn>
                 </VForm>
             </VContainer>
@@ -89,46 +94,15 @@ export default {
         },
     },
     data() {
-        if (!this.$route.params.workoutSessionUuid) {
-            return createCheckIn();
-        }
-
         return {
-            uuid: null,
-            name: null,
-            bodyWeight: null,
-            notes: null,
-            createdAt: null,
-            sessionExercises: [],
-            workoutProgramRoutine: null,
+            workoutSession: this.$route.params.workoutSessionUuid
+                ? this.workoutSessionStore.workoutSession
+                : createCheckIn(),
         };
     },
-    created() {
-        if (this.$route.params.workoutSessionUuid) {
-            this.loadWorkoutSession();
-        }
-    },
     methods: {
-        loadWorkoutSession() {
-            const workoutSession =
-                this.workoutSessionStore.workoutSession || {};
-            this.uuid = workoutSession.uuid;
-            this.name = workoutSession.name;
-            this.bodyWeight = workoutSession.bodyWeight;
-            this.notes = workoutSession.notes;
-            this.createdAt = workoutSession.createdAt;
-            this.sessionExercises = workoutSession.sessionExercises || [];
-            this.workoutProgramRoutine = workoutSession.workoutProgramRoutine;
-        },
         async save() {
-            await this.workoutSessionStore.saveCheckIn({
-                uuid: this.uuid,
-                name: this.name,
-                bodyWeight: this.bodyWeight,
-                notes: this.notes,
-                sessionExercises: this.sessionExercises,
-                workoutProgramRoutine: this.workoutProgramRoutine,
-            });
+            await this.workoutSessionStore.saveCheckIn(this.workoutSession);
 
             const workoutSession = this.workoutSessionStore.workoutSession;
             if (this.toFirstSetAfterSave) {

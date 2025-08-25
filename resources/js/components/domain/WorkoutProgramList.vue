@@ -27,11 +27,6 @@
                         >
                             <VListItemTitle>Edit</VListItemTitle>
                         </VListItem>
-                        <VListItem @click="showNewSessionModal(program.uuid)">
-                            <VListItemTitle>
-                                New session from this program
-                            </VListItemTitle>
-                        </VListItem>
                         <VListItem
                             @click="showDeleteConfirmation(program.uuid)"
                         >
@@ -50,12 +45,10 @@
                 Program
             </AddNewButton>
         </div>
-        <NewSessionModal :program-uuid.sync="newSessionModalProgramUuid" />
     </VContainer>
 </template>
 
 <script>
-import NewSessionModal from './workoutSessions/NewSessionModal';
 import ProgramName from '../domain/programBuilder/ProgramName';
 import AddNewButton from '../formFields/AddNewButton.vue';
 import { useProgramBuilderStore } from '../../stores/programBuilder';
@@ -66,7 +59,6 @@ export default {
     components: {
         AddNewButton,
         ProgramName,
-        NewSessionModal,
     },
     setup() {
         const programBuilderStore = useProgramBuilderStore();

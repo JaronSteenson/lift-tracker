@@ -77,6 +77,7 @@ export default {
                     this.sessionSetUuid,
                 )
             ) {
+                this.loading = false;
                 return;
             }
             this.loading = true;

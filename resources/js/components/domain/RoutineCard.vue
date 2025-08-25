@@ -22,8 +22,7 @@
         <VCardActions>
             <VBtn
                 elevation="1"
-                small
-                width="50%"
+                size="small"
                 :to="{
                     name: 'NewSessionOverviewPage',
                     params: { originRoutineUuid: routine.uuid },
@@ -37,7 +36,6 @@
             <VBtn
                 elevation="1"
                 size="small"
-                width="50%"
                 :loading="starting"
                 @click="startNow"
             >
