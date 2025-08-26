@@ -253,13 +253,10 @@ export const useProgramBuilderStore = defineStore('programBuilder', {
                 uuid: UuidHelper.assign(),
                 name: `Exercise ${exerciseNumber}`,
                 position: workout.routineExercises.length,
-                sets: 3,
-                reps: 10,
+                numberOfSets: 3,
                 restPeriod: 60,
                 warmUp: 60,
                 weight: null,
-                notes: '',
-                mode: 'normal',
             };
 
             workout.routineExercises.push(newExercise);

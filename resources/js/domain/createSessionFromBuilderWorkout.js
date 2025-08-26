@@ -80,29 +80,33 @@ function createExerciseForEmptyWorkout(name) {
 }
 
 function createSessionExerciseFromBuilderExercise(builderExercise) {
+    const now = utcNow();
+
     return {
         uuid: UuidHelper.assign(),
         name: builderExercise.name || 'Unnamed exercise',
         notes: builderExercise.notes || null,
         plannedWeight: builderExercise.weight,
-        plannedRestPeriodDuration: builderExercise.restPeriodInSeconds,
+        plannedRestPeriodDuration: builderExercise.restPeriod || 0,
         plannedWarmUp: builderExercise.warmUp || 0,
         position: builderExercise.position,
         skipped: false,
-        sessionSets: Array.from({ length: builderExercise.numberOfSets }).map(
-            (value, index) => {
-                return {
-                    uuid: UuidHelper.assign(),
-                    weight: builderExercise.weight,
-                    position: index,
-                    startedAt: null,
-                    createdAt: utcNow(),
-                };
-            },
-        ),
+        sessionSets: Array.from({
+            length: builderExercise.numberOfSets || 1,
+        }).map((value, index) => {
+            return {
+                uuid: UuidHelper.assign(),
+                weight: builderExercise.weight,
+                position: index,
+                startedAt: null,
+                createdAt: now,
+                updatedAt: now,
+            };
+        }),
         routineExercise: {
             uuid: builderExercise.uuid,
         },
-        createdAt: utcNow(),
+        createdAt: now,
+        updatedAt: now,
     };
 }

@@ -31,6 +31,7 @@
                         <VCol cols="12" md="6" sm="6">
                             <VSelect
                                 :items="numberOfSetsOptions"
+                                required
                                 label="Number of sets"
                                 variant="outlined"
                                 v-model="numberOfSets"

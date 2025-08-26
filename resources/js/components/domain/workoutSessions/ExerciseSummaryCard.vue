@@ -133,9 +133,13 @@ export default {
                     ({ weight, repBreakDown }) =>
                         `${weight} -  ${repBreakDown.map((r) => r.text).join(', ')}`,
                 )
-                .join(' | ');
+                .join(', ');
 
-            return { icon: this.$svgIcons.mdiDumbbell, cols: 12, value };
+            return {
+                icon: this.$svgIcons.mdiDumbbell,
+                cols: this.display.smAndUp.value ? 6 : 12,
+                value,
+            };
         },
         totalDuration() {
             const startedAt = this.firstSet.startedAt;
@@ -147,7 +151,7 @@ export default {
 
             const value = hoursMinutesSecondsFromStartEnd(startedAt, endedAt);
 
-            return { icon: this.$svgIcons.mdiClockOutline, cols: 12, value };
+            return { icon: this.$svgIcons.mdiClockOutline, cols: 6, value };
         },
         totalWarmUp() {
             if (!this.exercise.warmUpEndedAt) {
@@ -159,7 +163,7 @@ export default {
                 this.exercise.warmUpEndedAt,
             );
 
-            return { icon: this.$svgIcons.warmUp, cols: 12, value };
+            return { icon: this.$svgIcons.warmUp, cols: 6, value };
         },
         averageRestPeriod() {
             const setsWithoutLast = [...this.exercise.sessionSets];
@@ -180,7 +184,7 @@ export default {
 
             const value = minsSecDuration(average);
 
-            return { icon: this.$svgIcons.restPeriod, cols: 12, value };
+            return { icon: this.$svgIcons.restPeriod, cols: 6, value };
         },
     },
 };
