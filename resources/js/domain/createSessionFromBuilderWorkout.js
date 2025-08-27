@@ -87,16 +87,16 @@ function createSessionExerciseFromBuilderExercise(builderExercise) {
         name: builderExercise.name || 'Unnamed exercise',
         notes: builderExercise.notes || null,
         plannedWeight: builderExercise.weight,
-        plannedRestPeriodDuration: builderExercise.restPeriod || 0,
-        plannedWarmUp: builderExercise.warmUp || 0,
         position: builderExercise.position,
         skipped: false,
+        warmUpDuration: builderExercise.warmUp,
         sessionSets: Array.from({
             length: builderExercise.numberOfSets || 1,
         }).map((value, index) => {
             return {
                 uuid: UuidHelper.assign(),
                 weight: builderExercise.weight,
+                restPeriodDuration: builderExercise.restPeriod,
                 position: index,
                 startedAt: null,
                 createdAt: now,
