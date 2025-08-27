@@ -63,7 +63,7 @@ export function minsSecDuration(
     roundOffSeconds,
 ) {
     if (typeof noZeroTreatment === 'undefined' && !valueInSeconds) {
-        return 'None';
+        return '0s';
     }
 
     const minutes = Math.floor(valueInSeconds / 60);

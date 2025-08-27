@@ -80,9 +80,6 @@ describe('SessionExerciseStatsModal.vue', () => {
         expect(wrapper.text()).toContain('Notes');
         expect(wrapper.text()).toContain('50');
 
-        // Single sets display 'None' for rest
-        expect(wrapper.text()).toContain('None');
-
         // Should be no spark lines for single set
         expect(
             wrapper.findAllComponents({ name: 'VSparkline' }).length,

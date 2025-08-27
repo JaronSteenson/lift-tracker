@@ -29,9 +29,9 @@
 
                 <template v-if="bodyWeight">
                     <h3 class="mt-2">Body weight</h3>
-                    <p>
-                        {{ bodyWeight }}
-                    </p>
+                    <div class="d-flex justify-space-between w-100">
+                        <div>{{ bodyWeight }}kg</div>
+                    </div>
                     <hr />
                 </template>
 
@@ -43,13 +43,9 @@
                     :line-width="2"
                     smooth
                     padding="16"
-                >
-                    <template v-slot:label="item">
-                        {{ item.value }}kg
-                    </template>
-                </VSparkline>
-                <div class="text-primary text-h3 text-center" v-else>
-                    {{ weights[0] }}
+                />
+                <div class="d-flex justify-space-between w-100">
+                    <div v-for="weight in weights">{{ weight }}kg</div>
                 </div>
                 <hr class="mt-2" />
 
@@ -61,13 +57,9 @@
                     :line-width="2"
                     smooth
                     padding="16"
-                >
-                    <template v-slot:label="item">
-                        {{ item.value }}
-                    </template>
-                </VSparkline>
-                <div class="text-primary text-h3 text-center" v-else>
-                    {{ reps[0] }}
+                />
+                <div class="d-flex justify-space-between w-100">
+                    <div v-for="repCount in reps">{{ repCount }}</div>
                 </div>
                 <hr class="mt-2" />
 
@@ -79,17 +71,16 @@
                     :line-width="2"
                     smooth
                     padding="16"
-                >
-                    <template v-slot:label="item">
-                        {{ minsSecDuration(item.value) }}
-                    </template>
-                </VSparkline>
-                <div class="text-primary text-h3 text-center" v-else>
-                    {{ minsSecDuration(rest[0]) }}
+                />
+                <div class="text-primary text-h3 text-center" v-else>{{}}</div>
+                <div class="d-flex justify-space-between w-100">
+                    <div v-for="restPeriod in rest">
+                        {{ minsSecDuration(restPeriod) }}
+                    </div>
                 </div>
                 <hr class="mt-2" />
             </VCardText>
-            <VCardActions>
+            <VCardActions class="justify-center">
                 <VBtn size="small" variant="outlined" @click="close">
                     Close
                 </VBtn>

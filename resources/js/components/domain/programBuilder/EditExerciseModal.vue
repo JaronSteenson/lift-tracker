@@ -60,7 +60,7 @@
                     </VRow>
                 </VContainer>
             </VCardText>
-            <VCardActions>
+            <VCardActions class="justify-center">
                 <VBtn
                     size="small"
                     variant="outlined"
