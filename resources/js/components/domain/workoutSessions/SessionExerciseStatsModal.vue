@@ -45,7 +45,9 @@
                     padding="16"
                 />
                 <div class="d-flex justify-space-between w-100">
-                    <div v-for="weight in weights">{{ weight }}kg</div>
+                    <div :key="i" v-for="(weight, i) in weights">
+                        {{ weight }}kg
+                    </div>
                 </div>
                 <hr class="mt-2" />
 
@@ -59,7 +61,9 @@
                     padding="16"
                 />
                 <div class="d-flex justify-space-between w-100">
-                    <div v-for="repCount in reps">{{ repCount }}</div>
+                    <div :key="i" v-for="(repCount, i) in reps">
+                        {{ repCount }}
+                    </div>
                 </div>
                 <hr class="mt-2" />
 
@@ -74,7 +78,7 @@
                 />
                 <div class="text-primary text-h3 text-center" v-else>{{}}</div>
                 <div class="d-flex justify-space-between w-100">
-                    <div v-for="restPeriod in rest">
+                    <div :key="i" v-for="(restPeriod, i) in rest">
                         {{ minsSecDuration(restPeriod) }}
                     </div>
                 </div>
