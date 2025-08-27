@@ -121,26 +121,8 @@ export const useWorkoutSessionStore = defineStore('workoutSession', {
         },
 
         // Set navigation getters
-        previousSet: (state) => (currentSetUuid) => {
-            const currentSet = state.workoutSession?.sessionExercises
-                ?.flatMap((ex) => ex.sessionSets)
-                ?.find((set) => set.uuid === currentSetUuid);
-
-            if (!currentSet) return null;
-
-            const allSets =
-                state.workoutSession?.sessionExercises
-                    ?.flatMap((ex) => ex.sessionSets)
-                    ?.sort((a, b) => a.position - b.position) || [];
-
-            const currentIndex = allSets.findIndex(
-                (set) => set.uuid === currentSetUuid,
-            );
-            return currentIndex > 0 ? allSets[currentIndex - 1] : null;
-        },
-
-        nextSet: (state) => (currentSetUuid) => {
-            const allSets =
+        allSets: (state) => {
+            return (
                 state.workoutSession?.sessionExercises
                     ?.sort((a, b) => a.position - b.position) // sort exercises first
                     ?.flatMap(
@@ -148,13 +130,31 @@ export const useWorkoutSessionStore = defineStore('workoutSession', {
                             exercise.sessionSets.sort(
                                 (a, b) => a.position - b.position,
                             ), // sort sets inside exercise
-                    ) || [];
+                    ) || []
+            );
+        },
+        // Set navigation getters
+        previousSet: (state) => (currentSetUuid) => {
+            const currentSet = state.workoutSession?.sessionExercises
+                ?.flatMap((ex) => ex.sessionSets)
+                ?.find((set) => set.uuid === currentSetUuid);
 
-            const currentIndex = allSets.findIndex(
+            if (!currentSet) {
+                return null;
+            }
+
+            const currentIndex = state.allSets.findIndex(
                 (set) => set.uuid === currentSetUuid,
             );
-            return currentIndex >= 0 && currentIndex < allSets.length - 1
-                ? allSets[currentIndex + 1]
+            return currentIndex > 0 ? state.allSets[currentIndex - 1] : null;
+        },
+
+        nextSet: (state) => (currentSetUuid) => {
+            const currentIndex = state.allSets.findIndex(
+                (set) => set.uuid === currentSetUuid,
+            );
+            return currentIndex >= 0 && currentIndex < state.allSets.length - 1
+                ? state.allSets[currentIndex + 1]
                 : null;
         },
 
@@ -205,27 +205,23 @@ export const useWorkoutSessionStore = defineStore('workoutSession', {
 
         // Set position getters
         isFirstSetOfWorkout: (state) => (sessionSetUuid) => {
-            const allSets =
-                state.workoutSession.sessionExercises
-                    ?.flatMap((ex) => ex.sessionSets)
-                    ?.sort((a, b) => a.position - b.position) || [];
-
-            return allSets[0]?.uuid === sessionSetUuid;
+            return state.allSets[0]?.uuid === sessionSetUuid;
         },
 
         isLastSetOfWorkout: (state) => (sessionSetUuid) => {
-            if (!state.workoutSession) return false;
+            if (!state.workoutSession) {
+                return false;
+            }
 
-            const allSets =
-                state.workoutSession.sessionExercises
-                    ?.flatMap((ex) => ex.sessionSets)
-                    ?.sort((a, b) => a.position - b.position) || [];
-
-            return allSets[allSets.length - 1]?.uuid === sessionSetUuid;
+            return (
+                state.allSets[state.allSets.length - 1]?.uuid === sessionSetUuid
+            );
         },
 
         isFirstSetOfExercise: (state) => (sessionSetUuid) => {
-            if (!state.workoutSession) return false;
+            if (!state.workoutSession) {
+                return false;
+            }
 
             let exercise = null;
             state.workoutSession.sessionExercises?.some((ex) => {

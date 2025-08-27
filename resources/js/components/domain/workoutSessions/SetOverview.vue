@@ -297,9 +297,7 @@
                                     variant="flat"
                                 >
                                     <VIcon left>{{ $svgIcons.mdiCheck }}</VIcon>
-                                    Finish
-                                    <br v-if="!smAndUp" />
-                                    workout
+                                    Finish workout
                                 </VBtn>
                                 <VBtn
                                     v-else
