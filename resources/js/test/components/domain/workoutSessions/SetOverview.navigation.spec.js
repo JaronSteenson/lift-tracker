@@ -19,6 +19,7 @@ describe('SetOverview - Navigation functionality', () => {
             },
             endSet: jest.fn().mockResolvedValue(),
             startSet: jest.fn().mockResolvedValue(),
+            startNextSet: jest.fn().mockResolvedValue(),
             saveWorkout: jest.fn().mockResolvedValue(),
             previousExerciseLastSet: jest.fn(),
             nextExerciseFirstSet: jest.fn(),
@@ -38,6 +39,9 @@ describe('SetOverview - Navigation functionality', () => {
             sessionSetUuid: 'test-set-uuid',
             $router: { push: mockRouterPush },
             isChangingSet: false,
+            set: {
+                uuid: 'test-set-uuid',
+            },
             nextSet: { uuid: 'next-set-uuid' },
         };
 
@@ -54,17 +58,9 @@ describe('SetOverview - Navigation functionality', () => {
             await instance.startNextSet();
 
             // Verify the calls were made in the correct sequence
-            expect(mockStore.endSet).toHaveBeenCalledWith({
+            expect(mockStore.startNextSet).toHaveBeenCalledWith({
                 uuid: 'test-set-uuid',
             });
-            expect(mockStore.startSet).toHaveBeenCalledWith({
-                uuid: 'next-set-uuid',
-            });
-            expect(mockRouterPush).toHaveBeenCalledWith({
-                name: 'SetOverviewPage',
-                params: { sessionSetUuid: 'next-set-uuid' },
-            });
-            expect(mockStore.saveWorkout).toHaveBeenCalled();
         });
 
         it('should handle the loading state correctly', async () => {

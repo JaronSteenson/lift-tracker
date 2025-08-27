@@ -50,9 +50,9 @@
                         </VListItem>
                         <VListItem
                             :disabled="!isInProgressSet || isLastSetOfWorkout"
-                            @click="skipSet"
+                            @click="startNextSet"
                         >
-                            <VListItemTitle>Skip set</VListItemTitle>
+                            <VListItemTitle>Start next set</VListItemTitle>
                         </VListItem>
                         <VListItem
                             :disabled="!isInProgressSet || isSkippedExercise"
@@ -789,26 +789,12 @@ export default {
                 uuid,
             });
         },
-        skipSet() {
-            this.startNextSet();
-        },
         async startNextSet() {
             this.isChangingSet = true;
-            const nextSetUuid = this.nextSet.uuid;
-
-            await this.workoutSessionStore.endSet({
-                uuid: this.sessionSetUuid,
-            });
-            await this.workoutSessionStore.startSet({
-                uuid: nextSetUuid,
+            await this.workoutSessionStore.startNextSet({
+                uuid: this.set.uuid,
             });
             this.isChangingSet = false;
-
-            this.$router.push({
-                name: 'SetOverviewPage',
-                params: { sessionSetUuid: nextSetUuid },
-            });
-            await this.workoutSessionStore.saveWorkout();
         },
         async skipExercise() {
             this.isChangingSet = true;

@@ -6,6 +6,7 @@ import { differenceInSeconds, isToday } from 'date-fns';
 import UuidHelper from '../UuidHelper';
 import { useAppStore } from './app';
 import SessionExerciseService from '../api/SessionExerciseService';
+import router from '../router/router';
 
 const LOCAL_STORAGE_KEY = 'store-state--WorkoutSession';
 
@@ -779,6 +780,22 @@ export const useWorkoutSessionStore = defineStore('workoutSession', {
             }
         },
 
+        async startNextSet({ uuid }) {
+            const nextSetUuid = this.nextSet(uuid).uuid;
+
+            await Promise.all([
+                this.endSet({
+                    uuid,
+                }),
+                this.startSet({
+                    uuid: nextSetUuid,
+                }),
+                router.push({
+                    name: 'SetOverviewPage',
+                    params: { sessionSetUuid: nextSetUuid },
+                }),
+            ]);
+        },
         async endSet({ uuid }) {
             // Find and end the set in the current workout session
 
