@@ -305,7 +305,7 @@ public class WorkoutSessionService(LiftTrackerDbContext db, DomainEntityService 
             .Where(exercise => !exercise.Skipped)
             .Where(exercise => exercise.WorkoutSession.UserId == userId)
             .Where(exercise => exercise.CreatedAt <= sourceExercise.CreatedAt)
-            .OrderByDescending(exercise => exercise.WorkoutSession.CreatedAt)
+            .OrderBy(exercise => exercise.WorkoutSession.CreatedAt)
             .Take(50)
             .ToListAsync();
 

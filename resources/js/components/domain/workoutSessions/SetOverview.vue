@@ -196,9 +196,7 @@
 
                                     <SessionExerciseStatsModal
                                         url-search-param="history"
-                                        :session-exercises="
-                                            exerciseHistory.reverse()
-                                        "
+                                        :session-exercises="exerciseHistory"
                                         :start-index="1"
                                     />
                                 </template>
