@@ -1,20 +1,25 @@
 const fs = require('fs');
+const stubOnly = Boolean(process.argv[2]);
 
-console.log('Current working directory:', process.cwd());
+console.log(
+    stubOnly
+        ? '🛠️ Building config with test stubs'
+        : '🛠️ Building config with production values',
+);
 
 let template = fs.readFileSync('config.template.json', 'utf8');
 
 // Replace all ${VAR_NAME} with process.env.VAR_NAME
 template = template.replace(/\$\{([A-Z0-9_]+)\}/g, (match, varName) => {
-    const value = process.env[varName];
+    const value = stubOnly ? `test-stub-${varName}` : process.env[varName];
     if (value === undefined) {
         console.warn(`⚠️ Warning: Environment variable ${varName} is not set`);
         return match; // leave placeholder unchanged
     }
 
-    console.info(`✅ Info: Environment variable ${varName} has set`);
+    console.info(`✅ Environment variable ${varName} was set`);
     return value;
 });
 
 fs.writeFileSync('config.json', template);
-console.log('✅ config.json generated');
+console.log('🚀 config.json generated');

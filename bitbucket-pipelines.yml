@@ -25,6 +25,7 @@ pipelines:
                 - echo 'Running linter'
                 - npm run lint
                 - echo 'Running tests'
+                - node ci/replace-config.js test-stub=true
                 - npm test
                 - echo 'Building'
                 - node ci/replace-config.js
