@@ -98,7 +98,7 @@
                 </RouterLink>
 
                 <div
-                    class="d-flex justify-center align-center flex-grow-1 gap-2"
+                    class="d-flex justify-center align-center flex-grow-1 gap-2 overflow-x-scroll"
                 >
                     <VChip
                         v-for="otherSet in setsForStepper"
@@ -108,7 +108,6 @@
                             set.uuid === otherSet.uuid ? 'elevated' : 'outlined'
                         "
                         @click="changeSetFromStepper(otherSet.position + 1)"
-                        size="large"
                         class="set-chip"
                     >
                         <VIcon v-if="otherSet.endedAt" start>{{
