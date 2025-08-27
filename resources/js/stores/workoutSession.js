@@ -142,8 +142,13 @@ export const useWorkoutSessionStore = defineStore('workoutSession', {
         nextSet: (state) => (currentSetUuid) => {
             const allSets =
                 state.workoutSession?.sessionExercises
-                    ?.flatMap((ex) => ex.sessionSets)
-                    ?.sort((a, b) => a.position - b.position) || [];
+                    ?.sort((a, b) => a.position - b.position) // sort exercises first
+                    ?.flatMap(
+                        (exercise) =>
+                            exercise.sessionSets.sort(
+                                (a, b) => a.position - b.position,
+                            ), // sort sets inside exercise
+                    ) || [];
 
             const currentIndex = allSets.findIndex(
                 (set) => set.uuid === currentSetUuid,
@@ -303,7 +308,6 @@ export const useWorkoutSessionStore = defineStore('workoutSession', {
 
         // Exercise history getter
         hasLoadedExerciseHistory: (state) => (sessionExerciseUuid) => {
-            console.log(state.exerciseHistoryMap);
             return Boolean(state.exerciseHistoryMap[sessionExerciseUuid]);
         },
 
@@ -528,10 +532,18 @@ export const useWorkoutSessionStore = defineStore('workoutSession', {
         },
 
         workoutSessionIsLoaded(workoutSessionUuid) {
-            console.log('loaded already?', this.workoutSession.uuid);
             return (
                 this.workoutSession &&
                 this.workoutSession.uuid === workoutSessionUuid
+            );
+        },
+
+        workoutSessionIsLoadedForSet(sessionSetUuid) {
+            return (
+                this.workoutSession &&
+                Boolean(
+                    UuidHelper.findDeep(this.workoutSession, sessionSetUuid),
+                )
             );
         },
 
@@ -635,7 +647,6 @@ export const useWorkoutSessionStore = defineStore('workoutSession', {
                 await SessionExerciseService.getHistory(sessionExerciseUuid);
 
             this.exerciseHistoryMap[sessionExerciseUuid] = response.data;
-            console.log(this.exerciseHistoryMap);
             return response.data;
         },
 

@@ -62,15 +62,15 @@ export default {
         },
     },
     watch: {
-        $route() {
+        sessionSetUuid() {
             this.ensureWorkoutSessionIsLoadedLoaded();
         },
     },
     methods: {
         async ensureWorkoutSessionIsLoadedLoaded() {
             if (
-                this.workoutSessionStore.workoutSessionIsLoaded(
-                    this.workoutSessionUuid,
+                this.workoutSessionStore.workoutSessionIsLoadedForSet(
+                    this.sessionSetUuid,
                 )
             ) {
                 this.loading = false;

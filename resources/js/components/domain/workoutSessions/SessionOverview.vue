@@ -27,7 +27,7 @@
             <VTimeline
                 v-if="workoutSession.sessionExercises.length !== 0"
                 :class="display.smAndDown.value ? 'py-1 min-h-0' : ''"
-                :side="display.smAndDown.value ? 'start' : 'default'"
+                :side="display.smAndDown.value ? 'start' : undefined"
             >
                 <VTimelineItem
                     v-for="(sessionExercise, i) in exercises"

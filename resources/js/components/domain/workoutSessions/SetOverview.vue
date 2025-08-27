@@ -82,35 +82,20 @@
         <NarrowContentContainer>
             <div class="d-flex align-center justify-center pa-4">
                 <RouterLink
-                    v-if="previousExerciseLastSet"
-                    class="d-flex"
+                    :class="{
+                        'text-disabled': !previousExerciseLastSet?.uuid,
+                        'cursor-pointer': previousExerciseLastSet?.uuid,
+                    }"
                     :to="{
                         name: 'SetOverviewPage',
                         params: {
-                            sessionSetUuid: previousExerciseLastSet.uuid,
+                            sessionSetUuid: previousExerciseLastSet?.uuid,
                         },
                     }"
+                    :disabled="Boolean(previousExerciseLastSet)"
                 >
-                    <VBtn
-                        icon
-                        size="x-small"
-                        color="secondary"
-                        class="set-navigation set-navigation--left"
-                    >
-                        <VIcon size="x-large">{{
-                            $svgIcons.mdiChevronLeft
-                        }}</VIcon>
-                    </VBtn>
+                    <VIcon size="large">{{ $svgIcons.mdiChevronLeft }}</VIcon>
                 </RouterLink>
-                <VBtn
-                    v-else
-                    icon
-                    size="x-small"
-                    class="set-navigation set-navigation--left"
-                    style="visibility: hidden"
-                >
-                    <VIcon size="x-large">{{ $svgIcons.mdiChevronLeft }}</VIcon>
-                </VBtn>
 
                 <div
                     class="d-flex justify-center align-center flex-grow-1 gap-2"
@@ -123,7 +108,7 @@
                             set.uuid === otherSet.uuid ? 'elevated' : 'outlined'
                         "
                         @click="changeSetFromStepper(otherSet.position + 1)"
-                        size="small"
+                        size="large"
                         class="set-chip"
                     >
                         <VIcon v-if="otherSet.endedAt" start>{{
@@ -134,37 +119,20 @@
                 </div>
 
                 <RouterLink
-                    v-if="nextExerciseFirstSet"
-                    class="d-flex"
+                    :class="{
+                        'text-disabled': !nextExerciseFirstSet?.uuid,
+                        'cursor-pointer': nextExerciseFirstSet?.uuid,
+                    }"
                     :to="{
                         name: 'SetOverviewPage',
                         params: {
-                            sessionSetUuid: nextExerciseFirstSet.uuid,
+                            sessionSetUuid: nextExerciseFirstSet?.uuid,
                         },
                     }"
+                    :disabled="Boolean(nextExerciseFirstSet)"
                 >
-                    <VBtn
-                        icon
-                        size="x-small"
-                        color="secondary"
-                        class="set-navigation set-navigation--right"
-                    >
-                        <VIcon size="x-large">{{
-                            $svgIcons.mdiChevronRight
-                        }}</VIcon>
-                    </VBtn>
+                    <VIcon size="large">{{ $svgIcons.mdiChevronRight }}</VIcon>
                 </RouterLink>
-                <VBtn
-                    v-else
-                    icon
-                    size="x-small"
-                    class="set-navigation set-navigation--right"
-                    style="visibility: hidden"
-                >
-                    <VIcon size="x-large">{{
-                        $svgIcons.mdiChevronRight
-                    }}</VIcon>
-                </VBtn>
             </div>
 
             <VCardText class="px-0">
@@ -519,17 +487,6 @@ export default {
 
             return this.nextSet.startedAt !== null;
         },
-        isLookingAhead() {
-            if (this.workoutIsFinished) {
-                return false;
-            }
-
-            if (this.set.startedAt !== null) {
-                return false;
-            }
-
-            return !this.isInProgressSet && !this.isLookingBack;
-        },
         previousExerciseLastSet() {
             return this.workoutSessionStore.previousExerciseLastSet(
                 this.exercise.uuid,
@@ -842,34 +799,21 @@ export default {
         },
         async startNextSet() {
             this.isChangingSet = true;
-
-            const dispatches = [];
-            if (!this.set.endedAt) {
-                dispatches.push(
-                    this.workoutSessionStore.endSet({
-                        uuid: this.sessionSetUuid,
-                    }),
-                );
-            }
-
             const nextSetUuid = this.nextSet.uuid;
-            dispatches.push(
-                this.workoutSessionStore.startSet({
-                    uuid: nextSetUuid,
-                }),
-            );
 
-            dispatches.push(this.workoutSessionStore.saveWorkout());
-
-            dispatches.push(
-                this.$router.push({
-                    name: 'SetOverviewPage',
-                    params: { sessionSetUuid: nextSetUuid },
-                }),
-            );
-
-            await Promise.all(dispatches);
+            await this.workoutSessionStore.endSet({
+                uuid: this.sessionSetUuid,
+            });
+            await this.workoutSessionStore.startSet({
+                uuid: nextSetUuid,
+            });
             this.isChangingSet = false;
+
+            this.$router.push({
+                name: 'SetOverviewPage',
+                params: { sessionSetUuid: nextSetUuid },
+            });
+            await this.workoutSessionStore.saveWorkout();
         },
         async skipExercise() {
             this.isChangingSet = true;
