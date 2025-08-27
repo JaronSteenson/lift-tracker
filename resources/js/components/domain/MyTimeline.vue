@@ -324,11 +324,3 @@ export default {
     },
 };
 </script>
-
-<style scoped>
-.sticky-toolbar {
-    position: sticky;
-    top: 56px;
-    z-index: 10; /* Make sure it stays above other content */
-}
-</style>

@@ -1,13 +1,15 @@
 <template>
-    <VCardTitle class="back-forward-toolbar">
+    <VToolbar class="sticky-appbar">
         <VBtn :disabled="!enableBack" icon @click="$emit('back')">
             <VIcon>{{ $svgIcons.mdiChevronLeft }}</VIcon>
         </VBtn>
+        <VSpacer />
         <slot />
+        <VSpacer />
         <VBtn :disabled="!enableForward" icon @click="$emit('forward')">
             <VIcon>{{ $svgIcons.mdiChevronRight }}</VIcon>
         </VBtn>
-    </VCardTitle>
+    </VToolbar>
 </template>
 
 <script>
@@ -18,14 +20,3 @@ export default {
     },
 };
 </script>
-
-<style lang="scss" scoped>
-.back-forward-toolbar {
-    position: sticky;
-    top: 0;
-    display: flex;
-    justify-content: space-between;
-    padding-left: 12px !important;
-    padding-right: 12px !important;
-}
-</style>

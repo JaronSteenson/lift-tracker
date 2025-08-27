@@ -1,19 +1,13 @@
 <template>
     <VDialog
-        :fullscreen="mobile"
-        :max-width="mobile ? null : '400px'"
-        :value="$route.query[urlSearchParam] === urlSearchShowValue"
+        :model-value="$route.query[urlSearchParam] === urlSearchShowValue"
+        @update:model-value="updateDialogValue"
+        max-width="600px"
+        :fullscreen="display.xs.value"
         hide-overlay
         transition="dialog-bottom-transition"
-        @input="updateDialogValue"
     >
         <VCard>
-            <VToolbar dark color="primary">
-                <VBtn icon dark @click="close">
-                    <VIcon>{{ $svgIcons.mdiClose }}</VIcon>
-                </VBtn>
-                <VToolbarTitle>{{ title }}</VToolbarTitle>
-            </VToolbar>
             <BackForwardToolbar
                 v-if="hasManyExercises"
                 :enable-back="hasPrevious"
@@ -41,71 +35,65 @@
                     <hr />
                 </template>
 
-                <div class="graph">
-                    <h3 class="mb-2 mt-4">Weight</h3>
-                    <template v-if="isSingleSet">
-                        <p v-if="singleSetWeight !== null">
-                            {{ singleSetWeight }} {{ singleSetReps }}
-                        </p>
-                        <MissingValue v-else>
-                            Weight not recorded
-                        </MissingValue>
+                <h3 class="mb-2 mt-4">Weight</h3>
+                <VSparkline
+                    v-if="weights.length > 1"
+                    :model-value="weights"
+                    color="primary"
+                    :line-width="2"
+                    smooth
+                    padding="16"
+                >
+                    <template v-slot:label="item">
+                        {{ item.value }}kg
                     </template>
-                    <VSparkline
-                        v-else
-                        :gradient="gradient"
-                        :label-size="10"
-                        :labels="weightLabels"
-                        :line-width="15"
-                        :radius="10"
-                        :value="weights"
-                        show-labels
-                        smooth="radius"
-                        stroke-linecap="round"
-                        type="bar"
-                    />
-                    <hr class="mt-2" />
+                </VSparkline>
+                <div class="text-primary text-h3 text-center" v-else>
+                    {{ weights[0] }}
                 </div>
+                <hr class="mt-2" />
 
-                <div v-if="!isSingleSet" class="graph">
-                    <h3 class="mb-2 mt-4">Reps</h3>
-                    <VSparkline
-                        :label-size="10"
-                        :gradient="gradient"
-                        :labels="repLabels"
-                        :line-width="15"
-                        :radius="10"
-                        :value="reps"
-                        show-labels
-                        smooth="radius"
-                        stroke-linecap="round"
-                        type="bar"
-                    />
-                    <hr class="mt-2" />
+                <h3 class="mb-2 mt-4">Reps</h3>
+                <VSparkline
+                    v-if="reps.length > 1"
+                    :model-value="reps"
+                    color="primary"
+                    :line-width="2"
+                    smooth
+                    padding="16"
+                >
+                    <template v-slot:label="item">
+                        {{ item.value }}
+                    </template>
+                </VSparkline>
+                <div class="text-primary text-h3 text-center" v-else>
+                    {{ reps[0] }}
                 </div>
+                <hr class="mt-2" />
 
-                <div class="graph" v-if="setsForRest.length > 0">
-                    <h3 class="mb-2 mt-8">
-                        {{
-                            isSingleRestPeriod ? 'Rest period' : 'Rest periods'
-                        }}
-                    </h3>
-                    <div v-if="isSingleRestPeriod">{{ singleSetRest }}</div>
-                    <VSparkline
-                        v-else
-                        :label-size="10"
-                        :labels="restLabels"
-                        :line-width="5"
-                        :padding="20"
-                        :radius="5"
-                        :value="rest"
-                        show-labels
-                        stroke-linecap="round"
-                        type="trend"
-                    />
-                    <hr class="mt-2" />
+                <h3 class="mb-2 mt-8">Rest</h3>
+                <VSparkline
+                    v-if="rest.length > 1"
+                    :model-value="rest"
+                    color="primary"
+                    :line-width="2"
+                    smooth
+                    padding="16"
+                >
+                    <template v-slot:label="item">
+                        {{ minsSecDuration(item.value) }}
+                    </template>
+                </VSparkline>
+                <div class="text-primary text-h3 text-center" v-else>
+                    {{ minsSecDuration(rest[0]) }}
                 </div>
+                <hr class="mt-2" />
             </VCardText>
+            <VCardActions>
+                <VBtn size="small" variant="outlined" @click="close">
+                    Close
+                </VBtn>
+            </VCardActions>
         </VCard>
     </VDialog>
 </template>
@@ -119,8 +107,8 @@ import { useDisplay } from 'vuetify';
 export default {
     components: { MissingValue, BackForwardToolbar },
     setup() {
-        const { mobile } = useDisplay();
-        return { mobile };
+        const display = useDisplay();
+        return { display, minsSecDuration };
     },
     props: {
         urlSearchParam: {
@@ -162,14 +150,6 @@ export default {
                 this.sessionExercise.workoutSession.bodyWeight
             );
         },
-        // Bars require a gradient, or they will default to grey.
-        gradient() {
-            return [
-                this.$vuetify.theme.themes[
-                    this.$vuetify.theme.dark ? 'dark' : 'light'
-                ].primary,
-            ];
-        },
         sessionExercise() {
             return this.sessionExercises[this.currentIndex];
         },
@@ -191,84 +171,19 @@ export default {
         isSingleSet() {
             return this.sessionExercise.sessionSets.length === 1;
         },
-        isSingleRestPeriod() {
-            return this.setsForRest.length === 1;
-        },
-        singleSetWeight() {
-            const weight = this.sessionExercise.sessionSets[0].weight;
-
-            if (weight === null) {
-                return null;
-            }
-
-            return `${weight}kg`;
-        },
         weights() {
             return this.sessionExercise.sessionSets.map((set) => {
-                if (set.weight === null) {
-                    return 0;
-                }
-
-                return set.weight;
+                return set.weight || 0;
             });
-        },
-        weightLabels() {
-            return this.sessionExercise.sessionSets.map((set) => {
-                if (set.weight === null) {
-                    return 'n/a';
-                }
-
-                return `${set.weight}kg`;
-            });
-        },
-        singleSetReps() {
-            const reps = this.sessionExercise.sessionSets[0].reps;
-
-            if (reps === null) {
-                return '';
-            }
-
-            return `x ${reps} reps`;
         },
         reps() {
             return this.sessionExercise.sessionSets.map((set) => {
-                if (set.reps === null) {
-                    return 0;
-                }
-
-                return set.reps;
+                return set.reps || 0;
             });
-        },
-        repLabels() {
-            return this.sessionExercise.sessionSets.map((set) => {
-                if (set.reps === null) {
-                    return 'n/a';
-                }
-
-                return set.reps;
-            });
-        },
-        singleSetRest() {
-            return `${minsSecDuration(
-                this.sessionExercise.sessionSets[0].restPeriodDuration,
-            )}`;
         },
         rest() {
             return this.setsForRest.map((set) => {
-                if (set.restPeriodDuration === null) {
-                    return 0;
-                }
-
-                return set.restPeriodDuration;
-            });
-        },
-        restLabels() {
-            return this.setsForRest.map((set) => {
-                if (set.restPeriodDuration === null) {
-                    return 'n/a';
-                }
-
-                return minsSecDuration(set.restPeriodDuration, true);
+                return set.restPeriodDuration || 0;
             });
         },
         setsForRest() {

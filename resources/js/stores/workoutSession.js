@@ -5,6 +5,7 @@ import { utcNow } from '../dates';
 import { differenceInSeconds, isToday } from 'date-fns';
 import UuidHelper from '../UuidHelper';
 import { useAppStore } from './app';
+import SessionExerciseService from '../api/SessionExerciseService';
 
 const LOCAL_STORAGE_KEY = 'store-state--WorkoutSession';
 
@@ -33,7 +34,7 @@ function defaultState() {
         saveStatus: 'saved',
         workoutSession: null,
         currentPageIndex: 1,
-        // Add other state properties as needed
+        exerciseHistoryMap: {},
     };
 }
 
@@ -301,8 +302,13 @@ export const useWorkoutSessionStore = defineStore('workoutSession', {
         },
 
         // Exercise history getter
-        hasLoadedExerciseHistory: () => () => false, // Placeholder - return false for now
-        exerciseHistory: () => () => [], // Placeholder - return empty array for now
+        hasLoadedExerciseHistory: (state) => (sessionExerciseUuid) => {
+            console.log(state.exerciseHistoryMap);
+            return Boolean(state.exerciseHistoryMap[sessionExerciseUuid]);
+        },
+
+        exerciseHistory: (state) => (sessionExerciseUuid) =>
+            state.exerciseHistoryMap[sessionExerciseUuid],
 
         // Weight getters
         weightForCurrentSet: (state) => (sessionSetUuid) => {
@@ -624,9 +630,13 @@ export const useWorkoutSessionStore = defineStore('workoutSession', {
             }
         },
 
-        async fetchExerciseHistory() {
-            // Placeholder - implement exercise history fetching if needed
-            return Promise.resolve();
+        async fetchExerciseHistory(sessionExerciseUuid) {
+            const response =
+                await SessionExerciseService.getHistory(sessionExerciseUuid);
+
+            this.exerciseHistoryMap[sessionExerciseUuid] = response.data;
+            console.log(this.exerciseHistoryMap);
+            return response.data;
         },
 
         async updateSetWeight({ uuid, weight }) {

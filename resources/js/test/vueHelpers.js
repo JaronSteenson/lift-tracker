@@ -28,6 +28,32 @@ function localMountOptions() {
             mocks: {
                 $svgIcons: svgIcons,
             },
+            stubs: {
+                VSparkline: {
+                    name: 'VSparkline',
+                    template: '<div class="v-sparkline"></div>',
+                },
+                VDialog: {
+                    name: 'VDialog',
+                    template: '<div class="v-dialog"><slot /></div>',
+                },
+                VCard: {
+                    name: 'VCard',
+                    template: '<div class="v-card"><slot /></div>',
+                },
+                VCardText: {
+                    name: 'VCardText',
+                    template: '<div class="v-card__text"><slot /></div>',
+                },
+                VCardActions: {
+                    name: 'VCardActions',
+                    template: '<div class="v-card__actions"><slot /></div>',
+                },
+                VBtn: {
+                    name: 'VBtn',
+                    template: '<button class="v-btn"><slot /></button>',
+                },
+            },
         },
     };
 }

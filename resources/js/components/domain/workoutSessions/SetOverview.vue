@@ -228,7 +228,9 @@
 
                                     <SessionExerciseStatsModal
                                         url-search-param="history"
-                                        :session-exercises="exerciseHistory"
+                                        :session-exercises="
+                                            exerciseHistory.reverse()
+                                        "
                                         :start-index="1"
                                     />
                                 </template>
@@ -400,6 +402,7 @@ import NarrowContentContainer from '../../layouts/NarrowContentContainer';
 import AppBar from '../../AppBar';
 import EditExerciseModal from '../../domain/programBuilder/EditExerciseModal';
 import ResumeWorkoutFab from '../../ResumeWorkoutFab';
+import UuidHelper from '../../../UuidHelper';
 
 export default {
     components: {
@@ -664,10 +667,12 @@ export default {
                 this.exercise.uuid,
             );
 
+            if (!history) {
+                return [];
+            }
+
             // Keep today reactive.
-            return history.map((entry) =>
-                entry.uuid === this.exercise.uuid ? this.exercise : entry,
-            );
+            return UuidHelper.replaceInCopy(history, this.exercise);
         },
         weight: {
             get() {
@@ -785,11 +790,6 @@ export default {
                 name: 'SetOverviewPage',
                 params: { sessionSetUuid: this.previousSet.uuid },
             });
-        },
-        async fetchExerciseHistory() {
-            return this.workoutSessionStore.fetchExerciseHistory(
-                this.exercise.uuid,
-            );
         },
         tryEndWorkout() {
             if (this.allowInstanceEndWorkout) {
@@ -922,13 +922,8 @@ export default {
             }
         },
         async ensureExerciseHistoryAreLoaded() {
-            if (this.wasAddedOnTheFly) {
-                this.hasLoadedExerciseHistory = true;
-                return;
-            }
-
             // We must wait for the workout to be created on the server first.
-            if (!this.userIsLocalOnly && this.createdAt === null) {
+            if (this.userIsLocalOnly || this.wasAddedOnTheFly) {
                 return;
             }
 
@@ -938,7 +933,9 @@ export default {
                 );
 
             if (!this.hasLoadedExerciseHistory) {
-                await this.fetchExerciseHistory();
+                await this.workoutSessionStore.fetchExerciseHistory(
+                    this.exercise.uuid,
+                );
                 this.hasLoadedExerciseHistory = true;
             }
         },
