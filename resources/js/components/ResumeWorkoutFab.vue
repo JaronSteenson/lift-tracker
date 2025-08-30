@@ -14,6 +14,7 @@
             <span v-if="display.mdAndUp.value" class="text-primary">
                 Resume workout
             </span>
+            <span v-else class="text-primary">Resume</span>
             <VIcon color="green" size="large">
                 {{ $svgIcons.mdiPlay }}
             </VIcon>
@@ -41,11 +42,6 @@ export default {
             );
         },
         shouldShow() {
-            // Vue router quirk: during initial render, $route is not populated yet
-            if (this.$route.fullPath === '/') {
-                return false;
-            }
-
             if (
                 !this.appStore.isBootstrapped &&
                 !this.appStore.isAuthenticated
@@ -55,6 +51,10 @@ export default {
 
             // Prevent flash on set transition.
             if (this.workoutSessionStore.isChangingSet) {
+                return false;
+            }
+
+            if (this.$route.name === 'CheckInEditPage') {
                 return false;
             }
 
