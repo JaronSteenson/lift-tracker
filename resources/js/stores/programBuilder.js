@@ -2,6 +2,12 @@ import { defineStore } from 'pinia';
 import WorkoutProgramService from '../api/WorkoutProgramService';
 import UuidHelper from '../UuidHelper';
 import { useAppStore } from './app';
+import { utcNow } from '../dates';
+import {
+    STATUS_SAVE_ERROR,
+    STATUS_SAVE_IN_PROGRESS,
+    STATUS_SAVE_OK,
+} from '../components/ServerSyncInfo.vue';
 
 const LOCAL_STORAGE_KEY = 'store-state--ProgramBuilder';
 
@@ -27,10 +33,8 @@ function defaultState() {
         delayedSavingToServer: false,
         myWorkoutPrograms: [],
         myWorkoutProgramsIsLoading: false,
-        // Save status fields
-        lastSavedAt: null,
-        saveStatus: 'unsaved',
-        saveError: null,
+        serverSyncStatus: STATUS_SAVE_OK,
+        serverSyncUpdatedAt: utcNow(),
     };
 }
 
@@ -122,12 +126,16 @@ export const useProgramBuilderStore = defineStore('programBuilder', {
             this.inFocusProgram.workoutProgramRoutines.push(newWorkout);
         },
 
-        async save() {
+        save() {
+            return this.doSave(this._save);
+        },
+
+        async _save() {
             {
                 const appStore = useAppStore();
 
                 if (!appStore.localOnlyUser) {
-                    this.saveStatus = 'saving';
+                    this.serverSyncStatus = 'saving';
                     this.saveError = null;
 
                     const response = await WorkoutProgramService.save(
@@ -137,16 +145,24 @@ export const useProgramBuilderStore = defineStore('programBuilder', {
                     this.inFocusProgram = {
                         ...this.inFocusProgram,
                         ...response.data,
-                        isDirty: false,
                     };
                 }
+            }
+        },
 
-                this.myWorkoutPrograms = UuidHelper.replaceInCopy(
-                    this.myWorkoutPrograms,
-                    this.inFocusProgram,
-                );
+        async doSave(saveFn, ...args) {
+            try {
+                this.serverSyncStatus = STATUS_SAVE_IN_PROGRESS;
+
+                await saveFn.call(this, ...args);
+
+                this.serverSyncUpdatedAt = utcNow();
+                this.serverSyncStatus = STATUS_SAVE_OK;
+            } catch (error) {
+                console.error(error);
+                this.serverSyncStatus = STATUS_SAVE_ERROR;
+            } finally {
                 this.saveToLocalStorage();
-                this.saveStatus = 'saved';
             }
         },
 
@@ -184,7 +200,7 @@ export const useProgramBuilderStore = defineStore('programBuilder', {
                     workoutProgramUuid
                 ) {
                     this.setInFocusProgram(localStorageData.inFocusProgram);
-                    this.saveStatus = 'saved';
+                    this.serverSyncStatus = 'saved';
                 }
                 return;
             }
@@ -193,7 +209,7 @@ export const useProgramBuilderStore = defineStore('programBuilder', {
                 const response =
                     await WorkoutProgramService.get(workoutProgramUuid);
                 this.setInFocusProgram(response.data);
-                this.saveStatus = 'saved';
+                this.serverSyncStatus = 'saved';
             } catch (error) {
                 console.error('Error fetching program:', error);
                 throw error;

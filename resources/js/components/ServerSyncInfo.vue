@@ -1,26 +1,22 @@
 <template>
-    <div class="px-0 d-flex align-center text-caption text-medium-emphasis">
-        <VIcon :size="display.xs.value ? 'small' : null">
+    <div class="d-flex gap-2 align-center text-caption text-medium-emphasis">
+        <VIcon>
             {{ icon }}
         </VIcon>
-        <span
-            class="updated-at"
-            :class="display.xs.value ? 'updated-at--small mx-1' : 'mx-2'"
-        >
-            {{ generatedStatusMessage }}
-        </span>
+        <div>
+            {{ message }}
+        </div>
     </div>
 </template>
 <script>
-import { dateTimeDescription, updatedAtMicro } from '../dates';
 import { useAppStore } from '../stores/app';
 import { useDisplay } from 'vuetify';
 import { svgIcons } from '../vuetify';
 
 // Save status constants
-const STATUS_SAVE_ERROR = 'error';
-const STATUS_SAVE_IN_PROGRESS = 'saving';
-const STATUS_SAVE_OK = 'saved';
+export const STATUS_SAVE_ERROR = 'error';
+export const STATUS_SAVE_IN_PROGRESS = 'saving';
+export const STATUS_SAVE_OK = 'saved';
 
 export default {
     name: 'ServerSyncInfo',
@@ -47,18 +43,6 @@ export default {
             STATUS_SAVE_OK,
         };
     },
-    data() {
-        return {
-            refreshForce: null,
-            refreshInterval: null,
-        };
-    },
-    created() {
-        this.startRefreshInterval();
-    },
-    unmounted() {
-        this.clearRefreshInterval();
-    },
     computed: {
         userIsLocalOnly() {
             return this.appStore.userIsLocalOnly;
@@ -78,9 +62,7 @@ export default {
                     return this.svgIcons.saveFailed;
             }
         },
-        generatedStatusMessage() {
-            this.refreshForce;
-
+        message() {
             if (this.status === this.STATUS_SAVE_ERROR) {
                 if (this.display.smAndDown.value) {
                     return '';
@@ -91,7 +73,7 @@ export default {
 
             if (this.status === this.STATUS_SAVE_IN_PROGRESS) {
                 if (this.display.smAndDown.value) {
-                    return '...';
+                    return '';
                 }
 
                 return 'Saving';
@@ -101,38 +83,8 @@ export default {
                 return 'Saved locally';
             }
 
-            if (
-                this.updatedAt &&
-                this.updatedAt !== null &&
-                this.updatedAt !== undefined
-            ) {
-                if (this.display.mdAndDown.value) {
-                    return `${updatedAtMicro(this.updatedAt)}`;
-                }
-
-                return `${dateTimeDescription(this.updatedAt)}`;
-            }
-
             return '';
-        },
-    },
-    methods: {
-        startRefreshInterval() {
-            this.refreshInterval = setInterval(() => {
-                this.refreshForce = Date.now();
-            }, 60 * 1000);
-        },
-        clearRefreshInterval() {
-            clearInterval(this.interval);
         },
     },
 };
 </script>
-
-<style scoped lang="scss">
-.updated-at {
-    &--small {
-        font-size: 0.8rem;
-    }
-}
-</style>

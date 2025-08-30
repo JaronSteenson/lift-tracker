@@ -8,7 +8,10 @@
             }"
         >
             <template v-slot:right>
-                <ServerSyncInfo :status="saveStatus" :updated-at="updatedAt" />
+                <ServerSyncInfo
+                    :status="serverSyncStatus"
+                    :updated-at="serverSyncUpdatedAt"
+                />
 
                 <VMenu bottom left>
                     <template v-slot:activator="{ props }">
@@ -411,8 +414,11 @@ export default {
         };
     },
     computed: {
-        saveStatus() {
-            return this.workoutSessionStore.saveStatus;
+        serverSyncStatus() {
+            return this.workoutSessionStore.serverSyncStatus;
+        },
+        serverSyncUpdatedAt() {
+            return this.workoutSessionStore.serverSyncUpdatedAt;
         },
         userIsLocalOnly() {
             return this.appStore.userIsLocalOnly;
@@ -425,9 +431,6 @@ export default {
         },
         uuid() {
             return this.workoutSessionStore.uuid;
-        },
-        updatedAt() {
-            return this.workoutSessionStore.updatedAt;
         },
         pageTitle() {
             if (!this.smAndUp) {
@@ -757,25 +760,18 @@ export default {
                 this.endWorkout();
             }
         },
-        endWorkout() {
+        async endWorkout() {
             this.isEndingWorkout = true;
             this.isChangingSet = true;
 
-            // For some reason mobile devices get locked up for about a second here.
-            // So we might as well just force that one second wait, so we can show the
-            // loading spinner on the button, then this seems to happen very quickly
-            // at the one second mark.
-            setTimeout(
-                async () => {
-                    // Force a delay, so we show the loading feedback before the app get too busy to re-render the ui.
-                    this.workoutSessionStore.endWorkout();
-                    this.$router.push({
-                        name: 'SessionOverviewPage',
-                        params: { workoutSessionUuid: this.uuid },
-                    });
-                },
-                !this.smAndUp ? 250 : 0,
-            );
+            this.workoutSessionStore.endWorkout();
+            await this.$router.push({
+                name: 'SessionOverviewPage',
+                params: { workoutSessionUuid: this.uuid },
+            });
+
+            this.isEndingWorkout = false;
+            this.isChangingSet = false;
         },
         resetWarmUp() {
             const uuid = this.exercise.uuid;

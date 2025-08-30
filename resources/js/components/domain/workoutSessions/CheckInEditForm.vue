@@ -60,7 +60,13 @@
                         label="Notes"
                         v-model="workoutSession.notes"
                     />
-                    <VBtn elevation="1" width="100%" type="submit">Save</VBtn>
+                    <VBtn
+                        elevation="1"
+                        width="100%"
+                        type="submit"
+                        :loading="saving"
+                        >Save</VBtn
+                    >
                 </VForm>
             </VContainer>
         </NarrowContentContainer>
@@ -95,6 +101,7 @@ export default {
     },
     data() {
         return {
+            saving: false,
             workoutSession: this.$route.params.workoutSessionUuid
                 ? this.workoutSessionStore.workoutSession
                 : createCheckIn(),
@@ -102,6 +109,7 @@ export default {
     },
     methods: {
         async save() {
+            this.saving = true;
             await this.workoutSessionStore.saveCheckIn(this.workoutSession);
 
             const workoutSession = this.workoutSessionStore.workoutSession;
@@ -121,6 +129,7 @@ export default {
                 name: 'SessionOverviewPage',
                 params: { workoutSessionUuid: workoutSession.uuid },
             });
+            this.saving = false;
         },
         async showDeleteConfirmation() {
             const deleteConfirmed = window.confirm(

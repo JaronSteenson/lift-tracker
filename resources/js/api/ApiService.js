@@ -1,5 +1,6 @@
 import axios from 'axios';
 import config from '../../../config.json';
+import { debounce } from 'ts-debounce';
 
 let baseUrl = config.apiBaseUrl;
 
@@ -11,6 +12,8 @@ const ApiService = {
     get(resourceType, resourceUuid = null) {
         return axios.get(this.makeEndpointUrl(resourceType, resourceUuid));
     },
+
+    saveDebounced: null, // will be set at the end of the file
 
     save(resourceType, payload) {
         if (payload.createdAt) {
@@ -41,10 +44,8 @@ const ApiService = {
 
         return url;
     },
-
-    registerResponseInterceptor(onFulfilled, onRejected) {
-        axios.interceptors.response.use(onFulfilled, onRejected);
-    },
 };
 
 export default ApiService;
+
+ApiService.saveDebounced = debounce(ApiService.save, 500);

@@ -27,15 +27,18 @@ const WorkoutSessionService = {
     },
 
     saveSet(sessionSet) {
-        return ApiService.save(SET_RESOURCE_NAME, sessionSet);
+        return ApiService.saveDebounced(SET_RESOURCE_NAME, sessionSet);
     },
 
     saveExercise(sessionExercise) {
-        return ApiService.save(EXERCISE_RESOURCE_NAME, sessionExercise);
+        return ApiService.saveDebounced(
+            EXERCISE_RESOURCE_NAME,
+            sessionExercise,
+        );
     },
 
     save(workoutSession) {
-        return ApiService.save(RESOURCE_NAME, workoutSession);
+        return ApiService.saveDebounced(RESOURCE_NAME, workoutSession);
     },
 
     delete(uuid) {

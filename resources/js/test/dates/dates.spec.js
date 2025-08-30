@@ -300,14 +300,14 @@ describe('dates', () => {
 
     describe('Updated At micro', () => {
         each([
-            ['Zero seconds', '2019-01-02 12:00:00', '0s'],
+            ['Zero seconds', '2019-01-02 12:00:00', ''],
             ['Some minutes', '2019-01-02 11:50:00', '10m'],
             ['Some minutes and seconds', '2019-01-02 11:49:30', '10m'],
             ['A day', '2019-01-01 12:00:00', '1d'],
             ['A few day', '2018-12-30 12:00:00', '3d'],
             ['A year', '2018-01-02 12:00:00', '365d'],
             ['Over a year', '2017-12-30 12:10:00', '367d'],
-            ['null', null, '0s'],
+            ['null', null, ''],
         ]).test(
             'It should return the correct micro time updated at description for "%s"',
             (testCase, time, expected) => {

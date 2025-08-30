@@ -141,7 +141,7 @@ export function timeDescription(utcDate, noRecent) {
 
 export function updatedAtMicro(utcDate, now) {
     if (!utcDate) {
-        return '0s';
+        return '';
     }
 
     const date = new Date(utcDate);
@@ -149,6 +149,7 @@ export function updatedAtMicro(utcDate, now) {
 
     const hoursAgo = differenceInHours(now, date);
     const daysAgo = differenceInDays(now, date);
+    const secondsAgo = differenceInSeconds(now, date);
 
     if (hoursAgo >= 24) {
         return `${daysAgo}d`;
@@ -158,7 +159,11 @@ export function updatedAtMicro(utcDate, now) {
         return `${hoursAgo}h`;
     }
 
-    return minsSecDuration(differenceInSeconds(now, date), true, true);
+    if (secondsAgo <= 30) {
+        return '';
+    }
+
+    return minsSecDuration(secondsAgo, true, true);
 }
 
 /**

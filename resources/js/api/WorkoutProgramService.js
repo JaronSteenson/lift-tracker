@@ -16,7 +16,7 @@ const WorkoutProgramService = {
     },
 
     save(workoutProgram) {
-        return ApiService.save(RESOURCE_NAME, workoutProgram);
+        return ApiService.saveDebounced(RESOURCE_NAME, workoutProgram);
     },
 
     delete(uuid) {

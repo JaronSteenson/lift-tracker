@@ -15,7 +15,7 @@
                 >
                     <template v-slot:right>
                         <ServerSyncInfo
-                            :status="saveStatus"
+                            :status="serverSyncStatus"
                             :updatedAt="inFocusProgram.updatedAt"
                         />
                         <VMenu bottom left>
@@ -150,8 +150,8 @@ export default {
         inFocusProgram() {
             return this.programBuilderStore.inFocusProgram;
         },
-        saveStatus() {
-            return this.programBuilderStore.saveStatus;
+        serverSyncStatus() {
+            return this.programBuilderStore.serverSyncStatus;
         },
         uuid() {
             return this.inFocusProgram.uuid;
