@@ -138,7 +138,7 @@
             </div>
 
             <VCardText class="px-0">
-                <VContainer class="py-0">
+                <VContainer class="py-0 px-0">
                     <VRow>
                         <VCol class="pt-0" cols="6" md="6" sm="6">
                             <VTextField

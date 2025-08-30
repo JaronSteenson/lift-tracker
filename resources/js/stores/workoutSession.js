@@ -997,7 +997,9 @@ export const useWorkoutSessionStore = defineStore('workoutSession', {
                 });
             }
 
-            if (!exercise) return;
+            if (!exercise) {
+                return;
+            }
 
             const warmUpEndedAt = utcNow();
             const warmUpDuration = differenceInSeconds(
