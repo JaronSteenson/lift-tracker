@@ -5,7 +5,6 @@
         <NoProgramsWelcomeHint v-else-if="shouldShowNoProgramsWelcomeHint" />
         <NoSessionsHint v-else-if="shouldShowNoSessionsHint" />
         <MyTimeline v-else />
-        <ResumeWorkoutFab />
     </div>
 </template>
 
@@ -17,7 +16,6 @@ import PageAppBar from '../AppBar';
 import SessionOverviewLoadingSkeleton from '../domain/workoutSessions/SessionOverviewLoadingSkeleton.vue';
 import { useAppStore } from '../../stores/app';
 import { useWorkoutSessionStore } from '../../stores/workoutSession';
-import ResumeWorkoutFab from '../ResumeWorkoutFab';
 
 export default {
     name: 'HomePage',
@@ -27,7 +25,6 @@ export default {
         NoSessionsHint,
         NoProgramsWelcomeHint,
         MyTimeline,
-        ResumeWorkoutFab,
     },
     setup() {
         const appStore = useAppStore();

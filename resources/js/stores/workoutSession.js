@@ -38,6 +38,7 @@ function defaultState() {
         myWorkoutSessionsIsLoading: false,
         allPagesLoaded: false,
         workoutSession: null,
+        isChangingSet: false,
         currentPageIndex: 1,
         exerciseHistoryMap: {},
         debouncedInitiated: false,

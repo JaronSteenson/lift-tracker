@@ -64,10 +64,6 @@
                 </VTimelineItem>
             </VTimeline>
         </NarrowContentContainer>
-        <ResumeWorkoutFab
-            :show-when="isInProgress"
-            :target-set-uuid="currentSet?.uuid"
-        />
     </div>
 </template>
 
@@ -83,7 +79,6 @@ import {
     timeDescription,
 } from '../../../dates';
 import { useDisplay } from 'vuetify';
-import ResumeWorkoutFab from '../../ResumeWorkoutFab';
 
 export default {
     components: {
@@ -91,7 +86,6 @@ export default {
         AppBar,
         SessionStatsCard,
         ExerciseSummaryCard,
-        ResumeWorkoutFab,
     },
     props: {
         workoutSessionUuid: {
@@ -138,20 +132,6 @@ export default {
                               exercise.sessionSets[0].startedAt,
                           ),
             }));
-        },
-        isInProgress() {
-            // TODO: Implement isInProgressWorkout getter in store
-            return (
-                this.workoutSessionStore.isInProgressWorkout?.(
-                    this.workoutSession.uuid,
-                ) || false
-            );
-        },
-        currentSet() {
-            // TODO: Implement currentSetForInProgressWorkout getter in store
-            return this.workoutSessionStore.currentSetForInProgressWorkout?.(
-                this.workoutSession.uuid,
-            );
         },
         workoutDuration() {
             return hoursMinutesSecondsFromStartEnd(

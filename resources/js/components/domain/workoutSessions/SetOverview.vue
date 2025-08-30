@@ -101,7 +101,7 @@
                 </RouterLink>
 
                 <div
-                    class="d-flex justify-center align-center flex-grow-1 gap-2 overflow-x-scroll"
+                    class="d-flex justify-center align-center flex-grow-1 gap-2 py-2 overflow-x-scroll"
                 >
                     <VChip
                         v-for="otherSet in setsForStepper"
@@ -300,7 +300,7 @@
                                     variant="flat"
                                 >
                                     <VIcon left>{{ $svgIcons.mdiCheck }}</VIcon>
-                                    Finish workout
+                                    Finish
                                 </VBtn>
                                 <VBtn
                                     v-else
@@ -345,14 +345,11 @@
                 </VCardActions>
             </VCardText>
         </NarrowContentContainer>
-        <Teleport to="body">
-            <EditExerciseModal
-                v-model:value="editingSource"
-                :exerciseUuid="exercise.routineExercise.uuid"
-            />
-            <ResumeWorkoutFab :current-set-uuid="set.uuid" />
-        </Teleport>
     </div>
+    <EditExerciseModal
+        v-model:value="editingSource"
+        :exerciseUuid="exercise.routineExercise.uuid"
+    />
 </template>
 
 <script>
@@ -367,7 +364,6 @@ import LabeledWorkoutDuration from '../LabeledWorkoutDuration';
 import NarrowContentContainer from '../../layouts/NarrowContentContainer';
 import AppBar from '../../AppBar';
 import EditExerciseModal from '../../domain/programBuilder/EditExerciseModal';
-import ResumeWorkoutFab from '../../ResumeWorkoutFab';
 import UuidHelper from '../../../UuidHelper';
 
 export default {
@@ -379,7 +375,6 @@ export default {
         ServerSyncInfo,
         SessionExerciseStatsModal,
         RestPeriodTimer,
-        ResumeWorkoutFab,
     },
     setup() {
         const workoutSessionStore = useWorkoutSessionStore();
@@ -407,7 +402,6 @@ export default {
     data() {
         return {
             hasLoadedExerciseHistory: false,
-            isChangingSet: false,
             isEndingWorkout: false,
             forceUpdate: 0,
             editingSource: false,
@@ -469,21 +463,6 @@ export default {
         },
         allowInstanceEndWorkout() {
             return this.isInProgressSet && this.isLastSetOfWorkout;
-        },
-        isLookingBack() {
-            if (this.workoutIsFinished) {
-                return false;
-            }
-
-            if (this.isInProgressSet) {
-                return false;
-            }
-
-            if (this.nextSet === null) {
-                return false;
-            }
-
-            return this.nextSet.startedAt !== null;
         },
         previousExerciseLastSet() {
             return this.workoutSessionStore.previousExerciseLastSet(
@@ -607,11 +586,6 @@ export default {
                 this.sessionSetUuid,
             );
         },
-        isFirstSetOfExercise() {
-            return this.workoutSessionStore.isFirstSetOfExercise(
-                this.sessionSetUuid,
-            );
-        },
         isLastSetOfExercise() {
             return this.workoutSessionStore.isLastSetOfExercise(
                 this.sessionSetUuid,
@@ -628,6 +602,14 @@ export default {
 
             // Keep today reactive.
             return UuidHelper.replaceInCopy(history, this.exercise);
+        },
+        isChangingSet: {
+            get() {
+                return this.workoutSessionStore.isChangingSet;
+            },
+            set(value) {
+                this.workoutSessionStore.isChangingSet = value;
+            },
         },
         weight: {
             get() {

@@ -1,19 +1,21 @@
 <template>
-    <div class="fab-container">
+    <div v-if="shouldShow" class="fab-container">
         <VBtn
-            elevation="1"
-            v-if="shouldShow"
+            elevation="5"
             :to="{
                 name: 'SetOverviewPage',
-                params: { sessionSetUuid: resolvedTargetSetUuid },
+                params: { sessionSetUuid: inProgressSet?.uuid },
             }"
+            rounded
             color="secondary"
             size="large"
             title="Resume workout"
         >
-            <span class="text-primary">Resume workout</span>
+            <span v-if="display.mdAndUp.value" class="text-primary">
+                Resume workout
+            </span>
             <VIcon color="green" size="large">
-                {{ $svgIcons.mdiPlayPause }}
+                {{ $svgIcons.mdiPlay }}
             </VIcon>
         </VBtn>
     </div>
@@ -21,22 +23,16 @@
 
 <script>
 import { useWorkoutSessionStore } from '../stores/workoutSession';
+import { useDisplay } from 'vuetify';
+import { useAppStore } from '../stores/app';
 
 export default {
     name: 'ResumeWorkoutFab',
-    props: {
-        currentSetUuid: {
-            type: String,
-            default: null,
-        },
-        targetSetUuid: {
-            type: String,
-            default: null,
-        },
-    },
     setup() {
+        const display = useDisplay();
+        const appStore = useAppStore();
         const workoutSessionStore = useWorkoutSessionStore();
-        return { workoutSessionStore };
+        return { display, appStore, workoutSessionStore };
     },
     computed: {
         inProgressSet() {
@@ -45,21 +41,31 @@ export default {
             );
         },
         shouldShow() {
-            // If no in-progress set, don't show
-            if (!this.inProgressSet) {
+            // Vue router quirk: during initial render, $route is not populated yet
+            if (this.$route.fullPath === '/') {
                 return false;
             }
 
-            // If currentSetUuid is provided, only show when it's different from in-progress set
-            if (this.currentSetUuid) {
-                return this.currentSetUuid !== this.inProgressSet.uuid;
+            if (
+                !this.appStore.isBootstrapped &&
+                !this.appStore.isAuthenticated
+            ) {
+                return false;
             }
 
-            // Default: show if there's an in-progress set
-            return true;
-        },
-        resolvedTargetSetUuid() {
-            return this.targetSetUuid || this.inProgressSet?.uuid;
+            // Prevent flash on set transition.
+            if (this.workoutSessionStore.isChangingSet) {
+                return false;
+            }
+
+            if (
+                this.$route.name === 'SetOverviewPage' &&
+                this.$route.params?.sessionSetUuid === this.inProgressSet?.uuid
+            ) {
+                return false;
+            }
+
+            return Boolean(this.inProgressSet);
         },
     },
 };

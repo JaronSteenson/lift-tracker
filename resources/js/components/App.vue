@@ -5,7 +5,7 @@
             :class="{ 'prevent-text-select': preventTextSelect }"
         >
             <AppNavigationDrawer />
-            <VMain>
+            <VMain class="pb-8">
                 <RouterView v-if="isBootstrapped" v-slot="{ Component }">
                     <KeepAlive include="HomePage">
                         <Transition mode="out-in" name="no-transition">
@@ -16,6 +16,9 @@
             </VMain>
         </VApp>
     </div>
+    <Teleport to="body">
+        <ResumeWorkoutFab />
+    </Teleport>
 </template>
 
 <script>
@@ -23,10 +26,14 @@ import AppNavigationDrawer from './AppNavigationDrawer';
 import { useAppStore } from '../stores/app';
 import { useProgramBuilderStore } from '../stores/programBuilder';
 import { useDisplay } from 'vuetify';
+import EditExerciseModal from './domain/programBuilder/EditExerciseModal.vue';
+import ResumeWorkoutFab from './ResumeWorkoutFab.vue';
 
 export default {
     name: 'App',
     components: {
+        ResumeWorkoutFab,
+        EditExerciseModal,
         AppNavigationDrawer,
     },
     data() {
