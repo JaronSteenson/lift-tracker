@@ -19,39 +19,36 @@
             </BackForwardToolbar>
 
             <VCardText>
-                <h3 class="mb-2 mt-4">Notes</h3>
-                <p v-if="sessionExercise.notes" class="notes">
-                    {{ sessionExercise.notes }}
-                </p>
-                <MissingValue v-else>No notes</MissingValue>
-
-                <hr class="mt-2" />
-
                 <template v-if="bodyWeight">
-                    <h3 class="mt-2">Body weight</h3>
+                    <h3 class="mt-1">Body weight</h3>
                     <div class="d-flex justify-space-between w-100">
                         <div>{{ bodyWeight }}kg</div>
                     </div>
                     <hr />
                 </template>
 
-                <h3 class="mb-2 mt-4">Weight</h3>
-                <VSparkline
-                    v-if="weights.length > 1"
-                    :model-value="weights"
-                    color="primary"
-                    :line-width="2"
-                    smooth
-                    padding="16"
-                />
-                <div class="d-flex justify-space-between w-100">
-                    <div :key="i" v-for="(weight, i) in weights">
-                        {{ weight }}kg
+                <h3 class="mb-1 mt-2">Weight</h3>
+                <template v-if="weights.length > 1">
+                    <VSparkline
+                        :model-value="weights"
+                        color="primary"
+                        :line-width="2"
+                        smooth
+                        padding="16"
+                    />
+                    <div class="d-flex justify-space-between w-100">
+                        <div :key="i" v-for="(weight, i) in weights">
+                            {{ weight }}kg
+                        </div>
                     </div>
+                </template>
+                <div v-else class="d-flex justify-space-between w-100">
+                    <div>{{ weights[0] }}kg</div>
                 </div>
-                <hr class="mt-2" />
 
-                <h3 class="mb-2 mt-4">Reps</h3>
+                <hr class="mt-1" />
+
+                <h3 class="mb-1 mt-2">Reps</h3>
                 <VSparkline
                     v-if="reps.length > 1"
                     :model-value="reps"
@@ -65,24 +62,28 @@
                         {{ repCount }}
                     </div>
                 </div>
-                <hr class="mt-2" />
-
-                <h3 class="mb-2 mt-8">Rest</h3>
-                <VSparkline
-                    v-if="rest.length > 1"
-                    :model-value="rest"
-                    color="primary"
-                    :line-width="2"
-                    smooth
-                    padding="16"
-                />
-                <div class="text-primary text-h3 text-center" v-else>{{}}</div>
+                <template v-if="rest.length > 1">
+                    <hr class="mt-1" />
+                    <h3 class="mb-1 mt-4">Rest</h3>
+                    <VSparkline
+                        :model-value="rest"
+                        color="primary"
+                        :line-width="2"
+                        smooth
+                        padding="16"
+                    />
+                </template>
                 <div class="d-flex justify-space-between w-100">
                     <div :key="i" v-for="(restPeriod, i) in rest">
                         {{ minsSecDuration(restPeriod) }}
                     </div>
                 </div>
-                <hr class="mt-2" />
+                <hr class="mt-1" />
+                <h3 class="mb-1 mt-2">Notes</h3>
+                <p v-if="sessionExercise.notes" class="notes">
+                    {{ sessionExercise.notes }}
+                </p>
+                <MissingValue v-else>No notes</MissingValue>
             </VCardText>
             <VCardActions class="justify-center">
                 <VBtn size="small" variant="outlined" @click="close">
