@@ -322,7 +322,7 @@
                 </VContainer>
 
                 <VCardActions
-                    class="d-flex justify-center align-center"
+                    class="d-flex justify-center align-center mt-6"
                     v-if="showStartTimerButton"
                     width="100%"
                 >
