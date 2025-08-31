@@ -1,43 +1,40 @@
 let CACHE_KEY = '{CACHE_KEY}';
 
-// A list of local resources we always want to be cached.
-const PRECACHE_URLS = ['/', '/privacy-policy', '/audio/alarm.ogg'];
+// Local resources we always want cached.
+const PRECACHE_URLS = ['/', '/audio/alarm.ogg'];
 const NON_SPA_PAGES = [];
 
-// The "install" handler takes care of precaching the resources we always need.
-self.addEventListener('install', async (event) => {
+// Install handler: precache assets
+self.addEventListener('install', (event) => {
     event.waitUntil(onInstall());
 });
 
 async function onInstall() {
     const preCache = await caches.open(CACHE_KEY);
     await preCache.addAll(PRECACHE_URLS);
-
     return self.skipWaiting();
 }
 
-// The "activate" handler takes care of cleaning up old caches.
-self.addEventListener('activate', async (event) => {
+// Activate handler: clean up old caches
+self.addEventListener('activate', (event) => {
     event.waitUntil(onActivate());
 });
 
 async function onActivate() {
     const currentCaches = [CACHE_KEY];
-
     const cacheNames = await caches.keys();
+
     const cachesToDelete = cacheNames.filter(
         (cacheName) => !currentCaches.includes(cacheName),
     );
 
-    await Promise.all(
-        cachesToDelete.map((cacheToDelete) => caches.delete(cacheToDelete)),
-    );
-
+    await Promise.all(cachesToDelete.map((c) => caches.delete(c)));
     return self.clients.claim();
 }
 
-self.addEventListener('fetch', async (event) => {
-    // Skip cross-origin requests, like those for Google Analytics.
+// Fetch handler
+self.addEventListener('fetch', (event) => {
+    // Skip cross-origin requests (analytics, fonts, etc.)
     if (!event.request.url.startsWith(self.location.origin)) {
         return;
     }
@@ -46,52 +43,68 @@ self.addEventListener('fetch', async (event) => {
 });
 
 async function getFetchResponse(request) {
-    const isPreCacheUrl = PRECACHE_URLS.some((prefetchUrl) =>
-        request.url.endsWith(prefetchUrl),
+    // If it's a script, style, image etc, never treat as SPA
+    if (['script', 'style', 'image', 'font'].includes(request.destination)) {
+        return networkFirst(request);
+    }
+
+    const isPreCacheUrl = PRECACHE_URLS.some((url) =>
+        request.url.endsWith(url),
     );
 
     const isSpaRoute = eventIsForSpaPageRoute(request);
     const cacheKey = isSpaRoute ? '/' : request;
 
-    if (!navigator.onLine || isSpaRoute || isPreCacheUrl) {
+    // Try cache first for SPA routes + precached URLs
+    if (isSpaRoute || isPreCacheUrl) {
         const cachedResponse = await caches.match(cacheKey);
-
         if (cachedResponse) {
             return cachedResponse;
         }
     }
 
+    // Fallback: network + cache
+    return networkFirst(request, cacheKey);
+}
+
+// Network-first strategy with cache fallback
+async function networkFirst(request, cacheKey = request) {
     const cache = await caches.open(CACHE_KEY);
-    const response = await fetch(request);
-
-    if (response && response.ok && request.method === 'GET') {
-        cache.put(cacheKey, response.clone());
+    try {
+        const response = await fetch(request);
+        if (response && response.ok && request.method === 'GET') {
+            cache.put(cacheKey, response.clone());
+        }
+        return response;
+    } catch {
+        const cachedResponse = await caches.match(cacheKey);
+        if (cachedResponse) {
+            return cachedResponse;
+        }
     }
-
-    return response;
 }
 
 /**
- * Is the event for a frontend route.
- * @param request {{ url: string }}
- * @return {boolean}
+ * Detect if request is for an SPA route (e.g. /about, /dashboard).
+ * Excludes static assets, API calls, and NON_SPA_PAGES.
  */
 function eventIsForSpaPageRoute(request) {
-    const isStaticAsset = request.url.includes('.');
-    if (isStaticAsset) {
+    const url = new URL(request.url);
+
+    // If it looks like a static asset (has an extension) → not SPA
+    if (/\.[^/]+$/.test(url.pathname)) {
         return false;
     }
 
-    // We also need to cater for the in build laravel auth/register routes with /email/.
-    const isApiCall =
-        request.url.includes('/api/') || request.url.includes('/email/');
-    if (isApiCall) {
+    // API/backend routes
+    if (url.pathname.startsWith('/api/')) {
         return false;
     }
 
-    const isNonSpaPage = NON_SPA_PAGES.some((prefetchUrl) =>
-        request.url.split('?')[0].endsWith(prefetchUrl),
-    );
+    // Explicit non-SPA pages
+    if (NON_SPA_PAGES.some((page) => url.pathname.endsWith(page))) {
+        return false;
+    }
 
-    return !isNonSpaPage;
+    return true;
 }
