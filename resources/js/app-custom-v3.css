@@ -66,8 +66,19 @@
 
 .banner-image--fade-in {
     opacity: 1;
-    transition: opacity 0.6s ease-in-out;
+    transition: opacity 1s ease-in-out;
 }
+
+.banner-image-skeleton .v-skeleton-loader__image.v-skeleton-loader__bone {
+    height: 260px;
+    width: 390px;
+}
+
+.banner-image-skeleton-small .v-skeleton-loader__image.v-skeleton-loader__bone {
+    height: calc(100vw * 0.666);
+    width: 100vw;
+}
+
 
 .hr {
     width: 100%;

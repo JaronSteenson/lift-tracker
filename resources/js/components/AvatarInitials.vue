@@ -8,7 +8,7 @@
         <template v-slot:activator="{ props }">
             <VBtn icon v-bind="props">
                 <VAvatar color="secondary" :size="32">
-                    {{ avatarInitials }}
+                    {{ appStore.user.name.charAt(0).toUpperCase() }}
                 </VAvatar>
             </VBtn>
         </template>
@@ -32,9 +32,6 @@ export default {
         return { appStore };
     },
     computed: {
-        avatarInitials() {
-            return this.appStore.avatarInitials;
-        },
         userIsAuthenticated() {
             return this.appStore.userIsAuthenticated;
         },

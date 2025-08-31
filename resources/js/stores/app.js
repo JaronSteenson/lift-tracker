@@ -33,13 +33,9 @@ export const useAppStore = defineStore('app', {
 
     getters: {
         userIsAuthenticated: (state) =>
-            Boolean(state.localOnlyUser || state.isAuthenticated),
+            state.user !== null &&
+            (state.localOnlyUser || state.isAuthenticated),
         userIsLocalOnly: (state) => Boolean(state.localOnlyUser),
-        avatarInitials: (state) => {
-            const f = state?.user?.name?.charAt(0) ?? '';
-            const l = state?.user?.family_name?.charAt(0) ?? '';
-            return `${f}${l}`.trim();
-        },
         shouldShowNoProgramsWelcomeHint: (state) => {
             if (
                 (!state.isAuthenticated && !state.localOnlyUser) ||
@@ -111,14 +107,16 @@ export const useAppStore = defineStore('app', {
             const workoutSessionStore = useWorkoutSessionStore();
             const programBuilderStore = useProgramBuilderStore();
 
-            await this.bootstrapAuth0();
-
             const localStorageData = this.fromLocalStorage || {};
             let localOnlyUser = localStorageData?.app?.localOnlyUser ?? false;
 
             this.$patch(localStorageData?.app || {});
             workoutSessionStore.$patch(localStorageData.workoutSession || {});
             programBuilderStore.$patch(localStorageData.programBuilder || {});
+
+            if (!localOnlyUser) {
+                await this.bootstrapAuth0();
+            }
 
             if (this.isAuthenticated) {
                 const programBuilderStore = useProgramBuilderStore();
@@ -128,6 +126,7 @@ export const useAppStore = defineStore('app', {
             }
 
             this.$patch({ localOnlyUser, isBootstrapped: true });
+            this.saveToLocalStorage();
         },
 
         async bootstrapAuth0() {
@@ -139,7 +138,6 @@ export const useAppStore = defineStore('app', {
             });
 
             let auth0Error;
-            let user;
             let clearQueryParams = false;
 
             try {
@@ -163,8 +161,12 @@ export const useAppStore = defineStore('app', {
             } finally {
                 const isAuthenticated = await auth0Client.isAuthenticated();
 
+                let auth0User = null;
+                let rollbarPerson = null;
                 if (isAuthenticated) {
-                    user = await auth0Client.getUser();
+                    auth0User = { ...(await auth0Client.getUser()) };
+                    rollbarPerson = { ...auth0User };
+
                     const token = await auth0Client.getTokenSilently({
                         authorizationParams,
                     });
@@ -173,7 +175,7 @@ export const useAppStore = defineStore('app', {
 
                 this.$patch({
                     isAuthenticated,
-                    user,
+                    user: auth0User,
                     auth0Client,
                     auth0Error,
                 });
@@ -185,7 +187,7 @@ export const useAppStore = defineStore('app', {
                 if (rollbar) {
                     rollbar.configure({
                         payload: {
-                            person: user,
+                            person: rollbarPerson,
                         },
                     });
                 }
@@ -234,23 +236,24 @@ export const useAppStore = defineStore('app', {
             });
             const workoutSessionStore = useWorkoutSessionStore();
             const programBuilderStore = useProgramBuilderStore();
+            workoutSessionStore.unFocusActiveSession();
             workoutSessionStore.$reset();
             programBuilderStore.$reset();
+
+            this.saveToLocalStorage();
         },
 
         saveToLocalStorage() {
-            if (this.localOnlyUser) {
-                localStorage.setItem(
-                    LOCAL_STORAGE_KEY,
-                    JSON.stringify(this.forLocalStorageSave),
-                );
+            localStorage.setItem(
+                LOCAL_STORAGE_KEY,
+                JSON.stringify(this.forLocalStorageSave),
+            );
 
-                // Also trigger saving for other stores
-                const programBuilderStore = useProgramBuilderStore();
-                const workoutSessionStore = useWorkoutSessionStore();
-                programBuilderStore.saveToLocalStorage();
-                workoutSessionStore.saveToLocalStorage();
-            }
+            // Also trigger saving for other stores
+            const programBuilderStore = useProgramBuilderStore();
+            const workoutSessionStore = useWorkoutSessionStore();
+            programBuilderStore.saveToLocalStorage();
+            workoutSessionStore.saveToLocalStorage();
         },
     },
 });

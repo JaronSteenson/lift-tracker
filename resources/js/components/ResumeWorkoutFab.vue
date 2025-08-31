@@ -54,7 +54,7 @@ export default {
                 return false;
             }
 
-            if (this.$route.name === 'CheckInEditPage') {
+            if (['LoginPage', 'CheckInEditPage'].includes(this.$route.name)) {
                 return false;
             }
 

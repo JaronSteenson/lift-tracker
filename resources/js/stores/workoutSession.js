@@ -1015,5 +1015,8 @@ export const useWorkoutSessionStore = defineStore('workoutSession', {
             // Save to server
             await this.saveExercise(uuid);
         },
+        unFocusActiveSession() {
+            this.workoutSession = null;
+        },
     },
 });
