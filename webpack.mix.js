@@ -5,12 +5,17 @@ const { BundleAnalyzerPlugin } = require('webpack-bundle-analyzer');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const { join } = require('node:path');
 
+require('./ci/version-service-worker');
+
 const port = 8081;
 
 if (mix.inProduction()) {
     mix.disableNotifications();
 } else {
-    console.log(`Running in development mode at: http://localhost:${port}`);
+    console.log(
+        `Running in development mode at: http://localhost:${port}`,
+        '\r\n',
+    );
 }
 mix.setPublicPath('dist');
 
