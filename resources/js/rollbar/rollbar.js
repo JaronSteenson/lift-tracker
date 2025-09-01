@@ -13,6 +13,14 @@ export default function initRollbar() {
         environment: process.env.NODE_ENV,
     });
 
+    if (navigator.serviceWorker) {
+        navigator.serviceWorker.addEventListener('message', (event) => {
+            if (event.data?.type === 'sw-error') {
+                rollbar.error(event.data.payload, { serviceWorker: true });
+            }
+        });
+    }
+
     return rollbar;
 }
 

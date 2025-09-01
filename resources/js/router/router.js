@@ -56,24 +56,6 @@ async function checkAuthGuards(to, from) {
     return true;
 }
 
-function checkPwaStart(to) {
-    const appStore = useAppStore();
-
-    // Wait for bootstrap before checking auth
-    if (!appStore.isBootstrapped) {
-        return true;
-    }
-
-    const isAuthed = appStore.userIsAuthenticated;
-    const toPwaStart = to.fullPath === '/pwa-start';
-
-    if (!isAuthed || !toPwaStart) {
-        return true;
-    }
-
-    return { name: 'HomePage' };
-}
-
 function checkForceDrawerHide(to) {
     const goingToForceHideRoute = [
         'ProgramBuilderPage',
@@ -97,13 +79,6 @@ const routes = [
         name: 'HomePage',
         path: '/',
         component: HomePage,
-        meta: {
-            guard: GUARD_AUTHED,
-        },
-    },
-    {
-        name: 'PwaStart',
-        path: '/pwa-start',
         meta: {
             guard: GUARD_AUTHED,
         },
@@ -233,7 +208,6 @@ const router = createRouter({
     },
 });
 
-router.beforeEach(checkPwaStart);
 router.beforeEach(checkAuthGuards);
 router.beforeEach(checkForceDrawerHide);
 
