@@ -79,7 +79,6 @@
     width: 100vw;
 }
 
-
 .hr {
     width: 100%;
 }
@@ -559,13 +558,24 @@
     }
 }
 
-.v-timeline--vertical.v-timeline.v-timeline--side-start .v-timeline-item .v-timeline-item__body {
+.v-timeline--vertical.v-timeline.v-timeline--side-start
+    .v-timeline-item
+    .v-timeline-item__body {
     @media (max-width: 600px) {
         padding-inline-end: 12px;
     }
 }
 
-.v-timeline--vertical.v-timeline .v-timeline--side-start > .v-timeline-item .v-timeline-item__body, .v-timeline--vertical.v-timeline:not(.v-timeline--side-end) > .v-timeline-item--side-start .v-timeline-item__body, .v-timeline--vertical.v-timeline:not(.v-timeline--side-end) > .v-timeline-item:nth-child(2n):not(.v-timeline-item--side-end) .v-timeline-item__body {
+.v-timeline--vertical.v-timeline
+    .v-timeline--side-start
+    > .v-timeline-item
+    .v-timeline-item__body,
+.v-timeline--vertical.v-timeline:not(.v-timeline--side-end)
+    > .v-timeline-item--side-start
+    .v-timeline-item__body,
+.v-timeline--vertical.v-timeline:not(.v-timeline--side-end)
+    > .v-timeline-item:nth-child(2n):not(.v-timeline-item--side-end)
+    .v-timeline-item__body {
     @media (max-width: 600px) {
         padding-inline-end: 12px;
     }
@@ -656,28 +666,23 @@
 /* Dark theme table action buttons - match table background or transparent */
 .v-theme--dark .v-data-table .v-btn[icon] {
     background-color: transparent !important;
-    box-shadow: none !important;
 }
 
 .v-theme--dark .v-data-table .v-btn.v-btn--icon {
     background-color: transparent !important;
-    box-shadow: none !important;
 }
 
 /* Dark theme icon buttons - transparent background and no shadow for all small circular buttons */
 .v-theme--dark .v-btn[icon] {
     background-color: transparent !important;
-    box-shadow: none !important;
 }
 
 .v-theme--dark .v-btn.v-btn--icon {
     background-color: transparent !important;
-    box-shadow: none !important;
 }
 
 .v-theme--dark .v-btn.v-btn--size-small.v-btn--icon {
     background-color: transparent !important;
-    box-shadow: none !important;
 }
 
 /* Theme preview cards - override dark theme to show proper colors */
@@ -707,4 +712,3 @@
 .v-timeline .v-timeline-divider__inner-dot {
     background: rgb(var(--v-theme-primary));
 }
-

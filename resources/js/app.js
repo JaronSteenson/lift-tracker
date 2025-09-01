@@ -6,6 +6,7 @@ import initRollbar from './rollbar/rollbar';
 import App from './components/App.vue';
 import { useAppStore } from './stores/app';
 import './app-custom-v3.css';
+import 'vuetify/dist/vuetify.css';
 import initNewRelic from './newRelic/newRelic';
 
 (async function () {

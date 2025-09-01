@@ -1,7 +1,7 @@
 <template>
     <div v-if="shouldShow" class="fab-container">
         <VBtn
-            elevation="5"
+            elevation="10"
             :to="{
                 name: 'SetOverviewPage',
                 params: { sessionSetUuid: inProgressSet?.uuid },

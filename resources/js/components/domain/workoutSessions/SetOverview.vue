@@ -83,7 +83,7 @@
         </AppBar>
 
         <NarrowContentContainer>
-            <div class="d-flex align-center justify-center pa-4">
+            <div class="d-flex align-center justify-center">
                 <RouterLink
                     :class="{
                         'text-disabled': !previousExerciseLastSet?.uuid,
@@ -101,7 +101,7 @@
                 </RouterLink>
 
                 <div
-                    class="d-flex justify-center align-center flex-grow-1 gap-2 py-2 overflow-x-scroll"
+                    class="d-flex justify-center align-center flex-grow-1 gap-2 py-2"
                 >
                     <VChip
                         v-for="otherSet in setsForStepper"
@@ -113,9 +113,9 @@
                         @click="changeSetFromStepper(otherSet.position + 1)"
                         class="set-chip"
                     >
-                        <VIcon v-if="otherSet.endedAt" start>{{
-                            $svgIcons.mdiCheck
-                        }}</VIcon>
+                        <VIcon v-if="otherSet.endedAt" start>
+                            {{ $svgIcons.mdiCheck }}
+                        </VIcon>
                         Set {{ otherSet.position + 1 }}
                     </VChip>
                 </div>
@@ -873,6 +873,9 @@ export default {
 }
 
 .set-chip {
+    min-width: 50px;
+    text-align: center;
+    vertical-align: center;
     cursor: pointer;
     transition: all 0.2s ease;
 

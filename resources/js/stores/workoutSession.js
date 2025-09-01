@@ -83,15 +83,16 @@ export const useWorkoutSessionStore = defineStore('workoutSession', {
             // Find the most recent workout session for a given routine
             const sessionsForRoutine = state.myWorkoutSessions.filter(
                 (session) =>
-                    session.workoutProgramRoutine?.uuid === routineUuid,
+                    session.workoutProgramRoutine?.uuid === routineUuid &&
+                    session.endedAt,
             );
-            if (sessionsForRoutine.length === 0) return null;
+            if (sessionsForRoutine.length === 0) {
+                return null;
+            }
 
             // Sort by endedAt date (most recent first)
             return sessionsForRoutine.sort(
-                (a, b) =>
-                    new Date(b.endedAt || b.updatedAt) -
-                    new Date(a.endedAt || a.updatedAt),
+                (a, b) => new Date(b.endedAt) - new Date(a.endedAt),
             )[0];
         },
 

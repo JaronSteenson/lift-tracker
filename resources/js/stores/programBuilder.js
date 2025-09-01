@@ -135,9 +135,6 @@ export const useProgramBuilderStore = defineStore('programBuilder', {
                 const appStore = useAppStore();
 
                 if (!appStore.localOnlyUser) {
-                    this.serverSyncStatus = 'saving';
-                    this.saveError = null;
-
                     const response = await WorkoutProgramService.save(
                         this.inFocusProgram,
                     );
