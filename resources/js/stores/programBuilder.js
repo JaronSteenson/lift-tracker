@@ -114,6 +114,15 @@ export const useProgramBuilderStore = defineStore('programBuilder', {
             };
         },
 
+        setInFocusProgramForSession(workoutSession) {
+            const program = UuidHelper.findDeep(
+                this.myWorkoutPrograms,
+                workoutSession?.workoutProgramRoutine.workoutProgram.uuid,
+            );
+
+            this.setInFocusProgram(program);
+        },
+
         addWorkoutToProgram() {
             const newWorkout = {
                 uuid: UuidHelper.assign(),

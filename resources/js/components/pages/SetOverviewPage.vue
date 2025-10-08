@@ -73,6 +73,10 @@ export default {
                     this.sessionSetUuid,
                 )
             ) {
+                this.programBuilderStore.setInFocusProgramForSession(
+                    this.workoutSessionStore.workoutSession,
+                );
+
                 this.loading = false;
                 return;
             }
@@ -82,6 +86,9 @@ export default {
 
             try {
                 await this.workoutSessionStore.fetchBySet(this.sessionSetUuid);
+                this.programBuilderStore.setInFocusProgramForSession(
+                    this.workoutSessionStore.workoutSession,
+                );
             } catch (e) {
                 this.fetchError = true;
             }

@@ -19,6 +19,7 @@ import NotFoundPage from '../pages/NotFoundPage';
 import SessionOverviewLoadingSkeleton from '../domain/workoutSessions/SessionOverviewLoadingSkeleton';
 import { useAppStore } from '../../stores/app';
 import { useWorkoutSessionStore } from '../../stores/workoutSession';
+import { useProgramBuilderStore } from '../../stores/programBuilder';
 
 export default {
     name: 'SessionOverviewPage',
@@ -36,7 +37,8 @@ export default {
     setup() {
         const appStore = useAppStore();
         const workoutSessionStore = useWorkoutSessionStore();
-        return { appStore, workoutSessionStore };
+        const programBuilderStore = useProgramBuilderStore();
+        return { appStore, workoutSessionStore, programBuilderStore };
     },
     data() {
         return {
@@ -69,6 +71,9 @@ export default {
                     this.workoutSessionUuid,
                 )
             ) {
+                this.programBuilderStore.setInFocusProgramForSession(
+                    this.workoutSessionStore.workoutSession,
+                );
                 return;
             }
 
@@ -78,6 +83,9 @@ export default {
             try {
                 await this.workoutSessionStore.fetchWorkoutSession(
                     this.workoutSessionUuid,
+                );
+                this.programBuilderStore.setInFocusProgramForSession(
+                    this.workoutSessionStore.workoutSession,
                 );
             } catch (e) {
                 this.fetchError = true;
