@@ -24,7 +24,7 @@
                     <div class="d-flex justify-space-between w-100">
                         <div>{{ bodyWeight }}kg</div>
                     </div>
-                    <hr />
+                    <hr class="mt-1 mb-6" />
                 </template>
 
                 <h3 class="mb-1 mt-2">Weight</h3>
@@ -46,8 +46,7 @@
                     <div>{{ weights[0] }}kg</div>
                 </div>
 
-                <hr class="mt-1" />
-
+                <hr class="mt-1 mb-6" />
                 <h3 class="mb-1 mt-2">Reps</h3>
                 <VSparkline
                     v-if="reps.length > 1"
@@ -63,7 +62,7 @@
                     </div>
                 </div>
                 <template v-if="rest.length > 1">
-                    <hr class="mt-1" />
+                    <hr class="mt-1 mb-6" />
                     <h3 class="mb-1 mt-4">Rest</h3>
                     <VSparkline
                         :model-value="rest"
@@ -78,7 +77,7 @@
                         {{ minsSecDuration(restPeriod) }}
                     </div>
                 </div>
-                <hr class="mt-1" />
+                <hr class="mt-1 mb-6" />
                 <h3 class="mb-1 mt-2">Notes</h3>
                 <p v-if="sessionExercise.notes" class="notes">
                     {{ sessionExercise.notes }}
@@ -140,11 +139,7 @@ export default {
     },
     computed: {
         bodyWeight() {
-            return (
-                this.sessionExercise &&
-                this.sessionExercise.workoutSession &&
-                this.sessionExercise.workoutSession.bodyWeight
-            );
+            return this.sessionExercise.workoutSession.bodyWeight;
         },
         sessionExercise() {
             return this.sessionExercises[this.currentIndex];

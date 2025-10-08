@@ -601,7 +601,10 @@ export default {
             }
 
             // Keep today reactive.
-            return UuidHelper.replaceInCopy(history, this.exercise);
+            return UuidHelper.replaceInCopy(history, {
+                ...this.exercise,
+                workoutSession: this.workoutSession,
+            });
         },
         isChangingSet: {
             get() {

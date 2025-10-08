@@ -298,6 +298,7 @@ public class WorkoutSessionService(LiftTrackerDbContext db, DomainEntityService 
         var history = await db
             .SessionExercises.Include(exercise => exercise.SessionSets)
             .Include(exercise => exercise.RoutineExercise)
+            .Include(exercise => exercise.WorkoutSession)
             .Where(exercise =>
                 exercise.RoutineExercise != null
                 && exercise.RoutineExercise.Id == sourceExercise.RoutineExercise.Id
