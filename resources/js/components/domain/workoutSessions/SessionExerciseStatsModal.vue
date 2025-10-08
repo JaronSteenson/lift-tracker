@@ -61,22 +61,24 @@
                         {{ repCount }}
                     </div>
                 </div>
-                <template v-if="rest.length > 1">
+                <template v-if="rest.length >= 1">
                     <hr class="mt-1 mb-6" />
                     <h3 class="mb-1 mt-4">Rest</h3>
-                    <VSparkline
-                        :model-value="rest"
-                        color="primary"
-                        :line-width="2"
-                        smooth
-                        padding="16"
-                    />
-                </template>
-                <div class="d-flex justify-space-between w-100">
-                    <div :key="i" v-for="(restPeriod, i) in rest">
-                        {{ minsSecDuration(restPeriod) }}
+                    <template v-if="rest.length >= 2">
+                        <VSparkline
+                            :model-value="rest"
+                            color="primary"
+                            :line-width="2"
+                            smooth
+                            padding="16"
+                        />
+                    </template>
+                    <div class="d-flex justify-space-between w-100">
+                        <div :key="i" v-for="(restPeriod, i) in rest">
+                            {{ minsSecDuration(restPeriod) }}
+                        </div>
                     </div>
-                </div>
+                </template>
                 <hr class="mt-1 mb-6" />
                 <h3 class="mb-1 mt-2">Notes</h3>
                 <p v-if="sessionExercise.notes" class="notes">
