@@ -172,7 +172,6 @@ export default {
     },
     watch: {
         workoutUuid() {
-            debugger;
             if (!this.workoutUuid) {
                 return;
             }
@@ -183,7 +182,6 @@ export default {
             this.name = workout?.name;
         },
         name() {
-            debugger;
             if (!this.workoutUuid) {
                 return;
             }

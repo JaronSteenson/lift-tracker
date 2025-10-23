@@ -125,6 +125,7 @@ export default {
             loading: false,
             fetchError: false,
             isAddingWorkout: false,
+            localState: {},
         };
     },
     watch: {
