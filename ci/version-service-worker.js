@@ -5,7 +5,7 @@ const filePathIn = path.resolve(
     __dirname,
     '../resources/service-worker.template.js',
 );
-const filePathOut = path.resolve(__dirname, '../dist/service-worker.js');
+const filePathOut = path.resolve(__dirname, '../public/service-worker.js');
 
 const timeStampForLocalDev = Date.now().toString();
 const cacheKey =

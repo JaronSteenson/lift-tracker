@@ -10,7 +10,13 @@ if (typeof baseUrl !== 'string') {
 
 const ApiService = {
     get(resourceType, resourceUuid = null) {
-        return axios.get(this.makeEndpointUrl(resourceType, resourceUuid));
+        const url = this.makeEndpointUrl(resourceType, resourceUuid);
+        console.log('ApiService.get() calling URL:', url);
+        console.log(
+            'Current Authorization header:',
+            axios.defaults.headers.common.Authorization,
+        );
+        return axios.get(url);
     },
 
     saveDebounced: null, // will be set at the end of the file

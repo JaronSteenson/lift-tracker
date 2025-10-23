@@ -43,7 +43,7 @@ Log.Logger = new LoggerConfiguration()
 builder.Host.UseSerilog();
 Log.Logger.Information("Building application");
 
-// Allow CORS for the frontend (Vue dev server on localhost:8081).
+// Allow CORS for the frontend (Vue dev server on localhost).
 builder.Services.AddCors(options =>
 {
     options.AddPolicy(

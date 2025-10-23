@@ -1,16 +1,16 @@
 import { createRouter, createWebHistory } from 'vue-router';
-import LoginPage from '../components/pages/LoginPage';
-import AccountPage from '../components/pages/AccountPage';
-import ProgramBuilderPage from '../components/pages/ProgramBuilderPage';
-import MyWorkoutProgramsPage from '../components/pages/MyWorkoutProgramsPage';
-import HomePage from '../components/pages/HomePage';
-import NewSessionOverviewPage from '../components/pages/NewSessionOverviewPage';
-import NewSessionRoutineSelectPage from '../components/pages/NewSessionRoutineSelectPage';
-import SessionOverviewPage from '../components/pages/SessionOverviewPage';
-import NotFoundPage from '../components/pages/NotFoundPage';
-import CheckInEditPage from '../components/pages/CheckInEditPage';
-import SetOverviewPage from '../components/pages/SetOverviewPage';
-import PrivacyPolicyPage from '../components/pages/PrivacyPolicyPage';
+import LoginPage from '../components/pages/LoginPage.vue';
+import AccountPage from '../components/pages/AccountPage.vue';
+import ProgramBuilderPage from '../components/pages/ProgramBuilderPage.vue';
+import MyWorkoutProgramsPage from '../components/pages/MyWorkoutProgramsPage.vue';
+import HomePage from '../components/pages/HomePage.vue';
+import NewSessionOverviewPage from '../components/pages/NewSessionOverviewPage.vue';
+import NewSessionRoutineSelectPage from '../components/pages/NewSessionRoutineSelectPage.vue';
+import SessionOverviewPage from '../components/pages/SessionOverviewPage.vue';
+import NotFoundPage from '../components/pages/NotFoundPage.vue';
+import CheckInEditPage from '../components/pages/CheckInEditPage.vue';
+import SetOverviewPage from '../components/pages/SetOverviewPage.vue';
+import PrivacyPolicyPage from '../components/pages/PrivacyPolicyPage.vue';
 import { useAppStore } from '../stores/app';
 
 async function checkAuthGuards(to, from) {

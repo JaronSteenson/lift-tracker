@@ -1,15 +1,6 @@
 /node_modules
-/dist/hot
-/dist/storage
-/dist/js/*
-/dist/js/app.js
-/dist/service-worker.js
-/dist/css/*
-/dist/fonts/*
-/dist/mix-manifest.json
-/dist/index.html
-/dist/hot
-/dist/mix-manifest.json
+/dist/*
+/public/service-worker.js
 /vendor
 config.json
 npm-debug.log

@@ -10,7 +10,7 @@
                 <img
                     class="banner-image"
                     :class="{ 'banner-image--fade-in': fadeImageIn }"
-                    src="images/phone-gym-floor.jpg"
+                    src="/images/phone-gym-floor.png"
                     alt="Banner image"
                     @load="handleImageLoad"
                     @error="handleImageError"

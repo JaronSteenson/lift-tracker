@@ -121,8 +121,8 @@ export const useAppStore = defineStore('app', {
             if (this.isAuthenticated) {
                 const programBuilderStore = useProgramBuilderStore();
                 const workoutSessionStore = useWorkoutSessionStore();
-                programBuilderStore.fetchMyWorkoutPrograms();
                 workoutSessionStore.fetchNextPage();
+                programBuilderStore.fetchMyWorkoutPrograms();
             }
 
             this.$patch({ localOnlyUser, isBootstrapped: true });
@@ -156,7 +156,7 @@ export const useAppStore = defineStore('app', {
                 clearQueryParams = true;
                 // Clear any stale auth state
                 localStorage.removeItem(
-                    '@@auth0spajs@@::default::default::http://localhost:8081',
+                    '@@auth0spajs@@::default::default::http://localhost:3000',
                 );
             } finally {
                 const isAuthenticated = await auth0Client.isAuthenticated();
