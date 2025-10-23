@@ -2,20 +2,10 @@
     <div :class="timerClass">
         <VMessages v-if="_label" :value="[_label]" />
         <div class="timer__time-parts">
-            <span class="timer__time-part">{{ min }}</span
-            ><span class="timer__time-part">:</span
-            ><span class="timer__time-part">{{ sec }}</span>
+            <span class="timer__time-part">{{ min }}</span>
+            <span class="timer__time-part">:</span>
+            <span class="timer__time-part">{{ sec }}</span>
         </div>
-
-        <audio ref="alarm-audio-1">
-            <source src="/audio/alarm.ogg" type="audio/ogg" />
-        </audio>
-        <audio ref="alarm-audio-2">
-            <source src="/audio/alarm.ogg" type="audio/ogg" />
-        </audio>
-        <audio ref="alarm-audio-3">
-            <source src="/audio/alarm.ogg" type="audio/ogg" />
-        </audio>
     </div>
 </template>
 
@@ -41,26 +31,21 @@ export default {
         return {
             refreshForce: null,
             refreshInterval: null,
-            delayedAudioTimeout1: null,
-            delayedAutoTimeout2: null,
         };
     },
     created() {
         this.startRefreshInterval();
     },
+    beforeDestroy() {
+        clearInterval(this.interval);
+    },
     watch: {
-        timerFinished(value, oldValue) {
-            // Stop the audio if the rest period has stopped by the user.
-            if (value && !oldValue) {
-                this.stopAudio();
-            }
-        },
         timeRemaining(value) {
             if (value === 10) {
-                this.playWarning();
+                this.playBeep();
             }
-            if (value === 3) {
-                this.playTimeUpCountdown();
+            if (value === 0) {
+                this.playBeep();
             }
         },
         timesUp(value) {
@@ -102,15 +87,6 @@ export default {
                 this.sessionSetUuid,
             );
         },
-        timerFinished() {
-            if (this.workoutSessionStore.isDuringWarmUp(this.exercise.uuid)) {
-                return false;
-            }
-
-            return this.workoutSessionStore.restPeriodIsFinished(
-                this.sessionSetUuid,
-            );
-        },
         timesUp() {
             return this.timeRemaining <= 0;
         },
@@ -149,33 +125,10 @@ export default {
                 this.refreshForce = Date.now();
             }, 1000);
         },
-        playWarning() {
-            this.playAlarm(1);
-        },
-        playTimeUpCountdown() {
-            this.playAlarm(1);
-            this.delayedAudioTimeout1 = setTimeout(() => {
-                this.playAlarm(2);
-            }, 1000);
-            this.delayedAudioTimeout2 = setTimeout(() => {
-                this.playAlarm(3);
-            }, 2000);
-        },
-        playAlarm(i) {
+        playBeep() {
             /** @type HTMLAudioElement */
-            const audio = this.$refs['alarm-audio-' + i];
+            const audio = document.querySelector('.js-beep-audio');
             audio.play();
-        },
-        stopAudio() {
-            this.clearRefreshInterval();
-            this.clearDelayedAudioTimeouts();
-        },
-        clearRefreshInterval() {
-            clearInterval(this.interval);
-        },
-        clearDelayedAudioTimeouts() {
-            clearTimeout(this.delayedAudioTimeout1);
-            clearTimeout(this.delayedAudioTimeout2);
         },
     },
 };

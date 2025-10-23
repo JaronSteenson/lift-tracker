@@ -1,6 +1,6 @@
 // --- CONFIG ---
 const CACHE_KEY = '{CACHE_KEY}'; // replace during build
-const PRECACHE_URLS = ['/', '/audio/alarm.ogg'];
+const PRECACHE_URLS = ['/', '/audio/beep.mp3'];
 const NON_SPA_PAGES = [];
 
 // --- INSTALL ---
