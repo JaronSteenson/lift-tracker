@@ -50,6 +50,7 @@ export {
     VSwitch,
     VTextField,
     VTextarea,
+    VTimePicker,
     VTimeline,
     VTimelineItem,
     VToolbar,

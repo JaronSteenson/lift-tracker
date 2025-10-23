@@ -169,11 +169,11 @@
                             />
                         </VCol>
                         <VCol class="pt-0" cols="6">
-                            <VTextField
+                            <TimerInput
                                 v-if="!isLastSetOfExercise || !warmUpStarted"
                                 :label="activeTimerLabel"
                                 :disabled="isTimerRunning"
-                                v-model.number="activeTimer"
+                                v-model="activeTimer"
                             />
                         </VCol>
                     </VRow>
@@ -365,9 +365,11 @@ import NarrowContentContainer from '../../layouts/NarrowContentContainer';
 import AppBar from '../../AppBar';
 import EditExerciseModal from '../../domain/programBuilder/EditExerciseModal';
 import UuidHelper from '../../../UuidHelper';
+import TimerInput from '../../formFields/TimerInput.vue';
 
 export default {
     components: {
+        TimerInput,
         EditExerciseModal,
         AppBar,
         NarrowContentContainer,

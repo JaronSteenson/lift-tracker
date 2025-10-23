@@ -37,24 +37,13 @@
                                 v-model="numberOfSets"
                             />
                         </VCol>
-                        <VCol cols="12">
-                            <VTextField
-                                label="Warm-up"
-                                type="number"
-                                :max="9999"
-                                :min="0"
-                                variant="outlined"
-                                v-model.number="warmUp"
-                            />
+                        <VCol cols="6">
+                            <TimerInput label="Warm-up" v-model="warmUp" />
                         </VCol>
-                        <VCol cols="12">
-                            <VTextField
+                        <VCol cols="6">
+                            <TimerInput
                                 label="Rest period"
-                                type="number"
-                                :max="9999"
-                                :min="0"
-                                variant="outlined"
-                                v-model.number="restPeriod"
+                                v-model="restPeriod"
                             />
                         </VCol>
                     </VRow>
@@ -76,9 +65,10 @@
 <script>
 import { useProgramBuilderStore } from '../../../stores/programBuilder';
 import { useDisplay } from 'vuetify';
+import TimerInput from '../../formFields/TimerInput.vue';
 
 export default {
-    components: {},
+    components: { TimerInput },
     setup() {
         const programBuilderStore = useProgramBuilderStore();
         return { programBuilderStore };
