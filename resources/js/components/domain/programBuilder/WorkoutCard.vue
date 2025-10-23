@@ -133,9 +133,12 @@ export default {
         };
     },
     data() {
+        const workout = this.programBuilderStore.getRoutine(this.workoutUuid);
+
         return {
             starting: false,
             isAddingExercise: false,
+            name: workout?.name,
         };
     },
     props: {
@@ -146,16 +149,6 @@ export default {
         isSessionOverview: Boolean,
     },
     computed: {
-        name: {
-            get() {
-                return this.workout.name;
-            },
-            set(value) {
-                this.programBuilderStore.updateRoutine(this.workoutUuid, {
-                    name: value,
-                });
-            },
-        },
         workout() {
             return this.programBuilderStore.getRoutine(this.workoutUuid);
         },
@@ -175,6 +168,29 @@ export default {
         },
         hasNoExercises() {
             return this.orderedExercises.length === 0;
+        },
+    },
+    watch: {
+        workoutUuid() {
+            debugger;
+            if (!this.workoutUuid) {
+                return;
+            }
+
+            const workout = this.programBuilderStore.getRoutine(
+                this.workoutUuid,
+            );
+            this.name = workout?.name;
+        },
+        name() {
+            debugger;
+            if (!this.workoutUuid) {
+                return;
+            }
+
+            this.programBuilderStore.updateRoutine(this.workoutUuid, {
+                name: this.name,
+            });
         },
     },
     methods: {

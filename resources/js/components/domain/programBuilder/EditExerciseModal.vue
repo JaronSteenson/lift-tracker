@@ -96,6 +96,9 @@ export default {
     emits: ['update:value'],
     data() {
         const display = useDisplay();
+        const exercise = this.exerciseUuid
+            ? null
+            : this.programBuilderStore.getExercise(this.exerciseUuid);
 
         return {
             display,
@@ -111,61 +114,44 @@ export default {
                 { title: 'Nine', value: 9 },
                 { title: 'Ten', value: 10 },
             ],
+            name: exercise?.name,
+            weight: exercise?.weight,
+            numberOfSets: exercise?.numberOfSets,
+            restPeriod: exercise?.restPeriod,
+            warmUp: exercise?.warmUp,
         };
     },
-    computed: {
-        name: {
-            get() {
-                return this.exercise.name;
-            },
-            set(value) {
+    watch: {
+        value() {
+            if (!this.exerciseUuid) {
+                return;
+            }
+
+            const exercise = this.programBuilderStore.getExercise(
+                this.exerciseUuid,
+            );
+
+            this.name = exercise?.name;
+            this.weight = exercise?.weight;
+            this.numberOfSets = exercise?.numberOfSets;
+            this.restPeriod = exercise?.restPeriod;
+            this.warmUp = exercise?.warmUp;
+        },
+        $data: {
+            handler() {
+                if (!this.exerciseUuid) {
+                    return;
+                }
+
                 this.programBuilderStore.updateExercise(this.exerciseUuid, {
-                    name: value,
+                    name: this.name,
+                    weight: this.weight,
+                    numberOfSets: this.numberOfSets,
+                    restPeriod: this.restPeriod,
+                    warmUp: this.warmUp,
                 });
             },
-        },
-        weight: {
-            get() {
-                return this.exercise.weight;
-            },
-            set(value) {
-                this.programBuilderStore.updateExercise(this.exerciseUuid, {
-                    weight: value,
-                });
-            },
-        },
-        numberOfSets: {
-            get() {
-                return this.exercise.numberOfSets;
-            },
-            set(value) {
-                this.programBuilderStore.updateExercise(this.exerciseUuid, {
-                    numberOfSets: value,
-                });
-            },
-        },
-        warmUp: {
-            get() {
-                return this.exercise.warmUp;
-            },
-            set(value) {
-                this.programBuilderStore.updateExercise(this.exerciseUuid, {
-                    warmUp: value || 0,
-                });
-            },
-        },
-        restPeriod: {
-            get() {
-                return this.exercise.restPeriod;
-            },
-            set(value) {
-                this.programBuilderStore.updateExercise(this.exerciseUuid, {
-                    restPeriod: value || 0,
-                });
-            },
-        },
-        exercise() {
-            return this.programBuilderStore.getExercise(this.exerciseUuid);
+            deep: true,
         },
     },
 };
