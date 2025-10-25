@@ -6,13 +6,13 @@ import {
     utcNow,
 } from '../../dates';
 import { subMinutes } from 'date-fns';
-import each from 'jest-each';
+import { expect, test, describe } from 'vitest';
 
 describe('dates', () => {
     const thirty5MinsAgo = subMinutes(new Date(utcNow()), 35);
 
     describe('Hours minutes from start end', () => {
-        each([
+        test.each([
             [
                 '2019-01-01 13:35:01',
                 '2019-01-01 12:00:00',
@@ -55,7 +55,7 @@ describe('dates', () => {
                 'Hours, mins, and seconds',
                 '1h 35m 1s',
             ],
-        ]).test(
+        ])(
             'It should return the correct duration between "%s" and "%s - "%s"',
             (start, end, explanation, expected) => {
                 expect(hoursMinutesSecondsFromStartEnd(start, end)).toBe(
@@ -64,12 +64,12 @@ describe('dates', () => {
             },
         );
 
-        each([
+        test.each([
             ['2019-01-01 12:00:00', null],
             ['2019-01-01 12:00:00', undefined],
             ['2019-01-01 12:00:00', false],
             ['2019-01-01 12:00:00', ''],
-        ]).test(
+        ])(
             'It should handle open ended calculations with  "%s and %s"',
             (start, end) => {
                 expect(
@@ -80,13 +80,13 @@ describe('dates', () => {
     });
 
     describe('Time description', () => {
-        each([
+        test.each([
             ['2019-01-01 12:00:00', true, '12:00 PM'],
             [null, true, 'Unfinished'],
             ['2019-01-01 12:00:00', false, '12:00 PM'],
             [null, false, 'Unfinished'],
             [thirty5MinsAgo, false, '35 minutes ago'],
-        ]).test(
+        ])(
             'It should return the time description for "%s", noRecent flag: "%s"',
             (time, noRecent, expected) => {
                 expect(timeDescription(time, noRecent)).toBe(expected);
@@ -299,7 +299,7 @@ describe('dates', () => {
     });
 
     describe('Updated At micro', () => {
-        each([
+        test.each([
             ['Zero seconds', '2019-01-02 12:00:00', ''],
             ['Some minutes', '2019-01-02 11:50:00', '10m'],
             ['Some minutes and seconds', '2019-01-02 11:49:30', '10m'],
@@ -308,7 +308,7 @@ describe('dates', () => {
             ['A year', '2018-01-02 12:00:00', '365d'],
             ['Over a year', '2017-12-30 12:10:00', '367d'],
             ['null', null, ''],
-        ]).test(
+        ])(
             'It should return the correct micro time updated at description for "%s"',
             (testCase, time, expected) => {
                 expect(updatedAtMicro(time, '2019-01-02 12:00:00')).toBe(

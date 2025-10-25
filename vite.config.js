@@ -1,11 +1,12 @@
 import { defineConfig } from 'vite';
 import vue from '@vitejs/plugin-vue';
+import vuetify from 'vite-plugin-vuetify';
 import { resolve } from 'path';
 
 require('./ci/version-service-worker');
 
 export default defineConfig({
-    plugins: [vue()],
+    plugins: [vue(), vuetify({ autoImport: true })],
     root: 'resources',
     publicDir: '../public',
     build: {
@@ -30,5 +31,12 @@ export default defineConfig({
             vue: 'vue/dist/vue.esm-bundler.js',
         },
         extensions: ['.js', '.vue', '.json'],
+    },
+    optimizeDeps: {
+        include: ['vuetify'], // ensure vuetify is included in deps
+        exclude: [], // adjust if needed
+    },
+    ssr: {
+        noExternal: ['vuetify'], // if SSR‐like, mark vuetify as internal
     },
 });

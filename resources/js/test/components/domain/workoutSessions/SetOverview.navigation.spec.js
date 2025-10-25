@@ -1,15 +1,16 @@
+import { describe, it, beforeEach, afterEach, vi, expect } from 'vitest';
 import SetOverview from '../../../../components/domain/workoutSessions/SetOverview.vue';
 import { useWorkoutSessionStore } from '../../../../stores/workoutSession';
 
-// Mock the store
-jest.mock('../../../../stores/workoutSession');
+// Mock the store module
+vi.mock('../../../../stores/workoutSession');
 
 describe('SetOverview - Navigation functionality', () => {
     let mockStore;
     let mockRouterPush;
 
     beforeEach(() => {
-        mockRouterPush = jest.fn().mockResolvedValue();
+        mockRouterPush = vi.fn().mockResolvedValue();
 
         // Mock store with required methods and getters
         mockStore = {
@@ -17,19 +18,19 @@ describe('SetOverview - Navigation functionality', () => {
                 uuid: 'session-uuid',
                 sessionExercises: [],
             },
-            endSet: jest.fn().mockResolvedValue(),
-            startSet: jest.fn().mockResolvedValue(),
-            startNextSet: jest.fn().mockResolvedValue(),
-            saveWorkout: jest.fn().mockResolvedValue(),
-            previousExerciseLastSet: jest.fn(),
-            nextExerciseFirstSet: jest.fn(),
+            endSet: vi.fn().mockResolvedValue(),
+            startSet: vi.fn().mockResolvedValue(),
+            startNextSet: vi.fn().mockResolvedValue(),
+            saveWorkout: vi.fn().mockResolvedValue(),
+            previousExerciseLastSet: vi.fn(),
+            nextExerciseFirstSet: vi.fn(),
         };
 
-        useWorkoutSessionStore.mockReturnValue(mockStore);
+        vi.mocked(useWorkoutSessionStore).mockReturnValue(mockStore);
     });
 
     afterEach(() => {
-        jest.clearAllMocks();
+        vi.clearAllMocks();
     });
 
     // Create a minimal component instance for testing methods
@@ -80,7 +81,6 @@ describe('SetOverview - Navigation functionality', () => {
         it('should set cursor-pointer class when previousExerciseLastSet exists', () => {
             const prevSet = { uuid: 'prev-set-uuid' };
 
-            // Test the logic that would be used in the template
             const hasValidPrevSet = Boolean(prevSet?.uuid);
             const prevClasses = {
                 'text-disabled': !hasValidPrevSet,
@@ -94,7 +94,6 @@ describe('SetOverview - Navigation functionality', () => {
         it('should set text-disabled class when no previousExerciseLastSet', () => {
             const prevSet = null;
 
-            // Test the logic that would be used in the template
             const hasValidPrevSet = Boolean(prevSet?.uuid);
             const prevClasses = {
                 'text-disabled': !hasValidPrevSet,
@@ -108,7 +107,6 @@ describe('SetOverview - Navigation functionality', () => {
         it('should set cursor-pointer class when nextExerciseFirstSet exists', () => {
             const nextSet = { uuid: 'next-set-uuid' };
 
-            // Test the logic that would be used in the template
             const hasValidNextSet = Boolean(nextSet?.uuid);
             const nextClasses = {
                 'text-disabled': !hasValidNextSet,
@@ -122,7 +120,6 @@ describe('SetOverview - Navigation functionality', () => {
         it('should set text-disabled class when no nextExerciseFirstSet', () => {
             const nextSet = null;
 
-            // Test the logic that would be used in the template
             const hasValidNextSet = Boolean(nextSet?.uuid);
             const nextClasses = {
                 'text-disabled': !hasValidNextSet,

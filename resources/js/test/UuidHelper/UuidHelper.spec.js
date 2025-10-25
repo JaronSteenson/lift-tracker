@@ -1,5 +1,5 @@
-import each from 'jest-each';
 import UuidHelper from '../../UuidHelper';
+import { expect, test, describe } from 'vitest';
 
 describe('dates', () => {
     describe('Hours minutes from start end', () => {
@@ -8,7 +8,7 @@ describe('dates', () => {
             found: true,
         };
 
-        each([
+        test.each([
             [
                 'Directly on the second level object',
                 { level2: expectedToFindSubject },
@@ -39,7 +39,7 @@ describe('dates', () => {
                 expectedToFindSubject.uuid,
                 expectedToFindSubject,
             ],
-        ]).test(
+        ])(
             'It should find the object in - "%s"',
             (explanation, subject, uuid, expected) => {
                 expect(UuidHelper.findDeep(subject, uuid)).toBe(expected);

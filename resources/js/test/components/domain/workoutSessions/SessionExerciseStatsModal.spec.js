@@ -2,6 +2,7 @@ import SessionExerciseStatsModal from '../../../../components/domain/workoutSess
 import BackForwardToolbar from '../../../../components/BackForwardToolbar';
 import { prepareForLocalVueMount } from '../../../vueHelpers';
 import { shallowMount } from '@vue/test-utils';
+import { expect, test, describe, vi } from 'vitest';
 
 const mountOptions = prepareForLocalVueMount();
 
@@ -63,7 +64,7 @@ const createMountOptions = (props) => ({
         mocks: {
             ...mountOptions.global.mocks,
             $route: { query: { 'stats-open': 'true' }, path: '/test' },
-            $router: { push: jest.fn() },
+            $router: { push: vi.fn() },
         },
     },
 });

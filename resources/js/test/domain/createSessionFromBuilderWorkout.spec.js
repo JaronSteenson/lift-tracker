@@ -1,29 +1,26 @@
+import { expect, test, describe, beforeEach, vi } from 'vitest';
 import createSessionFromBuilderWorkout, {
     createCheckIn,
 } from '../../domain/createSessionFromBuilderWorkout';
-import { utcNow } from '../../dates';
 import UuidHelper from '../../UuidHelper';
-
-jest.mock('../../dates', () => ({
-    utcNow: jest.fn(),
-}));
-
-jest.mock('../../UuidHelper', () => ({
-    assign: jest.fn(),
-}));
 
 describe('createSessionFromBuilderWorkout', () => {
     const mockNow = '2023-01-01T12:00:00Z';
     const mockUuid = 'mock-uuid-123';
 
     beforeEach(() => {
-        utcNow.mockReturnValue(mockNow);
-        UuidHelper.assign.mockReturnValue(mockUuid);
-        jest.clearAllMocks();
+        vi.useFakeTimers();
+        vi.setSystemTime(mockNow);
+        vi.spyOn(UuidHelper, 'assign').mockReturnValue(mockUuid);
+        vi.clearAllMocks();
+    });
+
+    afterEach(() => {
+        vi.useRealTimers();
     });
 
     describe('createCheckIn', () => {
-        it('should create a basic check-in object', () => {
+        test('should create a basic check-in object', () => {
             const checkIn = createCheckIn();
 
             expect(checkIn).toEqual({
@@ -39,13 +36,13 @@ describe('createSessionFromBuilderWorkout', () => {
             });
         });
 
-        it('should assign a UUID', () => {
+        test('should assign a UUID', () => {
             createCheckIn();
             expect(UuidHelper.assign).toHaveBeenCalledTimes(1);
         });
     });
 
-    describe('createSessionFromBuilderWorkout with existingCheckIn', () => {
+    describe('createSessionFromBuilderWorkout wtesth existingCheckIn', () => {
         const existingCheckIn = {
             uuid: 'existing-uuid',
             name: 'Check-in',
@@ -83,7 +80,7 @@ describe('createSessionFromBuilderWorkout', () => {
             ],
         };
 
-        it('should merge existing check-in with workout data', () => {
+        test('should merge existing check-in with workout data', () => {
             const session = createSessionFromBuilderWorkout({
                 existingCheckIn,
                 originWorkout,
@@ -103,7 +100,7 @@ describe('createSessionFromBuilderWorkout', () => {
             );
         });
 
-        it('should create session exercises from routine exercises', () => {
+        test('should create session exercises from routine exercises', () => {
             const session = createSessionFromBuilderWorkout({
                 existingCheckIn,
                 originWorkout,
@@ -155,7 +152,7 @@ describe('createSessionFromBuilderWorkout', () => {
             );
         });
 
-        it('should create session sets for each exercise', () => {
+        test('should create session sets for each exercise', () => {
             const session = createSessionFromBuilderWorkout({
                 existingCheckIn,
                 originWorkout,
@@ -177,7 +174,7 @@ describe('createSessionFromBuilderWorkout', () => {
             });
         });
 
-        it('should set startedAt on the first set of the first exercise', () => {
+        test('should set startedAt on the first set of the first exercise', () => {
             const session = createSessionFromBuilderWorkout({
                 existingCheckIn,
                 originWorkout,
@@ -188,7 +185,7 @@ describe('createSessionFromBuilderWorkout', () => {
             );
         });
 
-        it('should handle exercises with missing optional fields', () => {
+        test('should handle exercises wtesth missing optional fields', () => {
             const session = createSessionFromBuilderWorkout({
                 existingCheckIn,
                 originWorkout,
@@ -224,8 +221,8 @@ describe('createSessionFromBuilderWorkout', () => {
             );
         });
 
-        it('should handle exercise with missing name', () => {
-            const workoutWithUnnamedExercise = {
+        test('should handle exercise wtesth missing name', () => {
+            const workoutWtesthUnnamedExercise = {
                 name: 'Test Workout',
                 routineExercises: [
                     {
@@ -238,14 +235,14 @@ describe('createSessionFromBuilderWorkout', () => {
 
             const session = createSessionFromBuilderWorkout({
                 existingCheckIn,
-                originWorkout: workoutWithUnnamedExercise,
+                originWorkout: workoutWtesthUnnamedExercise,
             });
 
             expect(session.sessionExercises[0].name).toBe('Unnamed exercise');
         });
     });
 
-    describe('createSessionFromBuilderWorkout without existingCheckIn', () => {
+    describe('createSessionFromBuilderWorkout wtesthout existingCheckIn', () => {
         const originWorkout = {
             name: 'Pull Day',
             routineExercises: [
@@ -259,7 +256,7 @@ describe('createSessionFromBuilderWorkout', () => {
             ],
         };
 
-        it('should create a new session when no existing check-in provided', () => {
+        test('should create a new session when no existing check-in provided', () => {
             const session = createSessionFromBuilderWorkout({
                 existingCheckIn: null,
                 originWorkout,
@@ -279,7 +276,7 @@ describe('createSessionFromBuilderWorkout', () => {
             );
         });
 
-        it('should create session exercises for new session', () => {
+        test('should create session exercises for new session', () => {
             const session = createSessionFromBuilderWorkout({
                 existingCheckIn: null,
                 originWorkout,
@@ -296,13 +293,13 @@ describe('createSessionFromBuilderWorkout', () => {
         });
     });
 
-    describe('createSessionFromBuilderWorkout with empty workout', () => {
+    describe('createSessionFromBuilderWorkout wtesth empty workout', () => {
         const emptyWorkout = {
             name: 'Empty Workout',
             routineExercises: [],
         };
 
-        it('should create a single exercise for empty workout', () => {
+        test('should create a single exercise for empty workout', () => {
             const session = createSessionFromBuilderWorkout({
                 existingCheckIn: null,
                 originWorkout: emptyWorkout,
@@ -328,7 +325,7 @@ describe('createSessionFromBuilderWorkout', () => {
             });
         });
 
-        it('should set startedAt on the first set of empty workout exercise', () => {
+        test('should set startedAt on the first set of empty workout exercise', () => {
             const session = createSessionFromBuilderWorkout({
                 existingCheckIn: null,
                 originWorkout: emptyWorkout,
@@ -341,7 +338,7 @@ describe('createSessionFromBuilderWorkout', () => {
     });
 
     describe('UUID generation', () => {
-        it('should generate unique UUIDs for each entity', () => {
+        test('should generate unique UUIDs for each enttesty', () => {
             const uuidCalls = [];
             UuidHelper.assign.mockImplementation(() => {
                 const uuid = `uuid-${uuidCalls.length}`;
@@ -378,8 +375,8 @@ describe('createSessionFromBuilderWorkout', () => {
     });
 
     describe('edge cases', () => {
-        it('should handle workout with zero sets', () => {
-            const workoutWithZeroSets = {
+        test('should handle workout wtesth zero sets', () => {
+            const workoutWtesthZeroSets = {
                 name: 'Zero Sets Workout',
                 routineExercises: [
                     {
@@ -393,13 +390,13 @@ describe('createSessionFromBuilderWorkout', () => {
 
             const session = createSessionFromBuilderWorkout({
                 existingCheckIn: null,
-                originWorkout: workoutWithZeroSets,
+                originWorkout: workoutWtesthZeroSets,
             });
 
             expect(session.sessionExercises[0].sessionSets).toHaveLength(1);
         });
 
-        it('should handle undefined existingCheckIn', () => {
+        test('should handle undefined existingCheckIn', () => {
             const originWorkout = {
                 name: 'Test Workout',
                 routineExercises: [],
