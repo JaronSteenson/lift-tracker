@@ -34,7 +34,6 @@ export default defineConfig({
     },
     optimizeDeps: {
         include: ['vuetify'], // ensure vuetify is included in deps
-        exclude: [], // adjust if needed
     },
     ssr: {
         noExternal: ['vuetify'], // if SSR‐like, mark vuetify as internal

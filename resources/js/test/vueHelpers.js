@@ -140,24 +140,25 @@ export async function renderApp() {
         },
     });
 }
+const dumpDir = './resources/js/test/dump/';
 
 export function dump(element = document.body) {
     if (typeof element === 'string') {
-        fs.writeFileSync(`./testDump/${Date.now()}.html`, element);
+        fs.writeFileSync(`${dumpDir}${Date.now()}.html`, element);
         return;
     }
 
-    fs.writeFileSync(`./testDump/${Date.now()}.html`, JSON.stringify(element));
+    fs.writeFileSync(`${dumpDir}${Date.now()}.html`, JSON.stringify(element));
 }
 
 export function dumpElement(element = document.body) {
     if (typeof element === 'string') {
-        fs.writeFileSync(`./testDump/${Date.now()}.html`, element);
+        fs.writeFileSync(`${dumpDir}${Date.now()}.html`, element);
         return;
     }
 
     fs.writeFileSync(
-        `./testDump/${Date.now()}.html`,
+        `${dumpDir}${Date.now()}.html`,
         prettyDOM(element, 1000000, { highlight: false }) || '',
     );
 }

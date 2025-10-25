@@ -27,6 +27,14 @@
                     <hr class="mt-1 mb-6" />
                 </template>
 
+                <template v-if="warmUp">
+                    <h3 class="mt-1">Warm-up</h3>
+                    <div class="d-flex justify-space-between w-100">
+                        <div>{{ minsSecDuration(warmUp) }}</div>
+                    </div>
+                    <hr class="mt-1 mb-6" />
+                </template>
+
                 <h3 class="mb-1 mt-2">Weight</h3>
                 <template v-if="weights.length > 1">
                     <VSparkline
@@ -163,6 +171,9 @@ export default {
         },
         isSingleSet() {
             return this.sessionExercise.sessionSets.length === 1;
+        },
+        warmUp() {
+            return this.sessionExercise.warmUpDuration;
         },
         weights() {
             return this.sessionExercise.sessionSets.map((set) => {
