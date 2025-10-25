@@ -8,9 +8,7 @@
             <VMain class="pb-8">
                 <RouterView v-if="isBootstrapped" v-slot="{ Component }">
                     <KeepAlive include="HomePage">
-                        <Transition mode="out-in" name="no-transition">
-                            <component :is="Component" />
-                        </Transition>
+                        <component :is="Component" />
                     </KeepAlive>
                 </RouterView>
             </VMain>

@@ -8,6 +8,7 @@ export default mergeConfig(
             environment: 'jsdom',
             globals: true,
             pool: 'vmThreads', // fixes css import issue, does break .only
+            setupFiles: ['./resources/js/test/setup.js'],
         },
     }),
 );

@@ -1,5 +1,6 @@
 <template>
     <div>
+        <h1>Test workout session</h1>
         <VContainer v-show="showTable">
             <div class="d-flex justify-space-between align-center mb-4 gap-4">
                 <AddNewButton
