@@ -1,6 +1,9 @@
 import { beforeAll, vi } from 'vitest';
+import 'web-streams-polyfill/polyfill';
+import axios from 'axios';
 
 beforeAll(() => {
+    axios.defaults.headers.common.Authorization = 'Bearer fake-token';
     stubWindowProperties();
 });
 

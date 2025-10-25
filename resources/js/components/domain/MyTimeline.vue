@@ -12,6 +12,7 @@
                 <AddNewButton
                     class="flex-grow-1"
                     :to="{ name: 'NewSessionRoutineSelectPage' }"
+                    data-testid="startNewSessionButton"
                 >
                     Session
                 </AddNewButton>
@@ -131,6 +132,7 @@
                 <AddNewButton
                     class="flex-grow-1"
                     :to="{ name: 'NewSessionRoutineSelectPage' }"
+                    data-testid="startNewSessionButton"
                 >
                     Session
                 </AddNewButton>

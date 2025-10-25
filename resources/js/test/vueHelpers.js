@@ -10,6 +10,8 @@ import App from '../components/App.vue';
 import { pinia } from '../stores';
 import fs from 'node:fs';
 import { prettyDOM } from '@testing-library/dom';
+import { http, HttpResponse } from 'msw';
+import { setupServer } from 'msw/node';
 
 export function prepareForLocalVueMount() {
     ensureVuetifyAppDivExists();
@@ -67,6 +69,51 @@ function localMountOptions() {
 }
 
 export async function renderApp() {
+    const workoutProgram = {
+        uuid: '1',
+        name: 'Test workout program',
+        workoutProgramRoutines: [
+            {
+                uuid: '1a',
+                name: 'Test routine',
+                routineExercises: [
+                    {
+                        uuid: '1aa',
+                        name: 'Test exercise',
+                    },
+                ],
+            },
+        ],
+    };
+    const workoutSession = {
+        uuid: '2',
+        name: 'Test workout session',
+        startedAt: '2020-12-04',
+    };
+
+    const handlers = [
+        http.post('*', async ({ request }) => {
+            return HttpResponse.json(await request.json(), {
+                status: 200,
+            });
+        }),
+        http.put('*', async ({ request }) => {
+            return HttpResponse.json(await request.json(), {
+                status: 200,
+            });
+        }),
+        http.get('*', () => {
+            return HttpResponse.json([], { status: 200 });
+        }),
+    ];
+
+    const server = setupServer(...handlers);
+    server.listen();
+
+    beforeAll(() => server.listen());
+    afterEach(() => server.resetHandlers());
+    afterAll(() => server.close());
+
     setActivePinia(pinia);
     useAppStore().$patch({
         isBootstrapped: true,
@@ -76,21 +123,10 @@ export async function renderApp() {
         },
     });
     useProgramBuilderStore().$patch({
-        myWorkoutPrograms: [
-            {
-                uuid: '1',
-                name: 'Test workout program',
-            },
-        ],
+        myWorkoutPrograms: [workoutProgram],
     });
     useWorkoutSessionStore().$patch({
-        myWorkoutSessions: [
-            {
-                uuid: '2',
-                name: 'Test workout session',
-                startedAt: '2020-12-04',
-            },
-        ],
+        myWorkoutSessions: [workoutSession],
     });
 
     await router.push('/');
@@ -106,9 +142,25 @@ export async function renderApp() {
 }
 
 export function dump(element = document.body) {
+    if (typeof element === 'string') {
+        fs.writeFileSync(`./testDump/${Date.now()}.html`, element);
+        return;
+    }
+
+    fs.writeFileSync(`./testDump/${Date.now()}.html`, JSON.stringify(element));
+}
+
+export function dumpElement(element = document.body) {
+    if (typeof element === 'string') {
+        fs.writeFileSync(`./testDump/${Date.now()}.html`, element);
+        return;
+    }
+
     fs.writeFileSync(
         `./testDump/${Date.now()}.html`,
         prettyDOM(element, 1000000, { highlight: false }) || '',
     );
 }
+
 window.dump = dump;
+window.dumpElement = dumpElement;

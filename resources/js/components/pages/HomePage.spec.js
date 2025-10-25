@@ -2,7 +2,7 @@ import { test, describe } from 'vitest';
 import { renderApp } from '../../test/vueHelpers';
 
 describe('Home page', () => {
-    test('full app rendering/navigating from base URL', async () => {
+    test('The logged in home page loads', async () => {
         const screen = await renderApp();
 
         await screen.findAllByText('Test workout session');

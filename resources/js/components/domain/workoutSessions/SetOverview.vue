@@ -232,6 +232,7 @@
                             <RestPeriodTimer
                                 :session-set-uuid="sessionSetUuid"
                                 :label="activeTimerLabel"
+                                data-testid="activeTimer"
                             />
                         </VCol>
 
@@ -244,6 +245,7 @@
                                 @click="endActiveTimer"
                                 class="mt-2"
                                 color="error"
+                                data-testid="stopTimerButton"
                             >
                                 <VIcon left>{{ $svgIcons.mdiStop }}</VIcon>
                                 {{ activeTimerLabel }}
@@ -298,6 +300,7 @@
                                     class="mt-2"
                                     color="success"
                                     variant="flat"
+                                    data-testid="finishWorkoutButton"
                                 >
                                     <VIcon left>{{ $svgIcons.mdiCheck }}</VIcon>
                                     Finish
@@ -334,6 +337,7 @@
                         color="success"
                         variant="flat"
                         @click="startActiveTimer"
+                        data-testid="startTimerButton"
                     >
                         <VIcon left>
                             {{ $svgIcons.restPeriodStart }}

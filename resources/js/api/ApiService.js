@@ -11,11 +11,6 @@ if (typeof baseUrl !== 'string') {
 const ApiService = {
     get(resourceType, resourceUuid = null) {
         const url = this.makeEndpointUrl(resourceType, resourceUuid);
-        console.log('ApiService.get() calling URL:', url);
-        console.log(
-            'Current Authorization header:',
-            axios.defaults.headers.common.Authorization,
-        );
         return axios.get(url);
     },
 

@@ -61,6 +61,9 @@ watch(
         const twelveDisplay = document.querySelector(
             '.v-time-picker-controls__time .v-btn__content',
         );
+        if (!twelveDisplay) {
+            return;
+        }
 
         // To support 00 instead of 12.
         twelveDisplay.textContent = time.value.slice(0, 2);

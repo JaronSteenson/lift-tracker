@@ -12,6 +12,7 @@ import {
     STATUS_SAVE_IN_PROGRESS,
     STATUS_SAVE_OK,
 } from '../components/ServerSyncInfo.vue';
+import { dump } from '../test/vueHelpers';
 
 const LOCAL_STORAGE_KEY = 'store-state--WorkoutSession';
 

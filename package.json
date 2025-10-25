@@ -30,6 +30,7 @@
         "eslint-plugin-jest": "^28.9.0",
         "eslint-plugin-prettier": "^5.2.1",
         "eslint-plugin-vue": "^9.31.0",
+        "msw": "^2.11.6",
         "prettier": "^3.4.2",
         "resolve-url-loader": "^5.0.0",
         "sass": "^1.83.0",
@@ -37,7 +38,8 @@
         "vite": "^7.1.3",
         "vite-plugin-vuetify": "^2.1.2",
         "vitest": "^4.0.2",
-        "vue-loader": "^17.4.2"
+        "vue-loader": "^17.4.2",
+        "web-streams-polyfill": "^4.2.0"
     },
     "dependencies": {
         "@auth0/auth0-spa-js": "^2.2.0",
