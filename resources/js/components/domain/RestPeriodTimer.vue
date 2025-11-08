@@ -41,9 +41,6 @@ export default {
     },
     watch: {
         timeRemaining(value) {
-            if (value === 10) {
-                this.playBeep();
-            }
             if (value === 0) {
                 this.playBeep();
             }
@@ -128,6 +125,7 @@ export default {
         playBeep() {
             /** @type HTMLAudioElement */
             const audio = document.querySelector('.js-beep-audio');
+            audio.volume = 0.3;
             audio.play();
         },
     },
