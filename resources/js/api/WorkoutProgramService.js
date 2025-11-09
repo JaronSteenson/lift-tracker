@@ -1,4 +1,5 @@
 import ApiService from './ApiService';
+import { useQuery } from '@pinia/colada';
 
 const RESOURCE_NAME = 'workout-programs';
 
@@ -25,3 +26,14 @@ const WorkoutProgramService = {
 };
 
 export default WorkoutProgramService;
+
+export function useAllWorkoutProgramsQuery() {
+    return useQuery({
+        // unique key for the query in the cache
+        key: () => ['allWorkoutPrograms'],
+        query: async () => {
+            const response = await this.getAll();
+            return response.data;
+        },
+    });
+}

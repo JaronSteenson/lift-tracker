@@ -16,6 +16,7 @@ import PageAppBar from '../AppBar';
 import SessionOverviewLoadingSkeleton from '../domain/workoutSessions/SessionOverviewLoadingSkeleton.vue';
 import { useAppStore } from '../../stores/app';
 import { useWorkoutSessionStore } from '../../stores/workoutSession';
+import { useTimelineQuery } from '../../api/WorkoutSessionService';
 
 export default {
     name: 'HomePage',
@@ -30,9 +31,14 @@ export default {
         const appStore = useAppStore();
         const workoutSessionStore = useWorkoutSessionStore();
 
+        const { data: workoutSessions, isPending: workoutSessionsIsPending } =
+            useTimelineQuery(workoutSessionStore.currentPageIndex);
+
         return {
             appStore,
             workoutSessionStore,
+            workoutSessions,
+            workoutSessionsIsPending,
         };
     },
     computed: {
@@ -40,19 +46,19 @@ export default {
             return this.appStore.appName;
         },
         myWorkoutSessionsIsLoading() {
-            return this.workoutSessionStore.myWorkoutSessionsIsLoading;
+            return this.workoutSessionsIsPending;
         },
         isInitialLoading() {
-            return (
-                this.workoutSessionStore.myWorkoutSessionsIsLoading &&
-                this.workoutSessionStore.myWorkoutSessions.length === 0
-            );
+            return this.workoutSessionsIsPending;
         },
         shouldShowNoProgramsWelcomeHint() {
             return this.appStore.shouldShowNoProgramsWelcomeHint;
         },
         shouldShowNoSessionsHint() {
-            return this.appStore.shouldShowNoSessionsHint;
+            return (
+                !this.workoutSessionsIsPending &&
+                this.workoutSessions.length === 0
+            );
         },
         inProgressSet() {
             // TODO: Implement in workoutSession store

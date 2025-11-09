@@ -8,6 +8,7 @@ import { useAppStore } from './stores/app';
 import 'vuetify/dist/vuetify.css';
 import './app.css';
 import initNewRelic from './newRelic/newRelic';
+import { PiniaColada } from '@pinia/colada';
 
 (async function () {
     initNewRelic();
@@ -20,6 +21,7 @@ import initNewRelic from './newRelic/newRelic';
     const app = createApp(App);
 
     app.use(pinia);
+    app.use(PiniaColada);
     app.use(router);
     app.use(createVuetify());
 

@@ -8,6 +8,7 @@ import router from '../router/router';
 import { render } from '@testing-library/vue';
 import App from '../components/App.vue';
 import { pinia } from '../stores';
+import { PiniaColada } from '@pinia/colada';
 import fs from 'node:fs';
 import { prettyDOM } from '@testing-library/dom';
 import { http, HttpResponse } from 'msw';
@@ -34,7 +35,7 @@ function localMountOptions() {
 
     return {
         global: {
-            plugins: [vuetify, pinia],
+            plugins: [vuetify, pinia, PiniaColada],
             mocks: {
                 $svgIcons: svgIcons,
             },

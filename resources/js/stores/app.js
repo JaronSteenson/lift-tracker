@@ -44,12 +44,9 @@ export const useAppStore = defineStore('app', {
             ) {
                 return false;
             }
-            const workoutSessionStore = useWorkoutSessionStore();
+
             const programBuilderStore = useProgramBuilderStore();
-            return (
-                workoutSessionStore.myWorkoutSessions.length === 0 &&
-                programBuilderStore.myWorkoutPrograms.length === 0
-            );
+            return programBuilderStore.myWorkoutPrograms.length === 0;
         },
         shouldShowNoProgramsHintStartNewSession: (state) => {
             if (
@@ -122,8 +119,6 @@ export const useAppStore = defineStore('app', {
 
             if (this.isAuthenticated) {
                 const programBuilderStore = useProgramBuilderStore();
-                const workoutSessionStore = useWorkoutSessionStore();
-                workoutSessionStore.fetchNextPage();
                 programBuilderStore.fetchMyWorkoutPrograms();
             }
 

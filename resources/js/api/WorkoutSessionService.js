@@ -1,5 +1,5 @@
 import ApiService from './ApiService';
-
+import { useQuery } from '@pinia/colada';
 const RESOURCE_NAME = 'workout-sessions';
 const SET_RESOURCE_NAME = 'session-sets';
 const EXERCISE_RESOURCE_NAME = 'session-exercises';
@@ -47,3 +47,18 @@ const WorkoutSessionService = {
 };
 
 export default WorkoutSessionService;
+
+export function useTimelineQuery(pageIndex, pageSize) {
+    return useQuery({
+        // unique key for the query in the cache
+        key: () => ['timeline', pageIndex, pageSize],
+        query: async () => {
+            const response = await WorkoutSessionService.index({
+                pageIndex,
+                pageSize,
+            });
+
+            return response.data;
+        },
+    });
+}

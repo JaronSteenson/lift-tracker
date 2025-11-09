@@ -24,8 +24,9 @@
         <!-- eslint-disable vue/valid-v-slot -->
         <VDataTable
             :headers="headers"
-            :items="myWorkoutSessions"
-            :items-per-page="myWorkoutSessions.length"
+            :items="data"
+            :items-per-page="data.length"
+            :loading="isPending"
             hide-default-footer
             mobile-breakpoint="0"
         >
@@ -113,6 +114,7 @@
     </VContainer>
 
     <NarrowContentContainer
+        v-if="!isPending"
         class="flex-column gap-4"
         v-show="!showTable"
         :class="{ 'd-flex': !showTable }"
@@ -139,7 +141,7 @@
             />
         </VToolbar>
         <SessionStatsCard
-            v-for="workoutSession in myWorkoutSessions"
+            v-for="workoutSession in data"
             :key="workoutSession.uuid"
             :workout-session="workoutSession"
             link-title
@@ -162,6 +164,8 @@ import ProgramName from '../domain/programBuilder/ProgramName';
 import AddNewButton from '../formFields/AddNewButton.vue';
 import { useDisplay } from 'vuetify';
 import { useTheme } from 'vuetify/framework';
+import { useQuery } from '@pinia/colada';
+import { useTimelineQuery } from '../../api/WorkoutSessionService';
 
 export default {
     components: {
@@ -175,8 +179,18 @@ export default {
         const display = useDisplay();
         const theme = useTheme();
 
+        const { data, isPending } = useTimelineQuery(
+            workoutSessionStore.currentPageIndex,
+        );
+
         const toolbarColor = theme.current.value.colors.toolbar;
-        return { workoutSessionStore, display, toolbarColor };
+        return {
+            workoutSessionStore,
+            display,
+            toolbarColor,
+            data,
+            isPending,
+        };
     },
     data() {
         return {
@@ -195,12 +209,6 @@ export default {
     computed: {
         allPagesLoaded() {
             return this.workoutSessionStore.allPagesLoaded;
-        },
-        myWorkoutSessionsIsLoading() {
-            return this.workoutSessionStore.myWorkoutSessionsIsLoading;
-        },
-        myWorkoutSessions() {
-            return this.workoutSessionStore.myWorkoutSessions;
         },
         isInProgressWorkout() {
             return this.workoutSessionStore.isInProgressWorkout;
@@ -278,11 +286,7 @@ export default {
             const atBottom =
                 document.documentElement.scrollTop + window.innerHeight ===
                 document.documentElement.offsetHeight;
-            if (
-                atBottom &&
-                !this.myWorkoutSessionsIsLoading &&
-                !this.allPagesLoaded
-            ) {
+            if (atBottom && !this.isPending && !this.allPagesLoaded) {
                 this.loadNextPage();
             }
         },

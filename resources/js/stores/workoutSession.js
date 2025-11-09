@@ -34,8 +34,6 @@ function getSecondsRemaining({ expectedDuration, startTime }) {
 
 function defaultState() {
     return {
-        myWorkoutSessions: [],
-        myWorkoutSessionsIsLoading: false,
         allPagesLoaded: false,
         workoutSession: null,
         isChangingSet: false,
@@ -432,47 +430,6 @@ export const useWorkoutSessionStore = defineStore('workoutSession', {
             );
         },
 
-        async fetchNextPage() {
-            const appStore = useAppStore();
-            if (appStore.localOnlyUser) {
-                return; // Skip fetching for local-only users
-            }
-            if (this.allPagesLoaded || this.myWorkoutSessionsIsLoading) {
-                return;
-            }
-
-            this.myWorkoutSessionsIsLoading = true;
-            try {
-                const response = await WorkoutSessionService.index({
-                    pageIndex: this.currentPageIndex,
-                    pageSize: WorkoutSessionService.getPageSize(),
-                });
-
-                if (response.data && response.data.length > 0) {
-                    // Append new sessions to existing ones for pagination
-                    this.myWorkoutSessions = [
-                        ...this.myWorkoutSessions,
-                        ...response.data,
-                    ];
-                    this.currentPageIndex += 1;
-
-                    // Check if we've loaded all pages (adjust based on your API response structure)
-                    if (
-                        response.data.length <
-                        WorkoutSessionService.getPageSize()
-                    ) {
-                        this.allPagesLoaded = true;
-                    }
-                } else {
-                    this.allPagesLoaded = true;
-                }
-            } catch (error) {
-                console.error('Error fetching workout sessions:', error);
-            } finally {
-                this.myWorkoutSessionsIsLoading = false;
-            }
-        },
-
         async fetchWorkoutSession(workoutSessionUuid) {
             const appStore = useAppStore();
 
@@ -483,7 +440,6 @@ export const useWorkoutSessionStore = defineStore('workoutSession', {
                 );
                 if (localSession) {
                     this.workoutSession = localSession;
-                    this.myWorkoutSessionsIsLoading = false;
                     return localSession;
                 }
                 return null;
