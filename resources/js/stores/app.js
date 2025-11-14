@@ -29,6 +29,7 @@ export const useAppStore = defineStore('app', {
         showSessionExpiredModal: false,
         navigationDrawerOpen: false,
         forceRerenderKey: 0,
+        loginErrorCount: 0,
     }),
 
     getters: {
@@ -80,6 +81,7 @@ export const useAppStore = defineStore('app', {
         forLocalStorageSave: (state) => ({
             user: state.user,
             localOnlyUser: state.localOnlyUser,
+            loginErrorCount: state.loginErrorCount,
         }),
         fromLocalStorage: () => {
             const app = JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY));
@@ -150,14 +152,28 @@ export const useAppStore = defineStore('app', {
                     clearQueryParams = true;
                 }
             } catch (e) {
-                auth0Error = e;
-                console.error({ auth0Error });
+                console.error(e);
+                if (rollbar) {
+                    rollbar.error(e);
+                }
+
                 // Clear invalid callback parameters
                 clearQueryParams = true;
                 // Clear any stale auth state
                 localStorage.removeItem(
                     '@@auth0spajs@@::default::default::http://localhost:3000',
                 );
+
+                if (
+                    !this.fromLocalStorage?.app?.loginErrorCount ||
+                    this.fromLocalStorage.app.loginErrorCount < 3
+                ) {
+                    this.loginErrorCount++;
+                    this.saveToLocalStorage();
+                    window.location.reload();
+                } else {
+                    throw e;
+                }
             } finally {
                 const isAuthenticated = await auth0Client.isAuthenticated();
 
@@ -171,6 +187,9 @@ export const useAppStore = defineStore('app', {
                         authorizationParams,
                     });
                     axios.defaults.headers.common.Authorization = `Bearer ${token}`;
+
+                    this.loginErrorCount = 0;
+                    this.saveToLocalStorage();
                 }
 
                 this.$patch({
