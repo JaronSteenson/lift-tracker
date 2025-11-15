@@ -16,7 +16,7 @@
                     <template v-slot:right>
                         <ServerSyncInfo
                             :status="serverSyncStatus"
-                            :updatedAt="inFocusProgram.updatedAt"
+                            :updatedAt="data?.updatedAt"
                         />
                         <VMenu bottom left>
                             <template v-slot:activator="{ props }">
@@ -61,9 +61,9 @@
                         @start="onWorkoutDragStart"
                         @end="onWorkoutDragEnd"
                     >
-                        <template #item="{ element: workout }">
+                        <template #item="{ element: data }">
                             <div class="workout-card-wrapper pa-2 ma-2">
-                                <WorkoutCard :workoutUuid="workout.uuid" />
+                                <WorkoutCard :workoutUuid="data.uuid" />
                             </div>
                         </template>
                         <template #footer>
@@ -109,16 +109,13 @@ export default {
         ProgramBuilderLoadingSkeleton,
     },
     setup() {
-        const route = useRoute();
-        const workoutProgramUuid = route.params.workoutProgramUuid;
-
-        const { inFocusProgram, isPending } =
-            useSingleWorkoutProgramQuery(workoutProgramUuid);
+        const { data, isPending } = useSingleWorkoutProgramQuery();
 
         const programBuilderStore = useProgramBuilderStore();
 
         const display = useDisplay();
-        return { inFocusProgram, isPending, programBuilderStore, display };
+        const route = useRoute();
+        return { data, isPending, programBuilderStore, display, route };
     },
     data() {
         return {
@@ -145,7 +142,7 @@ export default {
             return this.programBuilderStore.serverSyncStatus;
         },
         uuid() {
-            return this.inFocusProgram.uuid;
+            return this.route.params.workoutProgramUuid;
         },
         orderedWorkouts: {
             get() {

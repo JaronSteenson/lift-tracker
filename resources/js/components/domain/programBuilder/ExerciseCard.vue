@@ -57,18 +57,21 @@
 import EditExerciseModal from './EditExerciseModal';
 import { minsSecDuration } from '../../../dates';
 import { useProgramBuilderStore } from '../../../stores/programBuilder';
+import { useSingleWorkoutProgramQuery } from '../../../api/WorkoutProgramService';
+import { defineProps } from 'vue';
 
 export default {
     components: { EditExerciseModal },
     setup() {
+        const props = defineProps({
+            exerciseUuid: { type: String, required: true },
+        });
+
+        const { getExercise } = useSingleWorkoutProgramQuery();
+        const exercise = getExercise(props.exerciseUuid);
+
         const programBuilderStore = useProgramBuilderStore();
-        return { programBuilderStore };
-    },
-    props: {
-        exerciseUuid: {
-            type: String,
-            required: true,
-        },
+        return { programBuilderStore, exercise };
     },
     data() {
         return {
@@ -88,9 +91,6 @@ export default {
         };
     },
     computed: {
-        exercise() {
-            return this.programBuilderStore.getExercise(this.exerciseUuid);
-        },
         nameDisplay() {
             return this.exercise.name || 'Unnamed exercise';
         },

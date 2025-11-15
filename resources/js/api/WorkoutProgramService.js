@@ -2,6 +2,8 @@ import ApiService from './ApiService';
 import { useQuery } from '@pinia/colada';
 import { computed } from 'vue';
 import { useProgramBuilderStore } from '../stores/programBuilder';
+import { useRoute } from 'vue-router';
+import UuidHelper from '../UuidHelper';
 
 const RESOURCE_NAME = 'workout-programs';
 
@@ -46,8 +48,9 @@ export function useAllWorkoutProgramsQuery() {
     return { data, isPending, shouldShowNoProgramsWelcomeHint };
 }
 
-export function useSingleWorkoutProgramQuery(uuid) {
-    const programBuilderStore = useProgramBuilderStore();
+export function useSingleWorkoutProgramQuery() {
+    const route = useRoute();
+    const uuid = route.params.workoutProgramUuid;
 
     const { data, isPending } = useQuery({
         // unique key for the query in the cache
@@ -59,14 +62,22 @@ export function useSingleWorkoutProgramQuery(uuid) {
 
             const response = await WorkoutProgramService.get(uuid);
 
-            programBuilderStore.inFocusProgram = response.data;
             return response.data;
         },
     });
 
+    const getExercise = (uuid) => {
+        return UuidHelper.findDeep(data, uuid);
+    };
+
+    const getWorkout = (uuid) => {
+        return UuidHelper.find(data, uuid);
+    };
+
     return {
-        inFocusProgram: programBuilderStore.inFocusProgram,
         data,
         isPending,
+        getWorkout,
+        getExercise,
     };
 }

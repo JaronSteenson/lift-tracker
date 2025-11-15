@@ -109,9 +109,10 @@ import ExerciseCard from './ExerciseCard';
 import Draggable from 'vuedraggable';
 import MissingValue from '../../util/MissingValue';
 import AddNewButton from '../../formFields/AddNewButton';
-import { useProgramBuilderStore } from '../../../stores/programBuilder';
+import { defineProps } from 'vue';
 import { useWorkoutSessionStore } from '../../../stores/workoutSession';
 import { useDisplay } from 'vuetify';
+import { useSingleWorkoutProgramQuery } from '../../../api/WorkoutProgramService';
 
 export default {
     components: {
@@ -121,11 +122,22 @@ export default {
         Draggable,
     },
     setup() {
-        const programBuilderStore = useProgramBuilderStore();
+        const props = defineProps({
+            workoutUuid: {
+                type: String,
+                required: true,
+            },
+            isSessionOverview: Boolean,
+        });
+
+        const { getWorkout } = useSingleWorkoutProgramQuery();
+        const workout = getWorkout(props.workoutUuid);
+
         const workoutSessionStore = useWorkoutSessionStore();
         const { xs, smAndDown, mobile } = useDisplay();
         return {
-            programBuilderStore,
+            isSessionOverview: props.isSessionOverview,
+            workout,
             workoutSessionStore,
             xs,
             smAndDown,
@@ -133,20 +145,10 @@ export default {
         };
     },
     data() {
-        const workout = this.programBuilderStore.getRoutine(this.workoutUuid);
-
         return {
             starting: false,
             isAddingExercise: false,
-            name: workout?.name,
         };
-    },
-    props: {
-        workoutUuid: {
-            type: String,
-            required: true,
-        },
-        isSessionOverview: Boolean,
     },
     computed: {
         workout() {
