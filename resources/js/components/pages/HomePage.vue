@@ -1,7 +1,9 @@
 <template>
     <div>
         <PageAppBar :title="appName" show-drawer-icon />
-        <SessionOverviewLoadingSkeleton v-if="isInitialLoading" />
+        <SessionOverviewLoadingSkeleton
+            v-if="isPending || workoutProgramsIsPending"
+        />
         <NoProgramsWelcomeHint v-else-if="shouldShowNoProgramsWelcomeHint" />
         <NoSessionsHint v-else-if="shouldShowNoSessionsHint" />
         <MyTimeline v-else />
@@ -17,6 +19,7 @@ import SessionOverviewLoadingSkeleton from '../domain/workoutSessions/SessionOve
 import { useAppStore } from '../../stores/app';
 import { useWorkoutSessionStore } from '../../stores/workoutSession';
 import { useTimelineQuery } from '../../api/WorkoutSessionService';
+import { useAllWorkoutProgramsQuery } from '../../api/WorkoutProgramService';
 
 export default {
     name: 'HomePage',
@@ -29,40 +32,26 @@ export default {
     },
     setup() {
         const appStore = useAppStore();
-        const workoutSessionStore = useWorkoutSessionStore();
-
-        const { data: workoutSessions, isPending: workoutSessionsIsPending } =
-            useTimelineQuery(workoutSessionStore.currentPageIndex);
+        const { data, isPending } = useTimelineQuery();
+        const {
+            isPending: workoutProgramsIsPending,
+            shouldShowNoProgramsWelcomeHint,
+        } = useAllWorkoutProgramsQuery();
 
         return {
             appStore,
-            workoutSessionStore,
-            workoutSessions,
-            workoutSessionsIsPending,
+            data,
+            isPending,
+            shouldShowNoProgramsWelcomeHint,
+            workoutProgramsIsPending,
         };
     },
     computed: {
         appName() {
             return this.appStore.appName;
         },
-        myWorkoutSessionsIsLoading() {
-            return this.workoutSessionsIsPending;
-        },
-        isInitialLoading() {
-            return this.workoutSessionsIsPending;
-        },
-        shouldShowNoProgramsWelcomeHint() {
-            return this.appStore.shouldShowNoProgramsWelcomeHint;
-        },
         shouldShowNoSessionsHint() {
-            return (
-                !this.workoutSessionsIsPending &&
-                this.workoutSessions.length === 0
-            );
-        },
-        inProgressSet() {
-            // TODO: Implement in workoutSession store
-            return null;
+            return !this.isPending && this.data?.length === 0;
         },
     },
 };

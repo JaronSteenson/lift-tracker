@@ -48,16 +48,6 @@ export const useAppStore = defineStore('app', {
             const programBuilderStore = useProgramBuilderStore();
             return programBuilderStore.myWorkoutPrograms.length === 0;
         },
-        shouldShowNoProgramsHintStartNewSession: (state) => {
-            if (
-                (!state.isAuthenticated && !state.localOnlyUser) ||
-                !state.isBootstrapped
-            ) {
-                return false;
-            }
-            const programBuilderStore = useProgramBuilderStore();
-            return programBuilderStore.myWorkoutPrograms.length === 0;
-        },
         shouldShowNoSessionsHint: (state) => {
             if (!state.isAuthenticated && !state.localOnlyUser) {
                 return false;

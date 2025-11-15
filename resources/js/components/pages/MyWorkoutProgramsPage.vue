@@ -12,7 +12,6 @@ import WorkoutProgramList from '../domain/WorkoutProgramList';
 import NoProgramsHint from '../domain/userHints/NoProgramsHint';
 import AppBar from '../AppBar';
 import SessionOverviewLoadingSkeleton from '../domain/workoutSessions/SessionOverviewLoadingSkeleton.vue';
-import { useProgramBuilderStore } from '../../stores/programBuilder';
 import { useAllWorkoutProgramsQuery } from '../../api/WorkoutProgramService';
 
 export default {

@@ -1,5 +1,6 @@
 import ApiService from './ApiService';
 import { useQuery } from '@pinia/colada';
+import { computed } from 'vue';
 
 const RESOURCE_NAME = 'workout-programs';
 
@@ -28,13 +29,18 @@ const WorkoutProgramService = {
 export default WorkoutProgramService;
 
 export function useAllWorkoutProgramsQuery() {
-    return useQuery({
+    const { data, isPending } = useQuery({
         // unique key for the query in the cache
         key: () => ['allWorkoutPrograms'],
         query: async () => {
-            const response = await this.getAll();
-            debugger;
+            const response = await WorkoutProgramService.getAll();
             return response.data;
         },
     });
+
+    const shouldShowNoProgramsWelcomeHint = computed(() => {
+        return !isPending.value && (data.value?.length ?? 0) === 0;
+    });
+
+    return { data, isPending, shouldShowNoProgramsWelcomeHint };
 }

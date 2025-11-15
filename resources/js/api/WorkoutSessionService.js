@@ -1,6 +1,7 @@
 import ApiService from './ApiService';
 import { useInfiniteQuery } from '@pinia/colada';
 import { useWorkoutSessionStore } from '../stores/workoutSession';
+import { computed } from 'vue';
 
 const RESOURCE_NAME = 'workout-sessions';
 const SET_RESOURCE_NAME = 'session-sets';
@@ -79,11 +80,23 @@ export function useTimelineQuery() {
             if (!newPage) {
                 return pages;
             }
-            // ensure we have unique entries even during HMR
 
-            return [...(pages || []), ...newPage];
+            if (!pages) {
+                pages = [];
+            }
+
+            return pages.concat(newPage);
         },
     });
 
-    return { data, isPending, loadMore };
+    const shouldShowNoProgramsHintStartNewSession = computed(() => {
+        return !isPending.value && (data.value?.length ?? 0) === 0;
+    });
+
+    return {
+        data,
+        isPending,
+        loadMore,
+        shouldShowNoProgramsHintStartNewSession,
+    };
 }

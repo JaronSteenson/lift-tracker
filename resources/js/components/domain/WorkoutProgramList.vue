@@ -51,7 +51,6 @@
 <script>
 import ProgramName from '../domain/programBuilder/ProgramName';
 import AddNewButton from '../formFields/AddNewButton.vue';
-import { useProgramBuilderStore } from '../../stores/programBuilder';
 import { svgIcons } from '../../vuetify';
 import { useAllWorkoutProgramsQuery } from '../../api/WorkoutProgramService';
 

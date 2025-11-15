@@ -15,6 +15,8 @@ import NoProgramsStartNewSessionHint from '../domain/userHints/NoProgramsStartNe
 import NoProgramsWelcomeHint from '../domain/userHints/NoProgramsWelcomeHint';
 import AppBar from '../AppBar';
 import { useAppStore } from '../../stores/app';
+import { useAllWorkoutProgramsQuery } from '../../api/WorkoutProgramService';
+import { useTimelineQuery } from '../../api/WorkoutSessionService';
 
 export default {
     name: 'NewSessionRoutineSelectPage',
@@ -26,15 +28,15 @@ export default {
     },
     setup() {
         const appStore = useAppStore();
-        return { appStore };
-    },
-    computed: {
-        shouldShowNoProgramsWelcomeHint() {
-            return this.appStore.shouldShowNoProgramsWelcomeHint;
-        },
-        shouldShowNoProgramsHintStartNewSession() {
-            return this.appStore.shouldShowNoProgramsHintStartNewSession;
-        },
+        const { shouldShowNoProgramsWelcomeHint } =
+            useAllWorkoutProgramsQuery();
+        const { shouldShowNoProgramsHintStartNewSession } = useTimelineQuery();
+
+        return {
+            appStore,
+            shouldShowNoProgramsWelcomeHint,
+            shouldShowNoProgramsHintStartNewSession,
+        };
     },
 };
 </script>
