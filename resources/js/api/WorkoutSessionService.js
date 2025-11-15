@@ -1,5 +1,7 @@
 import ApiService from './ApiService';
-import { useQuery } from '@pinia/colada';
+import { useInfiniteQuery } from '@pinia/colada';
+import { useWorkoutSessionStore } from '../stores/workoutSession';
+
 const RESOURCE_NAME = 'workout-sessions';
 const SET_RESOURCE_NAME = 'session-sets';
 const EXERCISE_RESOURCE_NAME = 'session-exercises';
@@ -48,17 +50,40 @@ const WorkoutSessionService = {
 
 export default WorkoutSessionService;
 
-export function useTimelineQuery(pageIndex, pageSize) {
-    return useQuery({
+export function useTimelineQuery() {
+    const pageSize = 10;
+    const workoutSessionStore = useWorkoutSessionStore();
+
+    const { data, isPending, loadMore } = useInfiniteQuery({
         // unique key for the query in the cache
-        key: () => ['timeline', pageIndex, pageSize],
+        key: () => ['timeline'],
         query: async () => {
+            if (workoutSessionStore.allPagesLoaded) {
+                return [];
+            }
+
             const response = await WorkoutSessionService.index({
-                pageIndex,
+                pageIndex: workoutSessionStore.pageIndex,
                 pageSize,
             });
 
+            if (response.data.length < pageSize) {
+                workoutSessionStore.allPagesLoaded = true;
+            }
+
+            workoutSessionStore.pageIndex++;
             return response.data;
         },
+        merge(pages, newPage) {
+            // no more pages
+            if (!newPage) {
+                return pages;
+            }
+            // ensure we have unique entries even during HMR
+
+            return [...(pages || []), ...newPage];
+        },
     });
+
+    return { data, isPending, loadMore };
 }

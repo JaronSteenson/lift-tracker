@@ -164,7 +164,6 @@ import ProgramName from '../domain/programBuilder/ProgramName';
 import AddNewButton from '../formFields/AddNewButton.vue';
 import { useDisplay } from 'vuetify';
 import { useTheme } from 'vuetify/framework';
-import { useQuery } from '@pinia/colada';
 import { useTimelineQuery } from '../../api/WorkoutSessionService';
 
 export default {
@@ -179,9 +178,7 @@ export default {
         const display = useDisplay();
         const theme = useTheme();
 
-        const { data, isPending } = useTimelineQuery(
-            workoutSessionStore.currentPageIndex,
-        );
+        const { data, isPending, loadMore } = useTimelineQuery();
 
         const toolbarColor = theme.current.value.colors.toolbar;
         return {
@@ -190,6 +187,7 @@ export default {
             toolbarColor,
             data,
             isPending,
+            loadMore,
         };
     },
     data() {
@@ -292,7 +290,7 @@ export default {
         },
         async loadNextPage() {
             this.loadingNextPage = true;
-            await this.workoutSessionStore.fetchNextPage();
+            await this.loadMore();
             this.loadingNextPage = false;
         },
         showDeleteConfirmation(workoutSessionUuid) {

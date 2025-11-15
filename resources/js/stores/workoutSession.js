@@ -35,9 +35,9 @@ function getSecondsRemaining({ expectedDuration, startTime }) {
 function defaultState() {
     return {
         allPagesLoaded: false,
+        pageIndex: 1,
         workoutSession: null,
         isChangingSet: false,
-        currentPageIndex: 1,
         exerciseHistoryMap: {},
         debouncedInitiated: false,
         serverSyncStatus: STATUS_SAVE_OK,
