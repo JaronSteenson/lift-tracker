@@ -3,8 +3,8 @@
         <!-- eslint-disable vue/valid-v-slot -->
         <VDataTable
             :headers="headers"
-            :items="myWorkoutPrograms"
-            :items-per-page="myWorkoutPrograms.length"
+            :items="data"
+            :items-per-page="data?.length"
             hide-default-footer
         >
             <template v-slot:item.name="{ item: program }">
@@ -53,6 +53,7 @@ import ProgramName from '../domain/programBuilder/ProgramName';
 import AddNewButton from '../formFields/AddNewButton.vue';
 import { useProgramBuilderStore } from '../../stores/programBuilder';
 import { svgIcons } from '../../vuetify';
+import { useAllWorkoutProgramsQuery } from '../../api/WorkoutProgramService';
 
 export default {
     name: 'WorkoutProgramList',
@@ -61,8 +62,8 @@ export default {
         ProgramName,
     },
     setup() {
-        const programBuilderStore = useProgramBuilderStore();
-        return { programBuilderStore, svgIcons };
+        const { data, isPending } = useAllWorkoutProgramsQuery();
+        return { data, isPending, svgIcons };
     },
     data() {
         return {
@@ -70,9 +71,6 @@ export default {
         };
     },
     computed: {
-        myWorkoutPrograms() {
-            return this.programBuilderStore.myWorkoutPrograms;
-        },
         headers() {
             return [
                 {

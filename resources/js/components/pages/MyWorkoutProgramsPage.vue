@@ -1,8 +1,8 @@
 <template>
     <div>
         <AppBar title="My workout programs" :back-to="{ name: 'HomePage' }" />
-        <SessionOverviewLoadingSkeleton v-if="myWorkoutProgramsIsLoading" />
-        <NoProgramsHint v-else-if="myWorkoutPrograms.length === 0" />
+        <SessionOverviewLoadingSkeleton v-if="isPending" />
+        <NoProgramsHint v-else-if="data?.length === 0" />
         <WorkoutProgramList v-else />
     </div>
 </template>
@@ -13,6 +13,7 @@ import NoProgramsHint from '../domain/userHints/NoProgramsHint';
 import AppBar from '../AppBar';
 import SessionOverviewLoadingSkeleton from '../domain/workoutSessions/SessionOverviewLoadingSkeleton.vue';
 import { useProgramBuilderStore } from '../../stores/programBuilder';
+import { useAllWorkoutProgramsQuery } from '../../api/WorkoutProgramService';
 
 export default {
     name: 'MyWorkoutProgramsPage',
@@ -23,16 +24,8 @@ export default {
         WorkoutProgramList,
     },
     setup() {
-        const programBuilderStore = useProgramBuilderStore();
-        return { programBuilderStore };
-    },
-    computed: {
-        myWorkoutProgramsIsLoading() {
-            return this.programBuilderStore.myWorkoutProgramsIsLoading;
-        },
-        myWorkoutPrograms() {
-            return this.programBuilderStore.myWorkoutPrograms;
-        },
+        const { data, isPending } = useAllWorkoutProgramsQuery();
+        return { data, isPending };
     },
 };
 </script>

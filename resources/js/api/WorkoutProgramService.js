@@ -33,6 +33,7 @@ export function useAllWorkoutProgramsQuery() {
         key: () => ['allWorkoutPrograms'],
         query: async () => {
             const response = await this.getAll();
+            debugger;
             return response.data;
         },
     });

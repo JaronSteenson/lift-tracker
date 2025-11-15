@@ -117,11 +117,6 @@ export const useAppStore = defineStore('app', {
                 await this.bootstrapAuth0();
             }
 
-            if (this.isAuthenticated) {
-                const programBuilderStore = useProgramBuilderStore();
-                programBuilderStore.fetchMyWorkoutPrograms();
-            }
-
             this.$patch({ localOnlyUser, isBootstrapped: true });
             this.saveToLocalStorage();
         },
