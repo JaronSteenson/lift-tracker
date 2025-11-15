@@ -1,6 +1,6 @@
 <template>
     <div>
-        <ProgramBuilderLoadingSkeleton v-if="loading" />
+        <ProgramBuilderLoadingSkeleton v-if="isPending" />
         <div v-else>
             <NotFoundPage v-if="notFound"
                 >Sorry we couldn't find that program.</NotFoundPage
@@ -86,7 +86,6 @@
 </template>
 
 <script>
-import { useProgramBuilderStore } from '../../../stores/programBuilder';
 import WorkoutCard from './WorkoutCard';
 import NotFoundPage from '../../pages/NotFoundPage';
 import Draggable from 'vuedraggable';
@@ -95,6 +94,9 @@ import ProgramBuilderLoadingSkeleton from './ProgramBuilderLoadingSkeleton';
 import ServerSyncInfo from '../../ServerSyncInfo';
 import AppBar from '../../AppBar';
 import { useDisplay } from 'vuetify';
+import { useSingleWorkoutProgramQuery } from '../../../api/WorkoutProgramService';
+import { useProgramBuilderStore } from '../../../stores/programBuilder';
+import { useRoute } from 'vue-router';
 
 export default {
     components: {
@@ -107,33 +109,24 @@ export default {
         ProgramBuilderLoadingSkeleton,
     },
     setup() {
+        const route = useRoute();
+        const workoutProgramUuid = route.params.workoutProgramUuid;
+
+        const { inFocusProgram, isPending } =
+            useSingleWorkoutProgramQuery(workoutProgramUuid);
+
         const programBuilderStore = useProgramBuilderStore();
+
         const display = useDisplay();
-        return { programBuilderStore, display };
-    },
-    props: {
-        workoutProgramUuid: {
-            type: String,
-            required: false,
-        },
-    },
-    async created() {
-        await this.loadProgram();
+        return { inFocusProgram, isPending, programBuilderStore, display };
     },
     data() {
         return {
-            loading: false,
-            fetchError: false,
             isAddingWorkout: false,
             localState: {},
         };
     },
     watch: {
-        workoutProgramUuid() {
-            if (this.workoutProgramUuid !== this.uuid) {
-                this.loadProgram();
-            }
-        },
         uuid(newUuid) {
             // Started as a new builder (workoutProgramUuid prop), but has now bee assigned a uuid and saved (val).
             if (!this.workoutProgramUuid && newUuid) {
@@ -146,10 +139,7 @@ export default {
     },
     computed: {
         notFound() {
-            return !this.loading && this.fetchError;
-        },
-        inFocusProgram() {
-            return this.programBuilderStore.inFocusProgram;
+            return !this.isPending && this.fetchError;
         },
         serverSyncStatus() {
             return this.programBuilderStore.serverSyncStatus;
@@ -189,22 +179,6 @@ export default {
             this.$nextTick(() => {
                 this.isAddingWorkout = false;
             });
-        },
-        async loadProgram() {
-            if (!this.workoutProgramUuid) {
-                await this.programBuilderStore.startNew();
-                this.resetLocalState();
-                return;
-            }
-
-            this.loading = true;
-            try {
-                await this.programBuilderStore.fetch(this.workoutProgramUuid);
-                this.resetLocalState();
-            } catch (e) {
-                this.fetchError = true;
-            }
-            this.loading = false;
         },
         async showDeleteConfirmation() {
             const deleteConfirmed = window.confirm(
