@@ -62,87 +62,64 @@
     </VDialog>
 </template>
 
-<script>
-import { useProgramBuilderStore } from '../../../stores/programBuilder';
+<script setup>
+import { ref, watch } from 'vue';
 import { useDisplay } from 'vuetify';
 import TimerInput from '../../formFields/TimerInput.vue';
+import { useWorkoutProgram } from './composibles/programBuilderQueries';
 
-export default {
-    components: { TimerInput },
-    setup() {
-        const programBuilderStore = useProgramBuilderStore();
-        return { programBuilderStore };
+const props = defineProps({
+    value: {
+        required: true,
+        type: Boolean,
     },
-    props: {
-        value: {
-            required: true,
-            type: Boolean,
-        },
-        exerciseUuid: {
-            required: true,
-            type: String,
-        },
+    exerciseUuid: {
+        required: true,
+        type: String,
     },
-    emits: ['update:value'],
-    data() {
-        const display = useDisplay();
-        const exercise = this.exerciseUuid
-            ? null
-            : this.programBuilderStore.getExercise(this.exerciseUuid);
+});
 
-        return {
-            display,
-            numberOfSetsOptions: [
-                { title: 'One', value: 1 },
-                { title: 'Two', value: 2 },
-                { title: 'Three', value: 3 },
-                { title: 'Four', value: 4 },
-                { title: 'Five', value: 5 },
-                { title: 'Six', value: 6 },
-                { title: 'Seven', value: 7 },
-                { title: 'Eight', value: 8 },
-                { title: 'Nine', value: 9 },
-                { title: 'Ten', value: 10 },
-            ],
-            name: exercise?.name,
-            weight: exercise?.weight,
-            numberOfSets: exercise?.numberOfSets,
-            restPeriod: exercise?.restPeriod,
-            warmUp: exercise?.warmUp,
-        };
+const { getExercise } = useWorkoutProgram();
+const exercise = getExercise(props.exerciseUuid);
+
+defineEmits(['update:value']);
+
+const display = useDisplay();
+
+const numberOfSetsOptions = [
+    { title: 'One', value: 1 },
+    { title: 'Two', value: 2 },
+    { title: 'Three', value: 3 },
+    { title: 'Four', value: 4 },
+    { title: 'Five', value: 5 },
+    { title: 'Six', value: 6 },
+    { title: 'Seven', value: 7 },
+    { title: 'Eight', value: 8 },
+    { title: 'Nine', value: 9 },
+    { title: 'Ten', value: 10 },
+];
+
+const name = ref(exercise?.name);
+const weight = ref(exercise?.weight);
+const numberOfSets = ref(exercise?.numberOfSets);
+const restPeriod = ref(exercise?.restPeriod);
+const warmUp = ref(exercise?.warmUp);
+
+watch(
+    [name, weight, numberOfSets, restPeriod, warmUp],
+    () => {
+        if (!props.exerciseUuid) {
+            return;
+        }
+
+        // programBuilderStore.updateExercise(props.exerciseUuid, {
+        //     name: name.value,
+        //     weight: weight.value,
+        //     numberOfSets: numberOfSets.value,
+        //     restPeriod: restPeriod.value,
+        //     warmUp: warmUp.value,
+        // });
     },
-    watch: {
-        value() {
-            if (!this.exerciseUuid) {
-                return;
-            }
-
-            const exercise = this.programBuilderStore.getExercise(
-                this.exerciseUuid,
-            );
-
-            this.name = exercise?.name;
-            this.weight = exercise?.weight;
-            this.numberOfSets = exercise?.numberOfSets;
-            this.restPeriod = exercise?.restPeriod;
-            this.warmUp = exercise?.warmUp;
-        },
-        $data: {
-            handler() {
-                if (!this.exerciseUuid) {
-                    return;
-                }
-
-                this.programBuilderStore.updateExercise(this.exerciseUuid, {
-                    name: this.name,
-                    weight: this.weight,
-                    numberOfSets: this.numberOfSets,
-                    restPeriod: this.restPeriod,
-                    warmUp: this.warmUp,
-                });
-            },
-            deep: true,
-        },
-    },
-};
+    { deep: true },
+);
 </script>

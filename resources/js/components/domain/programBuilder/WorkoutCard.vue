@@ -53,7 +53,7 @@
                     ghostClass="ghost-exercise"
                     handle=".js-exercise-drag-handle"
                     itemKey="uuid"
-                    v-model="orderedExercises"
+                    v-model="workout.routineExercises"
                     @start="onDragStart"
                     @end="onDragEnd"
                 >
@@ -104,151 +104,115 @@
     </component>
 </template>
 
-<script>
+<script setup>
+import { ref, computed, watch, nextTick } from 'vue';
+import { useRouter } from 'vue-router';
 import ExerciseCard from './ExerciseCard';
 import Draggable from 'vuedraggable';
 import MissingValue from '../../util/MissingValue';
 import AddNewButton from '../../formFields/AddNewButton';
-import { defineProps } from 'vue';
 import { useWorkoutSessionStore } from '../../../stores/workoutSession';
+import { useProgramBuilderStore } from '../../../stores/programBuilder';
 import { useDisplay } from 'vuetify';
-import { useWorkout } from './composibles/programBuilderQueries';
+import { useWorkoutProgram } from './composibles/programBuilderQueries';
 
-export default {
-    components: {
-        AddNewButton,
-        MissingValue,
-        ExerciseCard,
-        Draggable,
+const props = defineProps({
+    workoutUuid: {
+        type: String,
+        required: true,
     },
-    setup() {
-        const props = defineProps({
-            workoutUuid: {
-                type: String,
-                required: true,
-            },
-            isSessionOverview: Boolean,
+    isSessionOverview: Boolean,
+});
+
+const { getWorkout } = useWorkoutProgram();
+const workout = getWorkout(props.workoutUuid);
+
+const programBuilderStore = useProgramBuilderStore();
+const workoutSessionStore = useWorkoutSessionStore();
+const { xs, smAndDown } = useDisplay();
+const router = useRouter();
+
+const starting = ref(false);
+const isAddingExercise = ref(false);
+const name = ref(workout.value?.name);
+
+const hasNoExercises = computed(() => {
+    return workout.value.routineExercises.length === 0;
+});
+
+watch(
+    () => props.workoutUuid,
+    () => {
+        if (!props.workoutUuid) {
+            return;
+        }
+
+        const workout = programBuilderStore.getRoutine(props.workoutUuid);
+        name.value = workout?.name;
+    },
+);
+
+watch(name, () => {
+    if (!props.workoutUuid) {
+        return;
+    }
+
+    programBuilderStore.updateRoutine(props.workoutUuid, {
+        name: name.value,
+    });
+});
+
+const addExercise = () => {
+    if (isAddingExercise.value) {
+        return;
+    }
+
+    isAddingExercise.value = true;
+    programBuilderStore.addExerciseToWorkout({
+        workoutUuid: props.workoutUuid,
+    });
+
+    nextTick(() => {
+        isAddingExercise.value = false;
+    });
+};
+
+const deleteWorkout = () => {
+    programBuilderStore.deleteWorkout({
+        workoutUuid: props.workoutUuid,
+    });
+};
+
+const onDragStart = () => {
+    programBuilderStore.setDraggingExercise(true);
+};
+
+const onDragEnd = () => {
+    programBuilderStore.setDraggingExercise(false);
+};
+
+const startWorkout = async () => {
+    starting.value = true;
+
+    await workoutSessionStore.startWorkout({
+        originWorkout: workout.value,
+    });
+
+    const firstSet = workoutSessionStore.firstSet;
+
+    if (firstSet && firstSet.uuid) {
+        router.replace({
+            name: 'SetOverviewPage',
+            params: { sessionSetUuid: firstSet.uuid },
         });
-
-        const { getWorkout } = useWorkout();
-        const workout = getWorkout(props.workoutUuid);
-
-        const workoutSessionStore = useWorkoutSessionStore();
-        const { xs, smAndDown, mobile } = useDisplay();
-        return {
-            isSessionOverview: props.isSessionOverview,
-            workout,
-            workoutSessionStore,
-            xs,
-            smAndDown,
-            mobile,
-        };
-    },
-    data() {
-        return {
-            starting: false,
-            isAddingExercise: false,
-        };
-    },
-    computed: {
-        workout() {
-            return this.programBuilderStore.getRoutine(this.workoutUuid);
-        },
-        orderedExercises: {
-            get() {
-                return this.programBuilderStore.getOrderedExercises(
-                    this.workoutUuid,
-                );
+    } else {
+        router.replace({
+            name: 'SessionOverviewPage',
+            params: {
+                workoutSessionUuid: workoutSessionStore.workoutSession?.uuid,
             },
-            set(newOrderedExercises) {
-                // TODO: Implement updateExercisePositionFromOrder action in Pinia store
-                this.programBuilderStore.updateExercisePositionFromOrder({
-                    workoutUuid: this.workoutUuid,
-                    newOrderedExercises,
-                });
-            },
-        },
-        hasNoExercises() {
-            return this.orderedExercises.length === 0;
-        },
-    },
-    watch: {
-        workoutUuid() {
-            if (!this.workoutUuid) {
-                return;
-            }
-
-            const workout = this.programBuilderStore.getRoutine(
-                this.workoutUuid,
-            );
-            this.name = workout?.name;
-        },
-        name() {
-            if (!this.workoutUuid) {
-                return;
-            }
-
-            this.programBuilderStore.updateRoutine(this.workoutUuid, {
-                name: this.name,
-            });
-        },
-    },
-    methods: {
-        addExercise() {
-            if (this.isAddingExercise) {
-                return;
-            }
-
-            this.isAddingExercise = true;
-            this.programBuilderStore.addExerciseToWorkout({
-                workoutUuid: this.workoutUuid,
-            });
-
-            // Reset the flag in the next tick after the store action completes
-            this.$nextTick(() => {
-                this.isAddingExercise = false;
-            });
-        },
-        deleteWorkout() {
-            this.programBuilderStore.deleteWorkout({
-                workoutUuid: this.workoutUuid,
-            });
-        },
-        onDragStart() {
-            this.programBuilderStore.setDraggingExercise(true);
-        },
-        onDragEnd() {
-            this.programBuilderStore.setDraggingExercise(false);
-        },
-        async startWorkout() {
-            this.starting = true;
-
-            // Create a new workout session from the updated master routine.
-            await this.workoutSessionStore.startWorkout({
-                originWorkout: this.workout,
-            });
-
-            // Finally, go to the first set in the workout.
-            const firstSet = this.workoutSessionStore.firstSet;
-
-            if (firstSet && firstSet.uuid) {
-                // Replace so that back button doesn't go to the workout setup page.
-                this.$router.replace({
-                    name: 'SetOverviewPage',
-                    params: { sessionSetUuid: firstSet.uuid },
-                });
-            } else {
-                // Fallback - go to session overview instead
-                this.$router.replace({
-                    name: 'SessionOverviewPage',
-                    params: {
-                        workoutSessionUuid:
-                            this.workoutSessionStore.workoutSession?.uuid,
-                    },
-                });
-            }
-        },
-    },
+        });
+    }
 };
 </script>
 

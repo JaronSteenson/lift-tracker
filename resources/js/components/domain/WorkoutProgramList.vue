@@ -3,8 +3,8 @@
         <!-- eslint-disable vue/valid-v-slot -->
         <VDataTable
             :headers="headers"
-            :items="data"
-            :items-per-page="data?.length"
+            :items="workoutPrograms"
+            :items-per-page="workoutPrograms?.length"
             hide-default-footer
         >
             <template v-slot:item.name="{ item: program }">
@@ -61,8 +61,8 @@ export default {
         ProgramName,
     },
     setup() {
-        const { data, isPending } = useWorkoutProgramList();
-        return { data, isPending, svgIcons };
+        const { workoutPrograms, isPending } = useWorkoutProgramList();
+        return { workoutPrograms, isPending, svgIcons };
     },
     data() {
         return {

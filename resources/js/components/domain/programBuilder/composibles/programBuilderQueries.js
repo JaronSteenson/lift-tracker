@@ -1,7 +1,8 @@
 import { useQuery } from '@pinia/colada';
 import { computed } from 'vue';
 import { useRoute } from 'vue-router';
-import UuidHelper from '../../../../UuidHelper';
+import UuidHelper from '../../../../UuidHelper/index';
+import WorkoutProgramService from '../../../../api/WorkoutProgramService';
 
 export function useWorkoutProgramList() {
     const { data, isPending } = useQuery({
@@ -17,10 +18,14 @@ export function useWorkoutProgramList() {
         return !isPending.value && (data.value?.length ?? 0) === 0;
     });
 
-    return { data, isPending, shouldShowNoProgramsWelcomeHint };
+    return {
+        workoutPrograms: data,
+        isPending,
+        shouldShowNoProgramsWelcomeHint,
+    };
 }
 
-export function useWorkout() {
+export function useWorkoutProgram() {
     const route = useRoute();
     const uuid = route.params.workoutProgramUuid;
 
@@ -39,15 +44,15 @@ export function useWorkout() {
     });
 
     const getExercise = (uuid) => {
-        return UuidHelper.findDeep(data, uuid);
+        return UuidHelper.findDeep(data.value.workoutProgramRoutines, uuid);
     };
 
     const getWorkout = (uuid) => {
-        return UuidHelper.find(data, uuid);
+        return UuidHelper.findIn(data.value.workoutProgramRoutines, uuid);
     };
 
     return {
-        data,
+        workoutProgram: data,
         isPending,
         getWorkout,
         getExercise,

@@ -79,6 +79,8 @@
     </div>
 </template>
 
+<script setup></script>
+
 <style lang="scss">
 .heading-bone {
     width: 600px;

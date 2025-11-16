@@ -2,7 +2,7 @@
     <div>
         <AppBar title="My workout programs" :back-to="{ name: 'HomePage' }" />
         <SessionOverviewLoadingSkeleton v-if="isPending" />
-        <NoProgramsHint v-else-if="data?.length === 0" />
+        <NoProgramsHint v-else-if="workoutPrograms?.length === 0" />
         <WorkoutProgramList v-else />
     </div>
 </template>
@@ -23,8 +23,8 @@ export default {
         WorkoutProgramList,
     },
     setup() {
-        const { data, isPending } = useWorkoutProgramList();
-        return { data, isPending };
+        const { workoutPrograms, isPending } = useWorkoutProgramList();
+        return { workoutPrograms, isPending };
     },
 };
 </script>

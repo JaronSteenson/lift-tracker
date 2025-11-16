@@ -16,7 +16,7 @@
                     <template v-slot:right>
                         <ServerSyncInfo
                             :status="serverSyncStatus"
-                            :updatedAt="data?.updatedAt"
+                            :updatedAt="workoutProgram?.updatedAt"
                         />
                         <VMenu bottom left>
                             <template v-slot:activator="{ props }">
@@ -35,6 +35,9 @@
                         </VMenu>
                     </template>
                 </AppBar>
+
+                <div>{{ JSON.stringify(workoutProgram) }}</div>
+                <div>{{ console.log(workoutProgram) }}</div>
 
                 <VSheet class="pa-2 ma-0">
                     <VTextField
@@ -57,7 +60,7 @@
                         ghostClass="workout-ghost"
                         handle=".js-workout-drag-handle"
                         itemKey="uuid"
-                        v-model="data"
+                        v-model="workoutProgram.workoutProgramRoutines"
                         @start="onWorkoutDragStart"
                         @end="onWorkoutDragEnd"
                     >
@@ -85,7 +88,9 @@
     </div>
 </template>
 
-<script>
+<script setup>
+import { ref, computed, watch, nextTick, reactive } from 'vue';
+import { useRouter, useRoute } from 'vue-router';
 import WorkoutCard from './WorkoutCard';
 import NotFoundPage from '../../pages/NotFoundPage';
 import Draggable from 'vuedraggable';
@@ -93,107 +98,84 @@ import AddNewButton from '../../formFields/AddNewButton';
 import ProgramBuilderLoadingSkeleton from './ProgramBuilderLoadingSkeleton';
 import ServerSyncInfo from '../../ServerSyncInfo';
 import AppBar from '../../AppBar';
-import { useDisplay } from 'vuetify';
-import { useWorkout } from './composibles/programBuilderQueries';
+import { useWorkoutProgram } from './composibles/programBuilderQueries';
 import { useProgramBuilderStore } from '../../../stores/programBuilder';
-import { useRoute } from 'vue-router';
 
-export default {
-    components: {
-        AddNewButton,
-        ServerSyncInfo,
-        WorkoutCard,
-        NotFoundPage,
-        Draggable,
-        AppBar,
-        ProgramBuilderLoadingSkeleton,
-    },
-    setup() {
-        const { data, isPending } = useWorkout();
+const { workoutProgram, isPending, fetchError } = useWorkoutProgram();
 
-        const programBuilderStore = useProgramBuilderStore();
+const programBuilderStore = useProgramBuilderStore();
+const route = useRoute();
+const router = useRouter();
 
-        const display = useDisplay();
-        const route = useRoute();
-        return { data, isPending, programBuilderStore, display, route };
-    },
-    data() {
-        return {
-            isAddingWorkout: false,
-            localState: {},
-        };
-    },
-    watch: {
-        uuid(newUuid) {
-            // Started as a new builder (workoutProgramUuid prop), but has now bee assigned a uuid and saved (val).
-            if (!this.workoutProgramUuid && newUuid) {
-                this.$router.replace({
-                    name: 'ProgramBuilderPage',
-                    params: { workoutProgramUuid: newUuid },
-                });
-            }
-        },
-    },
-    computed: {
-        notFound() {
-            return !this.isPending && this.fetchError;
-        },
-        serverSyncStatus() {
-            return this.programBuilderStore.serverSyncStatus;
-        },
-        uuid() {
-            return this.route.params.workoutProgramUuid;
-        },
-        name: {
-            get() {
-                return this.programBuilderStore.inFocusProgram.name;
-            },
-            set(name) {
-                this.programBuilderStore.updateName(name);
-            },
-        },
-    },
-    methods: {
-        addWorkoutToProgram(data) {
-            if (this.isAddingWorkout) {
-                return;
-            }
+const isAddingWorkout = ref(false);
+const localState = reactive({});
 
-            this.isAddingWorkout = true;
-            this.programBuilderStore.addWorkoutToProgram(data);
+const notFound = computed(() => {
+    return !isPending.value && fetchError?.value;
+});
 
-            // Reset the flag in the next tick
-            this.$nextTick(() => {
-                this.isAddingWorkout = false;
-            });
-        },
-        async showDeleteConfirmation() {
-            const deleteConfirmed = window.confirm(
-                'Are you sure you want to delete this program?',
-            );
+const serverSyncStatus = computed(() => {
+    return programBuilderStore.serverSyncStatus;
+});
 
-            if (deleteConfirmed) {
-                await this.programBuilderStore.deleteProgram();
-                await this.$router.push({ name: 'MyWorkoutProgramsPage' });
-            }
-        },
-        finishEditingName() {
-            if (this.name !== this.localState.name) {
-                this.name = this.localState.name;
-            }
-        },
-        resetLocalState() {
-            this.localState = {
-                name: this.programBuilderStore.inFocusProgram?.name || '',
-            };
-        },
-        onWorkoutDragStart() {
-            this.programBuilderStore.setDraggingWorkout(true);
-        },
-        onWorkoutDragEnd() {
-            this.programBuilderStore.setDraggingWorkout(false);
-        },
+const uuid = computed(() => {
+    return route.params.workoutProgramUuid;
+});
+
+const name = computed({
+    get() {
+        return programBuilderStore.inFocusProgram.name;
     },
+    set(name) {
+        programBuilderStore.updateName(name);
+    },
+});
+
+watch(uuid, (newUuid) => {
+    if (!route.params.workoutProgramUuid && newUuid) {
+        router.replace({
+            name: 'ProgramBuilderPage',
+            params: { workoutProgramUuid: newUuid },
+        });
+    }
+});
+
+const addWorkoutToProgram = (data) => {
+    if (isAddingWorkout.value) {
+        return;
+    }
+
+    isAddingWorkout.value = true;
+    programBuilderStore.addWorkoutToProgram(data);
+
+    nextTick(() => {
+        isAddingWorkout.value = false;
+    });
+};
+
+const showDeleteConfirmation = async () => {
+    const deleteConfirmed = window.confirm(
+        'Are you sure you want to delete this program?',
+    );
+
+    if (deleteConfirmed) {
+        await programBuilderStore.deleteProgram();
+        await router.push({ name: 'MyWorkoutProgramsPage' });
+    }
+};
+
+const finishEditingName = () => {
+    if (name.value !== localState.name) {
+        name.value = localState.name;
+    }
+};
+
+const onWorkoutDragStart = () => {
+    programBuilderStore.setDraggingWorkout(true);
+};
+
+const onWorkoutDragEnd = () => {
+    programBuilderStore.setDraggingWorkout(false);
 };
 </script>
 

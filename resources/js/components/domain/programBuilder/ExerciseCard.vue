@@ -53,80 +53,56 @@
         </Teleport>
     </VCard>
 </template>
-<script>
+<script setup>
+import { ref, computed } from 'vue';
 import EditExerciseModal from './EditExerciseModal';
 import { minsSecDuration } from '../../../dates';
 import { useProgramBuilderStore } from '../../../stores/programBuilder';
-import { useWorkout } from './composibles/programBuilderQueries';
-import { defineProps } from 'vue';
+import { useWorkoutProgram } from './composibles/programBuilderQueries';
 
-export default {
-    components: { EditExerciseModal },
-    setup() {
-        const props = defineProps({
-            exerciseUuid: { type: String, required: true },
-        });
+const props = defineProps({
+    exerciseUuid: { type: String, required: true },
+});
 
-        const { getExercise } = useWorkout();
-        const exercise = getExercise(props.exerciseUuid);
+const { getExercise } = useWorkoutProgram();
+const exercise = getExercise(props.exerciseUuid);
 
-        const programBuilderStore = useProgramBuilderStore();
-        return { programBuilderStore, exercise };
-    },
-    data() {
-        return {
-            showEditModal: false,
-            numberOfSetsOptions: [
-                { text: 'One', value: 1 },
-                { text: 'Two', value: 2 },
-                { text: 'Three', value: 3 },
-                { text: 'Four', value: 4 },
-                { text: 'Five', value: 5 },
-                { text: 'Six', value: 6 },
-                { text: 'Seven', value: 7 },
-                { text: 'Eight', value: 8 },
-                { text: 'Nine', value: 9 },
-                { text: 'Ten', value: 10 },
-            ],
-        };
-    },
-    computed: {
-        nameDisplay() {
-            return this.exercise.name || 'Unnamed exercise';
-        },
-        warmUp() {
-            return minsSecDuration(this.exercise.warmUp);
-        },
-        restPeriod() {
-            return minsSecDuration(this.exercise.restPeriod);
-        },
-        setsAndRepsBlurb() {
-            let blurb = '';
+const programBuilderStore = useProgramBuilderStore();
 
-            if (this.exercise.numberOfSets) {
-                blurb += `${this.exercise.numberOfSets} sets`;
+const showEditModal = ref(false);
 
-                if (this.exercise.weight) {
-                    blurb += ` of ${this.exercise.weight}kg`;
-                }
+const nameDisplay = computed(() => {
+    return exercise.name || 'Unnamed exercise';
+});
 
-                return blurb;
-            }
+const restPeriod = computed(() => {
+    return minsSecDuration(exercise.restPeriod);
+});
 
-            if (this.exercise.weight) {
-                return `${this.exercise.weight}kg`;
-            }
+const setsAndRepsBlurb = computed(() => {
+    let blurb = '';
 
-            return '';
-        },
-    },
-    methods: {
-        deleteExercise() {
-            return this.programBuilderStore.deleteExercise({
-                exerciseUuid: this.exerciseUuid,
-            });
-        },
-    },
+    if (exercise.numberOfSets) {
+        blurb += `${exercise.numberOfSets} sets`;
+
+        if (exercise.weight) {
+            blurb += ` of ${exercise.weight}kg`;
+        }
+
+        return blurb;
+    }
+
+    if (exercise.weight) {
+        return `${exercise.weight}kg`;
+    }
+
+    return '';
+});
+
+const deleteExercise = () => {
+    return programBuilderStore.deleteExercise({
+        exerciseUuid: props.exerciseUuid,
+    });
 };
 </script>
 

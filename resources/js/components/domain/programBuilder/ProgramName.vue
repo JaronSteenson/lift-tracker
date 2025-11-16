@@ -21,19 +21,14 @@
     </RouterLink>
 </template>
 
-<script>
+<script setup>
 import MissingValue from '../../util/MissingValue';
 
-export default {
-    components: {
-        MissingValue,
+defineProps({
+    workoutProgram: {
+        type: [Object, undefined, null],
     },
-    props: {
-        workoutProgram: {
-            type: [Object, undefined, null],
-        },
-    },
-};
+});
 </script>
 
 <style scoped></style>
