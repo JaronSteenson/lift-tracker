@@ -72,6 +72,27 @@ export default {
         return copy;
     },
 
+    replaceMergeInCopy(array, mergeWith, prependNew = false) {
+        const copy = [...array];
+
+        const index = copy.findIndex(
+            (object) => object.uuid === mergeWith.uuid,
+        );
+
+        const replaceWith = { ...array[index], ...mergeWith };
+
+        if (index === -1) {
+            if (prependNew) {
+                return [replaceWith, ...copy];
+            }
+            return [...copy, replaceWith];
+        }
+
+        copy.splice(index, 1, replaceWith);
+
+        return copy;
+    },
+
     /**
      * Find an object by UUID recursively in an array or object.
      * @param subject {Array | Object}

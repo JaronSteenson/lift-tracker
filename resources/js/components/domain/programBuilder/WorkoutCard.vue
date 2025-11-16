@@ -12,6 +12,7 @@
                 label="Workout name"
                 hide-details
                 variant="underlined"
+                @blur="saveName"
             />
 
             <VMenu v-if="!isSessionOverview" bottom left>
@@ -114,9 +115,16 @@ import AddNewButton from '../../formFields/AddNewButton';
 import { useWorkoutSessionStore } from '../../../stores/workoutSession';
 import { useProgramBuilderStore } from '../../../stores/programBuilder';
 import { useDisplay } from 'vuetify';
-import { useWorkoutProgram } from './composibles/programBuilderQueries';
+import {
+    useUpdateWorkoutProgram,
+    useWorkoutProgram,
+} from './composibles/programBuilderQueries';
 
 const props = defineProps({
+    workoutProgramUuid: {
+        type: String,
+        required: true,
+    },
     workoutUuid: {
         type: String,
         required: true,
@@ -124,7 +132,16 @@ const props = defineProps({
     isSessionOverview: Boolean,
 });
 
+const uuid = computed(() => {
+    return props.workoutUuid;
+});
+
+const workoutProgramUuid = computed(() => {
+    return props.workoutProgramUuid;
+});
+
 const { getWorkout } = useWorkoutProgram();
+const { updateRoutine } = useUpdateWorkoutProgram();
 const workout = getWorkout(props.workoutUuid);
 
 const programBuilderStore = useProgramBuilderStore();
@@ -134,7 +151,7 @@ const router = useRouter();
 
 const starting = ref(false);
 const isAddingExercise = ref(false);
-const name = ref(workout.value?.name);
+const name = ref(workout?.name);
 
 const hasNoExercises = computed(() => {
     return workout.value.routineExercises.length === 0;
@@ -146,21 +163,16 @@ watch(
         if (!props.workoutUuid) {
             return;
         }
-
-        const workout = programBuilderStore.getRoutine(props.workoutUuid);
         name.value = workout?.name;
     },
 );
 
-watch(name, () => {
-    if (!props.workoutUuid) {
-        return;
-    }
-
-    programBuilderStore.updateRoutine(props.workoutUuid, {
+const saveName = () => {
+    updateRoutine(workoutProgramUuid.value, {
+        uuid: uuid.value,
         name: name.value,
     });
-});
+};
 
 const addExercise = () => {
     if (isAddingExercise.value) {

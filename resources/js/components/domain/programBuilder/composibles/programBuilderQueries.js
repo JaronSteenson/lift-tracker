@@ -6,6 +6,7 @@ import WorkoutProgramService from '../../../../api/WorkoutProgramService';
 
 const WORKOUT_PROGRAM_LIST_KEY = 'workoutProgramList';
 const WORKOUT_PROGRAM_KEY = 'workoutProgram';
+const WORKOUT_PROGRAM_BY_ROUTINE_KEY = 'workoutProgramByRoutine';
 const UPDATE_WORKOUT_PROGRAM_KEY = 'updateWorkoutProgram';
 
 export function useWorkoutProgramList() {
@@ -22,8 +23,23 @@ export function useWorkoutProgramList() {
         return !isPending.value && (data.value?.length ?? 0) === 0;
     });
 
+    const routines = computed(() =>
+        data.value.flatMap((program) =>
+            (program.workoutProgramRoutines ?? []).map((routine) => ({
+                ...routine,
+                workoutProgram: {
+                    uuid: program.uuid,
+                    name: program.name,
+                    createdAt: program.createdAt,
+                    updatedAt: program.updatedAt,
+                },
+            })),
+        ),
+    );
+
     return {
         workoutPrograms: data,
+        routines,
         isPending,
         shouldShowNoProgramsWelcomeHint,
     };
@@ -42,6 +58,43 @@ export function useWorkoutProgram() {
             }
 
             const response = await WorkoutProgramService.get(uuid);
+
+            return response.data;
+        },
+    });
+
+    const getExercise = (uuid) => {
+        return UuidHelper.findDeep(data.value.workoutProgramRoutines, uuid);
+    };
+
+    const getWorkout = (uuid) => {
+        return UuidHelper.findIn(data.value.workoutProgramRoutines, uuid);
+    };
+
+    return {
+        workoutProgram: data,
+        isPending,
+        getWorkout,
+        getExercise,
+    };
+}
+
+export function useWorkoutProgramByRoutine(routineUuid) {
+    const queryCache = useQueryCache();
+
+    const { data, isPending } = useQuery({
+        // unique key for the query in the cache
+        key: () => [WORKOUT_PROGRAM_BY_ROUTINE_KEY, routineUuid],
+        query: async () => {
+            if (!routineUuid) {
+                return undefined;
+            }
+
+            const response =
+                await WorkoutProgramService.getByRoutine(routineUuid);
+
+            const key = [WORKOUT_PROGRAM_KEY, response.data.uuid];
+            queryCache.setQueryData(key, response.data);
 
             return response.data;
         },
@@ -93,5 +146,25 @@ export function useUpdateWorkoutProgram() {
         },
     });
 
-    return { updateWorkoutProgram: mutate };
+    return {
+        updateWorkoutProgram: mutate,
+        updateRoutine(workoutProgramUuid, updates) {
+            const key = [WORKOUT_PROGRAM_KEY, workoutProgramUuid];
+            const current = toRaw(queryCache.getQueryData(key));
+
+            // Find the routine to update
+            const updatedRoutines = UuidHelper.replaceMergeInCopy(
+                current.workoutProgramRoutines,
+                updates,
+            );
+
+            const updatedWorkoutProgram = {
+                ...current,
+                workoutProgramRoutines: updatedRoutines,
+            };
+
+            // Optionally, call your mutation to persist on the server
+            mutate(updatedWorkoutProgram);
+        },
+    };
 }
