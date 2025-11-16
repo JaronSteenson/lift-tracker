@@ -36,18 +36,14 @@
                     </template>
                 </AppBar>
 
-                <div>{{ JSON.stringify(workoutProgram) }}</div>
-                <div>{{ console.log(workoutProgram) }}</div>
-
                 <VSheet class="pa-2 ma-0">
                     <VTextField
-                        v-model="localState.name"
+                        class="mb-4"
+                        label="Program name"
+                        v-model="name"
                         variant="underlined"
                         hide-details
-                        @blur="finishEditingName"
-                        @keydown.enter="finishEditingName"
-                        label="Program name"
-                        class="mb-4"
+                        @blur="saveName"
                     />
 
                     <Draggable
@@ -89,7 +85,7 @@
 </template>
 
 <script setup>
-import { ref, computed, watch, nextTick, reactive } from 'vue';
+import { ref, computed, watch, nextTick } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import WorkoutCard from './WorkoutCard';
 import NotFoundPage from '../../pages/NotFoundPage';
@@ -98,17 +94,20 @@ import AddNewButton from '../../formFields/AddNewButton';
 import ProgramBuilderLoadingSkeleton from './ProgramBuilderLoadingSkeleton';
 import ServerSyncInfo from '../../ServerSyncInfo';
 import AppBar from '../../AppBar';
-import { useWorkoutProgram } from './composibles/programBuilderQueries';
+import {
+    useWorkoutProgram,
+    useUpdateWorkoutProgram,
+} from './composibles/programBuilderQueries';
 import { useProgramBuilderStore } from '../../../stores/programBuilder';
 
 const { workoutProgram, isPending, fetchError } = useWorkoutProgram();
+const { updateWorkoutProgram } = useUpdateWorkoutProgram();
 
 const programBuilderStore = useProgramBuilderStore();
 const route = useRoute();
 const router = useRouter();
 
 const isAddingWorkout = ref(false);
-const localState = reactive({});
 
 const notFound = computed(() => {
     return !isPending.value && fetchError?.value;
@@ -122,14 +121,21 @@ const uuid = computed(() => {
     return route.params.workoutProgramUuid;
 });
 
-const name = computed({
-    get() {
-        return programBuilderStore.inFocusProgram.name;
+const name = ref('');
+
+const saveName = () => {
+    updateWorkoutProgram({ uuid: uuid.value, name: name.value });
+};
+
+watch(
+    () => workoutProgram.value,
+    (newVal) => {
+        if (newVal) {
+            name.value = newVal.name ?? '';
+        }
     },
-    set(name) {
-        programBuilderStore.updateName(name);
-    },
-});
+    { immediate: true },
+);
 
 watch(uuid, (newUuid) => {
     if (!route.params.workoutProgramUuid && newUuid) {
@@ -161,12 +167,6 @@ const showDeleteConfirmation = async () => {
     if (deleteConfirmed) {
         await programBuilderStore.deleteProgram();
         await router.push({ name: 'MyWorkoutProgramsPage' });
-    }
-};
-
-const finishEditingName = () => {
-    if (name.value !== localState.name) {
-        name.value = localState.name;
     }
 };
 
