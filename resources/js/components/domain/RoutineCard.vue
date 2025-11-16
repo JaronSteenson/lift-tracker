@@ -16,9 +16,6 @@
             From
             <ProgramName :workoutProgram="routine.workoutProgram" />
         </VCardSubtitle>
-        <VCardText v-if="mostRecentDate">
-            Last completed <MissingValue>{{ mostRecentDate }}</MissingValue>
-        </VCardText>
         <VCardActions>
             <VBtn
                 elevation="1"
@@ -73,18 +70,6 @@ export default {
         return {
             starting: false,
         };
-    },
-    computed: {
-        mostRecentDate() {
-            const mostRecent = this.workoutSessionStore.mostRecent(
-                this.routine.uuid,
-            );
-            if (mostRecent) {
-                return dateTimeDescription(mostRecent.endedAt);
-            }
-
-            return undefined;
-        },
     },
     methods: {
         async startNow() {

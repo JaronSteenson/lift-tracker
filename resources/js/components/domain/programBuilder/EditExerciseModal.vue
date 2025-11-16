@@ -50,11 +50,7 @@
                 </VContainer>
             </VCardText>
             <VCardActions class="justify-center">
-                <VBtn
-                    size="small"
-                    variant="outlined"
-                    @click="$emit('update:value', false)"
-                >
+                <VBtn size="small" variant="outlined" @click="closeModal">
                     Close
                 </VBtn>
             </VCardActions>
@@ -66,7 +62,10 @@
 import { ref, watch } from 'vue';
 import { useDisplay } from 'vuetify';
 import TimerInput from '../../formFields/TimerInput.vue';
-import { useWorkoutProgram } from './composibles/programBuilderQueries';
+import {
+    useUpdateWorkoutProgram,
+    useWorkoutProgram,
+} from './composibles/programBuilderQueries';
 
 const props = defineProps({
     value: {
@@ -79,10 +78,10 @@ const props = defineProps({
     },
 });
 
-const { getExercise } = useWorkoutProgram();
+const emit = defineEmits(['update:value']);
+const { workoutProgram, getExercise } = useWorkoutProgram();
+const { updateExercise } = useUpdateWorkoutProgram();
 const exercise = getExercise(props.exerciseUuid);
-
-defineEmits(['update:value']);
 
 const display = useDisplay();
 
@@ -122,4 +121,15 @@ watch(
     },
     { deep: true },
 );
+
+const closeModal = () => {
+    emit('update:value', false);
+    updateExercise(workoutProgram.value.uuid, {
+        uuid: props.exerciseUuid,
+        name: name.value,
+        weight: weight.value,
+        numberOfSets: numberOfSets.value,
+        warmUp: warmUp.value,
+    });
+};
 </script>

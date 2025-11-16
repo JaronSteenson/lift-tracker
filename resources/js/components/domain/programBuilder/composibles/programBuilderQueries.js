@@ -152,7 +152,6 @@ export function useUpdateWorkoutProgram() {
             const key = [WORKOUT_PROGRAM_KEY, workoutProgramUuid];
             const current = toRaw(queryCache.getQueryData(key));
 
-            // Find the routine to update
             const updatedRoutines = UuidHelper.replaceMergeInCopy(
                 current.workoutProgramRoutines,
                 updates,
@@ -163,8 +162,16 @@ export function useUpdateWorkoutProgram() {
                 workoutProgramRoutines: updatedRoutines,
             };
 
-            // Optionally, call your mutation to persist on the server
             mutate(updatedWorkoutProgram);
+        },
+        updateExercise(workoutProgramUuid, updates) {
+            const key = [WORKOUT_PROGRAM_KEY, workoutProgramUuid];
+            const current = toRaw(queryCache.getQueryData(key));
+
+            const existingExercise = UuidHelper.findDeep(current, updates.uuid);
+            Object.assign(existingExercise, updates);
+
+            mutate(current);
         },
     };
 }
