@@ -12,7 +12,7 @@ import WorkoutProgramList from '../domain/WorkoutProgramList';
 import NoProgramsHint from '../domain/userHints/NoProgramsHint';
 import AppBar from '../AppBar';
 import SessionOverviewLoadingSkeleton from '../domain/workoutSessions/SessionOverviewLoadingSkeleton.vue';
-import { useAllWorkoutProgramsQuery } from '../../api/WorkoutProgramService';
+import { useWorkoutProgramList } from '../domain/programBuilder/composibles/programBuilderQueries';
 
 export default {
     name: 'MyWorkoutProgramsPage',
@@ -23,7 +23,7 @@ export default {
         WorkoutProgramList,
     },
     setup() {
-        const { data, isPending } = useAllWorkoutProgramsQuery();
+        const { data, isPending } = useWorkoutProgramList();
         return { data, isPending };
     },
 };

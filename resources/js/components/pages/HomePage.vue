@@ -17,9 +17,8 @@ import NoSessionsHint from '../domain/userHints/NoSessionsHint';
 import PageAppBar from '../AppBar';
 import SessionOverviewLoadingSkeleton from '../domain/workoutSessions/SessionOverviewLoadingSkeleton.vue';
 import { useAppStore } from '../../stores/app';
-import { useWorkoutSessionStore } from '../../stores/workoutSession';
 import { useTimelineQuery } from '../../api/WorkoutSessionService';
-import { useAllWorkoutProgramsQuery } from '../../api/WorkoutProgramService';
+import { useWorkoutProgramList } from '../domain/programBuilder/composibles/programBuilderQueries';
 
 export default {
     name: 'HomePage',
@@ -36,7 +35,7 @@ export default {
         const {
             isPending: workoutProgramsIsPending,
             shouldShowNoProgramsWelcomeHint,
-        } = useAllWorkoutProgramsQuery();
+        } = useWorkoutProgramList();
 
         return {
             appStore,

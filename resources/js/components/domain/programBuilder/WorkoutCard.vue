@@ -112,7 +112,7 @@ import AddNewButton from '../../formFields/AddNewButton';
 import { defineProps } from 'vue';
 import { useWorkoutSessionStore } from '../../../stores/workoutSession';
 import { useDisplay } from 'vuetify';
-import { useSingleWorkoutProgramQuery } from '../../../api/WorkoutProgramService';
+import { useWorkout } from './composibles/programBuilderQueries';
 
 export default {
     components: {
@@ -130,7 +130,7 @@ export default {
             isSessionOverview: Boolean,
         });
 
-        const { getWorkout } = useSingleWorkoutProgramQuery();
+        const { getWorkout } = useWorkout();
         const workout = getWorkout(props.workoutUuid);
 
         const workoutSessionStore = useWorkoutSessionStore();

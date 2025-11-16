@@ -15,7 +15,7 @@ import NoProgramsStartNewSessionHint from '../domain/userHints/NoProgramsStartNe
 import NoProgramsWelcomeHint from '../domain/userHints/NoProgramsWelcomeHint';
 import AppBar from '../AppBar';
 import { useAppStore } from '../../stores/app';
-import { useAllWorkoutProgramsQuery } from '../../api/WorkoutProgramService';
+import { useWorkoutProgramList } from '../domain/programBuilder/composibles/programBuilderQueries';
 import { useTimelineQuery } from '../../api/WorkoutSessionService';
 
 export default {
@@ -28,8 +28,7 @@ export default {
     },
     setup() {
         const appStore = useAppStore();
-        const { shouldShowNoProgramsWelcomeHint } =
-            useAllWorkoutProgramsQuery();
+        const { shouldShowNoProgramsWelcomeHint } = useWorkoutProgramList();
         const { shouldShowNoProgramsHintStartNewSession } = useTimelineQuery();
 
         return {

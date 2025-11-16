@@ -52,7 +52,7 @@
 import ProgramName from '../domain/programBuilder/ProgramName';
 import AddNewButton from '../formFields/AddNewButton.vue';
 import { svgIcons } from '../../vuetify';
-import { useAllWorkoutProgramsQuery } from '../../api/WorkoutProgramService';
+import { useWorkoutProgramList } from './programBuilder/composibles/programBuilderQueries';
 
 export default {
     name: 'WorkoutProgramList',
@@ -61,7 +61,7 @@ export default {
         ProgramName,
     },
     setup() {
-        const { data, isPending } = useAllWorkoutProgramsQuery();
+        const { data, isPending } = useWorkoutProgramList();
         return { data, isPending, svgIcons };
     },
     data() {

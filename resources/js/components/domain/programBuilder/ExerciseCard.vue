@@ -57,7 +57,7 @@
 import EditExerciseModal from './EditExerciseModal';
 import { minsSecDuration } from '../../../dates';
 import { useProgramBuilderStore } from '../../../stores/programBuilder';
-import { useSingleWorkoutProgramQuery } from '../../../api/WorkoutProgramService';
+import { useWorkout } from './composibles/programBuilderQueries';
 import { defineProps } from 'vue';
 
 export default {
@@ -67,7 +67,7 @@ export default {
             exerciseUuid: { type: String, required: true },
         });
 
-        const { getExercise } = useSingleWorkoutProgramQuery();
+        const { getExercise } = useWorkout();
         const exercise = getExercise(props.exerciseUuid);
 
         const programBuilderStore = useProgramBuilderStore();

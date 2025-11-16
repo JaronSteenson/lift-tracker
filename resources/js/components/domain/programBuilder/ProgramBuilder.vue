@@ -57,13 +57,13 @@
                         ghostClass="workout-ghost"
                         handle=".js-workout-drag-handle"
                         itemKey="uuid"
-                        v-model="orderedWorkouts"
+                        v-model="data"
                         @start="onWorkoutDragStart"
                         @end="onWorkoutDragEnd"
                     >
-                        <template #item="{ element: data }">
+                        <template #item="{ element: workout }">
                             <div class="workout-card-wrapper pa-2 ma-2">
-                                <WorkoutCard :workoutUuid="data.uuid" />
+                                <WorkoutCard :workoutUuid="workout.uuid" />
                             </div>
                         </template>
                         <template #footer>
@@ -94,7 +94,7 @@ import ProgramBuilderLoadingSkeleton from './ProgramBuilderLoadingSkeleton';
 import ServerSyncInfo from '../../ServerSyncInfo';
 import AppBar from '../../AppBar';
 import { useDisplay } from 'vuetify';
-import { useSingleWorkoutProgramQuery } from '../../../api/WorkoutProgramService';
+import { useWorkout } from './composibles/programBuilderQueries';
 import { useProgramBuilderStore } from '../../../stores/programBuilder';
 import { useRoute } from 'vue-router';
 
@@ -109,7 +109,7 @@ export default {
         ProgramBuilderLoadingSkeleton,
     },
     setup() {
-        const { data, isPending } = useSingleWorkoutProgramQuery();
+        const { data, isPending } = useWorkout();
 
         const programBuilderStore = useProgramBuilderStore();
 
@@ -143,16 +143,6 @@ export default {
         },
         uuid() {
             return this.route.params.workoutProgramUuid;
-        },
-        orderedWorkouts: {
-            get() {
-                return this.programBuilderStore.getOrderedWorkouts;
-            },
-            set(orderedWorkouts) {
-                this.programBuilderStore.updateWorkoutPositionFromOrder(
-                    orderedWorkouts,
-                );
-            },
         },
         name: {
             get() {
