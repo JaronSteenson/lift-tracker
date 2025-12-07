@@ -264,27 +264,6 @@ export const useProgramBuilderStore = defineStore('programBuilder', {
             this.save();
         },
 
-        addExerciseToWorkout({ workoutUuid }) {
-            const workout = UuidHelper.findIn(
-                this.inFocusProgram.workoutProgramRoutines,
-                workoutUuid,
-            );
-
-            const exerciseNumber = workout.routineExercises.length + 1;
-            const newExercise = {
-                uuid: UuidHelper.assign(),
-                name: `Exercise ${exerciseNumber}`,
-                position: workout.routineExercises.length,
-                numberOfSets: 3,
-                restPeriod: 60,
-                warmUp: 60,
-                weight: null,
-            };
-
-            workout.routineExercises.push(newExercise);
-            this.save();
-        },
-
         deleteWorkout({ workoutUuid }) {
             const workoutIndex =
                 this.inFocusProgram.workoutProgramRoutines.findIndex(

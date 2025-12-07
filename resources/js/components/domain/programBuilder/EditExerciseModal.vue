@@ -3,7 +3,7 @@
         :model-value="value"
         @update:model-value="$emit('update:value', $event)"
         max-width="600px"
-        :fullscreen="display.xs"
+        :fullscreen="display.xs.value"
     >
         <VCard>
             <VCardText>
@@ -110,14 +110,6 @@ watch(
         if (!props.exerciseUuid) {
             return;
         }
-
-        // programBuilderStore.updateExercise(props.exerciseUuid, {
-        //     name: name.value,
-        //     weight: weight.value,
-        //     numberOfSets: numberOfSets.value,
-        //     restPeriod: restPeriod.value,
-        //     warmUp: warmUp.value,
-        // });
     },
     { deep: true },
 );

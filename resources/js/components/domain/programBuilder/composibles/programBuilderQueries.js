@@ -100,13 +100,15 @@ export function useWorkoutProgramByRoutine(routineUuid) {
         },
     });
 
-    const getExercise = (uuid) => {
-        return UuidHelper.findDeep(data.value.workoutProgramRoutines, uuid);
-    };
+    const getExercise = computed(() => (uuid) => {
+        const source = data.value?.workoutProgramRoutines ?? [];
+        return UuidHelper.findDeep(source, uuid);
+    });
 
-    const getWorkout = (uuid) => {
-        return UuidHelper.findIn(data.value.workoutProgramRoutines, uuid);
-    };
+    const getWorkout = computed(() => (uuid) => {
+        const source = data.value?.workoutProgramRoutines ?? [];
+        return UuidHelper.findIn(source, uuid);
+    });
 
     return {
         workoutProgram: data,
@@ -140,9 +142,9 @@ export function useUpdateWorkoutProgram() {
             return { ...current, ...updates };
         },
 
-        onError(_err, variables, context) {
+        onError(_err, variables, workout) {
             const key = [WORKOUT_PROGRAM_KEY, variables.uuid];
-            queryCache.setQueryData(key, context.old);
+            queryCache.setQueryData(key, workout);
         },
     });
 
@@ -172,6 +174,48 @@ export function useUpdateWorkoutProgram() {
             Object.assign(existingExercise, updates);
 
             mutate(current);
+        },
+        addExerciseToWorkout(workoutProgramUuid, workoutUuid) {
+            const key = [WORKOUT_PROGRAM_KEY, workoutProgramUuid];
+            const current = toRaw(queryCache.getQueryData(key));
+
+            const workoutProgramRoutine = UuidHelper.findIn(
+                current.workoutProgramRoutines,
+                workoutUuid,
+            );
+
+            const exerciseNumber =
+                workoutProgramRoutine.routineExercises.length + 1;
+            const newExercise = {
+                uuid: UuidHelper.assign(),
+                name: `Exercise ${exerciseNumber}`,
+                position: workoutProgramRoutine.routineExercises.length,
+                numberOfSets: 3,
+                restPeriod: 60,
+                warmUp: 60,
+                weight: null,
+            };
+
+            // Create new objects/arrays immutably instead of mutating
+            const updatedRoutine = {
+                ...workoutProgramRoutine,
+                routineExercises: [
+                    ...workoutProgramRoutine.routineExercises,
+                    newExercise,
+                ],
+            };
+
+            const updatedRoutines = UuidHelper.replaceMergeInCopy(
+                current.workoutProgramRoutines,
+                updatedRoutine,
+            );
+
+            const updatedWorkoutProgram = {
+                ...current,
+                workoutProgramRoutines: updatedRoutines,
+            };
+
+            mutate(updatedWorkoutProgram);
         },
     };
 }

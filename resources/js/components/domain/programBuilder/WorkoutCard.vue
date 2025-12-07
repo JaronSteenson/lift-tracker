@@ -43,7 +43,7 @@
             class="mt-0"
             style="max-height: 100%"
         >
-            <component :is="isSessionOverview ? 'div' : 'VCol'">
+            <component :is="isSessionOverview ? 'div' : 'VCol'" v-if="workout">
                 <Draggable
                     tag="div"
                     :forceFallback="true"
@@ -54,7 +54,8 @@
                     ghostClass="ghost-exercise"
                     handle=".js-exercise-drag-handle"
                     itemKey="uuid"
-                    v-model="workout.routineExercises"
+                    :modelValue="exercises"
+                    @update:modelValue="workout.routineExercises = $event"
                     @start="onDragStart"
                     @end="onDragEnd"
                 >
@@ -75,7 +76,7 @@
             <AddNewButton
                 class="flex-grow-1"
                 :disabled="starting"
-                @click.stop="addExercise"
+                @click="addExercise"
             >
                 Add exercise
             </AddNewButton>
@@ -98,7 +99,7 @@
             </VBtn>
         </div>
         <VCardActions v-else class="justify-center" width="100%">
-            <AddNewButton @click.stop="addExercise" width="100%">
+            <AddNewButton @click="addExercise" width="100%">
                 Add exercise
             </AddNewButton>
         </VCardActions>
@@ -140,9 +141,25 @@ const workoutProgramUuid = computed(() => {
     return props.workoutProgramUuid;
 });
 
-const { getWorkout } = useWorkoutProgram();
-const { updateRoutine } = useUpdateWorkoutProgram();
-const workout = getWorkout(props.workoutUuid);
+const { workoutProgram } = useWorkoutProgram();
+const { updateRoutine, addExerciseToWorkout } = useUpdateWorkoutProgram();
+
+// Create a computed that directly accesses the workout from the reactive workoutProgram
+const workout = computed(() => {
+    if (!workoutProgram.value?.workoutProgramRoutines) {
+        return null;
+    }
+    const found = workoutProgram.value.workoutProgramRoutines.find(
+        (routine) => routine.uuid === props.workoutUuid,
+    );
+    return found;
+});
+
+// Computed for exercises array
+const exercises = computed(() => {
+    const result = workout.value?.routineExercises || [];
+    return result;
+});
 
 const programBuilderStore = useProgramBuilderStore();
 const workoutSessionStore = useWorkoutSessionStore();
@@ -151,10 +168,10 @@ const router = useRouter();
 
 const starting = ref(false);
 const isAddingExercise = ref(false);
-const name = ref(workout?.name);
+const name = ref(workout.value?.name);
 
 const hasNoExercises = computed(() => {
-    return workout.value.routineExercises.length === 0;
+    return workout.value?.routineExercises?.length === 0;
 });
 
 watch(
@@ -163,7 +180,7 @@ watch(
         if (!props.workoutUuid) {
             return;
         }
-        name.value = workout?.name;
+        name.value = workout.value?.name;
     },
 );
 
@@ -178,15 +195,14 @@ const addExercise = () => {
     if (isAddingExercise.value) {
         return;
     }
-
     isAddingExercise.value = true;
-    programBuilderStore.addExerciseToWorkout({
-        workoutUuid: props.workoutUuid,
-    });
 
-    nextTick(() => {
+    addExerciseToWorkout(workoutProgramUuid.value, uuid.value);
+
+    // Reset after a brief delay to allow subsequent clicks
+    setTimeout(() => {
         isAddingExercise.value = false;
-    });
+    }, 300);
 };
 
 const deleteWorkout = () => {
