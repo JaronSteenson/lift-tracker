@@ -2,7 +2,6 @@
     <VBtn
         class="add-new-button"
         :to="to"
-        @click="$emit('click', $event)"
         variant="outlined"
         :disabled="disabled"
         :width="width"

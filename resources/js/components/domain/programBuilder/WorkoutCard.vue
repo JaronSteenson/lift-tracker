@@ -192,6 +192,7 @@ const saveName = () => {
 };
 
 const addExercise = () => {
+    console.trace('addExercise');
     if (isAddingExercise.value) {
         return;
     }
