@@ -631,11 +631,6 @@ export default {
                     uuid: this.sessionSetUuid,
                     weight,
                 });
-
-                this.programBuilderStore.updateExercise(
-                    this.exercise.routineExercise.uuid,
-                    { weight },
-                );
             },
         },
         reps: {
