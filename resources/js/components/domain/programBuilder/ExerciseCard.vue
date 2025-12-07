@@ -57,17 +57,18 @@
 import { ref, computed } from 'vue';
 import EditExerciseModal from './EditExerciseModal';
 import { minsSecDuration } from '../../../dates';
-import { useProgramBuilderStore } from '../../../stores/programBuilder';
-import { useWorkoutProgram } from './composibles/programBuilderQueries';
+import {
+    useUpdateWorkoutProgram,
+    useWorkoutProgram,
+} from './composibles/programBuilderQueries';
 
 const props = defineProps({
     exerciseUuid: { type: String, required: true },
 });
 
-const { getExercise } = useWorkoutProgram();
+const { workoutProgram, getExercise } = useWorkoutProgram();
+const { removeExerciseFromWorkout } = useUpdateWorkoutProgram();
 const exercise = getExercise(props.exerciseUuid);
-
-const programBuilderStore = useProgramBuilderStore();
 
 const showEditModal = ref(false);
 
@@ -100,9 +101,10 @@ const setsAndRepsBlurb = computed(() => {
 });
 
 const deleteExercise = () => {
-    return programBuilderStore.deleteExercise({
-        exerciseUuid: props.exerciseUuid,
-    });
+    return removeExerciseFromWorkout(
+        workoutProgram.value.uuid,
+        props.exerciseUuid,
+    );
 };
 </script>
 

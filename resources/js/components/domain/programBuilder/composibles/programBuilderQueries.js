@@ -67,14 +67,14 @@ export function useWorkoutProgram() {
         return UuidHelper.findDeep(data.value.workoutProgramRoutines, uuid);
     };
 
-    const getWorkout = (uuid) => {
+    const getRoutine = (uuid) => {
         return UuidHelper.findIn(data.value.workoutProgramRoutines, uuid);
     };
 
     return {
         workoutProgram: data,
         isPending,
-        getWorkout,
+        getRoutine,
         getExercise,
     };
 }
@@ -105,7 +105,7 @@ export function useWorkoutProgramByRoutine(routineUuid) {
         return UuidHelper.findDeep(source, uuid);
     });
 
-    const getWorkout = computed(() => (uuid) => {
+    const getRoutine = computed(() => (uuid) => {
         const source = data.value?.workoutProgramRoutines ?? [];
         return UuidHelper.findIn(source, uuid);
     });
@@ -113,7 +113,7 @@ export function useWorkoutProgramByRoutine(routineUuid) {
     return {
         workoutProgram: data,
         isPending,
-        getWorkout,
+        getRoutine,
         getExercise,
     };
 }
@@ -208,6 +208,28 @@ export function useUpdateWorkoutProgram() {
             const updatedRoutines = UuidHelper.replaceMergeInCopy(
                 current.workoutProgramRoutines,
                 updatedRoutine,
+            );
+
+            const updatedWorkoutProgram = {
+                ...current,
+                workoutProgramRoutines: updatedRoutines,
+            };
+
+            mutate(updatedWorkoutProgram);
+        },
+        removeExerciseFromWorkout(workoutProgramUuid, exerciseUuid) {
+            const key = [WORKOUT_PROGRAM_KEY, workoutProgramUuid];
+            const current = toRaw(queryCache.getQueryData(key));
+
+            const updatedRoutines = current.workoutProgramRoutines.map(
+                (routine) => {
+                    return {
+                        ...routine,
+                        routineExercises: routine.routineExercises.filter(
+                            (exercise) => exercise.uuid !== exerciseUuid,
+                        ),
+                    };
+                },
             );
 
             const updatedWorkoutProgram = {

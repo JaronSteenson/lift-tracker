@@ -7,7 +7,6 @@
             </NotFound>
             <NarrowContentContainer v-else>
                 <WorkoutCard
-                    :workoutProgramUuid="workoutProgram.uuid"
                     :workoutUuid="originRoutineUuid"
                     is-session-overview
                 />

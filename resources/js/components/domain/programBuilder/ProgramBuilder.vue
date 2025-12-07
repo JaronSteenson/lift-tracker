@@ -62,10 +62,7 @@
                     >
                         <template #item="{ element: workout }">
                             <div class="workout-card-wrapper pa-2 ma-2">
-                                <WorkoutCard
-                                    :workoutProgramUuid="workoutProgram.uuid"
-                                    :workoutUuid="workout.uuid"
-                                />
+                                <WorkoutCard :workoutUuid="workout.uuid" />
                             </div>
                         </template>
                         <template #footer>

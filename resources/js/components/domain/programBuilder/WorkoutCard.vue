@@ -107,7 +107,7 @@
 </template>
 
 <script setup>
-import { ref, computed, watch, nextTick } from 'vue';
+import { computed, ref, watch } from 'vue';
 import { useRouter } from 'vue-router';
 import ExerciseCard from './ExerciseCard';
 import Draggable from 'vuedraggable';
@@ -122,10 +122,6 @@ import {
 } from './composibles/programBuilderQueries';
 
 const props = defineProps({
-    workoutProgramUuid: {
-        type: String,
-        required: true,
-    },
     workoutUuid: {
         type: String,
         required: true,
@@ -137,10 +133,6 @@ const uuid = computed(() => {
     return props.workoutUuid;
 });
 
-const workoutProgramUuid = computed(() => {
-    return props.workoutProgramUuid;
-});
-
 const { workoutProgram } = useWorkoutProgram();
 const { updateRoutine, addExerciseToWorkout } = useUpdateWorkoutProgram();
 
@@ -149,10 +141,10 @@ const workout = computed(() => {
     if (!workoutProgram.value?.workoutProgramRoutines) {
         return null;
     }
-    const found = workoutProgram.value.workoutProgramRoutines.find(
+
+    return workoutProgram.value.workoutProgramRoutines.find(
         (routine) => routine.uuid === props.workoutUuid,
     );
-    return found;
 });
 
 // Computed for exercises array
@@ -167,7 +159,6 @@ const { xs, smAndDown } = useDisplay();
 const router = useRouter();
 
 const starting = ref(false);
-const isAddingExercise = ref(false);
 const name = ref(workout.value?.name);
 
 const hasNoExercises = computed(() => {
@@ -185,25 +176,14 @@ watch(
 );
 
 const saveName = () => {
-    updateRoutine(workoutProgramUuid.value, {
+    updateRoutine(workoutProgram.value.uuid, {
         uuid: uuid.value,
         name: name.value,
     });
 };
 
 const addExercise = () => {
-    console.trace('addExercise');
-    if (isAddingExercise.value) {
-        return;
-    }
-    isAddingExercise.value = true;
-
-    addExerciseToWorkout(workoutProgramUuid.value, uuid.value);
-
-    // Reset after a brief delay to allow subsequent clicks
-    setTimeout(() => {
-        isAddingExercise.value = false;
-    }, 300);
+    addExerciseToWorkout(workoutProgram.value.uuid, uuid.value);
 };
 
 const deleteWorkout = () => {
