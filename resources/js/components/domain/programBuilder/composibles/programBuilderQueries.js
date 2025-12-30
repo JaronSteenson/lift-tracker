@@ -259,5 +259,28 @@ export function useUpdateWorkoutProgram() {
 
             mutate(updatedWorkoutProgram);
         },
+
+        addWorkoutToProgram(workoutProgramUuid) {
+            const queryKey = [WORKOUT_PROGRAM_KEY, workoutProgramUuid];
+            const current = queryClient.getQueryData(queryKey);
+
+            const newWorkout = {
+                uuid: UuidHelper.assign(),
+                name: `Workout ${current.workoutProgramRoutines.length + 1}`,
+                normalDay: 'any',
+                position: current.workoutProgramRoutines.length,
+                routineExercises: [],
+            };
+
+            const updatedWorkoutProgram = {
+                ...current,
+                workoutProgramRoutines: [
+                    ...current.workoutProgramRoutines,
+                    newWorkout,
+                ],
+            };
+
+            mutate(updatedWorkoutProgram);
+        },
     };
 }

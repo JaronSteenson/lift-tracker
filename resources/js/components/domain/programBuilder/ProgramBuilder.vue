@@ -68,7 +68,7 @@
                         <template #footer>
                             <div class="workout-card-wrapper pa-2 ma-2">
                                 <AddNewButton
-                                    @click="addWorkoutToProgram(null)"
+                                    @click="addWorkoutToProgram"
                                     draggable="false"
                                     width="100%"
                                     class="ma-2"
@@ -101,7 +101,8 @@ import {
 import { useProgramBuilderStore } from '../../../stores/programBuilder';
 
 const { workoutProgram, isPending, fetchError } = useWorkoutProgram();
-const { updateWorkoutProgram } = useUpdateWorkoutProgram();
+const { updateWorkoutProgram, addWorkoutToProgram: addWorkout } =
+    useUpdateWorkoutProgram();
 
 const programBuilderStore = useProgramBuilderStore();
 const route = useRoute();
@@ -146,13 +147,13 @@ watch(uuid, (newUuid) => {
     }
 });
 
-const addWorkoutToProgram = (data) => {
+const addWorkoutToProgram = () => {
     if (isAddingWorkout.value) {
         return;
     }
 
     isAddingWorkout.value = true;
-    programBuilderStore.addWorkoutToProgram(data);
+    addWorkout(workoutProgram.value.uuid);
 
     nextTick(() => {
         isAddingWorkout.value = false;
