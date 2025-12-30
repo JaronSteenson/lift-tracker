@@ -59,9 +59,10 @@
 </template>
 
 <script setup>
-import { ref, watch } from 'vue';
+import { ref, watch, computed } from 'vue';
 import { useDisplay } from 'vuetify';
 import TimerInput from '../../formFields/TimerInput.vue';
+import UuidHelper from '../../../UuidHelper/index';
 import {
     useUpdateWorkoutProgram,
     useWorkoutProgram,
@@ -80,11 +81,34 @@ const props = defineProps({
         type: String,
         default: null,
     },
+    workoutProgramProp: {
+        type: Object,
+        default: null,
+    },
 });
 
 const emit = defineEmits(['update:value']);
-const { workoutProgram, getExercise } = useWorkoutProgram();
+const { workoutProgram: workoutProgramFromQuery, getExercise } = useWorkoutProgram();
 const { updateExercise } = useUpdateWorkoutProgram(props.routineUuid);
+
+// Use prop if provided (session overview), otherwise use query (program builder)
+const workoutProgram = computed(() => {
+    if (props.workoutProgramProp) {
+        return props.workoutProgramProp;
+    }
+    return workoutProgramFromQuery.value;
+});
+
+// Get exercise using prop pattern or query
+const getExerciseData = (uuid) => {
+    if (props.workoutProgramProp) {
+        return UuidHelper.findDeep(
+            workoutProgram.value?.workoutProgramRoutines,
+            uuid,
+        );
+    }
+    return getExercise(uuid);
+};
 
 const display = useDisplay();
 
@@ -112,7 +136,7 @@ watch(
     () => props.value,
     (isOpen) => {
         if (isOpen && props.exerciseUuid) {
-            const exercise = getExercise(props.exerciseUuid);
+            const exercise = getExerciseData(props.exerciseUuid);
             if (exercise) {
                 name.value = exercise.name;
                 weight.value = exercise.weight;
