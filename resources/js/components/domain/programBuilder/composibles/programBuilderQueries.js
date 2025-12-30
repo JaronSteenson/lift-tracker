@@ -121,7 +121,7 @@ export function useWorkoutProgramByRoutine(routineUuid) {
     };
 }
 
-export function useUpdateWorkoutProgram() {
+export function useUpdateWorkoutProgram(routineUuid = null) {
     const queryClient = useQueryClient();
 
     const { mutate } = useMutation({
@@ -131,9 +131,15 @@ export function useUpdateWorkoutProgram() {
 
         onMutate: async (updatedWorkoutProgram) => {
             const queryKey = [WORKOUT_PROGRAM_KEY, updatedWorkoutProgram.uuid];
+            const routineQueryKey = routineUuid
+                ? [WORKOUT_PROGRAM_BY_ROUTINE_KEY, toValue(routineUuid)]
+                : null;
 
             // Cancel any outgoing refetches
             await queryClient.cancelQueries({ queryKey });
+            if (routineQueryKey) {
+                await queryClient.cancelQueries({ queryKey: routineQueryKey });
+            }
 
             // Snapshot the previous value
             const previousWorkoutProgram =
@@ -142,8 +148,16 @@ export function useUpdateWorkoutProgram() {
             // Optimistically update to the new value
             queryClient.setQueryData(queryKey, updatedWorkoutProgram);
 
+            // Also update the routine cache if in session overview mode
+            if (routineQueryKey) {
+                queryClient.setQueryData(
+                    routineQueryKey,
+                    updatedWorkoutProgram,
+                );
+            }
+
             // Return context with the snapshot
-            return { previousWorkoutProgram, queryKey };
+            return { previousWorkoutProgram, queryKey, routineQueryKey };
         },
 
         onError: (err, updatedWorkoutProgram, context) => {
@@ -153,12 +167,24 @@ export function useUpdateWorkoutProgram() {
                     context.queryKey,
                     context.previousWorkoutProgram,
                 );
+                if (context.routineQueryKey) {
+                    queryClient.setQueryData(
+                        context.routineQueryKey,
+                        context.previousWorkoutProgram,
+                    );
+                }
             }
         },
 
         onSuccess: (response, updatedWorkoutProgram, context) => {
             // Update with server response
             queryClient.setQueryData(context.queryKey, response.data);
+            if (context.routineQueryKey) {
+                queryClient.setQueryData(
+                    context.routineQueryKey,
+                    response.data,
+                );
+            }
         },
     });
 

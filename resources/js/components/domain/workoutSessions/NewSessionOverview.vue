@@ -9,6 +9,7 @@
                 <WorkoutCard
                     :workoutUuid="originRoutineUuid"
                     :workoutProgramProp="workoutProgram"
+                    :routineUuid="originRoutineUuid"
                     is-session-overview
                 />
             </NarrowContentContainer>

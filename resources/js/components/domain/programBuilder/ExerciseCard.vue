@@ -49,6 +49,7 @@
             <EditExerciseModal
                 v-model:value="showEditModal"
                 :exerciseUuid="exercise.uuid"
+                :routineUuid="routineUuid"
             />
         </Teleport>
     </VCard>
@@ -66,11 +67,14 @@ import {
 const props = defineProps({
     exerciseUuid: { type: String, required: true },
     workoutProgramProp: { type: Object, default: null },
+    routineUuid: { type: String, default: null },
 });
 
 const { workoutProgram: workoutProgramFromQuery, getExercise } =
     useWorkoutProgram();
-const { removeExerciseFromWorkout } = useUpdateWorkoutProgram();
+const { removeExerciseFromWorkout } = useUpdateWorkoutProgram(
+    props.routineUuid,
+);
 
 // Use prop if provided (session overview), otherwise use query (program builder)
 const workoutProgram = computed(() => {

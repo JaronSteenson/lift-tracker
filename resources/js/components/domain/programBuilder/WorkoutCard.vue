@@ -64,6 +64,7 @@
                             :key="exercise.uuid"
                             :exercise-uuid="exercise.uuid"
                             :workoutProgramProp="workoutProgramProp"
+                            :routineUuid="routineUuid"
                             ref="exercise-cards"
                         />
                     </template>
@@ -132,6 +133,11 @@ const props = defineProps({
         type: Object,
         default: null,
     },
+    // For session overview - the routine UUID to update the correct cache
+    routineUuid: {
+        type: String,
+        default: null,
+    },
 });
 
 const uuid = computed(() => {
@@ -140,7 +146,7 @@ const uuid = computed(() => {
 
 const { workoutProgram: workoutProgramFromQuery } = useWorkoutProgram();
 const { updateRoutine, addExerciseToWorkout, deleteWorkout: deleteWorkoutMutation } =
-    useUpdateWorkoutProgram();
+    useUpdateWorkoutProgram(props.routineUuid);
 
 // Use prop if provided (session overview), otherwise use query (program builder)
 const workoutProgram = computed(() => {

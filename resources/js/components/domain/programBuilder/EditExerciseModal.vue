@@ -76,11 +76,15 @@ const props = defineProps({
         required: true,
         type: String,
     },
+    routineUuid: {
+        type: String,
+        default: null,
+    },
 });
 
 const emit = defineEmits(['update:value']);
 const { workoutProgram, getExercise } = useWorkoutProgram();
-const { updateExercise } = useUpdateWorkoutProgram();
+const { updateExercise } = useUpdateWorkoutProgram(props.routineUuid);
 
 const display = useDisplay();
 
