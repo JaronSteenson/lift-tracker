@@ -81,7 +81,6 @@ const props = defineProps({
 const emit = defineEmits(['update:value']);
 const { workoutProgram, getExercise } = useWorkoutProgram();
 const { updateExercise } = useUpdateWorkoutProgram();
-const exercise = getExercise(props.exerciseUuid);
 
 const display = useDisplay();
 
@@ -98,20 +97,28 @@ const numberOfSetsOptions = [
     { title: 'Ten', value: 10 },
 ];
 
-const name = ref(exercise?.name);
-const weight = ref(exercise?.weight);
-const numberOfSets = ref(exercise?.numberOfSets);
-const restPeriod = ref(exercise?.restPeriod);
-const warmUp = ref(exercise?.warmUp);
+const name = ref('');
+const weight = ref(null);
+const numberOfSets = ref(3);
+const restPeriod = ref(60);
+const warmUp = ref(60);
 
+// Watch for modal opening and load current exercise data
 watch(
-    [name, weight, numberOfSets, restPeriod, warmUp],
-    () => {
-        if (!props.exerciseUuid) {
-            return;
+    () => props.value,
+    (isOpen) => {
+        if (isOpen && props.exerciseUuid) {
+            const exercise = getExercise(props.exerciseUuid);
+            if (exercise) {
+                name.value = exercise.name;
+                weight.value = exercise.weight;
+                numberOfSets.value = exercise.numberOfSets;
+                restPeriod.value = exercise.restPeriod;
+                warmUp.value = exercise.warmUp;
+            }
         }
     },
-    { deep: true },
+    { immediate: true },
 );
 
 const closeModal = () => {
@@ -121,6 +128,7 @@ const closeModal = () => {
         name: name.value,
         weight: weight.value,
         numberOfSets: numberOfSets.value,
+        restPeriod: restPeriod.value,
         warmUp: warmUp.value,
     });
 };

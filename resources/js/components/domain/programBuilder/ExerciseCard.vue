@@ -68,33 +68,35 @@ const props = defineProps({
 
 const { workoutProgram, getExercise } = useWorkoutProgram();
 const { removeExerciseFromWorkout } = useUpdateWorkoutProgram();
-const exercise = getExercise(props.exerciseUuid);
+
+// Make exercise reactive by using computed
+const exercise = computed(() => getExercise(props.exerciseUuid));
 
 const showEditModal = ref(false);
 
 const nameDisplay = computed(() => {
-    return exercise.name || 'Unnamed exercise';
+    return exercise.value?.name || 'Unnamed exercise';
 });
 
 const restPeriod = computed(() => {
-    return minsSecDuration(exercise.restPeriod);
+    return minsSecDuration(exercise.value?.restPeriod);
 });
 
 const setsAndRepsBlurb = computed(() => {
     let blurb = '';
 
-    if (exercise.numberOfSets) {
-        blurb += `${exercise.numberOfSets} sets`;
+    if (exercise.value?.numberOfSets) {
+        blurb += `${exercise.value.numberOfSets} sets`;
 
-        if (exercise.weight) {
-            blurb += ` of ${exercise.weight}kg`;
+        if (exercise.value?.weight) {
+            blurb += ` of ${exercise.value.weight}kg`;
         }
 
         return blurb;
     }
 
-    if (exercise.weight) {
-        return `${exercise.weight}kg`;
+    if (exercise.value?.weight) {
+        return `${exercise.value.weight}kg`;
     }
 
     return '';
