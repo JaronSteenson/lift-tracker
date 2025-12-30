@@ -123,28 +123,67 @@ export function useUpdateWorkoutProgram() {
 
     const { mutate } = useMutation({
         key: [UPDATE_WORKOUT_PROGRAM_KEY],
-        mutation(updates) {
-            const key = [WORKOUT_PROGRAM_KEY, updates.uuid];
-            const current = toRaw(queryCache.getQueryData(key));
-            const merged = { ...current, ...updates };
-
-            return WorkoutProgramService.save(merged);
+        mutation(updatedWorkoutProgram) {
+            // Save directly without re-fetching from cache
+            return WorkoutProgramService.save(updatedWorkoutProgram);
         },
 
-        onMutate(updates) {
-            const key = [WORKOUT_PROGRAM_KEY, updates.uuid];
-            queryCache.setQueryData(key, (current) => ({
-                ...current,
-                ...updates,
-            }));
+        async onMutate(updatedWorkoutProgram) {
+            const key = [WORKOUT_PROGRAM_KEY, updatedWorkoutProgram.uuid];
 
-            const current = toRaw(queryCache.getQueryData(key));
-            return { ...current, ...updates };
+            console.log('[onMutate] Starting', {
+                routines: updatedWorkoutProgram.workoutProgramRoutines?.length,
+                firstRoutineExercises:
+                    updatedWorkoutProgram.workoutProgramRoutines?.[0]
+                        ?.routineExercises?.length,
+            });
+
+            // Cancel any in-flight queries to prevent race conditions
+            await queryCache.cancelQueries({ key });
+
+            // Get previous state for rollback
+            const previousState = toRaw(queryCache.getQueryData(key));
+
+            console.log('[onMutate] Previous state exercises:', {
+                firstRoutineExercises:
+                    previousState?.workoutProgramRoutines?.[0]?.routineExercises
+                        ?.length,
+            });
+
+            // Optimistically update cache
+            queryCache.setQueryData(key, updatedWorkoutProgram);
+
+            console.log('[onMutate] Cache updated');
+
+            // Return previous state for rollback
+            return { previousState };
         },
 
-        onError(_err, variables, workout) {
-            const key = [WORKOUT_PROGRAM_KEY, variables.uuid];
-            queryCache.setQueryData(key, workout);
+        onSuccess(response, updatedWorkoutProgram) {
+            console.log('[onSuccess] Mutation succeeded', {
+                response,
+            });
+
+            // Update cache with server response to ensure consistency
+            const key = [WORKOUT_PROGRAM_KEY, updatedWorkoutProgram.uuid];
+            queryCache.setQueryData(key, response.data);
+
+            console.log('[onSuccess] Cache updated with server response', {
+                exercises: response.data.workoutProgramRoutines?.[0]
+                    ?.routineExercises?.length,
+            });
+        },
+
+        onSettled() {
+            console.log('[onSettled] Mutation completed');
+        },
+
+        onError(_err, updatedWorkoutProgram, context) {
+            // Rollback to previous state on error
+            const key = [WORKOUT_PROGRAM_KEY, updatedWorkoutProgram.uuid];
+            if (context?.previousState) {
+                queryCache.setQueryData(key, context.previousState);
+            }
         },
     });
 
@@ -178,6 +217,13 @@ export function useUpdateWorkoutProgram() {
         addExerciseToWorkout(workoutProgramUuid, workoutUuid) {
             const key = [WORKOUT_PROGRAM_KEY, workoutProgramUuid];
             const current = toRaw(queryCache.getQueryData(key));
+
+            console.log('[addExerciseToWorkout] Current state:', {
+                routines: current?.workoutProgramRoutines?.length,
+                firstRoutineExercises:
+                    current?.workoutProgramRoutines?.[0]?.routineExercises
+                        ?.length,
+            });
 
             const workoutProgramRoutine = UuidHelper.findIn(
                 current.workoutProgramRoutines,
@@ -214,6 +260,13 @@ export function useUpdateWorkoutProgram() {
                 ...current,
                 workoutProgramRoutines: updatedRoutines,
             };
+
+            console.log('[addExerciseToWorkout] Updated state to mutate:', {
+                routines: updatedWorkoutProgram.workoutProgramRoutines?.length,
+                firstRoutineExercises:
+                    updatedWorkoutProgram.workoutProgramRoutines?.[0]
+                        ?.routineExercises?.length,
+            });
 
             mutate(updatedWorkoutProgram);
         },
