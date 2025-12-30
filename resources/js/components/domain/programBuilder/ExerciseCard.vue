@@ -57,6 +57,7 @@
 import { ref, computed } from 'vue';
 import EditExerciseModal from './EditExerciseModal';
 import { minsSecDuration } from '../../../dates';
+import UuidHelper from '../../../UuidHelper/index';
 import {
     useUpdateWorkoutProgram,
     useWorkoutProgram,
@@ -64,13 +65,32 @@ import {
 
 const props = defineProps({
     exerciseUuid: { type: String, required: true },
+    workoutProgramProp: { type: Object, default: null },
 });
 
-const { workoutProgram, getExercise } = useWorkoutProgram();
+const { workoutProgram: workoutProgramFromQuery, getExercise } =
+    useWorkoutProgram();
 const { removeExerciseFromWorkout } = useUpdateWorkoutProgram();
 
+// Use prop if provided (session overview), otherwise use query (program builder)
+const workoutProgram = computed(() => {
+    if (props.workoutProgramProp) {
+        return props.workoutProgramProp;
+    }
+    return workoutProgramFromQuery.value;
+});
+
 // Make exercise reactive by using computed
-const exercise = computed(() => getExercise(props.exerciseUuid));
+const exercise = computed(() => {
+    if (props.workoutProgramProp) {
+        // When using prop, manually find the exercise
+        return UuidHelper.findDeep(
+            workoutProgram.value?.workoutProgramRoutines,
+            props.exerciseUuid,
+        );
+    }
+    return getExercise(props.exerciseUuid);
+});
 
 const showEditModal = ref(false);
 

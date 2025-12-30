@@ -8,6 +8,7 @@
             <NarrowContentContainer v-else>
                 <WorkoutCard
                     :workoutUuid="originRoutineUuid"
+                    :workoutProgramProp="workoutProgram"
                     is-session-overview
                 />
             </NarrowContentContainer>
@@ -15,49 +16,31 @@
     </div>
 </template>
 
-<script>
+<script setup>
+import { computed, toRef } from 'vue';
 import NotFound from '../../routing/NotFound';
 import SessionOverviewLoadingSkeleton from './SessionOverviewLoadingSkeleton';
 import WorkoutCard from './../programBuilder/WorkoutCard';
 import NarrowContentContainer from '../../layouts/NarrowContentContainer';
-import { useProgramBuilderStore } from '../../../stores/programBuilder';
 import { useWorkoutProgramByRoutine } from '../programBuilder/composibles/programBuilderQueries';
 
-export default {
-    components: {
-        NarrowContentContainer,
-        NotFound,
-        SessionOverviewLoadingSkeleton,
-        WorkoutCard,
+const props = defineProps({
+    originRoutineUuid: {
+        type: String,
+        required: true,
     },
-    setup() {
-        const props = defineProps({
-            originRoutineUuid: String,
-            workoutSessionUuid: String,
-        });
+    workoutSessionUuid: {
+        type: String,
+    },
+});
 
-        const { workoutProgram, isPending } = useWorkoutProgramByRoutine(
-            props.originRoutineUuid,
-        );
+const { workoutProgram, isPending } = useWorkoutProgramByRoutine(
+    toRef(props, 'originRoutineUuid'),
+);
 
-        return {
-            originRoutineUuid: props.originRoutineUuid,
-            workoutProgram,
-            isPending,
-        };
-    },
-    data() {
-        return {
-            loading: false,
-            fetchError: false,
-        };
-    },
-    computed: {
-        notFound() {
-            return !this.loading && this.fetchError;
-        },
-    },
-};
+const notFound = computed(() => {
+    return !isPending.value && !workoutProgram.value;
+});
 </script>
 
 <style lang="scss"></style>

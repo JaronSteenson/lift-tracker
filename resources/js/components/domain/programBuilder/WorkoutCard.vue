@@ -63,6 +63,7 @@
                         <ExerciseCard
                             :key="exercise.uuid"
                             :exercise-uuid="exercise.uuid"
+                            :workoutProgramProp="workoutProgramProp"
                             ref="exercise-cards"
                         />
                     </template>
@@ -127,15 +128,28 @@ const props = defineProps({
         required: true,
     },
     isSessionOverview: Boolean,
+    workoutProgramProp: {
+        type: Object,
+        default: null,
+    },
 });
 
 const uuid = computed(() => {
     return props.workoutUuid;
 });
 
-const { workoutProgram } = useWorkoutProgram();
+const { workoutProgram: workoutProgramFromQuery } = useWorkoutProgram();
 const { updateRoutine, addExerciseToWorkout, deleteWorkout: deleteWorkoutMutation } =
     useUpdateWorkoutProgram();
+
+// Use prop if provided (session overview), otherwise use query (program builder)
+const workoutProgram = computed(() => {
+    if (props.workoutProgramProp) {
+        // Props in Vue 3 are already unwrapped, so we need to wrap it for consistency
+        return props.workoutProgramProp;
+    }
+    return workoutProgramFromQuery.value;
+});
 
 // Create a computed that directly accesses the workout from the reactive workoutProgram
 const workout = computed(() => {

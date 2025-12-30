@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/vue-query';
-import { computed } from 'vue';
+import { computed, toValue } from 'vue';
 import { useRoute } from 'vue-router';
 import UuidHelper from '../../../../UuidHelper/index';
 import WorkoutProgramService from '../../../../api/WorkoutProgramService';
@@ -80,14 +80,17 @@ export function useWorkoutProgramByRoutine(routineUuid) {
     const queryClient = useQueryClient();
 
     const { data, isPending } = useQuery({
-        queryKey: [WORKOUT_PROGRAM_BY_ROUTINE_KEY, routineUuid],
+        queryKey: computed(() => [
+            WORKOUT_PROGRAM_BY_ROUTINE_KEY,
+            toValue(routineUuid),
+        ]),
         queryFn: async () => {
-            if (!routineUuid) {
+            const uuid = toValue(routineUuid);
+            if (!uuid) {
                 return undefined;
             }
 
-            const response =
-                await WorkoutProgramService.getByRoutine(routineUuid);
+            const response = await WorkoutProgramService.getByRoutine(uuid);
 
             // Also update the main workout program cache
             queryClient.setQueryData(
@@ -97,7 +100,7 @@ export function useWorkoutProgramByRoutine(routineUuid) {
 
             return response.data;
         },
-        enabled: !!routineUuid,
+        enabled: computed(() => !!toValue(routineUuid)),
     });
 
     const getExercise = computed(() => (uuid) => {
