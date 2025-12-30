@@ -122,6 +122,7 @@ import {
     useUpdateWorkoutProgram,
     useWorkoutProgram,
 } from './composibles/programBuilderQueries';
+import { useStartWorkout } from '../workoutSessions/composibles/workoutSessionQueries';
 
 const props = defineProps({
     workoutUuid: {
@@ -176,6 +177,7 @@ const exercises = computed(() => {
 
 const programBuilderStore = useProgramBuilderStore();
 const workoutSessionStore = useWorkoutSessionStore();
+const { startWorkout: startWorkoutMutation, isStarting } = useStartWorkout();
 const { xs, smAndDown } = useDisplay();
 const router = useRouter();
 
@@ -236,25 +238,55 @@ const onExercisesReordered = (newExercises) => {
 const startWorkout = async () => {
     starting.value = true;
 
-    await workoutSessionStore.startWorkout({
-        originWorkout: workout.value,
-    });
+    startWorkoutMutation(
+        {
+            originWorkout: workout.value,
+            myWorkoutSessions: workoutSessionStore.myWorkoutSessions || [],
+        },
+        {
+            onSuccess: (workoutSession) => {
+                // Update the store for compatibility with existing code
+                workoutSessionStore.workoutSession = workoutSession;
 
-    const firstSet = workoutSessionStore.firstSet;
+                // Update myWorkoutSessions list in the store
+                const sessions = workoutSessionStore.myWorkoutSessions || [];
+                const existingIndex = sessions.findIndex(
+                    (s) => s.uuid === workoutSession.uuid,
+                );
+                if (existingIndex >= 0) {
+                    workoutSessionStore.myWorkoutSessions[existingIndex] =
+                        workoutSession;
+                } else {
+                    workoutSessionStore.myWorkoutSessions = [
+                        workoutSession,
+                        ...sessions,
+                    ];
+                }
 
-    if (firstSet && firstSet.uuid) {
-        router.replace({
-            name: 'SetOverviewPage',
-            params: { sessionSetUuid: firstSet.uuid },
-        });
-    } else {
-        router.replace({
-            name: 'SessionOverviewPage',
-            params: {
-                workoutSessionUuid: workoutSessionStore.workoutSession?.uuid,
+                // Get first set from the new session
+                const firstSet =
+                    workoutSession?.sessionExercises?.[0]?.sessionSets?.[0] ||
+                    null;
+
+                if (firstSet && firstSet.uuid) {
+                    router.replace({
+                        name: 'SetOverviewPage',
+                        params: { sessionSetUuid: firstSet.uuid },
+                    });
+                } else {
+                    router.replace({
+                        name: 'SessionOverviewPage',
+                        params: {
+                            workoutSessionUuid: workoutSession?.uuid,
+                        },
+                    });
+                }
             },
-        });
-    }
+            onError: () => {
+                starting.value = false;
+            },
+        },
+    );
 };
 </script>
 
