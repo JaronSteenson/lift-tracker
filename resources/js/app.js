@@ -8,7 +8,7 @@ import { useAppStore } from './stores/app';
 import 'vuetify/dist/vuetify.css';
 import './app.css';
 import initNewRelic from './newRelic/newRelic';
-import { PiniaColada } from '@pinia/colada';
+import { VueQueryPlugin, QueryClient } from '@tanstack/vue-query';
 
 (async function () {
     initNewRelic();
@@ -20,8 +20,18 @@ import { PiniaColada } from '@pinia/colada';
 
     const app = createApp(App);
 
+    // Set up TanStack Query
+    const queryClient = new QueryClient({
+        defaultOptions: {
+            queries: {
+                staleTime: 1000 * 60 * 5, // 5 minutes
+                refetchOnWindowFocus: false,
+            },
+        },
+    });
+
     app.use(pinia);
-    app.use(PiniaColada);
+    app.use(VueQueryPlugin, { queryClient });
     app.use(router);
     app.use(createVuetify());
 
