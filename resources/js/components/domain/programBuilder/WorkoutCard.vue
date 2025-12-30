@@ -238,30 +238,20 @@ const onExercisesReordered = (newExercises) => {
 const startWorkout = async () => {
     starting.value = true;
 
+    // Get myWorkoutSessions from localStorage
+    const stored = localStorage.getItem('store-state--WorkoutSession');
+    const parsed = stored ? JSON.parse(stored) : {};
+    const myWorkoutSessions = parsed.myWorkoutSessions || [];
+
     startWorkoutMutation(
         {
             originWorkout: workout.value,
-            myWorkoutSessions: workoutSessionStore.myWorkoutSessions || [],
+            myWorkoutSessions,
         },
         {
             onSuccess: (workoutSession) => {
                 // Update the store for compatibility with existing code
                 workoutSessionStore.workoutSession = workoutSession;
-
-                // Update myWorkoutSessions list in the store
-                const sessions = workoutSessionStore.myWorkoutSessions || [];
-                const existingIndex = sessions.findIndex(
-                    (s) => s.uuid === workoutSession.uuid,
-                );
-                if (existingIndex >= 0) {
-                    workoutSessionStore.myWorkoutSessions[existingIndex] =
-                        workoutSession;
-                } else {
-                    workoutSessionStore.myWorkoutSessions = [
-                        workoutSession,
-                        ...sessions,
-                    ];
-                }
 
                 // Get first set from the new session
                 const firstSet =

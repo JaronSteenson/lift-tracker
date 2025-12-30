@@ -1,6 +1,6 @@
 <template>
     <div v-if="userIsAuthenticated">
-        <SessionOverviewLoadingSkeleton v-if="loading" />
+        <SessionOverviewLoadingSkeleton v-if="isPending" />
         <div v-else>
             <NotFound v-if="notFound">
                 Sorry we couldn't find that set.
@@ -12,103 +12,67 @@
     </div>
 </template>
 
-<script>
+<script setup>
+import { computed, watch, toRef } from 'vue';
+import { useRouter } from 'vue-router';
 import NotFound from '../routing/NotFound';
 import SessionOverviewLoadingSkeleton from '../domain/workoutSessions/SessionOverviewLoadingSkeleton';
 import SetOverview from '../domain/workoutSessions/SetOverview';
 import { useAppStore } from '../../stores/app';
-import { useWorkoutSessionStore } from '../../stores/workoutSession';
 import { useProgramBuilderStore } from '../../stores/programBuilder';
+import { useWorkoutSessionBySet } from '../domain/workoutSessions/composibles/workoutSessionQueries';
 
-export default {
-    name: 'SetOverviewPage',
-    components: {
-        NotFound,
-        SessionOverviewLoadingSkeleton,
-        SetOverview,
+const props = defineProps({
+    fromCheckIn: {
+        type: String,
+        required: false,
+        default: '',
     },
-    props: {
-        fromCheckIn: {
-            type: String,
-            required: false,
-            default: '',
-        },
-        sessionSetUuid: {
-            type: String,
-            required: true,
-        },
+    sessionSetUuid: {
+        type: String,
+        required: true,
     },
-    setup() {
-        const appStore = useAppStore();
-        const workoutSessionStore = useWorkoutSessionStore();
-        const programBuilderStore = useProgramBuilderStore();
-        return { appStore, workoutSessionStore, programBuilderStore };
-    },
-    created() {
-        this.ensureWorkoutSessionIsLoadedLoaded();
-    },
-    data() {
-        return {
-            loading: true,
-            fetchError: false,
-        };
-    },
-    computed: {
-        userIsAuthenticated() {
-            return this.appStore.userIsAuthenticated;
-        },
-        notFound() {
-            return !this.loading && this.fetchError;
-        },
-    },
-    watch: {
-        sessionSetUuid() {
-            this.ensureWorkoutSessionIsLoadedLoaded();
-        },
-    },
-    methods: {
-        async ensureWorkoutSessionIsLoadedLoaded() {
-            if (
-                this.workoutSessionStore.workoutSessionIsLoadedForSet(
-                    this.sessionSetUuid,
-                )
-            ) {
-                this.programBuilderStore.setInFocusProgramForSession(
-                    this.workoutSessionStore.workoutSession,
-                );
+});
 
-                this.loading = false;
-                return;
-            }
+const router = useRouter();
+const appStore = useAppStore();
+const programBuilderStore = useProgramBuilderStore();
 
-            this.loading = true;
-            this.fetchError = false;
+const { workoutSession, isPending, error } = useWorkoutSessionBySet(
+    toRef(props, 'sessionSetUuid'),
+);
 
-            try {
-                await this.workoutSessionStore.fetchBySet(this.sessionSetUuid);
-                this.programBuilderStore.setInFocusProgramForSession(
-                    this.workoutSessionStore.workoutSession,
-                );
-            } catch (e) {
-                this.fetchError = true;
-            }
+const userIsAuthenticated = computed(() => appStore.userIsAuthenticated);
 
-            this.loading = false;
+const notFound = computed(() => !isPending.value && error.value);
 
-            if (this.fromCheckIn) {
-                await this.$router.replace({
-                    name: 'SetOverviewPage',
-                    params: {
-                        sessionSetUuid: this.sessionSetUuid,
-                        fromCheckIn: '',
-                    },
-                });
-            }
-
-            this.loading = false;
-        },
+// Set in focus program when workout session loads
+watch(
+    workoutSession,
+    (session) => {
+        if (session) {
+            programBuilderStore.setInFocusProgramForSession(session);
+        }
     },
-};
+    { immediate: true },
+);
+
+// Handle fromCheckIn redirect
+watch(
+    () => props.fromCheckIn,
+    async (fromCheckIn) => {
+        if (fromCheckIn && !isPending.value) {
+            await router.replace({
+                name: 'SetOverviewPage',
+                params: {
+                    sessionSetUuid: props.sessionSetUuid,
+                    fromCheckIn: '',
+                },
+            });
+        }
+    },
+    { immediate: true },
+);
 </script>
 
 <style lang="scss"></style>

@@ -45,56 +45,59 @@
     </VCard>
 </template>
 
-<script>
+<script setup>
+import { ref } from 'vue';
+import { useRouter } from 'vue-router';
 import MissingValue from '../util/MissingValue';
 import ProgramName from '../domain/programBuilder/ProgramName';
-import { dateTimeDescription } from '../../dates';
-import { useWorkoutSessionStore } from '../../stores/workoutSession';
+import { useStartWorkout } from './workoutSessions/composibles/workoutSessionQueries';
 
-export default {
-    components: {
-        MissingValue,
-        ProgramName,
+const props = defineProps({
+    routine: {
+        type: Object,
+        required: true,
     },
-    setup() {
-        const workoutSessionStore = useWorkoutSessionStore();
-        return { workoutSessionStore };
-    },
-    props: {
-        routine: {
-            type: Object,
-            required: true,
+});
+
+const router = useRouter();
+const { startWorkout } = useStartWorkout();
+
+const starting = ref(false);
+
+async function startNow() {
+    starting.value = true;
+
+    // Get myWorkoutSessions from localStorage
+    const stored = localStorage.getItem('store-state--WorkoutSession');
+    const parsed = stored ? JSON.parse(stored) : {};
+    const myWorkoutSessions = parsed.myWorkoutSessions || [];
+
+    // Create a new workout session from the updated master routine
+    startWorkout(
+        {
+            originWorkout: props.routine,
+            myWorkoutSessions,
         },
-    },
-    data() {
-        return {
-            starting: false,
-        };
-    },
-    methods: {
-        async startNow() {
-            this.starting = true;
-
-            // Create a new workout session from the updated master routine.
-            await this.workoutSessionStore.startWorkout({
-                originWorkout: this.routine,
-            });
-
-            // Check in.
-            await this.$router.push({
-                name: 'CheckInEditPage',
-                params: {
-                    workoutSessionUuid:
-                        this.workoutSessionStore.workoutSession.uuid,
-                },
-                query: {
-                    toFirstSetAfterSave: true,
-                },
-            });
-            this.starting = false;
+        {
+            onSuccess: (workoutSession) => {
+                // Check in
+                router.push({
+                    name: 'CheckInEditPage',
+                    params: {
+                        workoutSessionUuid: workoutSession.uuid,
+                    },
+                    query: {
+                        toFirstSetAfterSave: true,
+                    },
+                });
+                starting.value = false;
+            },
+            onError: () => {
+                starting.value = false;
+            },
         },
-    },
-};
+    );
+}
 </script>
 
 <style scoped></style>

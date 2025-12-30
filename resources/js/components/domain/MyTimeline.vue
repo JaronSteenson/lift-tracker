@@ -155,9 +155,9 @@
     </NarrowContentContainer>
 </template>
 
-<script>
+<script setup>
+import { ref, computed, onMounted, onBeforeUnmount } from 'vue';
 import NarrowContentContainer from '../layouts/NarrowContentContainer';
-import { useWorkoutSessionStore } from '../../stores/workoutSession';
 import SessionStatsCard from '../domain/workoutSessions/SessionStatsCard';
 import { dateDescription, hoursMinutesSecondsFromStartEnd } from '../../dates';
 import ProgramName from '../domain/programBuilder/ProgramName';
@@ -165,154 +165,138 @@ import AddNewButton from '../formFields/AddNewButton.vue';
 import { useDisplay } from 'vuetify';
 import { useTheme } from 'vuetify/framework';
 import { useTimelineQuery } from '../../api/WorkoutSessionService';
+import {
+    useDeleteWorkoutSession,
+    isInProgressWorkout as checkIsInProgressWorkout,
+} from '../domain/workoutSessions/composibles/workoutSessionQueries';
 
-export default {
-    components: {
-        AddNewButton,
-        NarrowContentContainer,
-        SessionStatsCard,
-        ProgramName,
-    },
-    setup() {
-        const workoutSessionStore = useWorkoutSessionStore();
-        const display = useDisplay();
-        const theme = useTheme();
+const display = useDisplay();
+const theme = useTheme();
 
-        const { data, isPending, loadMore } = useTimelineQuery();
+const { data, isPending, loadMore } = useTimelineQuery();
+const { deleteWorkoutSession } = useDeleteWorkoutSession();
 
-        const toolbarColor = theme.current.value.colors.toolbar;
-        return {
-            workoutSessionStore,
-            display,
-            toolbarColor,
-            data,
-            isPending,
-            loadMore,
-        };
-    },
-    data() {
-        return {
-            showTable: localStorage.getItem('homePageShowTable') === 'true',
-            loadingNextPage: false,
-            newSessionModalProgramUuid: null,
-        };
-    },
-    mounted() {
-        this.infiniteScroll();
-        window.addEventListener('scroll', this.infiniteScroll);
-    },
-    destroyed() {
-        window.removeEventListener('scroll', this.infiniteScroll);
-    },
-    computed: {
-        allPagesLoaded() {
-            return this.workoutSessionStore.allPagesLoaded;
-        },
-        isInProgressWorkout() {
-            return this.workoutSessionStore.isInProgressWorkout;
-        },
-        headers() {
-            if (this.display.xs.value) {
-                return [
-                    {
-                        title: 'Date',
-                        key: 'startedAt',
-                        sortable: false,
-                    },
-                    {
-                        title: 'Routine',
-                        key: 'name',
-                        sortable: false,
-                    },
-                    {
-                        title: 'BW',
-                        key: 'bodyWeight',
-                        sortable: false,
-                    },
-                ];
-            }
+const toolbarColor = theme.current.value.colors.toolbar;
 
-            return [
-                {
-                    title: 'Date',
-                    key: 'startedAt',
-                    width: '20%',
-                    sortable: false,
-                },
-                {
-                    title: 'Routine',
-                    key: 'name',
-                    width: '20%',
-                    sortable: false,
-                },
-                {
-                    title: 'Program',
-                    key: 'programName',
-                    width: '20%',
-                    sortable: false,
-                },
-                {
-                    title: 'Body weight',
-                    key: 'bodyWeight',
-                    width: '20%',
-                    sortable: false,
-                },
-                {
-                    title: 'Total duration',
-                    key: 'duration',
-                    width: '20%',
-                    sortable: false,
-                },
-                {
-                    title: '',
-                    key: 'menu',
-                    align: 'end',
-                    sortable: false,
-                },
-            ];
-        },
-    },
-    methods: {
-        hoursMinutesSecondsFromStartEnd,
-        setHomePageShowTable() {
-            localStorage.setItem(
-                'homePageShowTable',
-                Boolean(this.showTable).toString(),
-            );
-        },
-        infiniteScroll() {
-            const atBottom =
-                document.documentElement.scrollTop + window.innerHeight ===
-                document.documentElement.offsetHeight;
-            if (atBottom && !this.isPending && !this.allPagesLoaded) {
-                this.loadNextPage();
-            }
-        },
-        async loadNextPage() {
-            this.loadingNextPage = true;
-            await this.loadMore();
-            this.loadingNextPage = false;
-        },
-        showDeleteConfirmation(workoutSessionUuid) {
-            const deleteConfirmed = window.confirm(
-                'Are you sure you want to delete this workout?',
-            );
+const showTable = ref(localStorage.getItem('homePageShowTable') === 'true');
+const loadingNextPage = ref(false);
 
-            if (deleteConfirmed) {
-                this.workoutSessionStore.delete(workoutSessionUuid);
-            }
-        },
-        getFormattedDate(workoutSession) {
-            let startedAt = dateDescription(
-                workoutSession.startedAt || workoutSession.createdAt,
-            );
+const allPagesLoaded = computed(() => {
+    // TODO: Get this from somewhere if the timeline query supports pagination
+    return false;
+});
 
-            if (this.isInProgressWorkout(workoutSession.uuid)) {
-                startedAt = `${startedAt} (in progress)`;
-            }
+const headers = computed(() => {
+    if (display.xs.value) {
+        return [
+            {
+                title: 'Date',
+                key: 'startedAt',
+                sortable: false,
+            },
+            {
+                title: 'Routine',
+                key: 'name',
+                sortable: false,
+            },
+            {
+                title: 'BW',
+                key: 'bodyWeight',
+                sortable: false,
+            },
+        ];
+    }
 
-            return startedAt;
+    return [
+        {
+            title: 'Date',
+            key: 'startedAt',
+            width: '20%',
+            sortable: false,
         },
-    },
-};
+        {
+            title: 'Routine',
+            key: 'name',
+            width: '20%',
+            sortable: false,
+        },
+        {
+            title: 'Program',
+            key: 'programName',
+            width: '20%',
+            sortable: false,
+        },
+        {
+            title: 'Body weight',
+            key: 'bodyWeight',
+            width: '20%',
+            sortable: false,
+        },
+        {
+            title: 'Total duration',
+            key: 'duration',
+            width: '20%',
+            sortable: false,
+        },
+        {
+            title: '',
+            key: 'menu',
+            align: 'end',
+            sortable: false,
+        },
+    ];
+});
+
+function setHomePageShowTable() {
+    localStorage.setItem(
+        'homePageShowTable',
+        Boolean(showTable.value).toString(),
+    );
+}
+
+function infiniteScroll() {
+    const atBottom =
+        document.documentElement.scrollTop + window.innerHeight ===
+        document.documentElement.offsetHeight;
+    if (atBottom && !isPending.value && !allPagesLoaded.value) {
+        loadNextPage();
+    }
+}
+
+async function loadNextPage() {
+    loadingNextPage.value = true;
+    await loadMore();
+    loadingNextPage.value = false;
+}
+
+function showDeleteConfirmation(workoutSessionUuid) {
+    const deleteConfirmed = window.confirm(
+        'Are you sure you want to delete this workout?',
+    );
+
+    if (deleteConfirmed) {
+        deleteWorkoutSession(workoutSessionUuid);
+    }
+}
+
+function getFormattedDate(workoutSession) {
+    let startedAt = dateDescription(
+        workoutSession.startedAt || workoutSession.createdAt,
+    );
+
+    if (checkIsInProgressWorkout(workoutSession, workoutSession.uuid)) {
+        startedAt = `${startedAt} (in progress)`;
+    }
+
+    return startedAt;
+}
+
+onMounted(() => {
+    infiniteScroll();
+    window.addEventListener('scroll', infiniteScroll);
+});
+
+onBeforeUnmount(() => {
+    window.removeEventListener('scroll', infiniteScroll);
+});
 </script>

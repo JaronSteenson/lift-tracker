@@ -22,53 +22,54 @@
     </div>
 </template>
 
-<script>
-import { useWorkoutSessionStore } from '../stores/workoutSession';
+<script setup>
+import { computed, ref } from 'vue';
+import { useRoute } from 'vue-router';
 import { useDisplay } from 'vuetify';
 import { useAppStore } from '../stores/app';
+import { getCurrentSetForInProgressWorkout } from './domain/workoutSessions/composibles/workoutSessionQueries';
 
-export default {
-    name: 'ResumeWorkoutFab',
-    setup() {
-        const display = useDisplay();
-        const appStore = useAppStore();
-        const workoutSessionStore = useWorkoutSessionStore();
-        return { display, appStore, workoutSessionStore };
-    },
-    computed: {
-        inProgressSet() {
-            return this.workoutSessionStore.currentSetForInProgressWorkout(
-                this.workoutSessionStore.uuid,
-            );
-        },
-        shouldShow() {
-            if (
-                !this.appStore.isBootstrapped &&
-                !this.appStore.isAuthenticated
-            ) {
-                return false;
-            }
+const display = useDisplay();
+const appStore = useAppStore();
+const route = useRoute();
 
-            // Prevent flash on set transition.
-            if (this.workoutSessionStore.isChangingSet) {
-                return false;
-            }
+// Get workout session from localStorage (since we don't have a UUID to query with)
+const stored = localStorage.getItem('store-state--WorkoutSession');
+const parsed = stored ? JSON.parse(stored) : {};
+const workoutSession = computed(() => parsed.workoutSession || null);
 
-            if (['LoginPage', 'CheckInEditPage'].includes(this.$route.name)) {
-                return false;
-            }
+const inProgressSet = computed(() =>
+    getCurrentSetForInProgressWorkout(
+        workoutSession.value,
+        workoutSession.value?.uuid,
+    ),
+);
 
-            if (
-                this.$route.name === 'SetOverviewPage' &&
-                this.$route.params?.sessionSetUuid === this.inProgressSet?.uuid
-            ) {
-                return false;
-            }
+const isChangingSet = ref(false); // TODO: Get this from somewhere if needed
 
-            return Boolean(this.inProgressSet);
-        },
-    },
-};
+const shouldShow = computed(() => {
+    if (!appStore.isBootstrapped && !appStore.isAuthenticated) {
+        return false;
+    }
+
+    // Prevent flash on set transition
+    if (isChangingSet.value) {
+        return false;
+    }
+
+    if (['LoginPage', 'CheckInEditPage'].includes(route.name)) {
+        return false;
+    }
+
+    if (
+        route.name === 'SetOverviewPage' &&
+        route.params?.sessionSetUuid === inProgressSet.value?.uuid
+    ) {
+        return false;
+    }
+
+    return Boolean(inProgressSet.value);
+});
 </script>
 
 <style scoped>

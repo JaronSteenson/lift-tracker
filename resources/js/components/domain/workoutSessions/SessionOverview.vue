@@ -67,97 +67,101 @@
     </div>
 </template>
 
-<script>
+<script setup>
+import { computed, toRef } from 'vue';
+import { useRouter } from 'vue-router';
+import { useDisplay } from 'vuetify';
 import SessionStatsCard from './SessionStatsCard';
 import ExerciseSummaryCard from './ExerciseSummaryCard';
 import NarrowContentContainer from '../../layouts/NarrowContentContainer';
 import AppBar from '../../AppBar';
-import { useWorkoutSessionStore } from '../../../stores/workoutSession';
+import {
+    useWorkoutSession,
+    useDeleteWorkoutSession,
+    getNotSkippedSessionExercises,
+} from './composibles/workoutSessionQueries';
 import {
     hoursMinutesSecondsFromStartEnd,
     minsSecDuration,
     timeDescription,
 } from '../../../dates';
-import { useDisplay } from 'vuetify';
 
-export default {
-    components: {
-        NarrowContentContainer,
-        AppBar,
-        SessionStatsCard,
-        ExerciseSummaryCard,
+const props = defineProps({
+    workoutSessionUuid: {
+        type: String,
+        required: true,
     },
-    props: {
-        workoutSessionUuid: {
-            type: String,
-            required: true,
-        },
-    },
-    setup() {
-        const workoutSessionStore = useWorkoutSessionStore();
-        const display = useDisplay();
-        return { workoutSessionStore, display };
-    },
-    computed: {
-        workoutSession() {
-            // TODO: Implement workoutSession getter in store
-            return (
-                this.workoutSessionStore.workoutSession || {
-                    sessionExercises: [],
-                    startedAt: null,
-                    endedAt: null,
-                    uuid: null,
-                    createdAt: null,
-                }
-            );
-        },
-        notSkippedSessionExercises() {
-            return this.workoutSessionStore.notSkippedSessionExercises;
-        },
-        isCheckInOnly() {
-            return this.workoutSession.sessionExercises.length === 0;
-        },
-        pageTitle() {
-            return this.isCheckInOnly ? 'Check-in' : 'Session overview';
-        },
-        exercises() {
-            return this.notSkippedSessionExercises.map((exercise, i) => ({
-                ...exercise,
-                startedAt: timeDescription(exercise.sessionSets[0].startedAt),
-                duration:
-                    i === 0
-                        ? minsSecDuration(0, true)
-                        : hoursMinutesSecondsFromStartEnd(
-                              this.workoutSession.startedAt,
-                              exercise.sessionSets[0].startedAt,
-                          ),
-            }));
-        },
-        workoutDuration() {
-            return hoursMinutesSecondsFromStartEnd(
-                this.workoutSession.startedAt,
-                this.workoutSession.endedAt,
-            );
-        },
-        workoutEndedAt() {
-            if (!this.workoutSession.endedAt) {
-                return undefined;
-            }
+});
 
-            return timeDescription(this.workoutSession.endedAt);
-        },
-    },
-    methods: {
-        async showDeleteConfirmation() {
-            const deleteConfirmed = window.confirm(
-                'Are you sure you want to delete this workout?',
-            );
+const router = useRouter();
+const display = useDisplay();
 
-            if (deleteConfirmed) {
-                await this.workoutSessionStore.delete(this.workoutSession.uuid);
-                this.$router.replace({ name: 'HomePage' });
-            }
-        },
-    },
-};
+const { workoutSession: workoutSessionData } = useWorkoutSession(
+    toRef(props, 'workoutSessionUuid'),
+);
+const { deleteWorkoutSession } = useDeleteWorkoutSession();
+
+const workoutSession = computed(() => {
+    return (
+        workoutSessionData.value || {
+            sessionExercises: [],
+            startedAt: null,
+            endedAt: null,
+            uuid: null,
+            createdAt: null,
+        }
+    );
+});
+
+const notSkippedSessionExercises = computed(() =>
+    getNotSkippedSessionExercises(workoutSession.value),
+);
+
+const isCheckInOnly = computed(
+    () => workoutSession.value.sessionExercises.length === 0,
+);
+
+const pageTitle = computed(() =>
+    isCheckInOnly.value ? 'Check-in' : 'Session overview',
+);
+
+const exercises = computed(() => {
+    return notSkippedSessionExercises.value.map((exercise, i) => ({
+        ...exercise,
+        startedAt: timeDescription(exercise.sessionSets[0].startedAt),
+        duration:
+            i === 0
+                ? minsSecDuration(0, true)
+                : hoursMinutesSecondsFromStartEnd(
+                      workoutSession.value.startedAt,
+                      exercise.sessionSets[0].startedAt,
+                  ),
+    }));
+});
+
+const workoutDuration = computed(() => {
+    return hoursMinutesSecondsFromStartEnd(
+        workoutSession.value.startedAt,
+        workoutSession.value.endedAt,
+    );
+});
+
+const workoutEndedAt = computed(() => {
+    if (!workoutSession.value.endedAt) {
+        return undefined;
+    }
+
+    return timeDescription(workoutSession.value.endedAt);
+});
+
+async function showDeleteConfirmation() {
+    const deleteConfirmed = window.confirm(
+        'Are you sure you want to delete this workout?',
+    );
+
+    if (deleteConfirmed) {
+        deleteWorkoutSession(workoutSession.value.uuid);
+        router.replace({ name: 'HomePage' });
+    }
+}
 </script>

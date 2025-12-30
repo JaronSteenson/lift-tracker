@@ -27,71 +27,23 @@
     </VNavigationDrawer>
 </template>
 
-<script>
-import { useAppStore } from '../stores/app';
-import { useWorkoutSessionStore } from '../stores/workoutSession';
-import { svgIcons } from '../vuetify';
+<script setup>
 import { computed } from 'vue';
+import { useAppStore } from '../stores/app';
+import { svgIcons } from '../vuetify';
 
-export default {
-    name: 'AppNavigationDrawer',
-    setup() {
-        const appStore = useAppStore();
-        const workoutSessionStore = useWorkoutSessionStore();
+const appStore = useAppStore();
 
-        const drawer = computed({
-            get() {
-                return appStore.navigationDrawerOpen;
-            },
-            set(value) {
-                appStore.setNavigationDrawerOpen(value);
-            },
-        });
-
-        return {
-            appStore,
-            workoutSessionStore,
-            svgIcons,
-            drawer,
-        };
+const drawer = computed({
+    get() {
+        return appStore.navigationDrawerOpen;
     },
-    computed: {
-        userIsAuthenticated() {
-            return this.appStore.userIsAuthenticated;
-        },
-        hasLoadedInProgressWorkouts() {
-            // TODO: Implement in workoutSession store
-            return false;
-        },
-        inProgressWorkouts() {
-            // TODO: Implement in workoutSession store
-            return [];
-        },
+    set(value) {
+        appStore.setNavigationDrawerOpen(value);
     },
-    methods: {
-        workoutIsInFocus() {
-            if (
-                this.$route.name !== 'SetOverviewPage' &&
-                this.$route.name !== 'SessionOverviewPage'
-            ) {
-                return false;
-            }
+});
 
-            // TODO: Implement workoutSession getter in store
-            return false;
-        },
-        setIsInFocus(set) {
-            return (
-                this.$route.name === 'SetOverviewPage' &&
-                this.$route.params.sessionSetUuid === set.uuid
-            );
-        },
-        getCurrentSet() {
-            // TODO: Implement getter in workoutSession store
-            return null;
-        },
-    },
-};
+const userIsAuthenticated = computed(() => appStore.userIsAuthenticated);
 </script>
 
 <style scoped></style>

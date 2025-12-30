@@ -1,6 +1,6 @@
 <template>
     <div v-if="userIsAuthenticated">
-        <SessionOverviewLoadingSkeleton v-if="loading" />
+        <SessionOverviewLoadingSkeleton v-if="isPending" />
         <template v-else>
             <NotFoundPage v-if="notFound">
                 Sorry we couldn't find that workout session.
@@ -13,86 +13,41 @@
     </div>
 </template>
 
-<script>
+<script setup>
+import { computed, watch, toRef } from 'vue';
 import SessionOverview from '../domain/workoutSessions/SessionOverview';
 import NotFoundPage from '../pages/NotFoundPage';
 import SessionOverviewLoadingSkeleton from '../domain/workoutSessions/SessionOverviewLoadingSkeleton';
 import { useAppStore } from '../../stores/app';
-import { useWorkoutSessionStore } from '../../stores/workoutSession';
 import { useProgramBuilderStore } from '../../stores/programBuilder';
+import { useWorkoutSession } from '../domain/workoutSessions/composibles/workoutSessionQueries';
 
-export default {
-    name: 'SessionOverviewPage',
-    components: {
-        SessionOverview,
-        NotFoundPage,
-        SessionOverviewLoadingSkeleton,
+const props = defineProps({
+    workoutSessionUuid: {
+        type: String,
+        required: true,
     },
-    props: {
-        workoutSessionUuid: {
-            type: String,
-            required: true,
-        },
-    },
-    setup() {
-        const appStore = useAppStore();
-        const workoutSessionStore = useWorkoutSessionStore();
-        const programBuilderStore = useProgramBuilderStore();
-        return { appStore, workoutSessionStore, programBuilderStore };
-    },
-    data() {
-        return {
-            loading: false,
-            fetchError: false,
-        };
-    },
-    created() {
-        this.ensureWorkoutSessionIsLoaded();
-    },
-    watch: {
-        workoutSessionUuid(newUuid, oldUuid) {
-            if (newUuid !== oldUuid) {
-                this.ensureWorkoutSessionIsLoaded();
-            }
-        },
-    },
-    computed: {
-        userIsAuthenticated() {
-            return this.appStore.userIsAuthenticated;
-        },
-        notFound() {
-            return !this.loading && this.fetchError;
-        },
-    },
-    methods: {
-        async ensureWorkoutSessionIsLoaded() {
-            if (
-                this.workoutSessionStore.workoutSessionIsLoaded(
-                    this.workoutSessionUuid,
-                )
-            ) {
-                this.programBuilderStore.setInFocusProgramForSession(
-                    this.workoutSessionStore.workoutSession,
-                );
-                return;
-            }
+});
 
-            this.loading = true;
-            this.fetchError = false;
+const appStore = useAppStore();
+const programBuilderStore = useProgramBuilderStore();
 
-            try {
-                await this.workoutSessionStore.fetchWorkoutSession(
-                    this.workoutSessionUuid,
-                );
-                this.programBuilderStore.setInFocusProgramForSession(
-                    this.workoutSessionStore.workoutSession,
-                );
-            } catch (e) {
-                this.fetchError = true;
-            }
+const { workoutSession, isPending, error } = useWorkoutSession(
+    toRef(props, 'workoutSessionUuid'),
+);
 
-            this.loading = false;
-        },
+const userIsAuthenticated = computed(() => appStore.userIsAuthenticated);
+
+const notFound = computed(() => !isPending.value && error.value);
+
+// Set in focus program when workout session loads
+watch(
+    workoutSession,
+    (session) => {
+        if (session) {
+            programBuilderStore.setInFocusProgramForSession(session);
+        }
     },
-};
+    { immediate: true },
+);
 </script>

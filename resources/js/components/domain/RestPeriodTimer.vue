@@ -9,127 +9,127 @@
     </div>
 </template>
 
-<script>
-import { useWorkoutSessionStore } from '../../stores/workoutSession';
+<script setup>
+import { ref, computed, watch, onMounted, onBeforeUnmount, toRef } from 'vue';
+import {
+    useWorkoutSessionBySet,
+    getExerciseBySet,
+    isDuringWarmUp,
+    getWarmUpTimeRemaining,
+    getRestPeriodTimeRemaining,
+} from './workoutSessions/composibles/workoutSessionQueries';
 
-export default {
-    props: {
-        sessionSetUuid: {
-            type: String,
-            required: true,
-        },
-        label: {
-            type: String,
-            required: false,
-        },
+const props = defineProps({
+    sessionSetUuid: {
+        type: String,
+        required: true,
     },
-    setup() {
-        const workoutSessionStore = useWorkoutSessionStore();
-        return { workoutSessionStore };
+    label: {
+        type: String,
+        required: false,
     },
-    data() {
-        return {
-            refreshForce: null,
-            refreshInterval: null,
-        };
-    },
-    created() {
-        this.startRefreshInterval();
-    },
-    beforeDestroy() {
-        clearInterval(this.interval);
-    },
-    watch: {
-        timeRemaining(value) {
-            if (value === 0) {
-                this.playBeep();
-            }
-        },
-        timesUp(value) {
-            if (value === true) {
-                window.navigator.vibrate(200);
-            } else {
-                this.startRefreshInterval();
-            }
-        },
-    },
-    computed: {
-        exercise() {
-            return this.workoutSessionStore.exerciseBySet(this.sessionSetUuid);
-        },
-        _label() {
-            if (this.overdue) {
-                return `${this.label} overdue`;
-            }
+});
 
-            return `${this.label} remaining`;
-        },
-        timerClass() {
-            return {
-                timer: true,
-                'timer--almost-finished': this.almostFinished,
-                'timer--overdue': this.overdue,
-            };
-        },
-        timeRemaining() {
-            this.refreshForce;
+const { workoutSession } = useWorkoutSessionBySet(toRef(props, 'sessionSetUuid'));
 
-            if (this.workoutSessionStore.isDuringWarmUp(this.exercise.uuid)) {
-                return this.workoutSessionStore.warmUpTimeRemaining(
-                    this.exercise.uuid,
-                );
-            }
+const refreshForce = ref(null);
+let refreshInterval = null;
 
-            return this.workoutSessionStore.restPeriodTimeRemaining(
-                this.sessionSetUuid,
-            );
-        },
-        timesUp() {
-            return this.timeRemaining <= 0;
-        },
-        almostFinished() {
-            if (this.timesUp) {
-                return false;
-            }
+const exercise = computed(() =>
+    getExerciseBySet(workoutSession.value, props.sessionSetUuid),
+);
 
-            return this.timeRemaining < 30;
-        },
-        overdue() {
-            return this.timeRemaining < 0;
-        },
-        min() {
-            const min = Math.floor(Math.abs(this.timeRemaining) / 60);
+const timeRemaining = computed(() => {
+    // Force refresh
+    refreshForce.value;
 
-            if (min < 10) {
-                return `0${min}`;
-            }
+    if (isDuringWarmUp(workoutSession.value, exercise.value?.uuid)) {
+        return getWarmUpTimeRemaining(workoutSession.value, exercise.value?.uuid);
+    }
 
-            return min;
-        },
-        sec() {
-            const sec = Math.abs(this.timeRemaining) - this.min * 60;
+    return getRestPeriodTimeRemaining(workoutSession.value, props.sessionSetUuid);
+});
 
-            if (sec < 10) {
-                return `0${sec}`;
-            }
+const timesUp = computed(() => timeRemaining.value <= 0);
 
-            return sec;
-        },
-    },
-    methods: {
-        startRefreshInterval() {
-            this.refreshInterval = setInterval(() => {
-                this.refreshForce = Date.now();
-            }, 1000);
-        },
-        playBeep() {
-            /** @type HTMLAudioElement */
-            const audio = document.querySelector('.js-beep-audio');
-            audio.volume = 0.3;
-            audio.play();
-        },
-    },
-};
+const almostFinished = computed(() => {
+    if (timesUp.value) {
+        return false;
+    }
+
+    return timeRemaining.value < 30;
+});
+
+const overdue = computed(() => timeRemaining.value < 0);
+
+const _label = computed(() => {
+    if (overdue.value) {
+        return `${props.label} overdue`;
+    }
+
+    return `${props.label} remaining`;
+});
+
+const timerClass = computed(() => ({
+    timer: true,
+    'timer--almost-finished': almostFinished.value,
+    'timer--overdue': overdue.value,
+}));
+
+const min = computed(() => {
+    const minutes = Math.floor(Math.abs(timeRemaining.value) / 60);
+
+    if (minutes < 10) {
+        return `0${minutes}`;
+    }
+
+    return minutes;
+});
+
+const sec = computed(() => {
+    const seconds = Math.abs(timeRemaining.value) - min.value * 60;
+
+    if (seconds < 10) {
+        return `0${seconds}`;
+    }
+
+    return seconds;
+});
+
+function startRefreshInterval() {
+    refreshInterval = setInterval(() => {
+        refreshForce.value = Date.now();
+    }, 1000);
+}
+
+function playBeep() {
+    /** @type HTMLAudioElement */
+    const audio = document.querySelector('.js-beep-audio');
+    audio.volume = 0.3;
+    audio.play();
+}
+
+watch(timeRemaining, (value) => {
+    if (value === 0) {
+        playBeep();
+    }
+});
+
+watch(timesUp, (value) => {
+    if (value === true) {
+        window.navigator.vibrate(200);
+    } else {
+        startRefreshInterval();
+    }
+});
+
+onMounted(() => {
+    startRefreshInterval();
+});
+
+onBeforeUnmount(() => {
+    clearInterval(refreshInterval);
+});
 </script>
 
 <style lang="scss">
