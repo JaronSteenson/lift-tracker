@@ -55,7 +55,7 @@
                     handle=".js-exercise-drag-handle"
                     itemKey="uuid"
                     :modelValue="exercises"
-                    @update:modelValue="workout.routineExercises = $event"
+                    @update:modelValue="onExercisesReordered"
                     @start="onDragStart"
                     @end="onDragEnd"
                 >
@@ -198,6 +198,20 @@ const onDragStart = () => {
 
 const onDragEnd = () => {
     programBuilderStore.setDraggingExercise(false);
+};
+
+const onExercisesReordered = (newExercises) => {
+    // Update positions based on new order
+    const exercisesWithUpdatedPositions = newExercises.map((exercise, index) => ({
+        ...exercise,
+        position: index,
+    }));
+
+    // Update the routine with the new exercise order
+    updateRoutine(workoutProgram.value.uuid, {
+        uuid: uuid.value,
+        routineExercises: exercisesWithUpdatedPositions,
+    });
 };
 
 const startWorkout = async () => {
