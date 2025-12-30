@@ -48,7 +48,6 @@
 <script setup>
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
-import MissingValue from '../util/MissingValue';
 import ProgramName from '../domain/programBuilder/ProgramName';
 import { useStartWorkout } from './workoutSessions/composibles/workoutSessionQueries';
 

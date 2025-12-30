@@ -13,7 +13,6 @@
 <script>
 import RoutineCard from './RoutineCard';
 import NarrowContentContainer from '../layouts/NarrowContentContainer';
-import { useProgramBuilderStore } from '../../stores/programBuilder';
 import { useWorkoutProgramList } from './programBuilder/composibles/programBuilderQueries';
 
 export default {

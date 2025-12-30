@@ -146,8 +146,11 @@ const uuid = computed(() => {
 });
 
 const { workoutProgram: workoutProgramFromQuery } = useWorkoutProgram();
-const { updateRoutine, addExerciseToWorkout, deleteWorkout: deleteWorkoutMutation } =
-    useUpdateWorkoutProgram(props.routineUuid);
+const {
+    updateRoutine,
+    addExerciseToWorkout,
+    deleteWorkout: deleteWorkoutMutation,
+} = useUpdateWorkoutProgram(props.routineUuid);
 
 // Use prop if provided (session overview), otherwise use query (program builder)
 const workoutProgram = computed(() => {
@@ -177,7 +180,7 @@ const exercises = computed(() => {
 
 const programBuilderStore = useProgramBuilderStore();
 const workoutSessionStore = useWorkoutSessionStore();
-const { startWorkout: startWorkoutMutation, isStarting } = useStartWorkout();
+const { startWorkout: startWorkoutMutation } = useStartWorkout();
 const { xs, smAndDown } = useDisplay();
 const router = useRouter();
 
@@ -223,10 +226,12 @@ const onDragEnd = () => {
 
 const onExercisesReordered = (newExercises) => {
     // Update positions based on new order
-    const exercisesWithUpdatedPositions = newExercises.map((exercise, index) => ({
-        ...exercise,
-        position: index,
-    }));
+    const exercisesWithUpdatedPositions = newExercises.map(
+        (exercise, index) => ({
+            ...exercise,
+            position: index,
+        }),
+    );
 
     // Update the routine with the new exercise order
     updateRoutine(workoutProgram.value.uuid, {

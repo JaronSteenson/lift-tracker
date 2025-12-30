@@ -358,7 +358,7 @@
 
 <script setup>
 import { ref, computed, watch, toRef, onMounted } from 'vue';
-import { useRouter, useRoute } from 'vue-router';
+import { useRouter } from 'vue-router';
 import { useDisplay } from 'vuetify';
 import { useAppStore } from '../../../stores/app';
 import { useProgramBuilderStore } from '../../../stores/programBuilder';
@@ -375,11 +375,9 @@ import {
     useWorkoutSessionBySet,
     useUpdateWorkoutSession,
     useExerciseHistory,
-    getWorkoutName,
     getSet,
     getExerciseBySet,
     isInProgressWorkout as checkIsInProgressWorkout,
-    getAllSets,
     getPreviousSet as getPrevSet,
     getNextSet as getNextSetHelper,
     getCurrentSetForInProgressWorkout,
@@ -387,7 +385,6 @@ import {
     getNextExerciseFirstSet as getNextExerciseFirstSetHelper,
     isFirstSetOfWorkout as checkIsFirstSetOfWorkout,
     isLastSetOfWorkout as checkIsLastSetOfWorkout,
-    isFirstSetOfExercise as checkIsFirstSetOfExercise,
     isLastSetOfExercise as checkIsLastSetOfExercise,
     getWeightForCurrentSet,
     getRepsForCurrentSet,
@@ -409,13 +406,12 @@ const props = defineProps({
 });
 
 const router = useRouter();
-const route = useRoute();
 const appStore = useAppStore();
 const programBuilderStore = useProgramBuilderStore();
-const { xs, smAndUp, mobile } = useDisplay();
+const { xs, smAndUp } = useDisplay();
 
 // Fetch workout session by set
-const { workoutSession, isPending } = useWorkoutSessionBySet(
+const { workoutSession } = useWorkoutSessionBySet(
     toRef(props, 'sessionSetUuid'),
 );
 
@@ -450,7 +446,6 @@ const serverSyncUpdatedAt = ref(new Date().toISOString());
 
 // Computed properties
 const userIsLocalOnly = computed(() => appStore.userIsLocalOnly);
-const workoutName = computed(() => getWorkoutName(workoutSession.value));
 const uuid = computed(() => workoutSession.value?.uuid || null);
 
 const pageTitle = computed(() => {
@@ -786,8 +781,8 @@ async function startNextSet() {
     isChangingSet.value = true;
 
     const nextSetUuid = nextSet.value.uuid;
-    endSet(uuid.value, set.value.uuid);
-    startSet(uuid.value, nextSetUuid);
+    await endSet(uuid.value, set.value.uuid);
+    await startSet(uuid.value, nextSetUuid);
 
     await router.push({
         name: 'SetOverviewPage',

@@ -533,7 +533,7 @@ export function useUpdateWorkoutSession() {
     const queryClient = useQueryClient();
     const appStore = useAppStore();
 
-    const { mutate } = useMutation({
+    const { mutate, mutateAsync } = useMutation({
         mutationFn: async (workoutSession) => {
             if (appStore.localOnlyUser) {
                 workoutSession.updatedAt = utcNow();
@@ -558,10 +558,14 @@ export function useUpdateWorkoutSession() {
 
             // Also update any by-set caches that contain this session
             // Find all sets in this session and update their caches
+            // Each cache entry gets a fresh clone to ensure reactivity
             const allSets = getAllSets(workoutSession);
             allSets.forEach((set) => {
                 const bySetKey = [WORKOUT_SESSION_BY_SET_KEY, set.uuid];
-                queryClient.setQueryData(bySetKey, workoutSession);
+                queryClient.setQueryData(
+                    bySetKey,
+                    JSON.parse(JSON.stringify(workoutSession)),
+                );
             });
 
             // Save to localStorage
@@ -585,24 +589,36 @@ export function useUpdateWorkoutSession() {
                     context.previousWorkoutSession,
                 );
 
-                // Also rollback by-set caches
+                // Also rollback by-set caches with fresh clones
                 const allSets = getAllSets(context.previousWorkoutSession);
                 allSets.forEach((set) => {
                     const bySetKey = [WORKOUT_SESSION_BY_SET_KEY, set.uuid];
-                    queryClient.setQueryData(bySetKey, context.previousWorkoutSession);
+                    queryClient.setQueryData(
+                        bySetKey,
+                        JSON.parse(
+                            JSON.stringify(context.previousWorkoutSession),
+                        ),
+                    );
                 });
             }
         },
 
         onSuccess: (response, workoutSession, context) => {
-            // Update main cache
-            queryClient.setQueryData(context.queryKey, response);
+            // Deep clone to ensure new object reference
+            const clonedResponse = JSON.parse(JSON.stringify(response));
 
-            // Also update by-set caches
-            const allSets = getAllSets(response);
+            // Update main cache
+            queryClient.setQueryData(context.queryKey, clonedResponse);
+
+            // Also update by-set caches with new clones for each
+            const allSets = getAllSets(clonedResponse);
             allSets.forEach((set) => {
                 const bySetKey = [WORKOUT_SESSION_BY_SET_KEY, set.uuid];
-                queryClient.setQueryData(bySetKey, response);
+                // Each cache entry gets a fresh clone to ensure reactivity
+                queryClient.setQueryData(
+                    bySetKey,
+                    JSON.parse(JSON.stringify(clonedResponse)),
+                );
             });
 
             // Update localStorage with server response
@@ -612,7 +628,7 @@ export function useUpdateWorkoutSession() {
                 LOCAL_STORAGE_KEY,
                 JSON.stringify({
                     ...parsed,
-                    workoutSession: response,
+                    workoutSession: clonedResponse,
                 }),
             );
         },
@@ -630,7 +646,7 @@ export function useUpdateWorkoutSession() {
             ...updates,
         };
 
-        mutate(updatedSession);
+        return mutateAsync(updatedSession);
     };
 
     const updateSet = (sessionUuid, setUuid, updates) => {
@@ -648,7 +664,7 @@ export function useUpdateWorkoutSession() {
             });
         });
 
-        mutate(updatedSession);
+        return mutateAsync(updatedSession);
     };
 
     const updateExercise = (sessionUuid, exerciseUuid, updates) => {
@@ -664,7 +680,7 @@ export function useUpdateWorkoutSession() {
             }
         });
 
-        mutate(updatedSession);
+        return mutateAsync(updatedSession);
     };
 
     // Return all methods
@@ -675,11 +691,11 @@ export function useUpdateWorkoutSession() {
 
         // Specific update methods
         updateSetWeight: (sessionUuid, setUuid, weight) => {
-            updateSet(sessionUuid, setUuid, { weight });
+            return updateSet(sessionUuid, setUuid, { weight });
         },
 
         updateSetReps: (sessionUuid, setUuid, reps) => {
-            updateSet(sessionUuid, setUuid, { reps });
+            return updateSet(sessionUuid, setUuid, { reps });
         },
 
         updateExerciseWarmUpDuration: (
@@ -687,27 +703,33 @@ export function useUpdateWorkoutSession() {
             exerciseUuid,
             warmUpDuration,
         ) => {
-            updateExercise(sessionUuid, exerciseUuid, { warmUpDuration });
+            return updateExercise(sessionUuid, exerciseUuid, {
+                warmUpDuration,
+            });
         },
 
-        updateSetRestPeriodDuration: (sessionUuid, setUuid, restPeriodDuration) => {
-            updateSet(sessionUuid, setUuid, { restPeriodDuration });
+        updateSetRestPeriodDuration: (
+            sessionUuid,
+            setUuid,
+            restPeriodDuration,
+        ) => {
+            return updateSet(sessionUuid, setUuid, { restPeriodDuration });
         },
 
         updateExerciseNotes: (sessionUuid, exerciseUuid, notes) => {
-            updateExercise(sessionUuid, exerciseUuid, { notes });
+            return updateExercise(sessionUuid, exerciseUuid, { notes });
         },
 
         updateExerciseSkipped: (sessionUuid, exerciseUuid, skipped) => {
-            updateExercise(sessionUuid, exerciseUuid, { skipped });
+            return updateExercise(sessionUuid, exerciseUuid, { skipped });
         },
 
         startSet: (sessionUuid, setUuid) => {
-            updateSet(sessionUuid, setUuid, { startedAt: utcNow() });
+            return updateSet(sessionUuid, setUuid, { startedAt: utcNow() });
         },
 
         endSet: (sessionUuid, setUuid) => {
-            updateSet(sessionUuid, setUuid, { endedAt: utcNow() });
+            return updateSet(sessionUuid, setUuid, { endedAt: utcNow() });
         },
 
         startWarmUp: (sessionUuid, exerciseUuid) => {
@@ -795,14 +817,6 @@ export function useUpdateWorkoutSession() {
             ]);
 
             const endedAt = utcNow();
-
-            // Find the last exercise and last set
-            const lastExercise =
-                currentSession.sessionExercises[
-                    currentSession.sessionExercises.length - 1
-                ];
-            const lastSet =
-                lastExercise.sessionSets[lastExercise.sessionSets.length - 1];
 
             const updatedSession = JSON.parse(JSON.stringify(currentSession));
 

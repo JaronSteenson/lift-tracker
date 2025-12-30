@@ -88,7 +88,8 @@ const props = defineProps({
 });
 
 const emit = defineEmits(['update:value']);
-const { workoutProgram: workoutProgramFromQuery, getExercise } = useWorkoutProgram();
+const { workoutProgram: workoutProgramFromQuery, getExercise } =
+    useWorkoutProgram();
 const { updateExercise } = useUpdateWorkoutProgram(props.routineUuid);
 
 // Use prop if provided (session overview), otherwise use query (program builder)

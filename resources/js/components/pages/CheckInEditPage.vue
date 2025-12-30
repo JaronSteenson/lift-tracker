@@ -1,6 +1,8 @@
 <template>
     <div v-if="userIsAuthenticated">
-        <SessionOverviewLoadingSkeleton v-if="isPending && workoutSessionUuid" />
+        <SessionOverviewLoadingSkeleton
+            v-if="isPending && workoutSessionUuid"
+        />
         <template v-else>
             <NotFoundPage v-if="notFound">
                 Sorry we couldn't find that record.
@@ -32,13 +34,17 @@ const props = defineProps({
 const route = useRoute();
 const appStore = useAppStore();
 
-const { workoutSession, isPending, error } = useWorkoutSession(
+const { isPending, error } = useWorkoutSession(
     toRef(props, 'workoutSessionUuid'),
 );
 
 const userIsAuthenticated = computed(() => appStore.userIsAuthenticated);
 
-const notFound = computed(() => !isPending.value && error.value && props.workoutSessionUuid);
+const notFound = computed(
+    () => !isPending.value && error.value && props.workoutSessionUuid,
+);
 
-const toFirstSetAfterSave = computed(() => route.query.toFirstSetAfterSave === 'true');
+const toFirstSetAfterSave = computed(
+    () => route.query.toFirstSetAfterSave === 'true',
+);
 </script>

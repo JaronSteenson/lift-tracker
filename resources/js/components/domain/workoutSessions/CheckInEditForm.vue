@@ -85,7 +85,6 @@ import {
     useDeleteWorkoutSession,
     getFirstSet,
 } from './composibles/workoutSessionQueries';
-import { svgIcons } from '../../../vuetify';
 
 const props = defineProps({
     toFirstSetAfterSave: Boolean,

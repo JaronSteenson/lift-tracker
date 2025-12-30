@@ -21,18 +21,19 @@ export function useWorkoutProgramList() {
         return !isPending.value && (data.value?.length ?? 0) === 0;
     });
 
-    const routines = computed(() =>
-        data.value?.flatMap((program) =>
-            (program.workoutProgramRoutines ?? []).map((routine) => ({
-                ...routine,
-                workoutProgram: {
-                    uuid: program.uuid,
-                    name: program.name,
-                    createdAt: program.createdAt,
-                    updatedAt: program.updatedAt,
-                },
-            })),
-        ) || [],
+    const routines = computed(
+        () =>
+            data.value?.flatMap((program) =>
+                (program.workoutProgramRoutines ?? []).map((routine) => ({
+                    ...routine,
+                    workoutProgram: {
+                        uuid: program.uuid,
+                        name: program.name,
+                        createdAt: program.createdAt,
+                        updatedAt: program.updatedAt,
+                    },
+                })),
+            ) || [],
     );
 
     return {
@@ -142,8 +143,7 @@ export function useUpdateWorkoutProgram(routineUuid = null) {
             }
 
             // Snapshot the previous value
-            const previousWorkoutProgram =
-                queryClient.getQueryData(queryKey);
+            const previousWorkoutProgram = queryClient.getQueryData(queryKey);
 
             // Optimistically update to the new value
             queryClient.setQueryData(queryKey, updatedWorkoutProgram);

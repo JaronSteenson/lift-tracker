@@ -30,7 +30,9 @@ const props = defineProps({
     },
 });
 
-const { workoutSession } = useWorkoutSessionBySet(toRef(props, 'sessionSetUuid'));
+const { workoutSession } = useWorkoutSessionBySet(
+    toRef(props, 'sessionSetUuid'),
+);
 
 const refreshForce = ref(null);
 let refreshInterval = null;
@@ -44,10 +46,16 @@ const timeRemaining = computed(() => {
     refreshForce.value;
 
     if (isDuringWarmUp(workoutSession.value, exercise.value?.uuid)) {
-        return getWarmUpTimeRemaining(workoutSession.value, exercise.value?.uuid);
+        return getWarmUpTimeRemaining(
+            workoutSession.value,
+            exercise.value?.uuid,
+        );
     }
 
-    return getRestPeriodTimeRemaining(workoutSession.value, props.sessionSetUuid);
+    return getRestPeriodTimeRemaining(
+        workoutSession.value,
+        props.sessionSetUuid,
+    );
 });
 
 const timesUp = computed(() => timeRemaining.value <= 0);
