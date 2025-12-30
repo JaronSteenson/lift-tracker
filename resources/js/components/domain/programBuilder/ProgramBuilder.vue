@@ -125,7 +125,7 @@ const uuid = computed(() => {
 const name = ref('');
 
 const saveName = () => {
-    updateWorkoutProgram({ uuid: uuid.value, name: name.value });
+    updateWorkoutProgram(uuid.value, { name: name.value });
 };
 
 watch(

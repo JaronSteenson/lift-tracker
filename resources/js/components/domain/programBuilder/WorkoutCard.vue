@@ -134,7 +134,8 @@ const uuid = computed(() => {
 });
 
 const { workoutProgram } = useWorkoutProgram();
-const { updateRoutine, addExerciseToWorkout } = useUpdateWorkoutProgram();
+const { updateRoutine, addExerciseToWorkout, deleteWorkout: deleteWorkoutMutation } =
+    useUpdateWorkoutProgram();
 
 // Create a computed that directly accesses the workout from the reactive workoutProgram
 const workout = computed(() => {
@@ -187,9 +188,7 @@ const addExercise = () => {
 };
 
 const deleteWorkout = () => {
-    programBuilderStore.deleteWorkout({
-        workoutUuid: props.workoutUuid,
-    });
+    deleteWorkoutMutation(workoutProgram.value.uuid, props.workoutUuid);
 };
 
 const onDragStart = () => {

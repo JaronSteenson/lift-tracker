@@ -160,7 +160,17 @@ export function useUpdateWorkoutProgram() {
     });
 
     return {
-        updateWorkoutProgram: mutate,
+        updateWorkoutProgram(workoutProgramUuid, updates) {
+            const queryKey = [WORKOUT_PROGRAM_KEY, workoutProgramUuid];
+            const current = queryClient.getQueryData(queryKey);
+
+            const updatedWorkoutProgram = {
+                ...current,
+                ...updates,
+            };
+
+            mutate(updatedWorkoutProgram);
+        },
 
         updateRoutine(workoutProgramUuid, updates) {
             const queryKey = [WORKOUT_PROGRAM_KEY, workoutProgramUuid];
@@ -278,6 +288,26 @@ export function useUpdateWorkoutProgram() {
                     ...current.workoutProgramRoutines,
                     newWorkout,
                 ],
+            };
+
+            mutate(updatedWorkoutProgram);
+        },
+
+        deleteWorkout(workoutProgramUuid, workoutUuid) {
+            const queryKey = [WORKOUT_PROGRAM_KEY, workoutProgramUuid];
+            const current = queryClient.getQueryData(queryKey);
+
+            // Remove the workout and update positions
+            const updatedRoutines = current.workoutProgramRoutines
+                .filter((routine) => routine.uuid !== workoutUuid)
+                .map((routine, index) => ({
+                    ...routine,
+                    position: index,
+                }));
+
+            const updatedWorkoutProgram = {
+                ...current,
+                workoutProgramRoutines: updatedRoutines,
             };
 
             mutate(updatedWorkoutProgram);
