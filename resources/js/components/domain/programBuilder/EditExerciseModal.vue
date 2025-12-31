@@ -73,7 +73,7 @@ const props = defineProps({
         required: true,
         type: Boolean,
     },
-    exerciseUuid: {
+    routineExerciseUuid: {
         required: true,
         type: String,
     },
@@ -81,35 +81,18 @@ const props = defineProps({
         type: String,
         default: null,
     },
-    workoutProgramProp: {
-        type: Object,
+    workoutProgramUuid: {
+        type: String,
         default: null,
     },
 });
 
 const emit = defineEmits(['update:value']);
-const { workoutProgram: workoutProgramFromQuery, getExercise } =
-    useWorkoutProgram();
+const { workoutProgram, getExercise } = useWorkoutProgram(
+    props.workoutProgramUuid,
+);
+
 const { updateExercise } = useUpdateWorkoutProgram(props.routineUuid);
-
-// Use prop if provided (session overview), otherwise use query (program builder)
-const workoutProgram = computed(() => {
-    if (props.workoutProgramProp) {
-        return props.workoutProgramProp;
-    }
-    return workoutProgramFromQuery.value;
-});
-
-// Get exercise using prop pattern or query
-const getExerciseData = (uuid) => {
-    if (props.workoutProgramProp) {
-        return UuidHelper.findDeep(
-            workoutProgram.value?.workoutProgramRoutines,
-            uuid,
-        );
-    }
-    return getExercise(uuid);
-};
 
 const display = useDisplay();
 
@@ -136,8 +119,8 @@ const warmUp = ref(60);
 watch(
     () => props.value,
     (isOpen) => {
-        if (isOpen && props.exerciseUuid) {
-            const exercise = getExerciseData(props.exerciseUuid);
+        if (isOpen && props.routineExerciseUuid) {
+            const exercise = getExercise(props.routineExerciseUuid);
             if (exercise) {
                 name.value = exercise.name;
                 weight.value = exercise.weight;
@@ -153,7 +136,7 @@ watch(
 const closeModal = () => {
     emit('update:value', false);
     updateExercise(workoutProgram.value.uuid, {
-        uuid: props.exerciseUuid,
+        uuid: props.routineExerciseUuid,
         name: name.value,
         weight: weight.value,
         numberOfSets: numberOfSets.value,

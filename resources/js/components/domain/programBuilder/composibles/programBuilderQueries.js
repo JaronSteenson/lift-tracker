@@ -44,9 +44,9 @@ export function useWorkoutProgramList() {
     };
 }
 
-export function useWorkoutProgram() {
+export function useWorkoutProgram(workoutProgramUuid = null) {
     const route = useRoute();
-    const uuid = route.params.workoutProgramUuid;
+    const uuid = workoutProgramUuid || route.params.workoutProgramUuid;
 
     const { data, isPending } = useQuery({
         queryKey: [WORKOUT_PROGRAM_KEY, uuid],

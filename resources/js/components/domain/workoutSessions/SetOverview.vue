@@ -352,7 +352,11 @@
     </div>
     <EditExerciseModal
         v-model:value="editingSource"
-        :exerciseUuid="exercise.routineExercise.uuid"
+        :routineExerciseUuid="exercise?.routineExercise.uuid"
+        :routineUuid="workoutSession?.workoutProgramRoutine.uuid"
+        :workoutProgramUuid="
+            workoutSession?.workoutProgramRoutine?.workoutProgram.uuid
+        "
     />
 </template>
 
@@ -410,7 +414,6 @@ const appStore = useAppStore();
 const programBuilderStore = useProgramBuilderStore();
 const { xs, smAndUp } = useDisplay();
 
-// Fetch workout session by set
 const { workoutSession } = useWorkoutSessionBySet(
     toRef(props, 'sessionSetUuid'),
 );

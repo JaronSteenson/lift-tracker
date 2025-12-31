@@ -48,9 +48,8 @@
         <Teleport to="body">
             <EditExerciseModal
                 v-model:value="showEditModal"
-                :exerciseUuid="exercise.uuid"
+                :routineExerciseUuid="exercise.uuid"
                 :routineUuid="routineUuid"
-                :workoutProgramProp="workoutProgramProp"
             />
         </Teleport>
     </VCard>
