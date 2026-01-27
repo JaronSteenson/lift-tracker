@@ -1,4 +1,9 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/vue-query';
+import {
+    useQuery,
+    useInfiniteQuery,
+    useMutation,
+    useQueryClient,
+} from '@tanstack/vue-query';
 import { computed, toValue } from 'vue';
 import { differenceInSeconds, isToday } from 'date-fns';
 import { utcNow } from '../../../../dates';
@@ -33,48 +38,39 @@ function getSecondsRemaining({ expectedDuration, startTime }) {
 export function useTimelineQuery() {
     const pageSize = 10;
 
-    const { data, isPending, loadMore } = useInfiniteQuery({
-        // unique key for the query in the cache
-        key: () => ['timeline'],
-        query: async () => {
-            if (workoutSessionStore.allPagesLoaded) {
-                return [];
-            }
+    const { data, isPending, fetchNextPage, hasNextPage, isFetchingNextPage } =
+        useInfiniteQuery({
+            queryKey: ['timeline'],
+            queryFn: async ({ pageParam = 0 }) => {
+                const response = await WorkoutSessionService.index({
+                    pageIndex: pageParam,
+                    pageSize,
+                });
+                return response.data;
+            },
+            initialPageParam: 1,
+            getNextPageParam: (lastPage, allPages) => {
+                if (lastPage.length < pageSize) {
+                    return undefined;
+                }
+                return allPages.length;
+            },
+        });
 
-            const response = await WorkoutSessionService.index({
-                pageIndex: workoutSessionStore.pageIndex,
-                pageSize,
-            });
-
-            if (response.data.length < pageSize) {
-                workoutSessionStore.allPagesLoaded = true;
-            }
-
-            workoutSessionStore.pageIndex++;
-            return response.data;
-        },
-        merge(pages, newPage) {
-            // no more pages
-            if (!newPage) {
-                return pages;
-            }
-
-            if (!pages) {
-                pages = [];
-            }
-
-            return pages.concat(newPage);
-        },
+    const flattenedData = computed(() => {
+        return data.value?.pages?.flat() ?? [];
     });
 
     const shouldShowNoProgramsHintStartNewSession = computed(() => {
-        return !isPending.value && (data.value?.length ?? 0) === 0;
+        return !isPending.value && flattenedData.value.length === 0;
     });
 
     return {
-        data,
+        data: flattenedData,
         isPending,
-        loadMore,
+        fetchNextPage,
+        hasNextPage,
+        isFetchingNextPage,
         shouldShowNoProgramsHintStartNewSession,
     };
 }

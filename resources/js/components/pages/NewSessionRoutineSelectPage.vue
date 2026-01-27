@@ -16,7 +16,7 @@ import NoProgramsWelcomeHint from '../domain/userHints/NoProgramsWelcomeHint';
 import AppBar from '../AppBar';
 import { useAppStore } from '../../stores/app';
 import { useWorkoutProgramList } from '../domain/programBuilder/composibles/programBuilderQueries';
-import { useTimelineQuery } from '../../api/WorkoutSessionService';
+import { useTimelineQuery } from '../domain/workoutSessions/composibles/workoutSessionQueries';
 
 export default {
     name: 'NewSessionRoutineSelectPage',

@@ -17,7 +17,7 @@ import NoSessionsHint from '../domain/userHints/NoSessionsHint';
 import PageAppBar from '../AppBar';
 import SessionOverviewLoadingSkeleton from '../domain/workoutSessions/SessionOverviewLoadingSkeleton.vue';
 import { useAppStore } from '../../stores/app';
-import { useTimelineQuery } from '../../api/WorkoutSessionService';
+import { useTimelineQuery } from '../domain/workoutSessions/composibles/workoutSessionQueries';
 import { useWorkoutProgramList } from '../domain/programBuilder/composibles/programBuilderQueries';
 
 export default {

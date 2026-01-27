@@ -164,7 +164,7 @@ import ProgramName from '../domain/programBuilder/ProgramName';
 import AddNewButton from '../formFields/AddNewButton.vue';
 import { useDisplay } from 'vuetify';
 import { useTheme } from 'vuetify/framework';
-import { useTimelineQuery } from '../../api/WorkoutSessionService';
+import { useTimelineQuery } from './workoutSessions/composibles/workoutSessionQueries';
 import {
     useDeleteWorkoutSession,
     isInProgressWorkout as checkIsInProgressWorkout,
@@ -173,18 +173,13 @@ import {
 const display = useDisplay();
 const theme = useTheme();
 
-const { data, isPending, loadMore } = useTimelineQuery();
+const { data, isPending, fetchNextPage, hasNextPage } = useTimelineQuery();
 const { deleteWorkoutSession } = useDeleteWorkoutSession();
 
 const toolbarColor = theme.current.value.colors.toolbar;
 
 const showTable = ref(localStorage.getItem('homePageShowTable') === 'true');
 const loadingNextPage = ref(false);
-
-const allPagesLoaded = computed(() => {
-    // TODO: Get this from somewhere if the timeline query supports pagination
-    return false;
-});
 
 const headers = computed(() => {
     if (display.xs.value) {
@@ -258,14 +253,15 @@ function infiniteScroll() {
     const atBottom =
         document.documentElement.scrollTop + window.innerHeight ===
         document.documentElement.offsetHeight;
-    if (atBottom && !isPending.value && !allPagesLoaded.value) {
+
+    if (atBottom && !isPending.value && hasNextPage) {
         loadNextPage();
     }
 }
 
 async function loadNextPage() {
     loadingNextPage.value = true;
-    await loadMore();
+    await fetchNextPage();
     loadingNextPage.value = false;
 }
 
