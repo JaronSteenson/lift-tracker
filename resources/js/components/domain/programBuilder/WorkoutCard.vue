@@ -148,6 +148,7 @@ const uuid = computed(() => {
 const { workoutProgram: workoutProgramFromQuery } = useWorkoutProgram();
 const {
     updateRoutine,
+    updateWorkoutProgram,
     addExerciseToWorkout,
     deleteWorkout: deleteWorkoutMutation,
 } = useUpdateWorkoutProgram(props.routineUuid);
@@ -225,18 +226,30 @@ const onDragEnd = () => {
 };
 
 const onExercisesReordered = (newExercises) => {
-    // Update positions based on new order
-    const exercisesWithUpdatedPositions = newExercises.map(
-        (exercise, index) => ({
-            ...exercise,
-            position: index,
-        }),
-    );
+    debugger;
+    const newExerciseUuids = newExercises.map((exercise) => exercise.uuid);
 
-    // Update the routine with the new exercise order
-    updateRoutine(workoutProgram.value.uuid, {
-        uuid: uuid.value,
-        routineExercises: exercisesWithUpdatedPositions,
+    const workoutProgramRoutines =
+        workoutProgram.value.workoutProgramRoutines.map((routine) => {
+            if (routine.uuid === props.workoutUuid) {
+                routine.routineExercises = newExercises;
+            } else {
+                // Handle moving exercises across different routines (remove from other).
+                routine.routineExercises = routine.routineExercises.filter(
+                    (exercise) => !newExerciseUuids.includes(exercise.uuid),
+                );
+            }
+
+            routine.routineExercises.map((exercise, index) => ({
+                ...exercise,
+                position: index,
+            }));
+
+            return routine;
+        });
+
+    updateWorkoutProgram(workoutProgram.value.uuid, {
+        workoutProgramRoutines,
     });
 };
 
