@@ -331,6 +331,9 @@ const startWorkout = async () => {
 
 .workout-card.v-card {
     border: solid 1px rgb(var(--v-theme-primary));
+
+    // Compromise for not being able to force top z-index/stacking context on moved exercise card.
+    background-color: transparent !important;
 }
 
 .workout-drag {
