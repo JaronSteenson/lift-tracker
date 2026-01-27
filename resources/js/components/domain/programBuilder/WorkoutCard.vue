@@ -55,7 +55,7 @@
                     handle=".js-exercise-drag-handle"
                     itemKey="uuid"
                     :modelValue="exercises"
-                    @update:modelValue="onExercisesReordered"
+                    @change="onExercisesChange"
                     @start="onDragStart"
                     @end="onDragEnd"
                 >
@@ -225,27 +225,49 @@ const onDragEnd = () => {
     programBuilderStore.setDraggingExercise(false);
 };
 
-const onExercisesReordered = (newExercises) => {
-    debugger;
-    const newExerciseUuids = newExercises.map((exercise) => exercise.uuid);
+const onExercisesChange = (evt) => {
+    // Only fire the update when an item is added to this list or moved within it.
+    // When an item is removed (dragged to another list), the target list's 'added'
+    // event will handle the full update, preventing duplicate requests.
+    if (evt.removed) {
+        return;
+    }
 
+    const movedExercise = evt.added?.element || evt.moved?.element;
+    const newIndex = evt.added?.newIndex ?? evt.moved?.newIndex;
+
+    // Build the new routines state
     const workoutProgramRoutines =
         workoutProgram.value.workoutProgramRoutines.map((routine) => {
+            let newExercises;
+
             if (routine.uuid === props.workoutUuid) {
-                routine.routineExercises = newExercises;
+                // This is the target/current routine
+                if (evt.added) {
+                    // Insert the exercise at the new position
+                    newExercises = [...routine.routineExercises];
+                    newExercises.splice(newIndex, 0, movedExercise);
+                } else {
+                    // Moved within same list - reorder
+                    newExercises = [...routine.routineExercises];
+                    const oldIndex = evt.moved.oldIndex;
+                    newExercises.splice(oldIndex, 1);
+                    newExercises.splice(newIndex, 0, movedExercise);
+                }
             } else {
-                // Handle moving exercises across different routines (remove from other).
-                routine.routineExercises = routine.routineExercises.filter(
-                    (exercise) => !newExerciseUuids.includes(exercise.uuid),
+                // Remove the exercise from other routines (in case it was dragged from there)
+                newExercises = routine.routineExercises.filter(
+                    (exercise) => exercise.uuid !== movedExercise.uuid,
                 );
             }
 
-            routine.routineExercises.map((exercise, index) => ({
-                ...exercise,
-                position: index,
-            }));
-
-            return routine;
+            return {
+                ...routine,
+                routineExercises: newExercises.map((exercise, index) => ({
+                    ...exercise,
+                    position: index,
+                })),
+            };
         });
 
     updateWorkoutProgram(workoutProgram.value.uuid, {
