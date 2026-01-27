@@ -30,8 +30,53 @@ function getSecondsRemaining({ expectedDuration, startTime }) {
     return finishInSeconds - now;
 }
 
-export function getWorkoutName(workoutSession) {
-    return workoutSession?.workoutProgramRoutine?.name || '';
+export function useTimelineQuery() {
+    const pageSize = 10;
+
+    const { data, isPending, loadMore } = useInfiniteQuery({
+        // unique key for the query in the cache
+        key: () => ['timeline'],
+        query: async () => {
+            if (workoutSessionStore.allPagesLoaded) {
+                return [];
+            }
+
+            const response = await WorkoutSessionService.index({
+                pageIndex: workoutSessionStore.pageIndex,
+                pageSize,
+            });
+
+            if (response.data.length < pageSize) {
+                workoutSessionStore.allPagesLoaded = true;
+            }
+
+            workoutSessionStore.pageIndex++;
+            return response.data;
+        },
+        merge(pages, newPage) {
+            // no more pages
+            if (!newPage) {
+                return pages;
+            }
+
+            if (!pages) {
+                pages = [];
+            }
+
+            return pages.concat(newPage);
+        },
+    });
+
+    const shouldShowNoProgramsHintStartNewSession = computed(() => {
+        return !isPending.value && (data.value?.length ?? 0) === 0;
+    });
+
+    return {
+        data,
+        isPending,
+        loadMore,
+        shouldShowNoProgramsHintStartNewSession,
+    };
 }
 
 export function getFirstSet(workoutSession) {
@@ -329,10 +374,6 @@ export function getRestPeriodTimeRemaining(workoutSession, sessionSetUuid) {
     return getSecondsRemaining({ expectedDuration, startTime });
 }
 
-// ============================================================================
-// Query Hooks
-// ============================================================================
-
 export function useWorkoutSession(workoutSessionUuid) {
     const appStore = useAppStore();
 
@@ -457,10 +498,6 @@ export function useExerciseHistory(sessionExerciseUuid) {
         error,
     };
 }
-
-// ============================================================================
-// Mutation Hooks
-// ============================================================================
 
 export function useStartWorkout() {
     const queryClient = useQueryClient();

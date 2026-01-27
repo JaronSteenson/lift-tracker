@@ -1,7 +1,4 @@
 import ApiService from './ApiService';
-import { useInfiniteQuery } from '@pinia/colada';
-import { useWorkoutSessionStore } from '../stores/workoutSession';
-import { computed } from 'vue';
 
 const RESOURCE_NAME = 'workout-sessions';
 const SET_RESOURCE_NAME = 'session-sets';
@@ -47,53 +44,3 @@ const WorkoutSessionService = {
 };
 
 export default WorkoutSessionService;
-
-export function useTimelineQuery() {
-    const pageSize = 10;
-    const workoutSessionStore = useWorkoutSessionStore();
-
-    const { data, isPending, loadMore } = useInfiniteQuery({
-        // unique key for the query in the cache
-        key: () => ['timeline'],
-        query: async () => {
-            if (workoutSessionStore.allPagesLoaded) {
-                return [];
-            }
-
-            const response = await WorkoutSessionService.index({
-                pageIndex: workoutSessionStore.pageIndex,
-                pageSize,
-            });
-
-            if (response.data.length < pageSize) {
-                workoutSessionStore.allPagesLoaded = true;
-            }
-
-            workoutSessionStore.pageIndex++;
-            return response.data;
-        },
-        merge(pages, newPage) {
-            // no more pages
-            if (!newPage) {
-                return pages;
-            }
-
-            if (!pages) {
-                pages = [];
-            }
-
-            return pages.concat(newPage);
-        },
-    });
-
-    const shouldShowNoProgramsHintStartNewSession = computed(() => {
-        return !isPending.value && (data.value?.length ?? 0) === 0;
-    });
-
-    return {
-        data,
-        isPending,
-        loadMore,
-        shouldShowNoProgramsHintStartNewSession,
-    };
-}
