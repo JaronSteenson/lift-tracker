@@ -6,6 +6,12 @@ namespace LiftTrackerApi.Entities;
 
 public partial class SessionExercise : DomainEntity, IPositionable
 {
+    [Required]
+    [StringLength(
+        1000,
+        MinimumLength = 1,
+        ErrorMessage = "Name must be between 1 and 1000 characters"
+    )]
     public string Name { get; set; } = null!;
 
     public decimal? PlannedWeight { get; set; }
