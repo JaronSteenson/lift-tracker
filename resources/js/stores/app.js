@@ -7,6 +7,8 @@ import { rollbar } from '../rollbar/rollbar';
 import { useProgramBuilderStore } from './programBuilder';
 import { useWorkoutSessionStore } from './workoutSession';
 
+const PROD_URL = 'https://lift-tracker.app';
+
 export const LOCAL_STORAGE_KEY = 'store-state--App';
 
 const authorizationParams = {
@@ -135,7 +137,7 @@ export const useAppStore = defineStore('app', {
             // If someone manages to get directly to the underlying insecure app (probably just bots),
             // redirect them to the correct address. "isSecureContext" should return true for localhost.
             if (!window.isSecureContext) {
-                window.location.replace('https://lift-tracker.app');
+                window.location.replace(PROD_URL);
                 return;
             }
 
@@ -171,17 +173,10 @@ export const useAppStore = defineStore('app', {
                     '@@auth0spajs@@::default::default::http://localhost:3000',
                 );
 
-                if (
-                    !this.fromLocalStorage?.app?.loginErrorCount ||
-                    this.fromLocalStorage.app.loginErrorCount < 3
-                ) {
-                    this.loginErrorCount++;
-                    this.saveToLocalStorage();
-                    window.location.reload();
-                } else {
-                    throw e;
-                }
-            } finally {
+                this.reloadToRetryAuth(e);
+            }
+
+            try {
                 const isAuthenticated = await auth0Client.isAuthenticated();
 
                 let auth0User = null;
@@ -193,6 +188,7 @@ export const useAppStore = defineStore('app', {
                     const token = await auth0Client.getTokenSilently({
                         authorizationParams,
                     });
+
                     axios.defaults.headers.common.Authorization = `Bearer ${token}`;
 
                     this.loginErrorCount = 0;
@@ -217,6 +213,23 @@ export const useAppStore = defineStore('app', {
                         },
                     });
                 }
+            } catch (e) {
+                this.reloadToRetryAuth(e);
+            }
+        },
+
+        reloadToRetryAuth(e) {
+            if (
+                !this.fromLocalStorage?.app?.loginErrorCount ||
+                this.fromLocalStorage.app.loginErrorCount < 3
+            ) {
+                this.loginErrorCount++;
+                this.saveToLocalStorage();
+
+                rollbar?.warning(e);
+                window.location.replace(PROD_URL);
+            } else {
+                throw e;
             }
         },
 
