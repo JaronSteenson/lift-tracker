@@ -132,6 +132,13 @@ export const useAppStore = defineStore('app', {
         },
 
         async bootstrapAuth0() {
+            // If someone manages to get directly to the underlying insecure app (probably just bots),
+            // redirect them to the correct address. "isSecureContext" should return true for localhost.
+            if (!window.isSecureContext) {
+                window.location.replace('https://lift-tracker.app');
+                return;
+            }
+
             const auth0Client = await createAuth0Client({
                 domain: config.auth0.domain,
                 clientId: config.auth0.clientId,
