@@ -6,6 +6,7 @@ using LiftTrackerApi.Entities;
 using LiftTrackerApi.Extensions;
 using LiftTrackerApi.Tests.Integration.Fixtures;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 
 namespace LiftTrackerApi.Tests.Integration;
@@ -15,6 +16,7 @@ public class WorkoutProgramControllerTests(WorkoutDbFixture fixture)
     : IClassFixture<WorkoutDbFixture>
 {
     private readonly HttpClient _client = fixture.Client;
+    private readonly WorkoutDbFixture _fixture = fixture;
     private readonly string _longString =
         "12345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901";
 
@@ -160,6 +162,43 @@ public class WorkoutProgramControllerTests(WorkoutDbFixture fixture)
         Assert.Equal("any", emptyLastRoutine.NormalDay);
         Assert.Equal(2, emptyLastRoutine.Position);
         Assert.Empty(emptyLastRoutine.RoutineExercises);
+    }
+
+    /// <see cref="WorkoutProgramController.GetByRoutineUuid(Guid)" />
+    [Fact]
+    public async Task Get_ByRoutineUuid_ExcludesSoftDeletedRoutineExercises()
+    {
+        var db = _fixture.Factory.Services.GetRequiredService<LiftTrackerDbContext>();
+        var pushUps = await db
+            .RoutineExercises.IgnoreQueryFilters()
+            .WhereUuid(Guid.Parse("231f3f81-4680-4086-b228-168116ae330a"))
+            .FirstAsync();
+        var originalDeletedAt = pushUps.DeletedAt;
+
+        try
+        {
+            pushUps.DeletedAt = DateTime.UtcNow;
+            await db.SaveChangesAsync();
+
+            var response = await _client.GetAsync(
+                "/api/workout-programs/by-routine/cd218127-b60d-46a7-bbc1-a17332bea15f"
+            );
+
+            response.EnsureSuccessStatusCode();
+
+            var json = await response.Content.ReadAsStringAsync();
+            var workoutProgram = JsonConvert.DeserializeObject<WorkoutProgram>(json);
+
+            var populatedRoutine = workoutProgram!.WorkoutProgramRoutines.Single(routine =>
+                routine.Uuid == Guid.Parse("cd218127-b60d-46a7-bbc1-a17332bea15f")
+            );
+            Assert.Empty(populatedRoutine.RoutineExercises);
+        }
+        finally
+        {
+            pushUps.DeletedAt = originalDeletedAt;
+            await db.SaveChangesAsync();
+        }
     }
 
     /// <see cref="WorkoutProgramController.Create(WorkoutProgram)" />

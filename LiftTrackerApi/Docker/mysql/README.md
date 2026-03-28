@@ -2,7 +2,7 @@
 
 ## Install dependencies
 ```shell
-apt get install -y docker
+sudo apt-get install -y docker.io
 ```
 
 # Initial build/run
