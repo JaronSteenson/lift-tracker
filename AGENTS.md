@@ -1,9 +1,5 @@
-# CLAUDE.md
-
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
-
+# AGENTS.md
 ## Project Overview
-
 Lift Tracker is a Vue.js SPA with a .NET Core API backend for tracking workout programs and sessions. The project uses Vue 3 with Vuetify 3 for UI, Pinia for state management, and integrates with Auth0 for authentication.
 
 **Tech Stack:**
