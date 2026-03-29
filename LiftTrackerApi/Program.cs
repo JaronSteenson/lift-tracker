@@ -118,11 +118,13 @@ app.UseStatusCodePages(async context =>
 // Configure the HTTP request pipeline.
 if (app.Environment.IsProduction())
 {
+    Log.Logger.Information("Running application in production mode");
     // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
 }
 else
 {
+    Log.Logger.Information("Running application in local development mode, serving at http://localhost:5299/api/");
     app.UseCors("AllowVueDev");
 }
 

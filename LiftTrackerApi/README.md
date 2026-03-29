@@ -26,8 +26,11 @@ dotnet run
 ```
 
 ### Curl sanity check
+Below should respond with JSON response similar to: 
+
+`{"message":"Service is available","userId":-1,"timestamp":"2026-03-29T05:31:35.6303783Z"}`
 ```shell
-curl https://localhost:7023/workout-programs -k
+curl curl http://localhost:5299/api
 ```
 
 ## Run tests
