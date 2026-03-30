@@ -7,6 +7,29 @@ import WorkoutProgramService from '../../../../api/WorkoutProgramService';
 const WORKOUT_PROGRAM_LIST_KEY = 'workoutProgramList';
 const WORKOUT_PROGRAM_KEY = 'workoutProgram';
 const WORKOUT_PROGRAM_BY_ROUTINE_KEY = 'workoutProgramByRoutine';
+const NEW_WORKOUT_PROGRAM_KEY = 'new';
+
+function createDraftWorkoutProgram() {
+    return {
+        uuid: null,
+        name: 'New Program',
+        workoutProgramRoutines: [
+            {
+                uuid: UuidHelper.assign(),
+                name: 'Workout 1',
+                normalDay: 'any',
+                position: 0,
+                routineExercises: [],
+            },
+        ],
+        createdAt: null,
+        updatedAt: null,
+    };
+}
+
+function getWorkoutProgramQueryKey(workoutProgramUuid) {
+    return [WORKOUT_PROGRAM_KEY, workoutProgramUuid || NEW_WORKOUT_PROGRAM_KEY];
+}
 
 export function useWorkoutProgramList() {
     const { data, isPending } = useQuery({
@@ -46,19 +69,30 @@ export function useWorkoutProgramList() {
 
 export function useWorkoutProgram(workoutProgramUuid = null) {
     const route = useRoute();
-    const uuid = workoutProgramUuid || route.params.workoutProgramUuid;
+    const uuid = computed(
+        () => workoutProgramUuid || route.params.workoutProgramUuid,
+    );
 
-    const { data, isPending } = useQuery({
-        queryKey: [WORKOUT_PROGRAM_KEY, uuid],
+    const { data, error, isLoading } = useQuery({
+        queryKey: computed(() => getWorkoutProgramQueryKey(toValue(uuid))),
         queryFn: async () => {
-            if (!uuid) {
-                return undefined;
+            const resolvedUuid = toValue(uuid);
+
+            if (!resolvedUuid) {
+                return createDraftWorkoutProgram();
             }
 
-            const response = await WorkoutProgramService.get(uuid);
+            const response = await WorkoutProgramService.get(resolvedUuid);
             return response.data;
         },
-        enabled: !!uuid,
+        enabled: computed(() => !!toValue(uuid)),
+        initialData: () => {
+            if (!toValue(uuid)) {
+                return createDraftWorkoutProgram();
+            }
+
+            return undefined;
+        },
     });
 
     const getExercise = (uuid) => {
@@ -71,7 +105,8 @@ export function useWorkoutProgram(workoutProgramUuid = null) {
 
     return {
         workoutProgram: data,
-        isPending,
+        error,
+        isLoading,
         getRoutine,
         getExercise,
     };
@@ -131,7 +166,9 @@ export function useUpdateWorkoutProgram(routineUuid = null) {
         },
 
         onMutate: async (updatedWorkoutProgram) => {
-            const queryKey = [WORKOUT_PROGRAM_KEY, updatedWorkoutProgram.uuid];
+            const queryKey = getWorkoutProgramQueryKey(
+                updatedWorkoutProgram.uuid,
+            );
             const routineQueryKey = routineUuid
                 ? [WORKOUT_PROGRAM_BY_ROUTINE_KEY, toValue(routineUuid)]
                 : null;
@@ -179,6 +216,10 @@ export function useUpdateWorkoutProgram(routineUuid = null) {
         onSuccess: (response, updatedWorkoutProgram, context) => {
             // Update with server response
             queryClient.setQueryData(context.queryKey, response.data);
+            queryClient.setQueryData(
+                getWorkoutProgramQueryKey(response.data.uuid),
+                response.data,
+            );
             if (context.routineQueryKey) {
                 queryClient.setQueryData(
                     context.routineQueryKey,
@@ -190,7 +231,7 @@ export function useUpdateWorkoutProgram(routineUuid = null) {
 
     return {
         updateWorkoutProgram(workoutProgramUuid, updates) {
-            const queryKey = [WORKOUT_PROGRAM_KEY, workoutProgramUuid];
+            const queryKey = getWorkoutProgramQueryKey(workoutProgramUuid);
             const current = queryClient.getQueryData(queryKey);
 
             const updatedWorkoutProgram = {
@@ -202,7 +243,7 @@ export function useUpdateWorkoutProgram(routineUuid = null) {
         },
 
         updateRoutine(workoutProgramUuid, updates) {
-            const queryKey = [WORKOUT_PROGRAM_KEY, workoutProgramUuid];
+            const queryKey = getWorkoutProgramQueryKey(workoutProgramUuid);
             const current = queryClient.getQueryData(queryKey);
 
             const updatedRoutines = UuidHelper.replaceMergeInCopy(
@@ -219,7 +260,7 @@ export function useUpdateWorkoutProgram(routineUuid = null) {
         },
 
         updateExercise(workoutProgramUuid, updates) {
-            const queryKey = [WORKOUT_PROGRAM_KEY, workoutProgramUuid];
+            const queryKey = getWorkoutProgramQueryKey(workoutProgramUuid);
             const current = queryClient.getQueryData(queryKey);
 
             // Create a deep copy to avoid mutations
@@ -234,7 +275,7 @@ export function useUpdateWorkoutProgram(routineUuid = null) {
         },
 
         addExerciseToWorkout(workoutProgramUuid, workoutUuid) {
-            const queryKey = [WORKOUT_PROGRAM_KEY, workoutProgramUuid];
+            const queryKey = getWorkoutProgramQueryKey(workoutProgramUuid);
             const current = queryClient.getQueryData(queryKey);
 
             const workoutProgramRoutine = UuidHelper.findIn(
@@ -277,7 +318,7 @@ export function useUpdateWorkoutProgram(routineUuid = null) {
         },
 
         removeExerciseFromWorkout(workoutProgramUuid, exerciseUuid) {
-            const queryKey = [WORKOUT_PROGRAM_KEY, workoutProgramUuid];
+            const queryKey = getWorkoutProgramQueryKey(workoutProgramUuid);
             const current = queryClient.getQueryData(queryKey);
 
             const updatedRoutines = current.workoutProgramRoutines.map(
@@ -300,7 +341,7 @@ export function useUpdateWorkoutProgram(routineUuid = null) {
         },
 
         addWorkoutToProgram(workoutProgramUuid) {
-            const queryKey = [WORKOUT_PROGRAM_KEY, workoutProgramUuid];
+            const queryKey = getWorkoutProgramQueryKey(workoutProgramUuid);
             const current = queryClient.getQueryData(queryKey);
 
             const newWorkout = {
@@ -323,7 +364,7 @@ export function useUpdateWorkoutProgram(routineUuid = null) {
         },
 
         deleteWorkout(workoutProgramUuid, workoutUuid) {
-            const queryKey = [WORKOUT_PROGRAM_KEY, workoutProgramUuid];
+            const queryKey = getWorkoutProgramQueryKey(workoutProgramUuid);
             const current = queryClient.getQueryData(queryKey);
 
             // Remove the workout and update positions

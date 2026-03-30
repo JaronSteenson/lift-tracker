@@ -1,6 +1,6 @@
 <template>
     <div>
-        <ProgramBuilderLoadingSkeleton v-if="isPending" />
+        <ProgramBuilderLoadingSkeleton v-if="isLoading" />
         <div v-else>
             <NotFoundPage v-if="notFound"
                 >Sorry we couldn't find that program.</NotFoundPage
@@ -16,7 +16,7 @@
                     <template v-slot:right>
                         <ServerSyncInfo
                             :status="serverSyncStatus"
-                            :updatedAt="workoutProgram?.updatedAt"
+                            :updatedAt="workoutProgramQuery?.updatedAt"
                         />
                         <VMenu bottom left>
                             <template v-slot:activator="{ props }">
@@ -56,7 +56,7 @@
                         ghostClass="workout-ghost"
                         handle=".js-workout-drag-handle"
                         itemKey="uuid"
-                        v-model="workoutProgram.workoutProgramRoutines"
+                        v-model="workoutProgramQuery.workoutProgramRoutines"
                         @start="onWorkoutDragStart"
                         @end="onWorkoutDragEnd"
                     >
@@ -100,7 +100,11 @@ import {
 } from './composibles/programBuilderQueries';
 import { useProgramBuilderStore } from '../../../stores/programBuilder';
 
-const { workoutProgram, isPending, fetchError } = useWorkoutProgram();
+const {
+    workoutProgram: workoutProgramQuery,
+    isLoading,
+    error: fetchError,
+} = useWorkoutProgram();
 const { updateWorkoutProgram, addWorkoutToProgram: addWorkout } =
     useUpdateWorkoutProgram();
 
@@ -111,7 +115,7 @@ const router = useRouter();
 const isAddingWorkout = ref(false);
 
 const notFound = computed(() => {
-    return !isPending.value && fetchError?.value;
+    return !isLoading.value && fetchError?.value;
 });
 
 const serverSyncStatus = computed(() => {
@@ -129,7 +133,7 @@ const saveName = () => {
 };
 
 watch(
-    () => workoutProgram.value,
+    () => workoutProgramQuery.value,
     (newVal) => {
         if (newVal) {
             name.value = newVal.name ?? '';
@@ -138,14 +142,17 @@ watch(
     { immediate: true },
 );
 
-watch(uuid, (newUuid) => {
-    if (!route.params.workoutProgramUuid && newUuid) {
-        router.replace({
-            name: 'ProgramBuilderPage',
-            params: { workoutProgramUuid: newUuid },
-        });
-    }
-});
+watch(
+    () => workoutProgramQuery.value?.uuid,
+    (newUuid) => {
+        if (!route.params.workoutProgramUuid && newUuid) {
+            router.replace({
+                name: 'ProgramBuilderPage',
+                params: { workoutProgramUuid: newUuid },
+            });
+        }
+    },
+);
 
 const addWorkoutToProgram = () => {
     if (isAddingWorkout.value) {
@@ -153,7 +160,7 @@ const addWorkoutToProgram = () => {
     }
 
     isAddingWorkout.value = true;
-    addWorkout(workoutProgram.value.uuid);
+    addWorkout(workoutProgramQuery.value.uuid);
 
     nextTick(() => {
         isAddingWorkout.value = false;
