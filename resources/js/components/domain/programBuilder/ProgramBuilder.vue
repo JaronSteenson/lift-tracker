@@ -56,7 +56,8 @@
                         ghostClass="workout-ghost"
                         handle=".js-workout-drag-handle"
                         itemKey="uuid"
-                        v-model="workoutProgramQuery.workoutProgramRoutines"
+                        :modelValue="workouts"
+                        @change="onWorkoutChange"
                         @start="onWorkoutDragStart"
                         @end="onWorkoutDragEnd"
                     >
@@ -105,8 +106,11 @@ const {
     isLoading,
     error: fetchError,
 } = useWorkoutProgram();
-const { updateWorkoutProgram, addWorkoutToProgram: addWorkout } =
-    useUpdateWorkoutProgram();
+const {
+    updateWorkoutProgram,
+    addWorkoutToProgram: addWorkout,
+    reorderWorkouts,
+} = useUpdateWorkoutProgram();
 
 const programBuilderStore = useProgramBuilderStore();
 const route = useRoute();
@@ -127,6 +131,9 @@ const uuid = computed(() => {
 });
 
 const name = ref('');
+const workouts = computed(() => {
+    return workoutProgramQuery.value?.workoutProgramRoutines || [];
+});
 
 const saveName = () => {
     updateWorkoutProgram(uuid.value, { name: name.value });
@@ -184,6 +191,10 @@ const onWorkoutDragStart = () => {
 
 const onWorkoutDragEnd = () => {
     programBuilderStore.setDraggingWorkout(false);
+};
+
+const onWorkoutChange = (evt) => {
+    reorderWorkouts(workoutProgramQuery.value.uuid, evt);
 };
 </script>
 

@@ -2,11 +2,14 @@
     <component
         :elevation="isSessionOverview ? 0 : 5"
         :is="isSessionOverview ? 'div' : 'VCard'"
-        class="js-workout-drag-handle workout-card pa-4"
+        class="workout-card pa-4"
         max-width="960"
         width="100%"
     >
-        <div class="px-4 py-2 d-flex justify-space-between align-center">
+        <div
+            class="px-4 py-2 d-flex justify-space-between align-center"
+            :class="{ 'js-workout-drag-handle': !isSessionOverview }"
+        >
             <VTextField
                 v-model="name"
                 label="Workout name"
@@ -148,8 +151,8 @@ const uuid = computed(() => {
 const { workoutProgram: workoutProgramFromQuery } = useWorkoutProgram();
 const {
     updateRoutine,
-    updateWorkoutProgram,
     addExerciseToWorkout,
+    moveExercise,
     deleteWorkout: deleteWorkoutMutation,
 } = useUpdateWorkoutProgram(props.routineUuid);
 
@@ -193,13 +196,11 @@ const hasNoExercises = computed(() => {
 });
 
 watch(
-    () => props.workoutUuid,
-    () => {
-        if (!props.workoutUuid) {
-            return;
-        }
-        name.value = workout.value?.name;
+    () => workout.value?.name,
+    (newName) => {
+        name.value = newName ?? '';
     },
+    { immediate: true },
 );
 
 const saveName = () => {
@@ -226,53 +227,7 @@ const onDragEnd = () => {
 };
 
 const onExercisesChange = (evt) => {
-    // Only fire the update when an item is added to this list or moved within it.
-    // When an item is removed (dragged to another list), the target list's 'added'
-    // event will handle the full update, preventing duplicate requests.
-    if (evt.removed) {
-        return;
-    }
-
-    const movedExercise = evt.added?.element || evt.moved?.element;
-    const newIndex = evt.added?.newIndex ?? evt.moved?.newIndex;
-
-    // Build the new routines state
-    const workoutProgramRoutines =
-        workoutProgram.value.workoutProgramRoutines.map((routine) => {
-            let newExercises;
-
-            if (routine.uuid === props.workoutUuid) {
-                // This is the target/current routine
-                if (evt.added) {
-                    // Insert the exercise at the new position
-                    newExercises = [...routine.routineExercises];
-                    newExercises.splice(newIndex, 0, movedExercise);
-                } else {
-                    // Moved within same list - reorder
-                    newExercises = [...routine.routineExercises];
-                    const oldIndex = evt.moved.oldIndex;
-                    newExercises.splice(oldIndex, 1);
-                    newExercises.splice(newIndex, 0, movedExercise);
-                }
-            } else {
-                // Remove the exercise from other routines (in case it was dragged from there)
-                newExercises = routine.routineExercises.filter(
-                    (exercise) => exercise.uuid !== movedExercise.uuid,
-                );
-            }
-
-            return {
-                ...routine,
-                routineExercises: newExercises.map((exercise, index) => ({
-                    ...exercise,
-                    position: index,
-                })),
-            };
-        });
-
-    updateWorkoutProgram(workoutProgram.value.uuid, {
-        workoutProgramRoutines,
-    });
+    moveExercise(workoutProgram.value.uuid, props.workoutUuid, evt);
 };
 
 const startWorkout = async () => {

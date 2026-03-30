@@ -31,6 +31,26 @@ function getWorkoutProgramQueryKey(workoutProgramUuid) {
     return [WORKOUT_PROGRAM_KEY, workoutProgramUuid || NEW_WORKOUT_PROGRAM_KEY];
 }
 
+function getCurrentWorkoutProgram(queryClient, workoutProgramUuid) {
+    return queryClient.getQueryData(
+        getWorkoutProgramQueryKey(workoutProgramUuid),
+    );
+}
+
+function withExercisePositions(exercises) {
+    return exercises.map((exercise, index) => ({
+        ...exercise,
+        position: index,
+    }));
+}
+
+function withRoutinePositions(routines) {
+    return routines.map((routine, index) => ({
+        ...routine,
+        position: index,
+    }));
+}
+
 export function useWorkoutProgramList() {
     const { data, isPending } = useQuery({
         queryKey: [WORKOUT_PROGRAM_LIST_KEY],
@@ -338,6 +358,90 @@ export function useUpdateWorkoutProgram(routineUuid = null) {
             };
 
             mutate(updatedWorkoutProgram);
+        },
+
+        moveExercise(workoutProgramUuid, workoutUuid, dragChangeEvent) {
+            const current = getCurrentWorkoutProgram(
+                queryClient,
+                workoutProgramUuid,
+            );
+
+            if (!current || dragChangeEvent?.removed) {
+                return;
+            }
+
+            const movedExercise =
+                dragChangeEvent.added?.element ||
+                dragChangeEvent.moved?.element;
+            const newIndex =
+                dragChangeEvent.added?.newIndex ??
+                dragChangeEvent.moved?.newIndex;
+
+            if (!movedExercise || newIndex === undefined) {
+                return;
+            }
+
+            const updatedWorkoutProgram = {
+                ...current,
+                workoutProgramRoutines: current.workoutProgramRoutines.map(
+                    (routine) => {
+                        let newExercises = [...routine.routineExercises];
+
+                        if (routine.uuid === workoutUuid) {
+                            if (dragChangeEvent.added) {
+                                newExercises.splice(newIndex, 0, movedExercise);
+                            } else if (dragChangeEvent.moved) {
+                                newExercises.splice(
+                                    dragChangeEvent.moved.oldIndex,
+                                    1,
+                                );
+                                newExercises.splice(newIndex, 0, movedExercise);
+                            }
+                        } else {
+                            newExercises = newExercises.filter(
+                                (exercise) =>
+                                    exercise.uuid !== movedExercise.uuid,
+                            );
+                        }
+
+                        return {
+                            ...routine,
+                            routineExercises:
+                                withExercisePositions(newExercises),
+                        };
+                    },
+                ),
+            };
+
+            mutate(updatedWorkoutProgram);
+        },
+
+        reorderWorkouts(workoutProgramUuid, dragChangeEvent) {
+            const current = getCurrentWorkoutProgram(
+                queryClient,
+                workoutProgramUuid,
+            );
+
+            if (!current || !dragChangeEvent?.moved) {
+                return;
+            }
+
+            const updatedRoutines = [...current.workoutProgramRoutines];
+            const [movedWorkout] = updatedRoutines.splice(
+                dragChangeEvent.moved.oldIndex,
+                1,
+            );
+
+            updatedRoutines.splice(
+                dragChangeEvent.moved.newIndex,
+                0,
+                movedWorkout,
+            );
+
+            mutate({
+                ...current,
+                workoutProgramRoutines: withRoutinePositions(updatedRoutines),
+            });
         },
 
         addWorkoutToProgram(workoutProgramUuid) {
