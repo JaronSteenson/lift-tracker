@@ -185,6 +185,11 @@ public partial class LiftTrackerDbContext(
                 .HasColumnName("warmUpStartedAt");
 
             entity
+                .HasOne(d => d.RoutineExercise)
+                .WithMany()
+                .HasForeignKey("RoutineExerciseId");
+
+            entity
                 .HasOne(d => d.WorkoutSession)
                 .WithMany(p => p.SessionExercises)
                 .HasForeignKey("WorkoutSessionId")

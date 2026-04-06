@@ -290,7 +290,8 @@ public class WorkoutSessionService(LiftTrackerDbContext db, DomainEntityService 
             userId
         );
 
-        if (sourceExercise.RoutineExercise == null)
+        var sourceRoutineExerciseId = sourceExercise.RoutineExercise?.Id;
+        if (sourceRoutineExerciseId == null)
         {
             return [];
         }
@@ -299,10 +300,7 @@ public class WorkoutSessionService(LiftTrackerDbContext db, DomainEntityService 
             .SessionExercises.Include(exercise => exercise.SessionSets)
             .Include(exercise => exercise.RoutineExercise)
             .Include(exercise => exercise.WorkoutSession)
-            .Where(exercise =>
-                exercise.RoutineExercise != null
-                && exercise.RoutineExercise.Id == sourceExercise.RoutineExercise.Id
-            )
+            .Where(exercise => EF.Property<int?>(exercise, "RoutineExerciseId") == sourceRoutineExerciseId)
             .Where(exercise => !exercise.Skipped)
             .Where(exercise => exercise.WorkoutSession.UserId == userId)
             .Where(exercise => exercise.CreatedAt <= sourceExercise.CreatedAt)
