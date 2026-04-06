@@ -52,7 +52,10 @@
 import ProgramName from '../domain/programBuilder/ProgramName';
 import AddNewButton from '../formFields/AddNewButton.vue';
 import { svgIcons } from '../../vuetify';
-import { useWorkoutProgramList } from './programBuilder/composibles/programBuilderQueries';
+import {
+    useDeleteWorkoutProgram,
+    useWorkoutProgramList,
+} from './programBuilder/composibles/programBuilderQueries';
 
 export default {
     name: 'WorkoutProgramList',
@@ -62,7 +65,8 @@ export default {
     },
     setup() {
         const { workoutPrograms, isPending } = useWorkoutProgramList();
-        return { workoutPrograms, isPending, svgIcons };
+        const { deleteProgram } = useDeleteWorkoutProgram();
+        return { deleteProgram, workoutPrograms, isPending, svgIcons };
     },
     data() {
         return {
@@ -105,9 +109,7 @@ export default {
 
             if (deleteConfirmed) {
                 try {
-                    await this.programBuilderStore.deleteProgram(programUuid);
-                    // Refresh the programs list after successful deletion
-                    await this.programBuilderStore.fetchMyWorkoutPrograms();
+                    await this.deleteProgram(programUuid);
                 } catch (error) {
                     console.error('Error deleting program:', error);
                     alert('Failed to delete program. Please try again.');

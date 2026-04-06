@@ -3,6 +3,8 @@ import { computed, toValue } from 'vue';
 import { useRoute } from 'vue-router';
 import UuidHelper from '../../../../UuidHelper/index';
 import WorkoutProgramService from '../../../../api/WorkoutProgramService';
+import { useAppStore } from '../../../../stores/app';
+import { useProgramBuilderStore } from '../../../../stores/programBuilder';
 
 const WORKOUT_PROGRAM_LIST_KEY = 'workoutProgramList';
 const WORKOUT_PROGRAM_KEY = 'workoutProgram';
@@ -49,6 +51,12 @@ function withRoutinePositions(routines) {
         ...routine,
         position: index,
     }));
+}
+
+function removeWorkoutProgram(workoutPrograms = [], workoutProgramUuid) {
+    return workoutPrograms.filter(
+        (program) => program.uuid !== workoutProgramUuid,
+    );
 }
 
 export function useWorkoutProgramList() {
@@ -174,6 +182,106 @@ export function useWorkoutProgramByRoutine(routineUuid) {
         isPending,
         getRoutine,
         getExercise,
+    };
+}
+
+export function useDeleteWorkoutProgram() {
+    const queryClient = useQueryClient();
+    const appStore = useAppStore();
+    const programBuilderStore = useProgramBuilderStore();
+
+    const { mutateAsync } = useMutation({
+        mutationFn: async (workoutProgramUuid) => {
+            if (!workoutProgramUuid) {
+                return workoutProgramUuid;
+            }
+
+            if (!appStore.localOnlyUser) {
+                await WorkoutProgramService.delete(workoutProgramUuid);
+            }
+
+            return workoutProgramUuid;
+        },
+
+        onMutate: async (workoutProgramUuid) => {
+            if (!workoutProgramUuid) {
+                return {};
+            }
+
+            const listQueryKey = [WORKOUT_PROGRAM_LIST_KEY];
+            const workoutProgramQueryKey =
+                getWorkoutProgramQueryKey(workoutProgramUuid);
+            const previousWorkoutPrograms =
+                queryClient.getQueryData(listQueryKey);
+            const previousWorkoutProgram = queryClient.getQueryData(
+                workoutProgramQueryKey,
+            );
+
+            await queryClient.cancelQueries({ queryKey: listQueryKey });
+            await queryClient.cancelQueries({
+                queryKey: workoutProgramQueryKey,
+            });
+
+            queryClient.setQueryData(
+                listQueryKey,
+                removeWorkoutProgram(
+                    previousWorkoutPrograms,
+                    workoutProgramUuid,
+                ),
+            );
+            queryClient.removeQueries({
+                queryKey: workoutProgramQueryKey,
+            });
+            queryClient.removeQueries({
+                queryKey: [WORKOUT_PROGRAM_BY_ROUTINE_KEY],
+            });
+
+            return {
+                listQueryKey,
+                workoutProgramQueryKey,
+                previousWorkoutPrograms,
+                previousWorkoutProgram,
+            };
+        },
+
+        onError: (error, workoutProgramUuid, context) => {
+            if (context?.previousWorkoutPrograms !== undefined) {
+                queryClient.setQueryData(
+                    context.listQueryKey,
+                    context.previousWorkoutPrograms,
+                );
+            }
+
+            if (context?.previousWorkoutProgram !== undefined) {
+                queryClient.setQueryData(
+                    context.workoutProgramQueryKey,
+                    context.previousWorkoutProgram,
+                );
+            }
+        },
+
+        onSuccess: (workoutProgramUuid) => {
+            if (!workoutProgramUuid) {
+                return;
+            }
+
+            programBuilderStore.myWorkoutPrograms = removeWorkoutProgram(
+                programBuilderStore.myWorkoutPrograms,
+                workoutProgramUuid,
+            );
+
+            if (
+                programBuilderStore.inFocusProgram.uuid === workoutProgramUuid
+            ) {
+                programBuilderStore.startNew();
+            } else {
+                programBuilderStore.saveToLocalStorage();
+            }
+        },
+    });
+
+    return {
+        deleteProgram: mutateAsync,
     };
 }
 

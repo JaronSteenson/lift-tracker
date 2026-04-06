@@ -96,6 +96,7 @@ import ProgramBuilderLoadingSkeleton from './ProgramBuilderLoadingSkeleton';
 import ServerSyncInfo from '../../ServerSyncInfo';
 import AppBar from '../../AppBar';
 import {
+    useDeleteWorkoutProgram,
     useWorkoutProgram,
     useUpdateWorkoutProgram,
 } from './composibles/programBuilderQueries';
@@ -111,6 +112,7 @@ const {
     addWorkoutToProgram: addWorkout,
     reorderWorkouts,
 } = useUpdateWorkoutProgram();
+const { deleteProgram } = useDeleteWorkoutProgram();
 
 const programBuilderStore = useProgramBuilderStore();
 const route = useRoute();
@@ -180,7 +182,7 @@ const showDeleteConfirmation = async () => {
     );
 
     if (deleteConfirmed) {
-        await programBuilderStore.deleteProgram();
+        await deleteProgram(workoutProgramQuery.value?.uuid);
         await router.push({ name: 'MyWorkoutProgramsPage' });
     }
 };
