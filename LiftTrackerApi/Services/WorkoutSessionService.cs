@@ -1,3 +1,4 @@
+using LiftTrackerApi.Dtos;
 using LiftTrackerApi.Entities;
 using LiftTrackerApi.Exceptions;
 using LiftTrackerApi.Extensions;
@@ -8,7 +9,7 @@ namespace LiftTrackerApi.Services;
 
 public class WorkoutSessionService(LiftTrackerDbContext db, DomainEntityService domainEntityService)
 {
-    public async Task<PaginatedList<WorkoutSession>> FindWorkoutSessionsForUserId(
+    public async Task<PaginatedListResponse<WorkoutSession>> FindWorkoutSessionsForUserId(
         int userId,
         int pageIndex,
         int pageSize
@@ -25,7 +26,7 @@ public class WorkoutSessionService(LiftTrackerDbContext db, DomainEntityService 
             .Where(session => session.UserId == userId)
             .OrderByDescending(session => session.CreatedAt);
 
-        var workoutSessions = await PaginatedList<WorkoutSession>.CreateAsync(
+        var workoutSessions = await PaginatedListResponse<WorkoutSession>.CreateAsync(
             query,
             pageIndex,
             pageSize
@@ -119,14 +120,15 @@ public class WorkoutSessionService(LiftTrackerDbContext db, DomainEntityService 
     /// Simple nested  create method for a new WorkoutProgram with children (WorkoutProgramRoutine, and RoutineExercises),.
     /// </summary>
     public async Task<WorkoutSession> CreateWithChildren(
-        WorkoutSession newWorkoutSession,
+        WorkoutSessionDto request,
         int userId
     )
     {
+        var newWorkoutSession = MapWorkoutSession(request);
         newWorkoutSession.UserId = userId;
         await VerifyOrAssignNewUuids(newWorkoutSession);
-        await AssociateSourceRoutine(newWorkoutSession);
-        await AssociateSourceExercises(newWorkoutSession);
+        await AssociateSourceRoutine(newWorkoutSession, request.WorkoutProgramRoutineUuid);
+        await AssociateSourceExercises(newWorkoutSession, request.SessionExercises);
 
         await db.AddAsync(newWorkoutSession);
         await db.SaveChangesAsync();
@@ -139,19 +141,18 @@ public class WorkoutSessionService(LiftTrackerDbContext db, DomainEntityService 
         return savedWorkoutSession;
     }
 
-    private async Task AssociateSourceRoutine(WorkoutSession editedWorkoutSession)
+    private async Task AssociateSourceRoutine(
+        WorkoutSession editedWorkoutSession,
+        Guid? workoutProgramRoutineUuid
+    )
     {
         // Associate the WorkoutProgramRoutine if present.
-        if (editedWorkoutSession.WorkoutProgramRoutine?.Uuid != null)
+        if (workoutProgramRoutineUuid != null)
         {
             var sourceRoutine =
-                await db
-                    .WorkoutProgramRoutines.WhereUuid(
-                        editedWorkoutSession.WorkoutProgramRoutine?.Uuid
-                    )
-                    .FirstOrDefaultAsync()
+                await db.WorkoutProgramRoutines.WhereUuid(workoutProgramRoutineUuid).FirstOrDefaultAsync()
                 ?? throw new NotFoundException(
-                    $"WorkoutProgramRoutine with UUID {editedWorkoutSession.WorkoutProgramRoutine?.Uuid} not found."
+                    $"WorkoutProgramRoutine with UUID {workoutProgramRoutineUuid} not found."
                 );
 
             // Touch it so it's sorted to the top of the routine list.
@@ -160,10 +161,17 @@ public class WorkoutSessionService(LiftTrackerDbContext db, DomainEntityService 
         }
     }
 
-    private async Task AssociateSourceExercises(WorkoutSession newWorkoutSession)
+    private async Task AssociateSourceExercises(
+        WorkoutSession newWorkoutSession,
+        IEnumerable<SessionExerciseDto> exerciseRequests
+    )
     {
-        var allSourceUuids = newWorkoutSession
-            .SessionExercises.Select(exercise => exercise.RoutineExercise?.Uuid)
+        var requestExerciseMap = exerciseRequests.ToDictionary(
+            exercise => exercise.Uuid ?? Guid.NewGuid()
+        );
+        var allSourceUuids = exerciseRequests
+            .Select(exercise => exercise.RoutineExerciseUuid)
+            .Where(uuid => uuid != null)
             .ToList();
 
         if (allSourceUuids.Count == 0)
@@ -179,8 +187,11 @@ public class WorkoutSessionService(LiftTrackerDbContext db, DomainEntityService 
 
         foreach (var sessionExercise in newWorkoutSession.SessionExercises)
         {
+            var requestExercise = requestExerciseMap.GetValueOrDefault(
+                sessionExercise.Uuid ?? Guid.Empty
+            );
             var sourceExercise = sourceRoutinesMap.GetValueOrDefault(
-                sessionExercise?.RoutineExercise?.Uuid ?? Guid.Empty
+                requestExercise?.RoutineExerciseUuid ?? Guid.Empty
             );
             if (sourceExercise == null)
             {
@@ -196,14 +207,21 @@ public class WorkoutSessionService(LiftTrackerDbContext db, DomainEntityService 
     /// Nested update method for an existing WorkoutProgram with children (WorkoutProgramRoutine, and RoutineExercises).
     /// If any children are not present in the updated WorkoutProgram, they will be removed.
     /// </summary>
-    public async Task<WorkoutSession> UpdateWithChildren(WorkoutSession updated, int userId)
+    public async Task<WorkoutSession> UpdateWithChildren(
+        WorkoutSessionDto request,
+        int userId
+    )
     {
-        if (!updated.Uuid.HasValue)
+        if (!request.Uuid.HasValue)
         {
             throw new ArgumentException("WorkoutSession UUID must be set for update operations.");
         }
 
-        var existing = await FindByUuidAndOwner(updated.Uuid.Value, userId);
+        var updated = MapWorkoutSession(request);
+        await AssociateSourceRoutine(updated, request.WorkoutProgramRoutineUuid);
+        await AssociateSourceExercises(updated, request.SessionExercises);
+
+        var existing = await FindByUuidAndOwner(request.Uuid.Value, userId);
         domainEntityService.ReattachRequestEntity(existing: existing, updated: updated);
 
         domainEntityService.TrackEntityDiffChanges(
@@ -219,26 +237,26 @@ public class WorkoutSessionService(LiftTrackerDbContext db, DomainEntityService 
 
         if (existing.WorkoutProgramRoutine == null)
         {
-            await AssociateSourceRoutine(updated);
-            await AssociateSourceExercises(updated);
-
             db.Update(updated);
             await db.SaveChangesAsync();
         }
 
-        var savedWorkoutSession = await FindByUuidAndOwner(updated.Uuid.Value, userId);
+        var savedWorkoutSession = await FindByUuidAndOwner(request.Uuid.Value, userId);
         SortChildren(savedWorkoutSession);
         return savedWorkoutSession;
     }
 
-    public async Task<SessionExercise> UpdateWithChildren(SessionExercise updated, int userId)
+    public async Task<SessionExercise> UpdateWithChildren(SessionExerciseDto request, int userId)
     {
-        if (!updated.Uuid.HasValue)
+        if (!request.Uuid.HasValue)
         {
             throw new ArgumentException("SessionExercise UUID must be set for update operations.");
         }
 
-        var existing = await FindSessionExerciseByUuidAndOwner(updated.Uuid.Value, userId);
+        var updated = MapSessionExercise(request);
+        await AssociateSourceExercise(updated, request.RoutineExerciseUuid);
+
+        var existing = await FindSessionExerciseByUuidAndOwner(request.Uuid.Value, userId);
 
         domainEntityService.ReattachRequestEntity(existing: existing, updated: updated);
         domainEntityService.TrackEntityDiffChanges(
@@ -249,26 +267,28 @@ public class WorkoutSessionService(LiftTrackerDbContext db, DomainEntityService 
         await db.SaveChangesAsync();
 
         var savedSessionExercise = await FindSessionExerciseByUuidAndOwner(
-            updated.Uuid.Value,
+            request.Uuid.Value,
             userId
         );
         SortChildren(savedSessionExercise);
         return savedSessionExercise;
     }
 
-    public async Task<SessionSet> UpdateSet(SessionSet updated, int userId)
+    public async Task<SessionSet> UpdateSet(SessionSetDto request, int userId)
     {
-        if (!updated.Uuid.HasValue)
+        if (!request.Uuid.HasValue)
         {
             throw new ArgumentException("SessionExercise UUID must be set for update operations.");
         }
 
-        var existing = await FindSessionSetByUuidAndOwner(updated.Uuid.Value, userId);
+        var existing = await FindSessionSetByUuidAndOwner(request.Uuid.Value, userId);
+        var updated = MapSessionSet(request);
+        updated.SessionExerciseId = existing.SessionExerciseId;
 
         domainEntityService.ReattachRequestEntity(existing: existing, updated: updated);
         await db.SaveChangesAsync();
 
-        var saved = await FindSessionSetByUuidAndOwner(updated.Uuid.Value, userId);
+        var saved = await FindSessionSetByUuidAndOwner(request.Uuid.Value, userId);
         return saved;
     }
 
@@ -369,5 +389,80 @@ public class WorkoutSessionService(LiftTrackerDbContext db, DomainEntityService 
     private void SortChildren(SessionExercise exercise)
     {
         exercise.SessionSets = exercise.SessionSets.OrderByPosition().ToList();
+    }
+
+    private async Task AssociateSourceExercise(SessionExercise sessionExercise, Guid? routineExerciseUuid)
+    {
+        if (routineExerciseUuid == null)
+        {
+            return;
+        }
+
+        var sourceExercise =
+            await db.RoutineExercises.WhereUuid(routineExerciseUuid).FirstOrDefaultAsync()
+            ?? throw new NotFoundException(
+                $"RoutineExercise with UUID {routineExerciseUuid} not found."
+            );
+
+        db.Entry(sourceExercise).State = EntityState.Modified;
+        sessionExercise.RoutineExercise = sourceExercise;
+    }
+
+    private static WorkoutSession MapWorkoutSession(WorkoutSessionDto request)
+    {
+        return new WorkoutSession
+        {
+            Uuid = request.Uuid,
+            CreatedAt = request.CreatedAt,
+            UpdatedAt = request.UpdatedAt,
+            Name = request.Name,
+            StartedAt = request.StartedAt,
+            EndedAt = request.EndedAt,
+            Notes = request.Notes,
+            BodyWeight = request.BodyWeight,
+            SessionExercises = request.SessionExercises.Select(MapSessionExercise).ToList(),
+        };
+    }
+
+    private static SessionExercise MapSessionExercise(SessionExerciseDto request)
+    {
+        return new SessionExercise
+        {
+            Uuid = request.Uuid,
+            CreatedAt = request.CreatedAt,
+            UpdatedAt = request.UpdatedAt,
+            Name = request.Name,
+            PlannedWeight = request.PlannedWeight,
+            PlannedRestPeriodDuration = request.PlannedRestPeriodDuration,
+            Notes = request.Notes,
+            Position = request.Position,
+            Skipped = request.Skipped,
+            PlannedWarmUp = request.PlannedWarmUp,
+            WarmUpStartedAt = request.WarmUpStartedAt,
+            WarmUpEndedAt = request.WarmUpEndedAt,
+            WarmUpDuration = request.WarmUpDuration,
+            SessionSets = request.SessionSets.Select(MapSessionSet).ToList(),
+        };
+    }
+
+    private static SessionSet MapSessionSet(SessionSetDto request)
+    {
+        return new SessionSet
+        {
+            Uuid = request.Uuid,
+            CreatedAt = request.CreatedAt,
+            UpdatedAt = request.UpdatedAt,
+            Reps = request.Reps,
+            Weight = request.Weight,
+            RestPeriodDuration = request.RestPeriodDuration,
+            RestPeriodStartedAt = request.RestPeriodStartedAt,
+            RestPeriodEndedAt = request.RestPeriodEndedAt,
+            Position = request.Position,
+            StartedAt = request.StartedAt,
+            EndedAt = request.EndedAt,
+            WarmUpStartedAt = request.WarmUpStartedAt,
+            WarmUpEndedAt = request.WarmUpEndedAt,
+            WarmUpDuration = request.WarmUpDuration,
+        };
     }
 }

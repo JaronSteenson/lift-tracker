@@ -22,7 +22,7 @@
 
                     <VList>
                         <VListItem
-                            :disabled="!exercise.routineExercise"
+                            :disabled="!exercise.routineExerciseUuid"
                             @click="editingSource = true"
                         >
                             <VListItemTitle>Edit source</VListItemTitle>
@@ -352,7 +352,7 @@
     </div>
     <EditExerciseModal
         v-model:value="editingSource"
-        :exerciseUuid="exercise.routineExercise.uuid"
+        :exerciseUuid="exercise.routineExerciseUuid"
     />
 </template>
 

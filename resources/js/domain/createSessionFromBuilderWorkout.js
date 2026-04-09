@@ -13,7 +13,10 @@ export function createCheckIn() {
         startedAt: null,
         endedAt: null,
         createdAt: null,
-        workoutProgramRoutine: null,
+        workoutProgramRoutineUuid: null,
+        workoutProgramRoutineName: null,
+        workoutProgramUuid: null,
+        workoutProgramName: null,
         sessionExercises: [],
     };
 }
@@ -29,7 +32,16 @@ export default function createSessionFromBuilderWorkout({
               ...existingCheckIn,
               startedAt,
               name: originWorkout.name,
-              workoutProgramRoutine: originWorkout,
+              workoutProgramRoutineUuid: originWorkout.uuid || null,
+              workoutProgramRoutineName: originWorkout.name || null,
+              workoutProgramUuid:
+                  originWorkout.workoutProgramUuid ||
+                  originWorkout.workoutProgram?.uuid ||
+                  null,
+              workoutProgramName:
+                  originWorkout.workoutProgramName ||
+                  originWorkout.workoutProgram?.name ||
+                  null,
           }
         : {
               uuid: UuidHelper.assign(),
@@ -39,7 +51,16 @@ export default function createSessionFromBuilderWorkout({
               startedAt,
               endedAt: null,
               createdAt: null, // Critical for knowing when we can fetch the previous exercises.
-              workoutProgramRoutine: originWorkout,
+              workoutProgramRoutineUuid: originWorkout.uuid || null,
+              workoutProgramRoutineName: originWorkout.name || null,
+              workoutProgramUuid:
+                  originWorkout.workoutProgramUuid ||
+                  originWorkout.workoutProgram?.uuid ||
+                  null,
+              workoutProgramName:
+                  originWorkout.workoutProgramName ||
+                  originWorkout.workoutProgram?.name ||
+                  null,
               sessionExercises: [], // Will be populated below
           };
 
@@ -103,9 +124,7 @@ function createSessionExerciseFromBuilderExercise(builderExercise) {
                 updatedAt: now,
             };
         }),
-        routineExercise: {
-            uuid: builderExercise.uuid,
-        },
+        routineExerciseUuid: builderExercise.uuid,
         createdAt: now,
         updatedAt: now,
     };

@@ -323,6 +323,11 @@ public partial class LiftTrackerDbContext(
             entity.Property(e => e.UpdatedAt).HasColumnType("timestamp").HasColumnName("updatedAt");
             entity.Property(e => e.UserId).HasColumnName("userId");
             entity.Property(e => e.Uuid).HasColumnName("uuid");
+
+            entity
+                .HasOne(d => d.WorkoutProgramRoutine)
+                .WithMany()
+                .HasForeignKey("WorkoutProgramRoutineId");
         });
 
         OnModelCreatingPartial(modelBuilder);

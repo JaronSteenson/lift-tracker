@@ -15,6 +15,67 @@ import {
 
 const LOCAL_STORAGE_KEY = 'store-state--WorkoutSession';
 
+function serializeSessionSetForSave(set) {
+    return {
+        uuid: set.uuid,
+        createdAt: set.createdAt,
+        updatedAt: set.updatedAt,
+        reps: set.reps,
+        weight: set.weight,
+        restPeriodDuration: set.restPeriodDuration,
+        restPeriodStartedAt: set.restPeriodStartedAt,
+        restPeriodEndedAt: set.restPeriodEndedAt,
+        position: set.position,
+        startedAt: set.startedAt,
+        endedAt: set.endedAt,
+        warmUpStartedAt: set.warmUpStartedAt,
+        warmUpEndedAt: set.warmUpEndedAt,
+        warmUpDuration: set.warmUpDuration,
+    };
+}
+
+function serializeSessionExerciseForSave(exercise) {
+    return {
+        uuid: exercise.uuid,
+        createdAt: exercise.createdAt,
+        updatedAt: exercise.updatedAt,
+        name: exercise.name,
+        plannedWeight: exercise.plannedWeight,
+        plannedRestPeriodDuration: exercise.plannedRestPeriodDuration,
+        notes: exercise.notes,
+        position: exercise.position,
+        skipped: exercise.skipped,
+        plannedWarmUp: exercise.plannedWarmUp,
+        warmUpStartedAt: exercise.warmUpStartedAt,
+        warmUpEndedAt: exercise.warmUpEndedAt,
+        warmUpDuration: exercise.warmUpDuration,
+        routineExerciseUuid:
+            exercise.routineExerciseUuid || exercise.routineExercise?.uuid,
+        sessionSets: (exercise.sessionSets || []).map(
+            serializeSessionSetForSave,
+        ),
+    };
+}
+
+export function serializeWorkoutSessionForSave(workoutSession) {
+    return {
+        uuid: workoutSession.uuid,
+        createdAt: workoutSession.createdAt,
+        updatedAt: workoutSession.updatedAt,
+        name: workoutSession.name,
+        startedAt: workoutSession.startedAt,
+        endedAt: workoutSession.endedAt,
+        notes: workoutSession.notes,
+        bodyWeight: workoutSession.bodyWeight,
+        workoutProgramRoutineUuid:
+            workoutSession.workoutProgramRoutineUuid ||
+            workoutSession.workoutProgramRoutine?.uuid,
+        sessionExercises: (workoutSession.sessionExercises || []).map(
+            serializeSessionExerciseForSave,
+        ),
+    };
+}
+
 function getSecondsRemaining({ expectedDuration, startTime }) {
     const minutesToAdd = Math.floor(expectedDuration / 60);
     const secondsToAdd = expectedDuration - minutesToAdd * 60;
@@ -61,7 +122,11 @@ export const useWorkoutSessionStore = defineStore('workoutSession', {
             allPagesLoaded: state.allPagesLoaded,
         }),
         workoutName: (state) => {
-            return state.workoutSession?.workoutProgramRoutine?.name || '';
+            return (
+                state.workoutSession?.workoutProgramRoutineName ||
+                state.workoutSession?.workoutProgramRoutine?.name ||
+                ''
+            );
         },
         uuid: (state) => {
             return state.workoutSession?.uuid || null;
@@ -83,7 +148,8 @@ export const useWorkoutSessionStore = defineStore('workoutSession', {
             // Find the most recent workout session for a given routine
             const sessionsForRoutine = state.myWorkoutSessions.filter(
                 (session) =>
-                    session.workoutProgramRoutine?.uuid === routineUuid &&
+                    (session.workoutProgramRoutineUuid ||
+                        session.workoutProgramRoutine?.uuid) === routineUuid &&
                     session.endedAt,
             );
             if (sessionsForRoutine.length === 0) {
@@ -581,7 +647,9 @@ export const useWorkoutSessionStore = defineStore('workoutSession', {
                     ...this.workoutSession,
                     ...checkInData,
                 };
-                const response = await WorkoutSessionService.save(savePayload);
+                const response = await WorkoutSessionService.save(
+                    serializeWorkoutSessionForSave(savePayload),
+                );
                 this.workoutSession = response.data;
             }
 
@@ -602,7 +670,7 @@ export const useWorkoutSessionStore = defineStore('workoutSession', {
                     this.workoutSession.createdAt || utcNow();
             } else {
                 const response = await WorkoutSessionService.save(
-                    this.workoutSession,
+                    serializeWorkoutSessionForSave(this.workoutSession),
                 );
                 this.workoutSession = response.data;
             }
@@ -700,8 +768,9 @@ export const useWorkoutSessionStore = defineStore('workoutSession', {
                     this.workoutSession.createdAt =
                         this.workoutSession.createdAt || utcNow();
                 } else {
-                    const response =
-                        await WorkoutSessionService.save(sessionData);
+                    const response = await WorkoutSessionService.save(
+                        serializeWorkoutSessionForSave(sessionData),
+                    );
                     this.workoutSession = response.data;
                 }
 

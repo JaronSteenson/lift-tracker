@@ -1,4 +1,4 @@
-using LiftTrackerApi.Entities;
+using LiftTrackerApi.Dtos;
 using LiftTrackerApi.Services;
 using Microsoft.AspNetCore.Mvc;
 
@@ -9,7 +9,7 @@ namespace LiftTrackerApi.Controllers;
 public class SessionSetController(WorkoutSessionService workoutSessionService) : Controller
 {
     [HttpPut]
-    public async Task<IActionResult> Update([FromBody] SessionSet sessionSet)
+    public async Task<IActionResult> Update([FromBody] SessionSetDto sessionSet)
     {
         var userId = (int)(HttpContext.Items["UserId"] ?? -1);
 
@@ -19,6 +19,6 @@ public class SessionSetController(WorkoutSessionService workoutSessionService) :
         }
 
         var updated = await workoutSessionService.UpdateSet(sessionSet, userId);
-        return Json(updated);
+        return Json(WorkoutSessionDtoMapper.ToDto(updated));
     }
 }

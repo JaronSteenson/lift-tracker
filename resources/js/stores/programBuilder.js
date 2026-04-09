@@ -11,6 +11,66 @@ import {
 
 const LOCAL_STORAGE_KEY = 'store-state--ProgramBuilder';
 
+function isBlankRoutineExercise(exercise) {
+    return (
+        !exercise?.name?.trim?.() &&
+        exercise?.numberOfSets == null &&
+        exercise?.weight == null &&
+        exercise?.restPeriod == null &&
+        exercise?.warmUp == null
+    );
+}
+
+function serializeRoutineExercise(exercise) {
+    return {
+        uuid: exercise.uuid,
+        name: exercise.name,
+        numberOfSets: exercise.numberOfSets,
+        position: exercise.position,
+        weight: exercise.weight,
+        restPeriod: exercise.restPeriod,
+        warmUp: exercise.warmUp,
+    };
+}
+
+function serializeRoutine(routine) {
+    const routineExercises = (routine.routineExercises || []).filter(
+        (exercise) => !isBlankRoutineExercise(exercise),
+    );
+
+    if (routineExercises.length !== (routine.routineExercises || []).length) {
+        console.warn(
+            'Dropping blank routine exercises from workout program save payload',
+            {
+                routineUuid: routine.uuid,
+                droppedCount:
+                    (routine.routineExercises || []).length -
+                    routineExercises.length,
+            },
+        );
+    }
+
+    return {
+        uuid: routine.uuid,
+        name: routine.name,
+        normalDay: routine.normalDay,
+        position: routine.position,
+        routineExercises: routineExercises.map(serializeRoutineExercise),
+    };
+}
+
+export function serializeProgramForSave(program) {
+    return {
+        uuid: program.uuid,
+        name: program.name,
+        createdAt: program.createdAt,
+        updatedAt: program.updatedAt,
+        workoutProgramRoutines: (program.workoutProgramRoutines || []).map(
+            serializeRoutine,
+        ),
+    };
+}
+
 function defaultState() {
     return {
         draggingExercise: false,
@@ -117,7 +177,9 @@ export const useProgramBuilderStore = defineStore('programBuilder', {
         setInFocusProgramForSession(workoutSession) {
             const program = UuidHelper.findDeep(
                 this.myWorkoutPrograms,
-                workoutSession?.workoutProgramRoutine.workoutProgram.uuid,
+                workoutSession?.workoutProgramUuid ||
+                    workoutSession?.workoutProgramRoutine?.workoutProgramUuid ||
+                    workoutSession?.workoutProgramRoutine?.workoutProgram?.uuid,
             );
 
             this.setInFocusProgram(program);
@@ -145,7 +207,7 @@ export const useProgramBuilderStore = defineStore('programBuilder', {
 
                 if (!appStore.localOnlyUser) {
                     const response = await WorkoutProgramService.save(
-                        this.inFocusProgram,
+                        serializeProgramForSave(this.inFocusProgram),
                     );
 
                     this.inFocusProgram = {

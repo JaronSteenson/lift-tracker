@@ -19,40 +19,33 @@ public class SessionExerciseControllerTests(WorkoutDbFixture fixture)
     public async Task Put_SavesExistingExercisesWithChildren()
     {
         // Arrange
-        var newWorkoutSession = new WorkoutSession
+        var newWorkoutSession = new
         {
             Uuid = Guid.Parse("36465433-7e55-4282-9c61-761417fbcda8"),
             Name = "Deadlift day",
-            UserId = 1,
-            WorkoutProgramRoutine = new WorkoutProgramRoutine
+            WorkoutProgramRoutineUuid = Guid.Parse("073379e9-0bc1-4f69-9cd5-1b0e7074d1a3"),
+            SessionExercises = new[]
             {
-                Uuid = Guid.Parse("073379e9-0bc1-4f69-9cd5-1b0e7074d1a3"),
-            },
-            SessionExercises = new List<SessionExercise>
-            {
-                new()
+                new
                 {
                     Uuid = Guid.Parse("0925e348-49f1-4a5f-8f27-47f4cf6ca6c3"),
                     Name = "Deadlifts",
                     Position = 0,
-                    RoutineExercise = new RoutineExercise()
+                    RoutineExerciseUuid = Guid.Parse("21ba1db3-8045-473c-901d-18b19ba33fe5"),
+                    SessionSets = new[]
                     {
-                        Uuid = Guid.Parse("21ba1db3-8045-473c-901d-18b19ba33fe5"),
-                    },
-                    SessionSets = new List<SessionSet>
-                    {
-                        new()
+                        new
                         {
                             Uuid = Guid.Parse("1ad2a000-c179-4019-83ef-97274be42c5e"),
-                            Reps = null,
-                            Weight = 180,
+                            Reps = (decimal?)null,
+                            Weight = 180m,
                             Position = 0,
-                            RestPeriodDuration = null,
-                            RestPeriodStartedAt = null,
-                            RestPeriodEndedAt = null,
-                            WarmUpDuration = null,
-                            WarmUpStartedAt = null,
-                            WarmUpEndedAt = null,
+                            RestPeriodDuration = (int?)null,
+                            RestPeriodStartedAt = (DateTime?)null,
+                            RestPeriodEndedAt = (DateTime?)null,
+                            WarmUpDuration = (int?)null,
+                            WarmUpStartedAt = (DateTime?)null,
+                            WarmUpEndedAt = (DateTime?)null,
                         },
                     },
                 },

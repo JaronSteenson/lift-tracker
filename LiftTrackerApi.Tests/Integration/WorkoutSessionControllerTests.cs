@@ -2,10 +2,12 @@
 using System.Text;
 using FluentAssertions;
 using LiftTrackerApi.Controllers;
+using LiftTrackerApi.Dtos;
 using LiftTrackerApi.Entities;
-using LiftTrackerApi.Extensions;
 using LiftTrackerApi.Tests.Integration.Fixtures;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
 
 namespace LiftTrackerApi.Tests.Integration;
@@ -31,9 +33,10 @@ public class WorkoutSessionControllerTests(WorkoutDbFixture fixture)
         );
 
         var json = await response.Content.ReadAsStringAsync();
-        var sessions = JsonConvert.DeserializeObject<List<WorkoutSession>>(json);
+        var sessions = JsonConvert.DeserializeObject<List<WorkoutSessionDto>>(json);
 
-        var workoutSession = sessions!.WhereUuid("27ffe07e-ecfd-4599-b132-6ec9e35fee1d").First();
+        var workoutSession = sessions!
+            .First(session => session.Uuid == Guid.Parse("27ffe07e-ecfd-4599-b132-6ec9e35fee1d"));
 
         AssertTestSessionStructure(workoutSession);
     }
@@ -55,7 +58,7 @@ public class WorkoutSessionControllerTests(WorkoutDbFixture fixture)
         );
 
         var json = await response.Content.ReadAsStringAsync();
-        var workoutSession = JsonConvert.DeserializeObject<WorkoutSession>(json);
+        var workoutSession = JsonConvert.DeserializeObject<WorkoutSessionDto>(json);
 
         Assert.NotNull(workoutSession);
         AssertTestSessionStructure(workoutSession);
@@ -78,24 +81,21 @@ public class WorkoutSessionControllerTests(WorkoutDbFixture fixture)
         );
 
         var json = await response.Content.ReadAsStringAsync();
-        var workoutSession = JsonConvert.DeserializeObject<WorkoutSession>(json);
+        var workoutSession = JsonConvert.DeserializeObject<WorkoutSessionDto>(json);
 
         Assert.NotNull(workoutSession);
         AssertTestSessionStructure(workoutSession);
     }
 
-    private void AssertTestSessionStructure(WorkoutSession workoutSession)
+    private void AssertTestSessionStructure(WorkoutSessionDto workoutSession)
     {
         Assert.Equal(Guid.Parse("27ffe07e-ecfd-4599-b132-6ec9e35fee1d"), workoutSession.Uuid);
         Assert.Equal("Test Workout Session", workoutSession.Name);
-        Assert.Equal(1, workoutSession.UserId);
-
-        var originWorkoutRoutine = workoutSession.WorkoutProgramRoutine;
         Assert.Equal(
             Guid.Parse("cd218127-b60d-46a7-bbc1-a17332bea15f"),
-            originWorkoutRoutine!.Uuid
+            workoutSession.WorkoutProgramRoutineUuid
         );
-        Assert.Equal("Populated Routine", originWorkoutRoutine.Name);
+        Assert.Equal("Populated Routine", workoutSession.WorkoutProgramRoutineName);
 
         var exercises = workoutSession.SessionExercises;
         Assert.Equal(2, exercises.Count);
@@ -105,7 +105,7 @@ public class WorkoutSessionControllerTests(WorkoutDbFixture fixture)
         Assert.Equal("Push Ups", pushUpsFirst.Name);
         Assert.Equal(
             Guid.Parse("231f3f81-4680-4086-b228-168116ae330a"),
-            pushUpsFirst!.RoutineExercise!.Uuid
+            pushUpsFirst.RoutineExerciseUuid
         );
         Assert.Equal(0, pushUpsFirst.Position);
 
@@ -139,7 +139,7 @@ public class WorkoutSessionControllerTests(WorkoutDbFixture fixture)
         var squatsLast = exercises.Last();
         Assert.Equal(Guid.Parse("46bcb5d3-db0b-4e0d-9445-fd76aa3143a4"), squatsLast.Uuid);
         Assert.Equal("Squats", squatsLast.Name);
-        Assert.Null(squatsLast.RoutineExercise);
+        Assert.Null(squatsLast.RoutineExerciseUuid);
         Assert.Equal(1, squatsLast.Position);
 
         var squatsSets = squatsLast.SessionSets;
@@ -149,16 +149,89 @@ public class WorkoutSessionControllerTests(WorkoutDbFixture fixture)
     /// <see cref="WorkoutProgramController.Create(WorkoutProgram)" />
     /// <see cref="WorkoutProgramController.Update(WorkoutProgram)" />
     [Fact]
+    public async Task Post_StartsWorkoutFromRoutineExerciseLinks_WithoutCreatingBlankRoutineExercises()
+    {
+        int routineExerciseCountBefore;
+        using (var beforeScope = fixture.Factory.Services.CreateScope())
+        {
+            var beforeDb = beforeScope.ServiceProvider.GetRequiredService<LiftTrackerDbContext>();
+            routineExerciseCountBefore = await beforeDb
+                .RoutineExercises.IgnoreQueryFilters()
+                .CountAsync();
+        }
+
+        var newWorkoutSession = new
+        {
+            Uuid = Guid.Parse("924f6e65-1f15-43b6-aaf0-e85c9ba5f413"),
+            Name = "Push day",
+            WorkoutProgramRoutineUuid = Guid.Parse("cd218127-b60d-46a7-bbc1-a17332bea15f"),
+            SessionExercises = new[]
+            {
+                new
+                {
+                    Uuid = Guid.Parse("f650b2c0-df53-4fe0-9caf-98789824b5c5"),
+                    Name = "Push Ups",
+                    Position = 0,
+                    RoutineExerciseUuid = Guid.Parse("231f3f81-4680-4086-b228-168116ae330a"),
+                    SessionSets = new[]
+                    {
+                        new
+                        {
+                            Uuid = Guid.Parse("88d4eb24-33fe-452c-9700-96c3ecad82a9"),
+                            Reps = 12m,
+                            Weight = 50m,
+                            Position = 0,
+                        },
+                    },
+                },
+            },
+        };
+
+        var requestJson = JsonConvert.SerializeObject(newWorkoutSession);
+        var content = new StringContent(requestJson, Encoding.UTF8, "application/json");
+
+        var response = await _client.PostAsync("/api/workout-sessions", content);
+
+        response.EnsureSuccessStatusCode();
+        var json = await response.Content.ReadAsStringAsync();
+        var createdSession = JsonConvert.DeserializeObject<WorkoutSessionDto>(json);
+
+        Assert.NotNull(createdSession);
+        Assert.Equal(
+            Guid.Parse("cd218127-b60d-46a7-bbc1-a17332bea15f"),
+            createdSession!.WorkoutProgramRoutineUuid
+        );
+
+        var createdExercise = Assert.Single(createdSession.SessionExercises);
+        Assert.Equal(
+            Guid.Parse("231f3f81-4680-4086-b228-168116ae330a"),
+            createdExercise.RoutineExerciseUuid
+        );
+
+        using var afterScope = fixture.Factory.Services.CreateScope();
+        var afterDb = afterScope.ServiceProvider.GetRequiredService<LiftTrackerDbContext>();
+        var routineExerciseCountAfter = await afterDb.RoutineExercises.IgnoreQueryFilters().CountAsync();
+        routineExerciseCountAfter.Should().Be(routineExerciseCountBefore);
+
+        var blankRoutineExercises = await afterDb
+            .RoutineExercises.IgnoreQueryFilters()
+            .Where(exercise => string.IsNullOrWhiteSpace(exercise.Name))
+            .ToListAsync();
+        blankRoutineExercises.Should().BeEmpty();
+    }
+
+    /// <see cref="WorkoutProgramController.Create(WorkoutProgram)" />
+    /// <see cref="WorkoutProgramController.Update(WorkoutProgram)" />
+    [Fact]
     public async Task PostPutDelete_SavesAndDeletesNewSessionsWithChildren()
     {
         // Arrange
-        var newWorkoutSession = new WorkoutSession
+        var newWorkoutSession = new
         {
             Uuid = Guid.Parse("80412f8c-49dd-4f0e-b9b2-1021f9308106"),
             Name = "Check in",
-            UserId = 1,
-            WorkoutProgramRoutine = null,
-            SessionExercises = new List<SessionExercise>(),
+            WorkoutProgramRoutineUuid = (Guid?)null,
+            SessionExercises = Array.Empty<object>(),
         };
 
         var requestJson = JsonConvert.SerializeObject(newWorkoutSession);
@@ -169,7 +242,7 @@ public class WorkoutSessionControllerTests(WorkoutDbFixture fixture)
 
         // Assert
         var createdSession = await AssertSimpleCreateResponse(response);
-        Assert.Null(createdSession.WorkoutProgramRoutine);
+        Assert.Null(createdSession.WorkoutProgramRoutineUuid);
         Assert.Null(createdSession.BodyWeight);
         Assert.Null(createdSession.StartedAt);
 
@@ -178,41 +251,48 @@ public class WorkoutSessionControllerTests(WorkoutDbFixture fixture)
         createdSession.BodyWeight = 85;
         createdSession.Name = "Deadlift day";
         createdSession.StartedAt = DateTime.Parse("2025-04-12");
-        createdSession.WorkoutProgramRoutine = new WorkoutProgramRoutine
-        {
-            Uuid = Guid.Parse("073379e9-0bc1-4f69-9cd5-1b0e7074d1a3"),
-        };
-        createdSession.SessionExercises = new List<SessionExercise>
-        {
-            new()
+        var originalPostResponse = JsonConvert.SerializeObject(
+            new
             {
-                Uuid = Guid.Parse("f7dcf236-0b19-4974-a6d3-0ca97c61edd6"),
-                Name = "Deadlifts",
-                Position = 0,
-                RoutineExercise = new RoutineExercise()
+                createdSession.Uuid,
+                createdSession.CreatedAt,
+                createdSession.UpdatedAt,
+                Name = "Deadlift day",
+                createdSession.Notes,
+                BodyWeight = 85m,
+                StartedAt = DateTime.Parse("2025-04-12"),
+                createdSession.EndedAt,
+                WorkoutProgramRoutineUuid = Guid.Parse("073379e9-0bc1-4f69-9cd5-1b0e7074d1a3"),
+                SessionExercises = new[]
                 {
-                    Uuid = Guid.Parse("231f3f81-4680-4086-b228-168116ae330a"),
-                },
-                SessionSets = new List<SessionSet>
-                {
-                    new()
+                    new
                     {
-                        Uuid = Guid.Parse("72a9339e-c625-415d-8e6d-38ec431299b4"),
-                        Reps = null,
-                        Weight = 180,
+                        Uuid = Guid.Parse("f7dcf236-0b19-4974-a6d3-0ca97c61edd6"),
+                        Name = "Deadlifts",
                         Position = 0,
-                        RestPeriodDuration = null,
-                        RestPeriodStartedAt = null,
-                        RestPeriodEndedAt = null,
-                        WarmUpDuration = null,
-                        WarmUpStartedAt = null,
-                        WarmUpEndedAt = null,
+                        RoutineExerciseUuid = Guid.Parse(
+                            "231f3f81-4680-4086-b228-168116ae330a"
+                        ),
+                        SessionSets = new[]
+                        {
+                            new
+                            {
+                                Uuid = Guid.Parse("72a9339e-c625-415d-8e6d-38ec431299b4"),
+                                Reps = (decimal?)null,
+                                Weight = 180m,
+                                Position = 0,
+                                RestPeriodDuration = (int?)null,
+                                RestPeriodStartedAt = (DateTime?)null,
+                                RestPeriodEndedAt = (DateTime?)null,
+                                WarmUpDuration = (int?)null,
+                                WarmUpStartedAt = (DateTime?)null,
+                                WarmUpEndedAt = (DateTime?)null,
+                            },
+                        },
                     },
                 },
-            },
-        };
-
-        var originalPostResponse = JsonConvert.SerializeObject(createdSession);
+            }
+        );
         var putContent = new StringContent(originalPostResponse, Encoding.UTF8, "application/json");
         var responseFromEdit = await _client.PutAsync("/api/workout-sessions", putContent);
 
@@ -220,14 +300,16 @@ public class WorkoutSessionControllerTests(WorkoutDbFixture fixture)
         var editedSession = await AssertSimpleEditResponse(responseFromEdit);
         Assert.Equal(85, editedSession.BodyWeight);
         Assert.Equal(DateTime.Parse("2025-04-12"), editedSession.StartedAt);
-        Assert.Equal("Empty First Routine", editedSession.WorkoutProgramRoutine!.Name);
         Assert.Equal(
             Guid.Parse("073379e9-0bc1-4f69-9cd5-1b0e7074d1a3"),
-            createdSession.WorkoutProgramRoutine.Uuid
+            editedSession.WorkoutProgramRoutineUuid
         );
-        var sourceExercise = editedSession.SessionExercises.First().RoutineExercise;
-        Assert.Equal("Push Ups", sourceExercise?.Name);
-        Assert.Equal(Guid.Parse("231f3f81-4680-4086-b228-168116ae330a"), sourceExercise?.Uuid);
+        Assert.Equal("Empty First Routine", editedSession.WorkoutProgramRoutineName);
+        var sourceExercise = editedSession.SessionExercises.First();
+        Assert.Equal(
+            Guid.Parse("231f3f81-4680-4086-b228-168116ae330a"),
+            sourceExercise.RoutineExerciseUuid
+        );
 
         var responseFromDelete = await _client.DeleteAsync(
             "/api/workout-sessions/80412f8c-49dd-4f0e-b9b2-1021f9308106"
@@ -245,12 +327,12 @@ public class WorkoutSessionControllerTests(WorkoutDbFixture fixture)
     public async Task PostPutDelete_SavesAndDeletesWeightRecordingsWithoutChildren()
     {
         // Arrange
-        var newWorkoutSession = new WorkoutSession
+        var newWorkoutSession = new
         {
             Uuid = Guid.Parse("64014462-91c0-447f-a1dc-d6da88754ad1"),
             Name = "Weight recording",
             Notes = "Feeling heavy today",
-            UserId = 1,
+            SessionExercises = Array.Empty<object>(),
         };
 
         var requestJson = JsonConvert.SerializeObject(newWorkoutSession);
@@ -261,19 +343,30 @@ public class WorkoutSessionControllerTests(WorkoutDbFixture fixture)
 
         // Assert
         var json = await response.Content.ReadAsStringAsync();
-        var createdSession = JsonConvert.DeserializeObject<WorkoutSession>(json);
+        var createdSession = JsonConvert.DeserializeObject<WorkoutSessionDto>(json);
         Assert.NotNull(createdSession);
         Assert.Null(createdSession.BodyWeight);
         Assert.Null(createdSession.StartedAt);
         Assert.Equal("Weight recording", createdSession.Name);
         Assert.Equal("Feeling heavy today", createdSession.Notes);
-        Assert.Null(createdSession.WorkoutProgramRoutine);
+        Assert.Null(createdSession.WorkoutProgramRoutineUuid);
 
         // Act
-        // Make a couple of top-level edits to the session, like in the actual app.
-        createdSession.BodyWeight = 85;
-
-        var originalPostResponse = JsonConvert.SerializeObject(createdSession);
+        var originalPostResponse = JsonConvert.SerializeObject(
+            new
+            {
+                createdSession!.Uuid,
+                createdSession.CreatedAt,
+                createdSession.UpdatedAt,
+                createdSession.Name,
+                createdSession.Notes,
+                BodyWeight = 85m,
+                createdSession.StartedAt,
+                createdSession.EndedAt,
+                createdSession.WorkoutProgramRoutineUuid,
+                SessionExercises = Array.Empty<object>(),
+            }
+        );
         var putContent = new StringContent(originalPostResponse, Encoding.UTF8, "application/json");
         var responseFromEdit = await _client.PutAsync("/api/workout-sessions", putContent);
 
@@ -284,7 +377,7 @@ public class WorkoutSessionControllerTests(WorkoutDbFixture fixture)
             response.Content.Headers.ContentType!.ToString()
         );
         var jsonEdited = await responseFromEdit.Content.ReadAsStringAsync();
-        var editedSession = JsonConvert.DeserializeObject<WorkoutSession>(jsonEdited);
+        var editedSession = JsonConvert.DeserializeObject<WorkoutSessionDto>(jsonEdited);
         Assert.NotNull(editedSession);
         Assert.Equal(85, editedSession.BodyWeight);
 
@@ -298,7 +391,7 @@ public class WorkoutSessionControllerTests(WorkoutDbFixture fixture)
         );
     }
 
-    private static async Task<WorkoutSession> AssertSimpleCreateResponse(
+    private static async Task<WorkoutSessionDto> AssertSimpleCreateResponse(
         HttpResponseMessage response
     )
     {
@@ -308,7 +401,7 @@ public class WorkoutSessionControllerTests(WorkoutDbFixture fixture)
             "application/json; charset=utf-8",
             response.Content.Headers.ContentType!.ToString()
         );
-        var workoutSession = JsonConvert.DeserializeObject<WorkoutSession>(json);
+        var workoutSession = JsonConvert.DeserializeObject<WorkoutSessionDto>(json);
 
         Assert.Equal("Check in", workoutSession!.Name);
         Assert.Empty(workoutSession.SessionExercises);
@@ -316,7 +409,9 @@ public class WorkoutSessionControllerTests(WorkoutDbFixture fixture)
         return workoutSession;
     }
 
-    private static async Task<WorkoutSession> AssertSimpleEditResponse(HttpResponseMessage response)
+    private static async Task<WorkoutSessionDto> AssertSimpleEditResponse(
+        HttpResponseMessage response
+    )
     {
         var json = await response.Content.ReadAsStringAsync();
         response.EnsureSuccessStatusCode();
@@ -324,7 +419,7 @@ public class WorkoutSessionControllerTests(WorkoutDbFixture fixture)
             "application/json; charset=utf-8",
             response.Content.Headers.ContentType!.ToString()
         );
-        var workoutSession = JsonConvert.DeserializeObject<WorkoutSession>(json);
+        var workoutSession = JsonConvert.DeserializeObject<WorkoutSessionDto>(json);
 
         Assert.Equal("Deadlift day", workoutSession!.Name);
         Assert.Single(workoutSession.SessionExercises);

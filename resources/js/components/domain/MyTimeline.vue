@@ -42,8 +42,12 @@
             <template v-slot:item.programName="{ item: session }">
                 <ProgramName
                     :workoutProgram="
-                        session.workoutProgramRoutine &&
-                        session.workoutProgramRoutine.workoutProgram
+                        session.workoutProgramUuid
+                            ? {
+                                  uuid: session.workoutProgramUuid,
+                                  name: session.workoutProgramName,
+                              }
+                            : null
                     "
                 />
             </template>
@@ -80,15 +84,12 @@
                             <VListItemTitle>View overview</VListItemTitle>
                         </VListItem>
                         <VListItem
-                            v-if="
-                                session.workoutProgramRoutine &&
-                                session.workoutProgramRoutine.uuid
-                            "
+                            v-if="session.workoutProgramRoutineUuid"
                             :to="{
                                 name: 'NewSessionOverviewPage',
                                 params: {
                                     originRoutineUuid:
-                                        session.workoutProgramRoutine.uuid,
+                                        session.workoutProgramRoutineUuid,
                                 },
                             }"
                         >

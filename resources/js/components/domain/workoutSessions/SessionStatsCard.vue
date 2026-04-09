@@ -38,14 +38,14 @@
                 </VIcon>
             </VBtn>
             <VBtn
-                v-if="workoutSession.workoutProgramRoutine"
+                v-if="workoutSession.workoutProgramRoutineUuid"
                 elevation="1"
                 size="small"
                 :to="{
                     name: 'NewSessionOverviewPage',
                     params: {
                         originRoutineUuid:
-                            workoutSession.workoutProgramRoutine.uuid,
+                            workoutSession.workoutProgramRoutineUuid,
                     },
                 }"
             >
@@ -68,18 +68,13 @@
                 </VIcon>
             </VBtn>
             <VBtn
-                v-if="
-                    workoutSession.workoutProgramRoutine &&
-                    workoutSession.workoutProgramRoutine.workoutProgram
-                "
+                v-if="workoutSession.workoutProgramUuid"
                 elevation="1"
                 size="small"
                 :to="{
                     name: 'ProgramBuilderPage',
                     params: {
-                        workoutProgramUuid:
-                            workoutSession.workoutProgramRoutine.workoutProgram
-                                .uuid,
+                        workoutProgramUuid: workoutSession.workoutProgramUuid,
                     },
                     query:
                         $route.name === 'MyWorkoutProgramsPage'

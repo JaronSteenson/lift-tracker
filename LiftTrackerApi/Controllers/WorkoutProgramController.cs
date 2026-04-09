@@ -6,7 +6,10 @@ namespace LiftTrackerApi.Controllers;
 
 [ApiController]
 [Route("/api/workout-programs")]
-public class WorkoutProgramController(WorkoutProgramService workoutProgramService) : Controller
+public class WorkoutProgramController(
+    WorkoutProgramService workoutProgramService,
+    ILogger<WorkoutProgramController> logger
+) : Controller
 {
     [HttpGet]
     public async Task<IActionResult> Index()
@@ -42,6 +45,7 @@ public class WorkoutProgramController(WorkoutProgramService workoutProgramServic
     public async Task<IActionResult> Create([FromBody] WorkoutProgram workoutProgram)
     {
         var userId = (int)(HttpContext.Items["UserId"] ?? -1);
+        ValidateRoutineExercises(workoutProgram, userId);
 
         if (!ModelState.IsValid)
         {
@@ -56,6 +60,7 @@ public class WorkoutProgramController(WorkoutProgramService workoutProgramServic
     public async Task<IActionResult> Update([FromBody] WorkoutProgram workoutProgram)
     {
         var userId = (int)(HttpContext.Items["UserId"] ?? -1);
+        ValidateRoutineExercises(workoutProgram, userId);
 
         if (!ModelState.IsValid)
         {
@@ -72,5 +77,49 @@ public class WorkoutProgramController(WorkoutProgramService workoutProgramServic
         var userId = (int)(HttpContext.Items["UserId"] ?? -1);
 
         await workoutProgramService.DeleteWorkoutProgram(uuid, userId);
+    }
+
+    private void ValidateRoutineExercises(WorkoutProgram workoutProgram, int userId)
+    {
+        for (var routineIndex = 0; routineIndex < workoutProgram.WorkoutProgramRoutines.Count; routineIndex++)
+        {
+            var routine = workoutProgram.WorkoutProgramRoutines.ElementAt(routineIndex);
+
+            for (
+                var exerciseIndex = 0;
+                exerciseIndex < routine.RoutineExercises.Count;
+                exerciseIndex++
+            )
+            {
+                var exercise = routine.RoutineExercises.ElementAt(exerciseIndex);
+                if (!IsBlankRoutineExercise(exercise))
+                {
+                    continue;
+                }
+
+                logger.LogWarning(
+                    "Rejected blank RoutineExercise payload for user {UserId}. Program {ProgramUuid}, routine {RoutineUuid}, exercise {ExerciseUuid}, position {Position}.",
+                    userId,
+                    workoutProgram.Uuid,
+                    routine.Uuid,
+                    exercise.Uuid,
+                    exercise.Position
+                );
+
+                ModelState.AddModelError(
+                    $"WorkoutProgramRoutines[{routineIndex}].RoutineExercises[{exerciseIndex}]",
+                    "Routine exercise payload is blank. Name or training fields must be provided."
+                );
+            }
+        }
+    }
+
+    private static bool IsBlankRoutineExercise(RoutineExercise exercise)
+    {
+        return string.IsNullOrWhiteSpace(exercise.Name)
+            && exercise.NumberOfSets == null
+            && exercise.Weight == null
+            && exercise.RestPeriod == null
+            && exercise.WarmUp == null;
     }
 }

@@ -1,4 +1,4 @@
-using LiftTrackerApi.Entities;
+using LiftTrackerApi.Dtos;
 using LiftTrackerApi.Services;
 using Microsoft.AspNetCore.Mvc;
 
@@ -21,7 +21,7 @@ public class WorkoutSessionController(WorkoutSessionService workoutSessionServic
             pageIndex,
             pageSize
         );
-        return Json(workoutSessions);
+        return Json(WorkoutSessionDtoMapper.ToDto(workoutSessions));
     }
 
     [HttpGet("{uuid:guid}")]
@@ -30,7 +30,7 @@ public class WorkoutSessionController(WorkoutSessionService workoutSessionServic
         var userId = (int)(HttpContext.Items["UserId"] ?? -1);
 
         var workoutSession = await workoutSessionService.FindByUuidAndOwner(uuid, userId);
-        return Json(workoutSession);
+        return Json(WorkoutSessionDtoMapper.ToDto(workoutSession));
     }
 
     [HttpGet("by-set/{sessionSetUuid:guid}")]
@@ -42,11 +42,11 @@ public class WorkoutSessionController(WorkoutSessionService workoutSessionServic
             sessionSetUuid,
             userId
         );
-        return Json(workoutSession);
+        return Json(WorkoutSessionDtoMapper.ToDto(workoutSession));
     }
 
     [HttpPost]
-    public async Task<IActionResult> Create([FromBody] WorkoutSession workoutSession)
+    public async Task<IActionResult> Create([FromBody] WorkoutSessionDto workoutSession)
     {
         var userId = (int)(HttpContext.Items["UserId"] ?? -1);
 
@@ -56,11 +56,11 @@ public class WorkoutSessionController(WorkoutSessionService workoutSessionServic
         }
 
         var created = await workoutSessionService.CreateWithChildren(workoutSession, userId);
-        return Json(created);
+        return Json(WorkoutSessionDtoMapper.ToDto(created));
     }
 
     [HttpPut]
-    public async Task<IActionResult> Update([FromBody] WorkoutSession workoutSession)
+    public async Task<IActionResult> Update([FromBody] WorkoutSessionDto workoutSession)
     {
         var userId = (int)(HttpContext.Items["UserId"] ?? -1);
 
@@ -70,7 +70,7 @@ public class WorkoutSessionController(WorkoutSessionService workoutSessionServic
         }
 
         var updated = await workoutSessionService.UpdateWithChildren(workoutSession, userId);
-        return Json(updated);
+        return Json(WorkoutSessionDtoMapper.ToDto(updated));
     }
 
     [HttpDelete("{uuid:guid}")]
