@@ -18,8 +18,7 @@ import { useRouter } from 'vue-router';
 import NotFound from '../routing/NotFound';
 import SessionOverviewLoadingSkeleton from '../domain/workoutSessions/SessionOverviewLoadingSkeleton';
 import SetOverview from '../domain/workoutSessions/SetOverview';
-import { useAppStore } from '../../stores/app';
-import { useProgramBuilderStore } from '../../stores/programBuilder';
+import { useAuth } from '../domain/auth/composables/useAuth';
 import { useWorkoutSessionBySet } from '../domain/workoutSessions/composibles/workoutSessionQueries';
 
 const props = defineProps({
@@ -35,27 +34,13 @@ const props = defineProps({
 });
 
 const router = useRouter();
-const appStore = useAppStore();
-const programBuilderStore = useProgramBuilderStore();
+const { userIsAuthenticated } = useAuth();
 
-const { workoutSession, isPending, error } = useWorkoutSessionBySet(
+const { isPending, error } = useWorkoutSessionBySet(
     toRef(props, 'sessionSetUuid'),
 );
 
-const userIsAuthenticated = computed(() => appStore.userIsAuthenticated);
-
 const notFound = computed(() => !isPending.value && error.value);
-
-// Set in focus program when workout session loads
-watch(
-    workoutSession,
-    (session) => {
-        if (session) {
-            programBuilderStore.setInFocusProgramForSession(session);
-        }
-    },
-    { immediate: true },
-);
 
 // Handle fromCheckIn redirect
 watch(

@@ -25,12 +25,16 @@ const props = defineProps({
     disabled: { type: Boolean, required: false },
     modelValue: { type: Number, default: 0 }, // total seconds
 });
-const emit = defineEmits(['update:modelValue']);
+const emit = defineEmits(['update:modelValue', 'blur']);
 
 const time = ref('00:00');
 const showMenu = ref(false);
 
-watch(showMenu, async () => {
+watch(showMenu, async (isOpen, wasOpen) => {
+    if (wasOpen && !isOpen) {
+        emit('blur');
+    }
+
     await nextTick();
 
     const twelvePicker = document.querySelector('.v-time-picker-clock__item');

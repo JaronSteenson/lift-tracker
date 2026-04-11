@@ -11,28 +11,32 @@ import NotFoundPage from '../components/pages/NotFoundPage.vue';
 import CheckInEditPage from '../components/pages/CheckInEditPage.vue';
 import SetOverviewPage from '../components/pages/SetOverviewPage.vue';
 import PrivacyPolicyPage from '../components/pages/PrivacyPolicyPage.vue';
-import { useAppStore } from '../stores/app';
+import { getAuthState } from '../components/domain/auth/composables/useAuth';
+import {
+    getAppShellState,
+    setNavigationDrawerOpen,
+    setPreviousRoute,
+} from '../composables/useAppShell';
 
 async function checkAuthGuards(to, from) {
-    const appStore = useAppStore();
-
     // Wait for app to be bootstrapped before checking auth
-    if (!appStore.isBootstrapped) {
+    if (!getAuthState().isBootstrapped) {
         // Wait for bootstrap to complete
         let attempts = 0;
-        while (!appStore.isBootstrapped && attempts < 50) {
+        while (!getAuthState().isBootstrapped && attempts < 50) {
             await new Promise((resolve) => setTimeout(resolve, 100));
             attempts++;
         }
 
         // If still not bootstrapped after 5 seconds, let it proceed
-        if (!appStore.isBootstrapped) {
+        if (!getAuthState().isBootstrapped) {
             return true;
         }
     }
 
-    const isAuthed = appStore.userIsAuthenticated;
-    await appStore.setPreviousRoute(from);
+    const authState = getAuthState();
+    const isAuthed = authState.user !== null && authState.isAuthenticated;
+    setPreviousRoute(from);
 
     if (to.meta.guard === GUARD_NONE) {
         return true;
@@ -62,9 +66,8 @@ function checkForceDrawerHide(to) {
         'ProgramBuilderPageNew',
     ].includes(to.name);
 
-    const appStore = useAppStore();
-    const isVisible = appStore.navigationDrawerOpen;
-    appStore.setNavigationDrawerOpen(isVisible && !goingToForceHideRoute);
+    const { navigationDrawerOpen } = getAppShellState();
+    setNavigationDrawerOpen(navigationDrawerOpen && !goingToForceHideRoute);
 
     return true;
 }

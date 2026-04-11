@@ -1,18 +1,15 @@
 import { createVuetify } from 'vuetify';
-import { createPinia, setActivePinia } from 'pinia';
 import svgIcons from '../vuetify/svgIcons';
-import { useAppStore } from '../stores/app';
-import { useProgramBuilderStore } from '../stores/programBuilder';
-import { useWorkoutSessionStore } from '../stores/workoutSession';
 import router from '../router/router';
 import { render } from '@testing-library/vue';
 import App from '../components/App.vue';
-import { pinia } from '../stores';
-import { PiniaColada } from '@pinia/colada';
 import fs from 'node:fs';
 import { prettyDOM } from '@testing-library/dom';
 import { http, HttpResponse } from 'msw';
 import { setupServer } from 'msw/node';
+import { QueryClient, VueQueryPlugin } from '@tanstack/vue-query';
+import { setSharedQueryClient } from '../queryClient';
+import { setAuthStateForTests } from '../components/domain/auth/composables/useAuth';
 
 export function prepareForLocalVueMount() {
     ensureVuetifyAppDivExists();
@@ -31,11 +28,12 @@ function ensureVuetifyAppDivExists() {
 
 function localMountOptions() {
     const vuetify = createVuetify();
-    const pinia = createPinia();
+    const queryClient = createTestQueryClient();
+    setSharedQueryClient(queryClient);
 
     return {
         global: {
-            plugins: [vuetify, pinia, PiniaColada],
+            plugins: [vuetify, [VueQueryPlugin, { queryClient }]],
             mocks: {
                 $svgIcons: svgIcons,
             },
@@ -69,6 +67,19 @@ function localMountOptions() {
     };
 }
 
+function createTestQueryClient() {
+    return new QueryClient({
+        defaultOptions: {
+            queries: {
+                retry: false,
+                staleTime: 0,
+                gcTime: 0,
+                refetchOnWindowFocus: false,
+            },
+        },
+    });
+}
+
 export async function renderApp() {
     const workoutProgram = {
         uuid: '1',
@@ -81,29 +92,90 @@ export async function renderApp() {
                     {
                         uuid: '1aa',
                         name: 'Test exercise',
+                        numberOfSets: 1,
+                        weight: 50,
+                        restPeriod: 60,
+                        warmUp: 60,
+                        position: 0,
                     },
                 ],
             },
         ],
     };
-    const workoutSession = {
+    let workoutSession = {
         uuid: '2',
         name: 'Test workout session',
         startedAt: '2020-12-04',
+        endedAt: '2020-12-04',
+        workoutProgramRoutineUuid: '1a',
+        workoutProgramRoutineName: 'Test routine',
+        workoutProgramUuid: '1',
+        workoutProgramName: 'Test workout program',
+        sessionExercises: [],
     };
 
     const handlers = [
         http.post('*', async ({ request }) => {
-            return HttpResponse.json(await request.json(), {
+            const payload = await request.json();
+            const url = new URL(request.url);
+
+            if (url.pathname.includes('/api/workout-sessions')) {
+                workoutSession = payload;
+            }
+
+            return HttpResponse.json(payload, {
                 status: 200,
             });
         }),
         http.put('*', async ({ request }) => {
-            return HttpResponse.json(await request.json(), {
+            const payload = await request.json();
+            const url = new URL(request.url);
+
+            if (url.pathname.includes('/api/workout-sessions')) {
+                workoutSession = payload;
+            }
+
+            return HttpResponse.json(payload, {
                 status: 200,
             });
         }),
-        http.get('*', () => {
+        http.get('*', ({ request }) => {
+            const url = new URL(request.url);
+
+            if (url.pathname.endsWith('/api/workout-programs')) {
+                return HttpResponse.json([workoutProgram], { status: 200 });
+            }
+
+            if (url.pathname.endsWith('/api/workout-sessions')) {
+                return HttpResponse.json([workoutSession], { status: 200 });
+            }
+
+            if (
+                url.pathname.endsWith(
+                    `/api/workout-sessions/${workoutSession.uuid}`,
+                )
+            ) {
+                return HttpResponse.json(workoutSession, { status: 200 });
+            }
+
+            if (
+                url.pathname.includes('/api/workout-sessions/by-set/') &&
+                workoutSession.sessionExercises
+                    ?.flatMap((exercise) => exercise.sessionSets || [])
+                    .some((set) => url.pathname.endsWith(`/${set.uuid}`))
+            ) {
+                return HttpResponse.json(workoutSession, { status: 200 });
+            }
+
+            if (
+                url.pathname.includes('/api/workout-programs/by-routine/') &&
+                workoutProgram.workoutProgramRoutines.some((routine) =>
+                    url.pathname.endsWith(`/${routine.uuid}`),
+                )
+            ) {
+                return HttpResponse.json(workoutProgram, { status: 200 });
+            }
+
             return HttpResponse.json([], { status: 200 });
         }),
     ];
@@ -115,26 +187,25 @@ export async function renderApp() {
     afterEach(() => server.resetHandlers());
     afterAll(() => server.close());
 
-    setActivePinia(pinia);
-    useAppStore().$patch({
+    const queryClient = createTestQueryClient();
+    setSharedQueryClient(queryClient);
+    setAuthStateForTests({
         isBootstrapped: true,
         isAuthenticated: true,
         user: {
             name: 'Jaron',
         },
     });
-    useProgramBuilderStore().$patch({
-        myWorkoutPrograms: [workoutProgram],
-    });
-    useWorkoutSessionStore().$patch({
-        myWorkoutSessions: [workoutSession],
-    });
-
     await router.push('/');
     // await router.isReady();
+
     return render(App, {
         global: {
-            plugins: [pinia, router, createVuetify()],
+            plugins: [
+                router,
+                createVuetify(),
+                [VueQueryPlugin, { queryClient }],
+            ],
             mocks: {
                 $svgIcons: svgIcons,
             },

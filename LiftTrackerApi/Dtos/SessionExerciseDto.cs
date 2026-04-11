@@ -1,12 +1,18 @@
-﻿using System.ComponentModel.DataAnnotations;
-using LiftTrackerApi.Entities.Interfaces;
-using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
+using System.ComponentModel.DataAnnotations;
 
-namespace LiftTrackerApi.Entities;
+// ReSharper disable CollectionNeverUpdated.Global
+// ReSharper disable AutoPropertyCanBeMadeGetOnly.Global
+// ReSharper disable UnusedAutoPropertyAccessor.Global
+// ReSharper disable PropertyCanBeMadeInitOnly.Global
+namespace LiftTrackerApi.Dtos;
 
-public partial class SessionExercise : DomainEntity, IPositionable
+public class SessionExerciseDto
 {
-    [Required]
+    public Guid? Uuid { get; set; }
+    public Guid? WorkoutSessionUuid { get; set; }
+    public DateTime? CreatedAt { get; set; }
+    public DateTime? UpdatedAt { get; set; }
+
     [StringLength(
         1000,
         MinimumLength = 1,
@@ -15,30 +21,17 @@ public partial class SessionExercise : DomainEntity, IPositionable
     public string Name { get; set; } = null!;
 
     public decimal? PlannedWeight { get; set; }
-
     public int? PlannedRestPeriodDuration { get; set; }
 
     [StringLength(maximumLength: 1000, ErrorMessage = "Notes must not exceed 1000 characters")]
     public string? Notes { get; set; }
 
-    /// <inheritdoc/>
     public int Position { get; set; }
-
     public bool Skipped { get; set; }
-
     public int? PlannedWarmUp { get; set; }
-
     public DateTime? WarmUpStartedAt { get; set; }
-
     public DateTime? WarmUpEndedAt { get; set; }
-
     public int? WarmUpDuration { get; set; }
-
-    public virtual ICollection<SessionSet> SessionSets { get; set; } = new List<SessionSet>();
-
-    [ValidateNever]
-    public virtual WorkoutSession WorkoutSession { get; set; } = null!;
-
-    [ValidateNever]
-    public virtual RoutineExercise? RoutineExercise { get; set; }
+    public Guid? RoutineExerciseUuid { get; set; }
+    public List<SessionSetDto> SessionSets { get; set; } = [];
 }

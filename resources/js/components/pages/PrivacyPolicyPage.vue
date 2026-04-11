@@ -422,25 +422,20 @@
 </template>
 <script>
 import AppBar from '../AppBar';
-import { useAppStore } from '../../stores/app';
 import { useTheme } from 'vuetify';
+import { useAppShell } from '../../composables/useAppShell';
 
 export default {
     name: 'PrivacyPolicyPage',
     components: { AppBar },
     setup() {
-        const appStore = useAppStore();
+        const { previousRoute } = useAppShell();
         const theme = useTheme();
 
         return {
-            appStore,
+            previousRoute,
             isDark: theme.global.current.dark,
         };
-    },
-    computed: {
-        previousRoute() {
-            return this.appStore.previousRoute;
-        },
     },
 };
 </script>

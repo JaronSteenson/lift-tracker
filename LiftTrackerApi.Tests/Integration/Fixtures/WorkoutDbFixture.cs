@@ -9,15 +9,16 @@ using Microsoft.EntityFrameworkCore;
 public class WorkoutDbFixture : ICollectionFixture<WorkoutDbFixture>
 {
     public HttpClient Client { get; private set; }
+    public LiftTrackerWebApplicationFactory Factory { get; }
 
     public WorkoutDbFixture()
     {
         // Arrange
-        var factory = new LiftTrackerWebApplicationFactory();
-        Client = factory.CreateClient();
+        Factory = new LiftTrackerWebApplicationFactory();
+        Client = Factory.CreateClient();
         Client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Test");
 
-        var db = factory.Services.GetService<LiftTrackerDbContext>();
+        var db = Factory.Services.GetService<LiftTrackerDbContext>();
         db!.Database.ExecuteSqlRaw(
             """
                   SET FOREIGN_KEY_CHECKS = 0;

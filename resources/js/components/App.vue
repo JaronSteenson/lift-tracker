@@ -1,9 +1,6 @@
 <template>
     <div>
-        <VApp
-            :key="`app-${rerenderKey}`"
-            :class="{ 'prevent-text-select': preventTextSelect }"
-        >
+        <VApp :class="{ 'prevent-text-select': preventTextSelect }">
             <AppNavigationDrawer />
             <VMain class="pb-8">
                 <RouterView v-if="isBootstrapped" v-slot="{ Component }">
@@ -21,11 +18,10 @@
 
 <script>
 import AppNavigationDrawer from './AppNavigationDrawer';
-import { useAppStore } from '../stores/app';
-import { useProgramBuilderStore } from '../stores/programBuilder';
 import { useDisplay } from 'vuetify';
 import EditExerciseModal from './domain/programBuilder/EditExerciseModal.vue';
 import ResumeWorkoutFab from './ResumeWorkoutFab.vue';
+import { useAuth } from './domain/auth/composables/useAuth';
 
 export default {
     name: 'App',
@@ -41,43 +37,19 @@ export default {
         };
     },
     setup() {
-        const appStore = useAppStore();
-        const programBuilderStore = useProgramBuilderStore();
+        const { isBootstrapped } = useAuth();
         const display = useDisplay();
 
         return {
-            appStore,
-            programBuilderStore,
+            isBootstrapped,
             display,
         };
-    },
-    computed: {
-        isBootstrapped() {
-            return this.appStore.isBootstrapped;
-        },
-        userIsAuthenticated() {
-            return this.appStore.userIsAuthenticated;
-        },
-        showSessionExpiredModal() {
-            return this.appStore.shouldShowSessionExpiredModal;
-        },
-        myWorkoutPrograms() {
-            return this.programBuilderStore.myWorkoutPrograms;
-        },
-        rerenderKey() {
-            return this.appStore.forceRerenderKey;
-        },
     },
     mounted() {
         this.setSupportsTextSelect();
     },
     updated() {
         // Component updated
-    },
-    watch: {
-        rerenderKey() {
-            // Re-render key changed
-        },
     },
     methods: {
         setSupportsTextSelect() {

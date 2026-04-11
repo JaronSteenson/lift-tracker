@@ -12,22 +12,18 @@ public class WorkoutProgramService(LiftTrackerDbContext db, DomainEntityService 
         var query = db
             .WorkoutPrograms.Include(workoutProgram => workoutProgram.WorkoutProgramRoutines)
             .ThenInclude(routine => routine.RoutineExercises)
-            .Join(
-                db.WorkoutProgramRoutines,
-                workoutProgram => workoutProgram.Id,
-                routine => routine.WorkoutProgramId,
-                (workoutProgram, routine) => new { workoutProgram, routine }
-            )
-            .Where(joined => joined.workoutProgram.UserId == userId)
-            .Where(joined => joined.routine.Uuid == routineUuid);
+            .Where(workoutProgram => workoutProgram.UserId == userId)
+            .Where(workoutProgram =>
+                workoutProgram.WorkoutProgramRoutines.Any(routine => routine.Uuid == routineUuid)
+            );
 
-        var joined = await query.AsNoTracking().FirstOrDefaultAsync();
+        var workoutProgram = await query.AsNoTracking().FirstOrDefaultAsync();
 
-        if (joined == null)
+        if (workoutProgram == null)
             return null;
 
-        SortChildren(joined.workoutProgram);
-        return joined.workoutProgram;
+        SortChildren(workoutProgram);
+        return workoutProgram;
     }
 
     public async Task<List<WorkoutProgram>> FindWorkoutProgramsForUserId(int userId)

@@ -62,10 +62,10 @@
 import { ref, watch, computed } from 'vue';
 import { useDisplay } from 'vuetify';
 import TimerInput from '../../formFields/TimerInput.vue';
-import UuidHelper from '../../../UuidHelper/index';
 import {
     useUpdateWorkoutProgram,
     useWorkoutProgram,
+    useWorkoutProgramByRoutine,
 } from './composibles/programBuilderQueries';
 
 const props = defineProps({
@@ -88,9 +88,25 @@ const props = defineProps({
 });
 
 const emit = defineEmits(['update:value']);
-const { workoutProgram, getExercise } = useWorkoutProgram(
-    props.workoutProgramUuid,
+const directWorkoutProgramUuid = computed(() => props.workoutProgramUuid);
+const routineLookupUuid = computed(() =>
+    props.workoutProgramUuid ? null : props.routineUuid,
 );
+const directWorkoutProgramQuery = useWorkoutProgram(directWorkoutProgramUuid);
+const routineWorkoutProgramQuery =
+    useWorkoutProgramByRoutine(routineLookupUuid);
+const workoutProgram = computed(() =>
+    directWorkoutProgramUuid.value
+        ? directWorkoutProgramQuery.workoutProgram.value
+        : routineWorkoutProgramQuery.workoutProgram.value,
+);
+const getExercise = (uuid) => {
+    if (directWorkoutProgramUuid.value) {
+        return directWorkoutProgramQuery.getExercise(uuid);
+    }
+
+    return routineWorkoutProgramQuery.getExercise.value(uuid);
+};
 
 const { updateExercise } = useUpdateWorkoutProgram(props.routineUuid);
 
@@ -117,8 +133,8 @@ const warmUp = ref(60);
 
 // Watch for modal opening and load current exercise data
 watch(
-    () => props.value,
-    (isOpen) => {
+    [() => props.value, workoutProgram],
+    ([isOpen]) => {
         if (isOpen && props.routineExerciseUuid) {
             const exercise = getExercise(props.routineExerciseUuid);
             if (exercise) {
@@ -135,6 +151,10 @@ watch(
 
 const closeModal = () => {
     emit('update:value', false);
+    if (!workoutProgram.value?.uuid) {
+        return;
+    }
+
     updateExercise(workoutProgram.value.uuid, {
         uuid: props.routineExerciseUuid,
         name: name.value,

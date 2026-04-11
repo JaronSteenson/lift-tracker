@@ -1,7 +1,8 @@
 <template>
     <VNavigationDrawer
         v-if="userIsAuthenticated"
-        v-model="drawer"
+        :model-value="navigationDrawerOpen"
+        @update:model-value="setNavigationDrawerOpen"
         app
         :clipped="false"
     >
@@ -21,29 +22,19 @@
                         {{ svgIcons.workoutProgram }}
                     </VIcon>
                 </template>
-                <VListItemTitle>My workout programs</VListItemTitle>
+                <VListItemTitle>My programs</VListItemTitle>
             </VListItem>
         </VList>
     </VNavigationDrawer>
 </template>
 
 <script setup>
-import { computed } from 'vue';
-import { useAppStore } from '../stores/app';
+import { useAuth } from './domain/auth/composables/useAuth';
+import { useAppShell } from '../composables/useAppShell';
 import { svgIcons } from '../vuetify';
 
-const appStore = useAppStore();
-
-const drawer = computed({
-    get() {
-        return appStore.navigationDrawerOpen;
-    },
-    set(value) {
-        appStore.setNavigationDrawerOpen(value);
-    },
-});
-
-const userIsAuthenticated = computed(() => appStore.userIsAuthenticated);
+const { userIsAuthenticated } = useAuth();
+const { navigationDrawerOpen, setNavigationDrawerOpen } = useAppShell();
 </script>
 
 <style scoped></style>

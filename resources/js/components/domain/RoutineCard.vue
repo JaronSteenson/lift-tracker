@@ -66,16 +66,10 @@ const starting = ref(false);
 async function startNow() {
     starting.value = true;
 
-    // Get myWorkoutSessions from localStorage
-    const stored = localStorage.getItem('store-state--WorkoutSession');
-    const parsed = stored ? JSON.parse(stored) : {};
-    const myWorkoutSessions = parsed.myWorkoutSessions || [];
-
     // Create a new workout session from the updated master routine
     startWorkout(
         {
             originWorkout: props.routine,
-            myWorkoutSessions,
         },
         {
             onSuccess: (workoutSession) => {

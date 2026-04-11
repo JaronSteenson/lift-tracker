@@ -107,28 +107,22 @@
 import {
     getAvailableThemes,
     saveSelectedThemeKey,
-    applyTheme,
     getActiveTheme,
 } from '../../vuetify/themes';
 import { svgIcons } from '../../vuetify';
-import { useTheme } from 'vuetify';
-import { useAppStore } from '../../stores/app';
 
 export default {
     setup() {
-        const theme = useTheme();
-        const appStore = useAppStore();
-        return { svgIcons, vuetifyTheme: theme, appStore };
+        return { svgIcons };
     },
     data() {
         return {
-            localStorageKey: localStorage.getItem('themeKey') || 'dark',
+            selectedThemeKey: getActiveTheme()?.key || 'dark',
         };
     },
     computed: {
         availableThemes() {
-            // Make this reactive to localStorageKey changes
-            this.localStorageKey; // Access to make it reactive
+            this.selectedThemeKey;
             return getAvailableThemes();
         },
         selectedTheme: {
@@ -146,19 +140,8 @@ export default {
 
                 try {
                     saveSelectedThemeKey(selectedTheme.key);
-
-                    // Update local storage key to trigger reactivity
-                    this.localStorageKey = selectedTheme.key;
-
-                    // Use the composition API theme from setup
-                    if (this.vuetifyTheme) {
-                        applyTheme(this.vuetifyTheme, selectedTheme);
-                        this.appStore.forceRerender();
-                    } else {
-                        console.error(
-                            'Could not access Vuetify theme object from composition API',
-                        );
-                    }
+                    this.selectedThemeKey = selectedTheme.key;
+                    window.location.reload();
                 } catch (error) {
                     console.error('Error in theme setter:', error);
                 }
@@ -170,96 +153,10 @@ export default {
             return '#ffffff';
         },
         forceThemeSelection(theme) {
-            // Force the theme setter to be called even if it's the same theme
-            // This ensures the re-render always happens
-
-            // Always apply the theme and force re-render, even if it's the same theme
             try {
                 saveSelectedThemeKey(theme.key);
-                this.localStorageKey = theme.key;
-
-                if (this.vuetifyTheme) {
-                    applyTheme(this.vuetifyTheme, theme);
-
-                    // Use multiple nextTicks to ensure theme changes are fully applied
-                    this.$nextTick(() => {
-                        this.$nextTick(() => {
-                            this.appStore.forceRerender();
-
-                            // Force a complete style recalculation
-                            this.$nextTick(() => {
-                                document.documentElement.style.display = 'none';
-                                document.documentElement.offsetHeight; // Trigger reflow
-                                document.documentElement.style.display = '';
-
-                                // Debug: Check if CSS custom properties are set
-                                const style = getComputedStyle(
-                                    document.documentElement,
-                                );
-
-                                // Always manually update the anchor CSS custom property since Vuetify doesn't update custom colors
-                                const currentAnchorColor = style
-                                    .getPropertyValue('--v-theme-anchor')
-                                    .trim();
-
-                                // Convert hex color to RGB values for CSS custom property
-                                const hex = theme.definition.anchor.replace(
-                                    '#',
-                                    '',
-                                );
-                                const r = parseInt(hex.substr(0, 2), 16);
-                                const g = parseInt(hex.substr(2, 2), 16);
-                                const b = parseInt(hex.substr(4, 2), 16);
-                                const expectedRgb = `${r}, ${g}, ${b}`;
-
-                                if (currentAnchorColor !== expectedRgb) {
-                                    document.documentElement.style.setProperty(
-                                        '--v-theme-anchor',
-                                        expectedRgb,
-                                    );
-                                }
-
-                                // Also fix primary color since Vuetify isn't updating it either
-                                const currentPrimary = style
-                                    .getPropertyValue('--v-theme-primary')
-                                    .trim();
-                                const primaryHex =
-                                    theme.definition.primary.replace('#', '');
-                                const pr = parseInt(
-                                    primaryHex.substr(0, 2),
-                                    16,
-                                );
-                                const pg = parseInt(
-                                    primaryHex.substr(2, 2),
-                                    16,
-                                );
-                                const pb = parseInt(
-                                    primaryHex.substr(4, 2),
-                                    16,
-                                );
-                                const expectedPrimaryRgb = `${pr}, ${pg}, ${pb}`;
-
-                                if (currentPrimary !== expectedPrimaryRgb) {
-                                    document.documentElement.style.setProperty(
-                                        '--v-theme-primary',
-                                        expectedPrimaryRgb,
-                                    );
-                                }
-
-                                // Directly update anchor element colors since CSS custom property isn't taking effect immediately
-                                const anchors = document.querySelectorAll(
-                                    '.v-application a:not(.v-btn)',
-                                );
-
-                                // Set color directly on each anchor element
-                                anchors.forEach((anchor) => {
-                                    anchor.style.color =
-                                        theme.definition.anchor;
-                                });
-                            });
-                        });
-                    });
-                }
+                this.selectedThemeKey = theme.key;
+                window.location.reload();
             } catch (error) {
                 console.error('Error in forceThemeSelection:', error);
             }

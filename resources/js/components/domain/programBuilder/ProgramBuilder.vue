@@ -16,7 +16,7 @@
                     <template v-slot:right>
                         <ServerSyncInfo
                             :status="serverSyncStatus"
-                            :updatedAt="workoutProgramQuery?.updatedAt"
+                            :updated-at="serverSyncUpdatedAt"
                         />
                         <VMenu bottom left>
                             <template v-slot:activator="{ props }">
@@ -58,8 +58,6 @@
                         itemKey="uuid"
                         :modelValue="workouts"
                         @change="onWorkoutChange"
-                        @start="onWorkoutDragStart"
-                        @end="onWorkoutDragEnd"
                     >
                         <template #item="{ element: workout }">
                             <div class="workout-card-wrapper pa-2 ma-2">
@@ -94,13 +92,14 @@ import Draggable from 'vuedraggable';
 import AddNewButton from '../../formFields/AddNewButton';
 import ProgramBuilderLoadingSkeleton from './ProgramBuilderLoadingSkeleton';
 import ServerSyncInfo from '../../ServerSyncInfo';
+import { useServerSyncInfoState } from '../../composibles/useServerSyncInfoState';
 import AppBar from '../../AppBar';
 import {
     useDeleteWorkoutProgram,
+    useWorkoutProgramSaveState,
     useWorkoutProgram,
     useUpdateWorkoutProgram,
 } from './composibles/programBuilderQueries';
-import { useProgramBuilderStore } from '../../../stores/programBuilder';
 
 const {
     workoutProgram: workoutProgramQuery,
@@ -112,9 +111,13 @@ const {
     addWorkoutToProgram: addWorkout,
     reorderWorkouts,
 } = useUpdateWorkoutProgram();
+const {
+    isPending: isSavingWorkoutProgram,
+    isError: hasSaveError,
+    submittedAt: workoutProgramSaveSubmittedAt,
+} = useWorkoutProgramSaveState();
 const { deleteProgram } = useDeleteWorkoutProgram();
 
-const programBuilderStore = useProgramBuilderStore();
 const route = useRoute();
 const router = useRouter();
 
@@ -124,9 +127,12 @@ const notFound = computed(() => {
     return !isLoading.value && fetchError?.value;
 });
 
-const serverSyncStatus = computed(() => {
-    return programBuilderStore.serverSyncStatus;
-});
+const { status: serverSyncStatus, updatedAt: serverSyncUpdatedAt } =
+    useServerSyncInfoState(workoutProgramQuery, {
+        isPending: isSavingWorkoutProgram,
+        isError: hasSaveError,
+        submittedAt: workoutProgramSaveSubmittedAt,
+    });
 
 const uuid = computed(() => {
     return route.params.workoutProgramUuid;
@@ -185,14 +191,6 @@ const showDeleteConfirmation = async () => {
         await deleteProgram(workoutProgramQuery.value?.uuid);
         await router.push({ name: 'MyWorkoutProgramsPage' });
     }
-};
-
-const onWorkoutDragStart = () => {
-    programBuilderStore.setDraggingWorkout(true);
-};
-
-const onWorkoutDragEnd = () => {
-    programBuilderStore.setDraggingWorkout(false);
 };
 
 const onWorkoutChange = (evt) => {

@@ -1,4 +1,4 @@
-using LiftTrackerApi.Entities;
+using LiftTrackerApi.Dtos;
 using LiftTrackerApi.Services;
 using Microsoft.AspNetCore.Mvc;
 
@@ -9,7 +9,7 @@ namespace LiftTrackerApi.Controllers;
 public class SessionExerciseController(WorkoutSessionService workoutSessionService) : Controller
 {
     [HttpPut]
-    public async Task<IActionResult> Update([FromBody] SessionExercise sessionExercise)
+    public async Task<IActionResult> Update([FromBody] SessionExerciseDto sessionExercise)
     {
         var userId = (int)(HttpContext.Items["UserId"] ?? -1);
         if (!ModelState.IsValid)
@@ -18,7 +18,7 @@ public class SessionExerciseController(WorkoutSessionService workoutSessionServi
         }
 
         var updated = await workoutSessionService.UpdateWithChildren(sessionExercise, userId);
-        return Json(updated);
+        return Json(WorkoutSessionDtoMapper.ToDto(updated));
     }
 
     [HttpGet("history/{sourceSessionSetUuid:guid}")]
@@ -26,6 +26,6 @@ public class SessionExerciseController(WorkoutSessionService workoutSessionServi
     {
         var userId = (int)(HttpContext.Items["UserId"] ?? -1);
         var history = await workoutSessionService.GetExerciseHistory(sourceSessionSetUuid, userId);
-        return Json(history);
+        return Json(history.Select(WorkoutSessionDtoMapper.ToStatsDto).ToList());
     }
 }

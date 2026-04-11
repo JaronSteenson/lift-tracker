@@ -9,7 +9,7 @@
     </div>
 </template>
 <script>
-import { useAppStore } from '../stores/app';
+import { differenceInSeconds } from 'date-fns';
 import { useDisplay } from 'vuetify';
 import { svgIcons } from '../vuetify';
 
@@ -29,13 +29,15 @@ export default {
             type: String,
             required: false,
         },
+        hideTextOnMobile: {
+            type: Boolean,
+            default: false,
+        },
     },
     setup() {
-        const appStore = useAppStore();
         const display = useDisplay();
 
         return {
-            appStore,
             display,
             svgIcons,
             STATUS_SAVE_ERROR,
@@ -43,17 +45,16 @@ export default {
             STATUS_SAVE_OK,
         };
     },
+    data() {
+        return {
+            now: new Date().toISOString(),
+            timerId: null,
+        };
+    },
     computed: {
-        userIsLocalOnly() {
-            return this.appStore.userIsLocalOnly;
-        },
         icon() {
             switch (this.status) {
                 case this.STATUS_SAVE_OK:
-                    if (this.userIsLocalOnly) {
-                        return this.svgIcons.mdiCheckCircle;
-                    }
-
                     return this.svgIcons.saveOk;
                 case this.STATUS_SAVE_IN_PROGRESS:
                     return this.svgIcons.saveInProgress;
@@ -63,28 +64,43 @@ export default {
             }
         },
         message() {
-            if (this.status === this.STATUS_SAVE_ERROR) {
-                if (this.display.smAndDown.value) {
-                    return '';
-                }
+            if (this.hideTextOnMobile && this.display.smAndDown.value) {
+                return '';
+            }
 
+            if (this.status === this.STATUS_SAVE_ERROR) {
                 return 'Error saving';
             }
 
             if (this.status === this.STATUS_SAVE_IN_PROGRESS) {
-                if (this.display.smAndDown.value) {
-                    return '';
-                }
-
                 return 'Saving';
             }
 
-            if (this.userIsLocalOnly) {
-                return 'Saved locally';
+            if (!this.updatedAt) {
+                return 'Saved';
             }
 
-            return '';
+            const secondsAgo = differenceInSeconds(
+                new Date(this.now),
+                new Date(this.updatedAt),
+            );
+
+            if (secondsAgo > 30) {
+                return '';
+            }
+
+            return 'Saved just now';
         },
+    },
+    mounted() {
+        this.timerId = window.setInterval(() => {
+            this.now = new Date().toISOString();
+        }, 1000);
+    },
+    beforeUnmount() {
+        if (this.timerId) {
+            window.clearInterval(this.timerId);
+        }
     },
 };
 </script>

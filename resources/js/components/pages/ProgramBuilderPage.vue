@@ -8,7 +8,7 @@
 
 <script>
 import ProgramBuilder from '../domain/programBuilder/ProgramBuilder';
-import { useAppStore } from '../../stores/app';
+import { useAuth } from '../domain/auth/composables/useAuth';
 
 export default {
     name: 'ProgramBuilderPage',
@@ -22,13 +22,8 @@ export default {
         },
     },
     setup() {
-        const appStore = useAppStore();
-        return { appStore };
-    },
-    computed: {
-        userIsAuthenticated() {
-            return this.appStore.userIsAuthenticated;
-        },
+        const { userIsAuthenticated } = useAuth();
+        return { userIsAuthenticated };
     },
     mounted() {
         const element = document.querySelector('main');

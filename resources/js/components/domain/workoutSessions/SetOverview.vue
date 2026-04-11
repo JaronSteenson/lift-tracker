@@ -11,6 +11,7 @@
                 <ServerSyncInfo
                     :status="serverSyncStatus"
                     :updated-at="serverSyncUpdatedAt"
+                    hide-text-on-mobile
                 />
 
                 <VMenu bottom left>
@@ -22,7 +23,7 @@
 
                     <VList>
                         <VListItem
-                            :disabled="!exercise.routineExercise"
+                            :disabled="!exercise.routineExerciseUuid"
                             @click="editingSource = true"
                         >
                             <VListItemTitle>Edit source</VListItemTitle>
@@ -149,6 +150,7 @@
                                 :max="9999"
                                 :min="0"
                                 v-model.number="weight"
+                                @blur="saveWeight"
                             />
                         </VCol>
                         <VCol class="pt-0" cols="6" md="6" sm="6">
@@ -159,6 +161,7 @@
                                 :max="9999"
                                 :min="0"
                                 v-model.number="reps"
+                                @blur="saveReps"
                             />
                         </VCol>
                     </VRow>
@@ -174,6 +177,7 @@
                                 :label="activeTimerLabel"
                                 :disabled="isTimerRunning"
                                 v-model="activeTimer"
+                                @blur="saveActiveTimer"
                             />
                         </VCol>
                     </VRow>
@@ -217,6 +221,7 @@
                                 filled
                                 label="Notes"
                                 v-model="exerciseNotes"
+                                @blur="saveExerciseNotes"
                             />
                         </VCol>
                     </VRow>
@@ -240,7 +245,7 @@
                             <VBtn
                                 :height="xs ? '4rem' : null"
                                 large
-                                :disabled="isChangingSet"
+                                :disabled="isSetChangeTransitioning"
                                 :width="!smAndUp ? '100%' : null"
                                 @click="endActiveTimer"
                                 class="mt-2"
@@ -309,7 +314,7 @@
                                     v-else
                                     :height="xs ? '4rem' : null"
                                     large
-                                    :loading="isChangingSet"
+                                    :loading="isSetChangeTransitioning"
                                     :width="!smAndUp ? '100%' : null"
                                     @click="startNextSet"
                                     class="mt-2"
@@ -352,20 +357,17 @@
     </div>
     <EditExerciseModal
         v-model:value="editingSource"
-        :routineExerciseUuid="exercise?.routineExercise.uuid"
-        :routineUuid="workoutSession?.workoutProgramRoutine.uuid"
-        :workoutProgramUuid="
-            workoutSession?.workoutProgramRoutine?.workoutProgram.uuid
-        "
+        :routineExerciseUuid="exercise.routineExerciseUuid"
+        :routineUuid="workoutSession.workoutProgramRoutineUuid"
+        :workoutProgramUuid="workoutSession.originWorkoutProgramUuid"
     />
 </template>
 
 <script setup>
-import { ref, computed, watch, toRef, onMounted } from 'vue';
+import { ref, computed, watch, toRef, onMounted, nextTick } from 'vue';
 import { useRouter } from 'vue-router';
 import { useDisplay } from 'vuetify';
-import { useAppStore } from '../../../stores/app';
-import { useProgramBuilderStore } from '../../../stores/programBuilder';
+import { useQueryClient } from '@tanstack/vue-query';
 import RestPeriodTimer from '../RestPeriodTimer';
 import SessionExerciseStatsModal from './SessionExerciseStatsModal';
 import ServerSyncInfo from './../../ServerSyncInfo';
@@ -373,10 +375,12 @@ import LabeledWorkoutDuration from '../LabeledWorkoutDuration';
 import NarrowContentContainer from '../../layouts/NarrowContentContainer';
 import AppBar from '../../AppBar';
 import EditExerciseModal from '../../domain/programBuilder/EditExerciseModal';
+import { useServerSyncInfoState } from '../../composibles/useServerSyncInfoState';
 import UuidHelper from '../../../UuidHelper';
 import TimerInput from '../../formFields/TimerInput.vue';
 import {
     useWorkoutSessionBySet,
+    useWorkoutSessionSaveState,
     useUpdateWorkoutSession,
     useExerciseHistory,
     getSet,
@@ -400,6 +404,9 @@ import {
     isWarmUpEnded as checkIsWarmUpEnded,
     isRestPeriodStarted as checkIsRestPeriodStarted,
     isRestPeriodFinished as checkIsRestPeriodFinished,
+    finishSetChangeTransition,
+    startSetChangeTransition,
+    useSetChangeTransition,
 } from './composibles/workoutSessionQueries';
 
 const props = defineProps({
@@ -410,8 +417,7 @@ const props = defineProps({
 });
 
 const router = useRouter();
-const appStore = useAppStore();
-const programBuilderStore = useProgramBuilderStore();
+const queryClient = useQueryClient();
 const { xs, smAndUp } = useDisplay();
 
 const { workoutSession } = useWorkoutSessionBySet(
@@ -426,6 +432,7 @@ const {
     updateSetRestPeriodDuration,
     updateExerciseNotes: updateNotesMutation,
     updateExerciseSkipped,
+    skipExercise: skipExerciseMutation,
     startSet,
     endSet,
     startWarmUp,
@@ -436,19 +443,26 @@ const {
     resetRestPeriod: resetRestPeriodMutation,
     endWorkout: endWorkoutMutation,
 } = useUpdateWorkoutSession();
+const {
+    isPending: isSavingWorkoutSession,
+    isError: hasWorkoutSessionSaveError,
+    submittedAt: workoutSessionSaveSubmittedAt,
+} = useWorkoutSessionSaveState();
 
 // Local state
 const hasLoadedExerciseHistory = ref(false);
 const isEndingWorkout = ref(false);
-const isChangingSet = ref(false);
 const editingSource = ref(false);
+const { isSetChangeTransitioning } = useSetChangeTransition();
 
-// Server sync status
-const serverSyncStatus = ref('ok');
-const serverSyncUpdatedAt = ref(new Date().toISOString());
+const { status: serverSyncStatus, updatedAt: serverSyncUpdatedAt } =
+    useServerSyncInfoState(workoutSession, {
+        isPending: isSavingWorkoutSession,
+        isError: hasWorkoutSessionSaveError,
+        submittedAt: workoutSessionSaveSubmittedAt,
+    });
 
 // Computed properties
-const userIsLocalOnly = computed(() => appStore.userIsLocalOnly);
 const uuid = computed(() => workoutSession.value?.uuid || null);
 
 const pageTitle = computed(() => {
@@ -628,84 +642,16 @@ const exerciseHistory = computed(() => {
     }
 
     // Keep today reactive
-    return UuidHelper.replaceInCopy(history, {
+    return UuidHelper.replaceMergeInCopy(history, {
         ...exercise.value,
         workoutSession: workoutSession.value,
     });
 });
 
-// Two-way computed for weight
-const weight = computed({
-    get() {
-        return getWeightForCurrentSet(
-            workoutSession.value,
-            props.sessionSetUuid,
-        );
-    },
-    set(weight) {
-        updateWeightMutation(uuid.value, props.sessionSetUuid, weight);
-
-        if (exercise.value?.routineExercise?.uuid) {
-            programBuilderStore.updateExercise(
-                exercise.value.routineExercise.uuid,
-                { weight },
-            );
-        }
-    },
-});
-
-// Two-way computed for reps
-const reps = computed({
-    get() {
-        return getRepsForCurrentSet(workoutSession.value, props.sessionSetUuid);
-    },
-    set(reps) {
-        updateRepsMutation(uuid.value, props.sessionSetUuid, reps);
-    },
-});
-
-// Two-way computed for active timer
-const activeTimer = computed({
-    get() {
-        if (set.value?.endedAt || warmUpEnded.value) {
-            return getRestPeriodForCurrentSet(
-                workoutSession.value,
-                props.sessionSetUuid,
-            );
-        }
-
-        return getWarmUpForCurrentExercise(
-            workoutSession.value,
-            exercise.value?.uuid,
-        );
-    },
-    set(duration) {
-        if (set.value?.endedAt || warmUpEnded.value) {
-            updateSetRestPeriodDuration(
-                uuid.value,
-                props.sessionSetUuid,
-                duration,
-            );
-            return;
-        }
-
-        updateExerciseWarmUpDuration(
-            uuid.value,
-            exercise.value?.uuid,
-            duration,
-        );
-    },
-});
-
-// Two-way computed for exercise notes
-const exerciseNotes = computed({
-    get() {
-        return exercise.value?.notes;
-    },
-    set(notes) {
-        updateNotesMutation(uuid.value, exercise.value?.uuid, notes);
-    },
-});
+const weight = ref(null);
+const reps = ref(null);
+const activeTimer = ref(0);
+const exerciseNotes = ref('');
 
 const wasAddedOnTheFly = computed(() => exercise.value?.wasAddedOnTheFly);
 
@@ -720,27 +666,112 @@ function getStepColor(otherSet) {
     return otherSet.uuid !== set.value?.uuid ? 'grey' : 'primary';
 }
 
-function changeSetFromStepper(requestedSet) {
-    const setToChangeTo = exercise.value.sessionSets[requestedSet - 1];
+function getCurrentWeight() {
+    return getWeightForCurrentSet(workoutSession.value, props.sessionSetUuid);
+}
 
-    router.push({
+function getCurrentReps() {
+    return getRepsForCurrentSet(workoutSession.value, props.sessionSetUuid);
+}
+
+function getCurrentActiveTimer() {
+    if (set.value?.endedAt || warmUpEnded.value) {
+        return getRestPeriodForCurrentSet(
+            workoutSession.value,
+            props.sessionSetUuid,
+        );
+    }
+
+    return getWarmUpForCurrentExercise(
+        workoutSession.value,
+        exercise.value?.uuid,
+    );
+}
+
+function syncFormValues() {
+    weight.value = getCurrentWeight();
+    reps.value = getCurrentReps();
+    activeTimer.value = getCurrentActiveTimer();
+    exerciseNotes.value = exercise.value?.notes ?? '';
+}
+
+function saveWeight() {
+    if (!uuid.value || !props.sessionSetUuid) {
+        return;
+    }
+
+    updateWeightMutation(uuid.value, props.sessionSetUuid, weight.value);
+}
+
+function saveReps() {
+    if (!uuid.value || !props.sessionSetUuid) {
+        return;
+    }
+
+    updateRepsMutation(uuid.value, props.sessionSetUuid, reps.value);
+}
+
+function saveActiveTimer() {
+    if (!uuid.value) {
+        return;
+    }
+
+    if (set.value?.endedAt || warmUpEnded.value) {
+        updateSetRestPeriodDuration(
+            uuid.value,
+            props.sessionSetUuid,
+            activeTimer.value,
+        );
+        return;
+    }
+
+    if (!exercise.value?.uuid) {
+        return;
+    }
+
+    updateExerciseWarmUpDuration(
+        uuid.value,
+        exercise.value.uuid,
+        activeTimer.value,
+    );
+}
+
+function saveExerciseNotes() {
+    if (!uuid.value || !exercise.value?.uuid) {
+        return;
+    }
+
+    updateNotesMutation(uuid.value, exercise.value.uuid, exerciseNotes.value);
+}
+
+async function changeSetFromStepper(requestedSet) {
+    const setToChangeTo = exercise.value.sessionSets[requestedSet - 1];
+    startSetChangeTransition(queryClient);
+
+    await router.push({
         name: 'SetOverviewPage',
         params: { sessionSetUuid: setToChangeTo.uuid },
     });
+
+    finishSetChangeTransition(queryClient);
 }
 
 async function lookAhead() {
+    startSetChangeTransition(queryClient);
     await router.push({
         name: 'SetOverviewPage',
         params: { sessionSetUuid: nextSet.value.uuid },
     });
+    finishSetChangeTransition(queryClient);
 }
 
 async function lookBack() {
+    startSetChangeTransition(queryClient);
     await router.push({
         name: 'SetOverviewPage',
         params: { sessionSetUuid: previousSet.value.uuid },
     });
+    finishSetChangeTransition(queryClient);
 }
 
 function tryEndWorkout() {
@@ -760,7 +791,7 @@ function tryEndWorkout() {
 
 async function endWorkout() {
     isEndingWorkout.value = true;
-    isChangingSet.value = true;
+    startSetChangeTransition(queryClient);
 
     endWorkoutMutation(uuid.value);
     await router.push({
@@ -769,7 +800,7 @@ async function endWorkout() {
     });
 
     isEndingWorkout.value = false;
-    isChangingSet.value = false;
+    finishSetChangeTransition(queryClient);
 }
 
 function resetWarmUp() {
@@ -781,7 +812,7 @@ function resetRestPeriod() {
 }
 
 async function startNextSet() {
-    isChangingSet.value = true;
+    startSetChangeTransition(queryClient);
 
     const nextSetUuid = nextSet.value.uuid;
     await endSet(uuid.value, set.value.uuid);
@@ -792,26 +823,27 @@ async function startNextSet() {
         params: { sessionSetUuid: nextSetUuid },
     });
 
-    isChangingSet.value = false;
+    finishSetChangeTransition(queryClient);
 }
 
 async function skipExercise() {
-    isChangingSet.value = true;
+    startSetChangeTransition(queryClient);
     const nextSetUuid = nextExerciseFirstSet.value?.uuid;
 
-    updateExerciseSkipped(uuid.value, exercise.value.uuid, true);
+    await skipExerciseMutation(uuid.value, exercise.value.uuid);
 
     if (nextSetUuid) {
-        startSet(uuid.value, nextSetUuid);
+        await startSet(uuid.value, nextSetUuid);
         await router.push({
             name: 'SetOverviewPage',
             params: { sessionSetUuid: nextSetUuid },
         });
     } else {
         tryEndWorkout();
+        return;
     }
 
-    isChangingSet.value = false;
+    finishSetChangeTransition(queryClient);
 }
 
 async function markExerciseNotSkipped() {
@@ -836,7 +868,7 @@ function endActiveTimer() {
 
 async function ensureExerciseHistoryAreLoaded() {
     // We must wait for the workout to be created on the server first
-    if (userIsLocalOnly.value || wasAddedOnTheFly.value) {
+    if (wasAddedOnTheFly.value) {
         hasLoadedExerciseHistory.value = true;
         return;
     }
@@ -851,8 +883,28 @@ async function ensureExerciseHistoryAreLoaded() {
 watch(
     () => props.sessionSetUuid,
     () => {
+        syncFormValues();
         ensureExerciseHistoryAreLoaded();
     },
+);
+
+watch(
+    () => [
+        set.value?.uuid,
+        set.value?.weight,
+        set.value?.reps,
+        set.value?.restPeriodDuration,
+        set.value?.endedAt,
+        exercise.value?.uuid,
+        exercise.value?.notes,
+        exercise.value?.warmUpDuration,
+        warmUpEnded.value,
+    ],
+    async () => {
+        await nextTick();
+        syncFormValues();
+    },
+    { immediate: true },
 );
 
 watch(createdAt, (value, oldValue) => {

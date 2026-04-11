@@ -43,8 +43,12 @@
             <template v-slot:item.programName="{ item: session }">
                 <ProgramName
                     :workoutProgram="
-                        session.workoutProgramRoutine &&
-                        session.workoutProgramRoutine.workoutProgram
+                        session.workoutProgramUuid
+                            ? {
+                                  uuid: session.workoutProgramUuid,
+                                  name: session.workoutProgramName,
+                              }
+                            : null
                     "
                 />
             </template>
@@ -81,15 +85,12 @@
                             <VListItemTitle>View overview</VListItemTitle>
                         </VListItem>
                         <VListItem
-                            v-if="
-                                session.workoutProgramRoutine &&
-                                session.workoutProgramRoutine.uuid
-                            "
+                            v-if="session.workoutProgramRoutineUuid"
                             :to="{
                                 name: 'NewSessionOverviewPage',
                                 params: {
                                     originRoutineUuid:
-                                        session.workoutProgramRoutine.uuid,
+                                        session.workoutProgramRoutineUuid,
                                 },
                             }"
                         >
@@ -164,16 +165,34 @@ import ProgramName from '../domain/programBuilder/ProgramName';
 import AddNewButton from '../formFields/AddNewButton.vue';
 import { useDisplay } from 'vuetify';
 import { useTheme } from 'vuetify/framework';
-import { useTimelineQuery } from './workoutSessions/composibles/workoutSessionQueries';
 import {
     useDeleteWorkoutSession,
     isInProgressWorkout as checkIsInProgressWorkout,
 } from '../domain/workoutSessions/composibles/workoutSessionQueries';
 
+const props = defineProps({
+    data: {
+        type: Array,
+        required: true,
+    },
+    isPending: {
+        type: Boolean,
+        required: true,
+    },
+    fetchNextPage: {
+        type: Function,
+        required: true,
+    },
+    hasNextPage: {
+        type: Boolean,
+        required: false,
+        default: false,
+    },
+});
+
 const display = useDisplay();
 const theme = useTheme();
 
-const { data, isPending, fetchNextPage, hasNextPage } = useTimelineQuery();
 const { deleteWorkoutSession } = useDeleteWorkoutSession();
 
 const toolbarColor = theme.current.value.colors.toolbar;
@@ -254,14 +273,14 @@ function infiniteScroll() {
         document.documentElement.scrollTop + window.innerHeight ===
         document.documentElement.offsetHeight;
 
-    if (atBottom && !isPending.value && hasNextPage) {
+    if (atBottom && !props.isPending && props.hasNextPage) {
         loadNextPage();
     }
 }
 
 async function loadNextPage() {
     loadingNextPage.value = true;
-    await fetchNextPage();
+    await props.fetchNextPage();
     loadingNextPage.value = false;
 }
 

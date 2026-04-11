@@ -2,7 +2,7 @@
 
 ## Install dependencies
 ```shell
-apt get install -y docker
+sudo apt-get install -y docker.io
 ```
 
 # Initial build/run
@@ -15,7 +15,7 @@ docker run -d --name lift-tracker-api-mysql -p 3306:3306 -v ./docker-entrypoint-
 
 # Restart
 ```shell
-docker restart lt-mysql
+docker restart lift-tracker-api-mysql
 ```
 
 # Stop

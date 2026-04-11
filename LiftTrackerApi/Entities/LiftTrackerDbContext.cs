@@ -185,6 +185,11 @@ public partial class LiftTrackerDbContext(
                 .HasColumnName("warmUpStartedAt");
 
             entity
+                .HasOne(d => d.RoutineExercise)
+                .WithMany()
+                .HasForeignKey("RoutineExerciseId");
+
+            entity
                 .HasOne(d => d.WorkoutSession)
                 .WithMany(p => p.SessionExercises)
                 .HasForeignKey("WorkoutSessionId")
@@ -318,6 +323,11 @@ public partial class LiftTrackerDbContext(
             entity.Property(e => e.UpdatedAt).HasColumnType("timestamp").HasColumnName("updatedAt");
             entity.Property(e => e.UserId).HasColumnName("userId");
             entity.Property(e => e.Uuid).HasColumnName("uuid");
+
+            entity
+                .HasOne(d => d.WorkoutProgramRoutine)
+                .WithMany()
+                .HasForeignKey("WorkoutProgramRoutineId");
         });
 
         OnModelCreatingPartial(modelBuilder);

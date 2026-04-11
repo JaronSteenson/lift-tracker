@@ -20,7 +20,7 @@ import { computed, toRef } from 'vue';
 import { useRoute } from 'vue-router';
 import NotFoundPage from '../pages/NotFoundPage';
 import SessionOverviewLoadingSkeleton from '../domain/workoutSessions/SessionOverviewLoadingSkeleton';
-import { useAppStore } from '../../stores/app';
+import { useAuth } from '../domain/auth/composables/useAuth';
 import { useWorkoutSession } from '../domain/workoutSessions/composibles/workoutSessionQueries';
 import CheckInEditForm from '../domain/workoutSessions/CheckInEditForm';
 
@@ -32,13 +32,11 @@ const props = defineProps({
 });
 
 const route = useRoute();
-const appStore = useAppStore();
+const { userIsAuthenticated } = useAuth();
 
 const { isPending, error } = useWorkoutSession(
     toRef(props, 'workoutSessionUuid'),
 );
-
-const userIsAuthenticated = computed(() => appStore.userIsAuthenticated);
 
 const notFound = computed(
     () => !isPending.value && error.value && props.workoutSessionUuid,

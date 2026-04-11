@@ -37,17 +37,6 @@
                 >
                     Create an account
                 </VBtn>
-                <VBtn
-                    elevation="1"
-                    class="mt-1"
-                    color="primary"
-                    variant="text"
-                    small
-                    width="100%"
-                    @click="createLocalAccount"
-                >
-                    Get started without an account
-                </VBtn>
                 <div class="d-flex justify-space-around">
                     <RouterLink
                         class="small-login-page-link pa-2 d-block"
@@ -63,15 +52,15 @@
 
 <script>
 import AppBar from '../AppBar';
-import { useAppStore } from '../../stores/app';
 import { useDisplay } from 'vuetify';
 import { ref } from 'vue';
+import { useAuth } from '../domain/auth/composables/useAuth';
 
 export default {
     name: 'LoginPage',
     components: { AppBar },
     setup() {
-        const appStore = useAppStore();
+        const { auth0Client, login, register } = useAuth();
         const display = useDisplay();
         const imageRef = ref(null);
         const fadeImageIn = ref(false);
@@ -85,29 +74,15 @@ export default {
         };
 
         return {
-            appStore,
+            auth0Client,
+            login,
+            register,
             display,
             imageRef,
             fadeImageIn,
             handleImageLoad,
             handleImageError,
         };
-    },
-    computed: {
-        auth0Client() {
-            return this.appStore.auth0Client;
-        },
-    },
-    methods: {
-        async login() {
-            await this.appStore.login();
-        },
-        async register() {
-            await this.appStore.register();
-        },
-        async createLocalAccount() {
-            await this.appStore.createLocalAccount();
-        },
     },
 };
 </script>

@@ -31,7 +31,10 @@ describe('createSessionFromBuilderWorkout', () => {
                 startedAt: null,
                 endedAt: null,
                 createdAt: null,
-                workoutProgramRoutine: null,
+                workoutProgramRoutineUuid: null,
+                workoutProgramRoutineName: null,
+                workoutProgramUuid: null,
+                workoutProgramName: null,
                 sessionExercises: [],
             });
         });
@@ -51,12 +54,18 @@ describe('createSessionFromBuilderWorkout', () => {
             startedAt: null,
             endedAt: null,
             createdAt: '2022-12-31T10:00:00Z',
-            workoutProgramRoutine: null,
+            workoutProgramRoutineUuid: null,
+            workoutProgramRoutineName: null,
+            workoutProgramUuid: null,
+            workoutProgramName: null,
             sessionExercises: [],
         };
 
         const originWorkout = {
+            uuid: 'routine-uuid-1',
             name: 'Push Day',
+            workoutProgramUuid: 'program-uuid-1',
+            workoutProgramName: 'Push Program',
             routineExercises: [
                 {
                     uuid: 'exercise-1-uuid',
@@ -95,7 +104,10 @@ describe('createSessionFromBuilderWorkout', () => {
                     startedAt: mockNow,
                     endedAt: null,
                     createdAt: '2022-12-31T10:00:00Z',
-                    workoutProgramRoutine: originWorkout,
+                    workoutProgramRoutineUuid: originWorkout.uuid,
+                    workoutProgramRoutineName: originWorkout.name,
+                    workoutProgramUuid: originWorkout.workoutProgramUuid,
+                    workoutProgramName: originWorkout.workoutProgramName,
                 }),
             );
         });
@@ -116,9 +128,7 @@ describe('createSessionFromBuilderWorkout', () => {
                     warmUpDuration: 30,
                     position: 0,
                     skipped: false,
-                    routineExercise: {
-                        uuid: 'exercise-1-uuid',
-                    },
+                    routineExerciseUuid: 'exercise-1-uuid',
                     sessionSets: [
                         {
                             createdAt: mockNow,
@@ -244,7 +254,10 @@ describe('createSessionFromBuilderWorkout', () => {
 
     describe('createSessionFromBuilderWorkout wtesthout existingCheckIn', () => {
         const originWorkout = {
+            uuid: 'routine-uuid-2',
             name: 'Pull Day',
+            workoutProgramUuid: 'program-uuid-2',
+            workoutProgramName: 'Pull Program',
             routineExercises: [
                 {
                     uuid: 'pull-exercise-uuid',
@@ -271,7 +284,10 @@ describe('createSessionFromBuilderWorkout', () => {
                     startedAt: mockNow,
                     endedAt: null,
                     createdAt: null,
-                    workoutProgramRoutine: originWorkout,
+                    workoutProgramRoutineUuid: originWorkout.uuid,
+                    workoutProgramRoutineName: originWorkout.name,
+                    workoutProgramUuid: originWorkout.workoutProgramUuid,
+                    workoutProgramName: originWorkout.workoutProgramName,
                 }),
             );
         });
@@ -288,6 +304,7 @@ describe('createSessionFromBuilderWorkout', () => {
                     name: 'Pull-ups',
                     plannedWeight: 25,
                     position: 0,
+                    routineExerciseUuid: 'pull-exercise-uuid',
                 }),
             );
         });

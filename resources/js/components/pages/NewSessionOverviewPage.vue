@@ -11,7 +11,7 @@
 <script>
 import NewSessionOverview from '../domain/workoutSessions/NewSessionOverview';
 import AppBar from '../AppBar';
-import { useAppStore } from '../../stores/app';
+import { useAuth } from '../domain/auth/composables/useAuth';
 
 export default {
     name: 'NewSessionOverviewPage',
@@ -26,13 +26,8 @@ export default {
         },
     },
     setup() {
-        const appStore = useAppStore();
-        return { appStore };
-    },
-    computed: {
-        userIsAuthenticated() {
-            return this.appStore.userIsAuthenticated;
-        },
+        const { userIsAuthenticated } = useAuth();
+        return { userIsAuthenticated };
     },
 };
 </script>

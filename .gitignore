@@ -1,6 +1,7 @@
 /node_modules
 /dist/*
 /resources/js/test/dump/*
+/resources/node_modules/*
 /public/service-worker.js
 /vendor
 config.json

@@ -23,20 +23,21 @@
 </template>
 
 <script setup>
-import { computed, ref } from 'vue';
+import { computed } from 'vue';
 import { useRoute } from 'vue-router';
 import { useDisplay } from 'vuetify';
-import { useAppStore } from '../stores/app';
-import { getCurrentSetForInProgressWorkout } from './domain/workoutSessions/composibles/workoutSessionQueries';
+import { useAuth } from './domain/auth/composables/useAuth';
+import {
+    getCurrentSetForInProgressWorkout,
+    useActiveWorkoutSession,
+    useSetChangeTransition,
+} from './domain/workoutSessions/composibles/workoutSessionQueries';
 
 const display = useDisplay();
-const appStore = useAppStore();
+const { isBootstrapped, isAuthenticated } = useAuth();
 const route = useRoute();
-
-// Get workout session from localStorage (since we don't have a UUID to query with)
-const stored = localStorage.getItem('store-state--WorkoutSession');
-const parsed = stored ? JSON.parse(stored) : {};
-const workoutSession = computed(() => parsed.workoutSession || null);
+const { workoutSession } = useActiveWorkoutSession();
+const { isSetChangeTransitioning } = useSetChangeTransition();
 
 const inProgressSet = computed(() =>
     getCurrentSetForInProgressWorkout(
@@ -45,15 +46,12 @@ const inProgressSet = computed(() =>
     ),
 );
 
-const isChangingSet = ref(false); // TODO: Get this from somewhere if needed
-
 const shouldShow = computed(() => {
-    if (!appStore.isBootstrapped && !appStore.isAuthenticated) {
+    if (!isBootstrapped.value && !isAuthenticated.value) {
         return false;
     }
 
-    // Prevent flash on set transition
-    if (isChangingSet.value) {
+    if (isSetChangeTransitioning.value) {
         return false;
     }
 
@@ -78,5 +76,6 @@ const shouldShow = computed(() => {
     bottom: 2em;
     right: 2em;
     z-index: 1000;
+    transition: opacity 0.15s ease;
 }
 </style>

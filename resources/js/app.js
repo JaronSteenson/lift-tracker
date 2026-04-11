@@ -1,14 +1,17 @@
 import { createApp } from 'vue';
-import { pinia } from './stores';
 import router from './router/router';
 import { createVuetify, svgIcons } from './vuetify';
 import initRollbar from './rollbar/rollbar';
 import App from './components/App.vue';
-import { useAppStore } from './stores/app';
 import 'vuetify/dist/vuetify.css';
 import './app.css';
 import initNewRelic from './newRelic/newRelic';
-import { VueQueryPlugin, QueryClient } from '@tanstack/vue-query';
+import { VueQueryPlugin } from '@tanstack/vue-query';
+import {
+    createLiftTrackerQueryClient,
+    setSharedQueryClient,
+} from './queryClient';
+import { bootstrapAuth } from './components/domain/auth/composables/useAuth';
 
 (async function () {
     initNewRelic();
@@ -20,17 +23,9 @@ import { VueQueryPlugin, QueryClient } from '@tanstack/vue-query';
 
     const app = createApp(App);
 
-    // Set up TanStack Query
-    const queryClient = new QueryClient({
-        defaultOptions: {
-            queries: {
-                staleTime: 1000 * 60 * 5, // 5 minutes
-                refetchOnWindowFocus: false,
-            },
-        },
-    });
+    const queryClient = createLiftTrackerQueryClient();
+    setSharedQueryClient(queryClient);
 
-    app.use(pinia);
     app.use(VueQueryPlugin, { queryClient });
     app.use(router);
     app.use(createVuetify());
@@ -38,9 +33,7 @@ import { VueQueryPlugin, QueryClient } from '@tanstack/vue-query';
     // Make SVG icons available globally as $svgIcons
     app.config.globalProperties.$svgIcons = svgIcons;
 
-    // Bootstrap the app store after pinia is initialized
-    const appStore = useAppStore();
-    await appStore.bootstrap();
+    await bootstrapAuth();
 
     app.mount('#app');
 })();

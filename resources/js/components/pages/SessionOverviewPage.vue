@@ -14,12 +14,11 @@
 </template>
 
 <script setup>
-import { computed, watch, toRef } from 'vue';
+import { computed, toRef } from 'vue';
 import SessionOverview from '../domain/workoutSessions/SessionOverview';
 import NotFoundPage from '../pages/NotFoundPage';
 import SessionOverviewLoadingSkeleton from '../domain/workoutSessions/SessionOverviewLoadingSkeleton';
-import { useAppStore } from '../../stores/app';
-import { useProgramBuilderStore } from '../../stores/programBuilder';
+import { useAuth } from '../domain/auth/composables/useAuth';
 import { useWorkoutSession } from '../domain/workoutSessions/composibles/workoutSessionQueries';
 
 const props = defineProps({
@@ -29,25 +28,11 @@ const props = defineProps({
     },
 });
 
-const appStore = useAppStore();
-const programBuilderStore = useProgramBuilderStore();
+const { userIsAuthenticated } = useAuth();
 
-const { workoutSession, isPending, error } = useWorkoutSession(
+const { isPending, error } = useWorkoutSession(
     toRef(props, 'workoutSessionUuid'),
 );
 
-const userIsAuthenticated = computed(() => appStore.userIsAuthenticated);
-
 const notFound = computed(() => !isPending.value && error.value);
-
-// Set in focus program when workout session loads
-watch(
-    workoutSession,
-    (session) => {
-        if (session) {
-            programBuilderStore.setInFocusProgramForSession(session);
-        }
-    },
-    { immediate: true },
-);
 </script>

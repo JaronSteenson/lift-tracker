@@ -3,6 +3,8 @@ import {
     useInfiniteQuery,
     useMutation,
     useQueryClient,
+    useIsMutating,
+    useMutationState,
 } from '@tanstack/vue-query';
 import { computed, toValue } from 'vue';
 import { differenceInSeconds, isToday } from 'date-fns';
@@ -11,12 +13,15 @@ import UuidHelper from '../../../../UuidHelper/index';
 import WorkoutSessionService from '../../../../api/WorkoutSessionService';
 import SessionExerciseService from '../../../../api/SessionExerciseService';
 import createSessionFromBuilderWorkout from '../../../../domain/createSessionFromBuilderWorkout';
-import { useAppStore } from '../../../../stores/app';
 
 const WORKOUT_SESSION_KEY = 'workoutSession';
 const WORKOUT_SESSION_BY_SET_KEY = 'workoutSessionBySet';
 const EXERCISE_HISTORY_KEY = 'exerciseHistory';
-const LOCAL_STORAGE_KEY = 'store-state--WorkoutSession';
+const TIMELINE_QUERY_KEY = 'timeline';
+const ACTIVE_WORKOUT_SESSION_KEY = 'activeWorkoutSession';
+const SET_CHANGE_TRANSITION_KEY = 'setChangeTransition';
+const WORKOUT_SESSION_SAVE_MUTATION_KEY = ['workoutSessionSave'];
+let setChangeTransitionResetTimeout = null;
 
 function getSecondsRemaining({ expectedDuration, startTime }) {
     const minutesToAdd = Math.floor(expectedDuration / 60);
@@ -53,7 +58,7 @@ export function useTimelineQuery() {
                 if (lastPage.length < pageSize) {
                     return undefined;
                 }
-                return allPages.length;
+                return allPages.length + 1;
             },
         });
 
@@ -113,10 +118,12 @@ export function isInProgressWorkout(workoutSession, workoutSessionUuid) {
 
 export function getAllSets(workoutSession) {
     return (
-        workoutSession?.sessionExercises
-            ?.sort((a, b) => a.position - b.position)
+        [...(workoutSession?.sessionExercises || [])]
+            .sort((a, b) => a.position - b.position)
             ?.flatMap((exercise) =>
-                exercise.sessionSets.sort((a, b) => a.position - b.position),
+                [...(exercise.sessionSets || [])].sort(
+                    (a, b) => a.position - b.position,
+                ),
             ) || []
     );
 }
@@ -210,7 +217,7 @@ export function isFirstSetOfExercise(workoutSession, sessionSetUuid) {
     });
 
     if (!exercise) return false;
-    const sortedSets = exercise.sessionSets.sort(
+    const sortedSets = [...(exercise.sessionSets || [])].sort(
         (a, b) => a.position - b.position,
     );
     return sortedSets[0]?.uuid === sessionSetUuid;
@@ -229,7 +236,7 @@ export function isLastSetOfExercise(workoutSession, sessionSetUuid) {
     });
 
     if (!exercise) return false;
-    const sortedSets = exercise.sessionSets.sort(
+    const sortedSets = [...(exercise.sessionSets || [])].sort(
         (a, b) => a.position - b.position,
     );
     return sortedSets[sortedSets.length - 1]?.uuid === sessionSetUuid;
@@ -371,8 +378,6 @@ export function getRestPeriodTimeRemaining(workoutSession, sessionSetUuid) {
 }
 
 export function useWorkoutSession(workoutSessionUuid) {
-    const appStore = useAppStore();
-
     const { data, isPending, error } = useQuery({
         queryKey: computed(() => [
             WORKOUT_SESSION_KEY,
@@ -381,19 +386,6 @@ export function useWorkoutSession(workoutSessionUuid) {
         queryFn: async () => {
             const uuid = toValue(workoutSessionUuid);
             if (!uuid) {
-                return null;
-            }
-
-            if (appStore.localOnlyUser) {
-                // For local-only users, find in local storage
-                const stored = localStorage.getItem(LOCAL_STORAGE_KEY);
-                if (stored) {
-                    const parsed = JSON.parse(stored);
-                    const localSession = parsed.myWorkoutSessions?.find(
-                        (session) => session.uuid === uuid,
-                    );
-                    return localSession || null;
-                }
                 return null;
             }
 
@@ -411,7 +403,6 @@ export function useWorkoutSession(workoutSessionUuid) {
 }
 
 export function useWorkoutSessionBySet(sessionSetUuid) {
-    const appStore = useAppStore();
     const queryClient = useQueryClient();
 
     const { data, isPending, error } = useQuery({
@@ -422,29 +413,6 @@ export function useWorkoutSessionBySet(sessionSetUuid) {
         queryFn: async () => {
             const uuid = toValue(sessionSetUuid);
             if (!uuid) {
-                return null;
-            }
-
-            if (appStore.localOnlyUser) {
-                // For local-only users, find in local storage
-                const stored = localStorage.getItem(LOCAL_STORAGE_KEY);
-                if (stored) {
-                    const parsed = JSON.parse(stored);
-                    const localSession = parsed.myWorkoutSessions?.find(
-                        (session) =>
-                            UuidHelper.findDeep(session, uuid) !== undefined,
-                    );
-
-                    // Also populate the main cache
-                    if (localSession) {
-                        queryClient.setQueryData(
-                            [WORKOUT_SESSION_KEY, localSession.uuid],
-                            localSession,
-                        );
-                    }
-
-                    return localSession || null;
-                }
                 return null;
             }
 
@@ -495,14 +463,91 @@ export function useExerciseHistory(sessionExerciseUuid) {
     };
 }
 
+export function useActiveWorkoutSession() {
+    const queryClient = useQueryClient();
+
+    const { data } = useQuery({
+        queryKey: [ACTIVE_WORKOUT_SESSION_KEY],
+        queryFn: () =>
+            queryClient.getQueryData([ACTIVE_WORKOUT_SESSION_KEY]) || null,
+        initialData: () =>
+            queryClient.getQueryData([ACTIVE_WORKOUT_SESSION_KEY]) || null,
+        staleTime: Infinity,
+    });
+
+    return {
+        workoutSession: data,
+    };
+}
+
+export function useSetChangeTransition() {
+    const queryClient = useQueryClient();
+
+    const { data } = useQuery({
+        queryKey: [SET_CHANGE_TRANSITION_KEY],
+        queryFn: () =>
+            queryClient.getQueryData([SET_CHANGE_TRANSITION_KEY]) || false,
+        initialData: () =>
+            queryClient.getQueryData([SET_CHANGE_TRANSITION_KEY]) || false,
+        staleTime: Infinity,
+    });
+
+    return {
+        isSetChangeTransitioning: data,
+    };
+}
+
+export function startSetChangeTransition(queryClient) {
+    if (setChangeTransitionResetTimeout) {
+        window.clearTimeout(setChangeTransitionResetTimeout);
+        setChangeTransitionResetTimeout = null;
+    }
+
+    queryClient.setQueryData([SET_CHANGE_TRANSITION_KEY], true);
+}
+
+export function finishSetChangeTransition(queryClient, delayMs = 0) {
+    if (setChangeTransitionResetTimeout) {
+        window.clearTimeout(setChangeTransitionResetTimeout);
+    }
+
+    if (delayMs <= 0) {
+        queryClient.setQueryData([SET_CHANGE_TRANSITION_KEY], false);
+        setChangeTransitionResetTimeout = null;
+        return;
+    }
+
+    setChangeTransitionResetTimeout = window.setTimeout(() => {
+        queryClient.setQueryData([SET_CHANGE_TRANSITION_KEY], false);
+        setChangeTransitionResetTimeout = null;
+    }, delayMs);
+}
+
+function getTimelineSessions(queryClient) {
+    const timelineData = queryClient.getQueryData([TIMELINE_QUERY_KEY]);
+    return timelineData?.pages?.flat() || [];
+}
+
+function syncActiveWorkoutSession(queryClient, workoutSession) {
+    if (workoutSession?.startedAt && !workoutSession?.endedAt) {
+        queryClient.setQueryData([ACTIVE_WORKOUT_SESSION_KEY], workoutSession);
+        return;
+    }
+
+    const activeSession = queryClient.getQueryData([
+        ACTIVE_WORKOUT_SESSION_KEY,
+    ]);
+    if (activeSession?.uuid === workoutSession?.uuid) {
+        queryClient.setQueryData([ACTIVE_WORKOUT_SESSION_KEY], null);
+    }
+}
+
 export function useStartWorkout() {
     const queryClient = useQueryClient();
 
     const { mutate, isPending } = useMutation({
-        mutationFn: async ({ originWorkout, myWorkoutSessions }) => {
-            const appStore = useAppStore();
-
-            const existingCheckIn = myWorkoutSessions.find(
+        mutationFn: async ({ originWorkout }) => {
+            const existingCheckIn = getTimelineSessions(queryClient).find(
                 (session) => isToday(session.createdAt) && !session.startedAt,
             );
 
@@ -512,15 +557,8 @@ export function useStartWorkout() {
                 originWorkout,
             });
 
-            // Save the session
-            if (appStore.localOnlyUser) {
-                sessionData.updatedAt = utcNow();
-                sessionData.createdAt = sessionData.createdAt || utcNow();
-                return sessionData;
-            } else {
-                const response = await WorkoutSessionService.save(sessionData);
-                return response.data;
-            }
+            const response = await WorkoutSessionService.save(sessionData);
+            return response.data;
         },
 
         onSuccess: (workoutSession) => {
@@ -529,26 +567,8 @@ export function useStartWorkout() {
                 [WORKOUT_SESSION_KEY, workoutSession.uuid],
                 workoutSession,
             );
-
-            // Save to localStorage
-            const stored = localStorage.getItem(LOCAL_STORAGE_KEY);
-            const parsed = stored ? JSON.parse(stored) : {};
-            const myWorkoutSessions = parsed.myWorkoutSessions || [];
-
-            const updatedSessions = UuidHelper.replaceInCopy(
-                myWorkoutSessions,
-                workoutSession,
-                true,
-            );
-
-            localStorage.setItem(
-                LOCAL_STORAGE_KEY,
-                JSON.stringify({
-                    ...parsed,
-                    workoutSession,
-                    myWorkoutSessions: updatedSessions,
-                }),
-            );
+            syncActiveWorkoutSession(queryClient, workoutSession);
+            queryClient.invalidateQueries({ queryKey: [TIMELINE_QUERY_KEY] });
         },
 
         onError: (error) => {
@@ -562,110 +582,117 @@ export function useStartWorkout() {
     };
 }
 
+export function useWorkoutSessionSaveState() {
+    const isMutatingCount = useIsMutating({
+        mutationKey: WORKOUT_SESSION_SAVE_MUTATION_KEY,
+    });
+
+    const mutationStates = useMutationState({
+        filters: {
+            mutationKey: WORKOUT_SESSION_SAVE_MUTATION_KEY,
+        },
+        select: (mutation) => ({
+            status: mutation.state.status,
+            submittedAt: mutation.state.submittedAt,
+            error: mutation.state.error,
+        }),
+    });
+
+    const latestMutation = computed(() => {
+        return [...mutationStates.value].sort(
+            (a, b) => (b.submittedAt || 0) - (a.submittedAt || 0),
+        )[0];
+    });
+
+    return {
+        isPending: computed(() => isMutatingCount.value > 0),
+        isError: computed(() => latestMutation.value?.status === 'error'),
+        error: computed(() => latestMutation.value?.error ?? null),
+        submittedAt: computed(() => latestMutation.value?.submittedAt ?? 0),
+    };
+}
+
 export function useUpdateWorkoutSession() {
     const queryClient = useQueryClient();
-    const appStore = useAppStore();
 
-    const { mutate, mutateAsync } = useMutation({
-        mutationFn: async (workoutSession) => {
-            if (appStore.localOnlyUser) {
-                workoutSession.updatedAt = utcNow();
-                workoutSession.createdAt = workoutSession.createdAt || utcNow();
-                return workoutSession;
-            } else {
+    const { mutateAsync, isPending, isError, error, submittedAt } = useMutation(
+        {
+            mutationKey: WORKOUT_SESSION_SAVE_MUTATION_KEY,
+            mutationFn: async (workoutSession) => {
                 const response =
                     await WorkoutSessionService.save(workoutSession);
                 return response.data;
-            }
-        },
+            },
 
-        onMutate: async (workoutSession) => {
-            const queryKey = [WORKOUT_SESSION_KEY, workoutSession.uuid];
+            onMutate: async (workoutSession) => {
+                const queryKey = [WORKOUT_SESSION_KEY, workoutSession.uuid];
 
-            await queryClient.cancelQueries({ queryKey });
+                await queryClient.cancelQueries({ queryKey });
 
-            const previousWorkoutSession = queryClient.getQueryData(queryKey);
+                const previousWorkoutSession =
+                    queryClient.getQueryData(queryKey);
 
-            // Update the main cache
-            queryClient.setQueryData(queryKey, workoutSession);
+                // Update the main cache
+                queryClient.setQueryData(queryKey, workoutSession);
 
-            // Also update any by-set caches that contain this session
-            // Find all sets in this session and update their caches
-            // Each cache entry gets a fresh clone to ensure reactivity
-            const allSets = getAllSets(workoutSession);
-            allSets.forEach((set) => {
-                const bySetKey = [WORKOUT_SESSION_BY_SET_KEY, set.uuid];
-                queryClient.setQueryData(
-                    bySetKey,
-                    JSON.parse(JSON.stringify(workoutSession)),
-                );
-            });
-
-            // Save to localStorage
-            const stored = localStorage.getItem(LOCAL_STORAGE_KEY);
-            const parsed = stored ? JSON.parse(stored) : {};
-            localStorage.setItem(
-                LOCAL_STORAGE_KEY,
-                JSON.stringify({
-                    ...parsed,
-                    workoutSession,
-                }),
-            );
-
-            return { previousWorkoutSession, queryKey };
-        },
-
-        onError: (err, workoutSession, context) => {
-            if (context?.previousWorkoutSession) {
-                queryClient.setQueryData(
-                    context.queryKey,
-                    context.previousWorkoutSession,
-                );
-
-                // Also rollback by-set caches with fresh clones
-                const allSets = getAllSets(context.previousWorkoutSession);
+                // Also update any by-set caches that contain this session
+                // Find all sets in this session and update their caches
+                // Each cache entry gets a fresh clone to ensure reactivity
+                const allSets = getAllSets(workoutSession);
                 allSets.forEach((set) => {
                     const bySetKey = [WORKOUT_SESSION_BY_SET_KEY, set.uuid];
                     queryClient.setQueryData(
                         bySetKey,
-                        JSON.parse(
-                            JSON.stringify(context.previousWorkoutSession),
-                        ),
+                        JSON.parse(JSON.stringify(workoutSession)),
                     );
                 });
-            }
+                syncActiveWorkoutSession(queryClient, workoutSession);
+
+                return { previousWorkoutSession, queryKey };
+            },
+
+            onError: (err, workoutSession, context) => {
+                if (context?.previousWorkoutSession) {
+                    queryClient.setQueryData(
+                        context.queryKey,
+                        context.previousWorkoutSession,
+                    );
+
+                    // Also rollback by-set caches with fresh clones
+                    const allSets = getAllSets(context.previousWorkoutSession);
+                    allSets.forEach((set) => {
+                        const bySetKey = [WORKOUT_SESSION_BY_SET_KEY, set.uuid];
+                        queryClient.setQueryData(
+                            bySetKey,
+                            JSON.parse(
+                                JSON.stringify(context.previousWorkoutSession),
+                            ),
+                        );
+                    });
+                }
+            },
+
+            onSuccess: (response, workoutSession, context) => {
+                // Deep clone to ensure new object reference
+                const clonedResponse = JSON.parse(JSON.stringify(response));
+
+                // Update main cache
+                queryClient.setQueryData(context.queryKey, clonedResponse);
+
+                // Also update by-set caches with new clones for each
+                const allSets = getAllSets(clonedResponse);
+                allSets.forEach((set) => {
+                    const bySetKey = [WORKOUT_SESSION_BY_SET_KEY, set.uuid];
+                    // Each cache entry gets a fresh clone to ensure reactivity
+                    queryClient.setQueryData(
+                        bySetKey,
+                        JSON.parse(JSON.stringify(clonedResponse)),
+                    );
+                });
+                syncActiveWorkoutSession(queryClient, clonedResponse);
+            },
         },
-
-        onSuccess: (response, workoutSession, context) => {
-            // Deep clone to ensure new object reference
-            const clonedResponse = JSON.parse(JSON.stringify(response));
-
-            // Update main cache
-            queryClient.setQueryData(context.queryKey, clonedResponse);
-
-            // Also update by-set caches with new clones for each
-            const allSets = getAllSets(clonedResponse);
-            allSets.forEach((set) => {
-                const bySetKey = [WORKOUT_SESSION_BY_SET_KEY, set.uuid];
-                // Each cache entry gets a fresh clone to ensure reactivity
-                queryClient.setQueryData(
-                    bySetKey,
-                    JSON.parse(JSON.stringify(clonedResponse)),
-                );
-            });
-
-            // Update localStorage with server response
-            const stored = localStorage.getItem(LOCAL_STORAGE_KEY);
-            const parsed = stored ? JSON.parse(stored) : {};
-            localStorage.setItem(
-                LOCAL_STORAGE_KEY,
-                JSON.stringify({
-                    ...parsed,
-                    workoutSession: clonedResponse,
-                }),
-            );
-        },
-    });
+    );
 
     // Core update functions that call mutate
     const updateWorkoutSession = (updates) => {
@@ -718,6 +745,10 @@ export function useUpdateWorkoutSession() {
 
     // Return all methods
     return {
+        isPending,
+        isError,
+        error,
+        submittedAt,
         updateWorkoutSession,
         updateSet,
         updateExercise,
@@ -755,6 +786,60 @@ export function useUpdateWorkoutSession() {
 
         updateExerciseSkipped: (sessionUuid, exerciseUuid, skipped) => {
             return updateExercise(sessionUuid, exerciseUuid, { skipped });
+        },
+
+        skipExercise: (sessionUuid, exerciseUuid) => {
+            const currentSession = queryClient.getQueryData([
+                WORKOUT_SESSION_KEY,
+                sessionUuid,
+            ]);
+
+            const exercise = currentSession?.sessionExercises?.find(
+                (ex) => ex.uuid === exerciseUuid,
+            );
+
+            if (!exercise) {
+                return Promise.resolve();
+            }
+
+            const now = utcNow();
+            const updatedSession = JSON.parse(JSON.stringify(currentSession));
+            const updatedExercise = updatedSession.sessionExercises.find(
+                (ex) => ex.uuid === exerciseUuid,
+            );
+
+            updatedExercise.skipped = true;
+
+            if (
+                updatedExercise.warmUpStartedAt &&
+                !updatedExercise.warmUpEndedAt
+            ) {
+                updatedExercise.warmUpEndedAt = now;
+                updatedExercise.warmUpDuration = differenceInSeconds(
+                    new Date(now),
+                    new Date(updatedExercise.warmUpStartedAt),
+                );
+            }
+
+            updatedExercise.sessionSets?.forEach((set) => {
+                if (!set.startedAt) {
+                    set.startedAt = now;
+                }
+
+                if (!set.endedAt) {
+                    set.endedAt = now;
+                }
+
+                if (set.restPeriodStartedAt && !set.restPeriodEndedAt) {
+                    set.restPeriodEndedAt = now;
+                    set.restPeriodDuration = differenceInSeconds(
+                        new Date(now),
+                        new Date(set.restPeriodStartedAt),
+                    );
+                }
+            });
+
+            return mutateAsync(updatedSession);
         },
 
         startSet: (sessionUuid, setUuid) => {
@@ -843,7 +928,7 @@ export function useUpdateWorkoutSession() {
             });
         },
 
-        endWorkout: (sessionUuid) => {
+        endWorkout: async (sessionUuid) => {
             const currentSession = queryClient.getQueryData([
                 WORKOUT_SESSION_KEY,
                 sessionUuid,
@@ -867,48 +952,40 @@ export function useUpdateWorkoutSession() {
             updatedLastExercise.endedAt = endedAt;
             updatedSession.endedAt = endedAt;
 
-            mutate(updatedSession);
+            const savedSession = await mutateAsync(updatedSession);
+            queryClient.invalidateQueries({ queryKey: [TIMELINE_QUERY_KEY] });
+            return savedSession;
         },
     };
 }
 
 export function useDeleteWorkoutSession() {
     const queryClient = useQueryClient();
-    const appStore = useAppStore();
 
     const { mutate } = useMutation({
         mutationFn: async (workoutSessionUuid) => {
-            if (!appStore.localOnlyUser) {
-                await WorkoutSessionService.delete(workoutSessionUuid);
-            }
+            await WorkoutSessionService.delete(workoutSessionUuid);
             return workoutSessionUuid;
         },
 
         onMutate: async (workoutSessionUuid) => {
             // Remove from cache
-            queryClient.removeQueries([
-                WORKOUT_SESSION_KEY,
-                workoutSessionUuid,
+            queryClient.removeQueries({
+                queryKey: [WORKOUT_SESSION_KEY, workoutSessionUuid],
+            });
+
+            const activeSession = queryClient.getQueryData([
+                ACTIVE_WORKOUT_SESSION_KEY,
             ]);
-
-            // Remove from localStorage
-            const stored = localStorage.getItem(LOCAL_STORAGE_KEY);
-            const parsed = stored ? JSON.parse(stored) : {};
-            const myWorkoutSessions = parsed.myWorkoutSessions || [];
-
-            const updatedSessions = myWorkoutSessions.filter(
-                (session) => session.uuid !== workoutSessionUuid,
-            );
-
-            localStorage.setItem(
-                LOCAL_STORAGE_KEY,
-                JSON.stringify({
-                    ...parsed,
-                    myWorkoutSessions: updatedSessions,
-                }),
-            );
+            if (activeSession?.uuid === workoutSessionUuid) {
+                queryClient.setQueryData([ACTIVE_WORKOUT_SESSION_KEY], null);
+            }
 
             return { workoutSessionUuid };
+        },
+
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: [TIMELINE_QUERY_KEY] });
         },
 
         onError: (error) => {

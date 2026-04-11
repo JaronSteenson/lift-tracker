@@ -1,15 +1,20 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/vue-query';
+import {
+    useQuery,
+    useMutation,
+    useQueryClient,
+    useIsMutating,
+    useMutationState,
+} from '@tanstack/vue-query';
 import { computed, toValue } from 'vue';
 import { useRoute } from 'vue-router';
 import UuidHelper from '../../../../UuidHelper/index';
 import WorkoutProgramService from '../../../../api/WorkoutProgramService';
-import { useAppStore } from '../../../../stores/app';
-import { useProgramBuilderStore } from '../../../../stores/programBuilder';
 
 const WORKOUT_PROGRAM_LIST_KEY = 'workoutProgramList';
 const WORKOUT_PROGRAM_KEY = 'workoutProgram';
 const WORKOUT_PROGRAM_BY_ROUTINE_KEY = 'workoutProgramByRoutine';
 const NEW_WORKOUT_PROGRAM_KEY = 'new';
+const WORKOUT_PROGRAM_SAVE_MUTATION_KEY = ['workoutProgramSave'];
 
 function createDraftWorkoutProgram() {
     return {
@@ -98,7 +103,7 @@ export function useWorkoutProgramList() {
 export function useWorkoutProgram(workoutProgramUuid = null) {
     const route = useRoute();
     const uuid = computed(
-        () => workoutProgramUuid || route.params.workoutProgramUuid,
+        () => toValue(workoutProgramUuid) || route.params.workoutProgramUuid,
     );
 
     const { data, error, isLoading } = useQuery({
@@ -187,8 +192,6 @@ export function useWorkoutProgramByRoutine(routineUuid) {
 
 export function useDeleteWorkoutProgram() {
     const queryClient = useQueryClient();
-    const appStore = useAppStore();
-    const programBuilderStore = useProgramBuilderStore();
 
     const { mutateAsync } = useMutation({
         mutationFn: async (workoutProgramUuid) => {
@@ -196,9 +199,7 @@ export function useDeleteWorkoutProgram() {
                 return workoutProgramUuid;
             }
 
-            if (!appStore.localOnlyUser) {
-                await WorkoutProgramService.delete(workoutProgramUuid);
-            }
+            await WorkoutProgramService.delete(workoutProgramUuid);
 
             return workoutProgramUuid;
         },
@@ -259,25 +260,6 @@ export function useDeleteWorkoutProgram() {
                 );
             }
         },
-
-        onSuccess: (workoutProgramUuid) => {
-            if (!workoutProgramUuid) {
-                return;
-            }
-
-            programBuilderStore.myWorkoutPrograms = removeWorkoutProgram(
-                programBuilderStore.myWorkoutPrograms,
-                workoutProgramUuid,
-            );
-
-            if (
-                programBuilderStore.inFocusProgram.uuid === workoutProgramUuid
-            ) {
-                programBuilderStore.startNew();
-            } else {
-                programBuilderStore.saveToLocalStorage();
-            }
-        },
     });
 
     return {
@@ -285,10 +267,41 @@ export function useDeleteWorkoutProgram() {
     };
 }
 
+export function useWorkoutProgramSaveState() {
+    const isMutatingCount = useIsMutating({
+        mutationKey: WORKOUT_PROGRAM_SAVE_MUTATION_KEY,
+    });
+
+    const mutationStates = useMutationState({
+        filters: {
+            mutationKey: WORKOUT_PROGRAM_SAVE_MUTATION_KEY,
+        },
+        select: (mutation) => ({
+            status: mutation.state.status,
+            submittedAt: mutation.state.submittedAt,
+            error: mutation.state.error,
+        }),
+    });
+
+    const latestMutation = computed(() => {
+        return [...mutationStates.value].sort(
+            (a, b) => (b.submittedAt || 0) - (a.submittedAt || 0),
+        )[0];
+    });
+
+    return {
+        isPending: computed(() => isMutatingCount.value > 0),
+        isError: computed(() => latestMutation.value?.status === 'error'),
+        error: computed(() => latestMutation.value?.error ?? null),
+        submittedAt: computed(() => latestMutation.value?.submittedAt ?? 0),
+    };
+}
+
 export function useUpdateWorkoutProgram(routineUuid = null) {
     const queryClient = useQueryClient();
 
-    const { mutate } = useMutation({
+    const { mutate, isPending, isError, error, submittedAt } = useMutation({
+        mutationKey: WORKOUT_PROGRAM_SAVE_MUTATION_KEY,
         mutationFn: async (updatedWorkoutProgram) => {
             return WorkoutProgramService.save(updatedWorkoutProgram);
         },
@@ -358,6 +371,10 @@ export function useUpdateWorkoutProgram(routineUuid = null) {
     });
 
     return {
+        isPending,
+        isError,
+        error,
+        submittedAt,
         updateWorkoutProgram(workoutProgramUuid, updates) {
             const queryKey = getWorkoutProgramQueryKey(workoutProgramUuid);
             const current = queryClient.getQueryData(queryKey);

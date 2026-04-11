@@ -2,7 +2,17 @@ import SessionExerciseStatsModal from '../../../../components/domain/workoutSess
 import BackForwardToolbar from '../../../../components/BackForwardToolbar';
 import { prepareForLocalVueMount } from '../../../vueHelpers';
 import { shallowMount } from '@vue/test-utils';
-import { expect, test, describe, vi } from 'vitest';
+import { expect, test, describe, beforeEach, vi } from 'vitest';
+import { useRoute, useRouter } from 'vue-router';
+
+vi.mock('vue-router', async () => {
+    const actual = await vi.importActual('vue-router');
+    return {
+        ...actual,
+        useRoute: vi.fn(),
+        useRouter: vi.fn(),
+    };
+});
 
 const mountOptions = prepareForLocalVueMount();
 
@@ -12,15 +22,11 @@ const set = {
     restPeriodDuration: 90,
 };
 
-const workoutSession = {
-    bodyWeight: null,
-};
-
 const singleSetExercise = {
     name: 'DB rows',
     createdAt: '2019-12-04T12:00:00',
     sessionSets: [set],
-    workoutSession,
+    bodyWeight: null,
 };
 
 const singleSetExerciseWithNotes = {
@@ -28,7 +34,7 @@ const singleSetExerciseWithNotes = {
     createdAt: '2019-12-04T12:00:00',
     sessionSets: [set],
     notes: 'This exercise went very well.',
-    workoutSession,
+    bodyWeight: null,
 };
 
 const otherSingleSetExerciseWithNotes = {
@@ -36,21 +42,21 @@ const otherSingleSetExerciseWithNotes = {
     createdAt: '2019-12-04T12:00:00',
     sessionSets: [set],
     notes: 'This exercise did not go very well.',
-    workoutSession,
+    bodyWeight: null,
 };
 
 const doubleSetExercise = {
     name: 'DB rows',
     createdAt: '2019-12-04T12:00:00',
     sessionSets: [set, set],
-    workoutSession,
+    bodyWeight: null,
 };
 
 const multipleSetExercise = {
     name: 'DB rows',
     createdAt: '2019-12-04T12:00:00',
     sessionSets: [set, set, set],
-    workoutSession,
+    bodyWeight: null,
 };
 
 const createMountOptions = (props) => ({
@@ -61,15 +67,20 @@ const createMountOptions = (props) => ({
     ...mountOptions,
     global: {
         ...mountOptions.global,
-        mocks: {
-            ...mountOptions.global.mocks,
-            $route: { query: { 'stats-open': 'true' }, path: '/test' },
-            $router: { push: vi.fn() },
-        },
     },
 });
 
 describe('SessionExerciseStatsModal.vue', () => {
+    beforeEach(() => {
+        vi.mocked(useRoute).mockReturnValue({
+            query: { 'stats-open': 'true' },
+            path: '/test',
+        });
+        vi.mocked(useRouter).mockReturnValue({
+            push: vi.fn(),
+        });
+    });
+
     test('should render correctly in single set mode', () => {
         const wrapper = shallowMount(
             SessionExerciseStatsModal,

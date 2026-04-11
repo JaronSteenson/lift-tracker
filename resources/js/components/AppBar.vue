@@ -11,8 +11,8 @@
                 }"
             >
                 <VAppBarNavIcon
-                    v-if="showDrawerIcon && appStore.userIsAuthenticated"
-                    @click.stop="drawer = !drawer"
+                    v-if="showDrawerIcon && userIsAuthenticated"
+                    @click.stop="toggleDrawer"
                 />
                 <VBtn
                     v-else-if="backTo"
@@ -27,14 +27,14 @@
 
                 <slot v-if="display.xs.value" name="middle">
                     <VToolbarTitle class="mx-2 d-flex align-center">
-                        {{ title || appStore.appName }}
+                        {{ title || appName }}
                     </VToolbarTitle>
                 </slot>
             </div>
 
             <slot v-if="display.smAndUp.value" name="middle">
                 <VToolbarTitle class="mx-2">
-                    {{ title || appStore.appName }}
+                    {{ title || appName }}
                 </VToolbarTitle>
             </slot>
 
@@ -53,11 +53,11 @@
 
 <script>
 import AvatarInitials from './AvatarInitials';
-import { useAppStore } from '../stores/app';
 import { useDisplay } from 'vuetify';
 import { svgIcons } from '../vuetify';
-import { computed } from 'vue';
 import { useTheme } from 'vuetify/framework';
+import { useAuth } from './domain/auth/composables/useAuth';
+import { useAppShell } from '../composables/useAppShell';
 
 export default {
     name: 'AppBar',
@@ -70,7 +70,9 @@ export default {
         title: String,
     },
     setup() {
-        const appStore = useAppStore();
+        const { userIsAuthenticated } = useAuth();
+        const { appName, navigationDrawerOpen, setNavigationDrawerOpen } =
+            useAppShell();
         const display = useDisplay();
         const theme = useTheme();
 
@@ -81,20 +83,16 @@ export default {
 
         // Option 2: Use theme color name with color prop (uncomment if you prefer this)
         // const colour = 'surface'; // or 'background', 'primary', etc.
-        const drawer = computed({
-            get() {
-                return appStore.navigationDrawerOpen;
-            },
-            set(value) {
-                appStore.setNavigationDrawerOpen(value);
-            },
-        });
+        function toggleDrawer() {
+            setNavigationDrawerOpen(!navigationDrawerOpen.value);
+        }
 
         return {
-            appStore,
+            appName,
+            userIsAuthenticated,
             display,
             svgIcons,
-            drawer,
+            toggleDrawer,
             colour,
         };
     },

@@ -6,6 +6,7 @@ using LiftTrackerApi.Entities;
 using LiftTrackerApi.Extensions;
 using LiftTrackerApi.Tests.Integration.Fixtures;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 
 namespace LiftTrackerApi.Tests.Integration;
@@ -15,6 +16,7 @@ public class WorkoutProgramControllerTests(WorkoutDbFixture fixture)
     : IClassFixture<WorkoutDbFixture>
 {
     private readonly HttpClient _client = fixture.Client;
+    private readonly WorkoutDbFixture _fixture = fixture;
     private readonly string _longString =
         "12345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901";
 
@@ -160,6 +162,43 @@ public class WorkoutProgramControllerTests(WorkoutDbFixture fixture)
         Assert.Equal("any", emptyLastRoutine.NormalDay);
         Assert.Equal(2, emptyLastRoutine.Position);
         Assert.Empty(emptyLastRoutine.RoutineExercises);
+    }
+
+    /// <see cref="WorkoutProgramController.GetByRoutineUuid(Guid)" />
+    [Fact]
+    public async Task Get_ByRoutineUuid_ExcludesSoftDeletedRoutineExercises()
+    {
+        var db = _fixture.Factory.Services.GetRequiredService<LiftTrackerDbContext>();
+        var pushUps = await db
+            .RoutineExercises.IgnoreQueryFilters()
+            .WhereUuid(Guid.Parse("231f3f81-4680-4086-b228-168116ae330a"))
+            .FirstAsync();
+        var originalDeletedAt = pushUps.DeletedAt;
+
+        try
+        {
+            pushUps.DeletedAt = DateTime.UtcNow;
+            await db.SaveChangesAsync();
+
+            var response = await _client.GetAsync(
+                "/api/workout-programs/by-routine/cd218127-b60d-46a7-bbc1-a17332bea15f"
+            );
+
+            response.EnsureSuccessStatusCode();
+
+            var json = await response.Content.ReadAsStringAsync();
+            var workoutProgram = JsonConvert.DeserializeObject<WorkoutProgram>(json);
+
+            var populatedRoutine = workoutProgram!.WorkoutProgramRoutines.Single(routine =>
+                routine.Uuid == Guid.Parse("cd218127-b60d-46a7-bbc1-a17332bea15f")
+            );
+            Assert.Empty(populatedRoutine.RoutineExercises);
+        }
+        finally
+        {
+            pushUps.DeletedAt = originalDeletedAt;
+            await db.SaveChangesAsync();
+        }
     }
 
     /// <see cref="WorkoutProgramController.Create(WorkoutProgram)" />
@@ -867,5 +906,80 @@ public class WorkoutProgramControllerTests(WorkoutDbFixture fixture)
         errors["WorkoutProgramRoutines[0].RoutineExercises[0].Name"]
             .Should()
             .Contain("Name must be at most 100 characters");
+    }
+
+    [Fact]
+    public async Task Put_ReturnsBadRequest_WhenRoutineExercisePayloadIsBlank()
+    {
+        var editedProgram = new WorkoutProgram
+        {
+            Uuid = Guid.Parse("186383a6-e369-4071-b80d-70c82d2495d1"),
+            Name = "Test Workout Program",
+            UserId = 1,
+            WorkoutProgramRoutines = new List<WorkoutProgramRoutine>
+            {
+                new()
+                {
+                    Uuid = Guid.Parse("073379e9-0bc1-4f69-9cd5-1b0e7074d1a3"),
+                    Name = "Empty First Routine",
+                    NormalDay = "any",
+                    Position = 0,
+                    RoutineExercises = new List<RoutineExercise>(),
+                },
+                new()
+                {
+                    Uuid = Guid.Parse("cd218127-b60d-46a7-bbc1-a17332bea15f"),
+                    Name = "Populated Routine",
+                    NormalDay = "any",
+                    Position = 1,
+                    RoutineExercises = new List<RoutineExercise>
+                    {
+                        new()
+                        {
+                            Uuid = Guid.Parse("231f3f81-4680-4086-b228-168116ae330a"),
+                            Name = "Push Ups",
+                            NumberOfSets = 3,
+                            Position = 0,
+                            Weight = 50,
+                            RestPeriod = 120,
+                            WarmUp = 60,
+                        },
+                        new()
+                        {
+                            Uuid = Guid.Parse("90000000-0000-0000-0000-000000000001"),
+                            Name = null,
+                            NumberOfSets = null,
+                            Position = 1,
+                            Weight = null,
+                            RestPeriod = null,
+                            WarmUp = null,
+                        },
+                    },
+                },
+                new()
+                {
+                    Uuid = Guid.Parse("8a94625e-88be-4750-ade2-262cf14aa921"),
+                    Name = "Empty First Routine (last touched)",
+                    NormalDay = "any",
+                    Position = 2,
+                    RoutineExercises = new List<RoutineExercise>(),
+                },
+            },
+        };
+
+        var content = new StringContent(
+            JsonConvert.SerializeObject(editedProgram),
+            Encoding.UTF8,
+            "application/json"
+        );
+
+        var response = await _client.PutAsync("/api/workout-programs", content);
+
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+
+        var responseJson = await response.Content.ReadAsStringAsync();
+        responseJson.Should().Contain(
+            "Routine exercise payload is blank. Name or training fields must be provided."
+        );
     }
 }

@@ -6,7 +6,13 @@
         />
         <NoProgramsWelcomeHint v-else-if="shouldShowNoProgramsWelcomeHint" />
         <NoSessionsHint v-else-if="shouldShowNoSessionsHint" />
-        <MyTimeline v-else />
+        <MyTimeline
+            v-else
+            :data="data"
+            :is-pending="isPending"
+            :fetch-next-page="fetchNextPage"
+            :has-next-page="hasNextPage"
+        />
     </div>
 </template>
 
@@ -16,7 +22,7 @@ import NoProgramsWelcomeHint from '../domain/userHints/NoProgramsWelcomeHint';
 import NoSessionsHint from '../domain/userHints/NoSessionsHint';
 import PageAppBar from '../AppBar';
 import SessionOverviewLoadingSkeleton from '../domain/workoutSessions/SessionOverviewLoadingSkeleton.vue';
-import { useAppStore } from '../../stores/app';
+import { useAppShell } from '../../composables/useAppShell';
 import { useTimelineQuery } from '../domain/workoutSessions/composibles/workoutSessionQueries';
 import { useWorkoutProgramList } from '../domain/programBuilder/composibles/programBuilderQueries';
 
@@ -30,25 +36,25 @@ export default {
         MyTimeline,
     },
     setup() {
-        const appStore = useAppStore();
-        const { data, isPending } = useTimelineQuery();
+        const { appName } = useAppShell();
+        const { data, isPending, fetchNextPage, hasNextPage } =
+            useTimelineQuery();
         const {
             isPending: workoutProgramsIsPending,
             shouldShowNoProgramsWelcomeHint,
         } = useWorkoutProgramList();
 
         return {
-            appStore,
+            appName,
             data,
             isPending,
+            fetchNextPage,
+            hasNextPage,
             shouldShowNoProgramsWelcomeHint,
             workoutProgramsIsPending,
         };
     },
     computed: {
-        appName() {
-            return this.appStore.appName;
-        },
         shouldShowNoSessionsHint() {
             return !this.isPending && this.data?.length === 0;
         },

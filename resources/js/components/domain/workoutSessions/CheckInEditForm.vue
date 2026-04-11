@@ -95,6 +95,10 @@ const route = useRoute();
 
 const saving = ref(false);
 
+function cloneWorkoutSession(session) {
+    return JSON.parse(JSON.stringify(session));
+}
+
 // Load existing workout session if editing
 const { workoutSession: existingSession } = useWorkoutSession(
     computed(() => route.params.workoutSessionUuid),
@@ -103,16 +107,20 @@ const { workoutSession: existingSession } = useWorkoutSession(
 // Local data for the form
 const workoutSessionData = ref(
     route.params.workoutSessionUuid && existingSession.value
-        ? existingSession.value
+        ? cloneWorkoutSession(existingSession.value)
         : createCheckIn(),
 );
 
 // Update local data when existing session loads
-watch(existingSession, (session) => {
-    if (session && route.params.workoutSessionUuid) {
-        workoutSessionData.value = session;
-    }
-});
+watch(
+    existingSession,
+    (session) => {
+        if (session && route.params.workoutSessionUuid) {
+            workoutSessionData.value = cloneWorkoutSession(session);
+        }
+    },
+    { immediate: true },
+);
 
 const { updateWorkoutSession } = useUpdateWorkoutSession();
 const { deleteWorkoutSession } = useDeleteWorkoutSession();
@@ -124,23 +132,28 @@ const pageTitle = computed(() =>
 async function save() {
     saving.value = true;
 
-    // Save check-in
-    updateWorkoutSession(workoutSessionData.value);
+    const sessionToSave = cloneWorkoutSession(workoutSessionData.value);
 
-    // Wait a bit for the mutation to complete
-    await new Promise((resolve) => setTimeout(resolve, 500));
-
-    const workoutSession = workoutSessionData.value;
+    const workoutSession = await updateWorkoutSession(sessionToSave);
 
     if (props.toFirstSetAfterSave) {
         const firstSet = getFirstSet(workoutSession);
-        await router.push({
-            name: 'SetOverviewPage',
-            params: {
-                sessionSetUuid: firstSet.uuid,
-                fromCheckIn: true,
-            },
-        });
+        if (firstSet?.uuid) {
+            await router.push({
+                name: 'SetOverviewPage',
+                params: {
+                    sessionSetUuid: firstSet.uuid,
+                    fromCheckIn: true,
+                },
+            });
+        } else {
+            await router.push({
+                name: 'SessionOverviewPage',
+                params: { workoutSessionUuid: workoutSession.uuid },
+            });
+        }
+
+        saving.value = false;
         return;
     }
 

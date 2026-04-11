@@ -5,13 +5,13 @@
 </template>
 
 <script>
-import { useAppStore } from '../../stores/app';
+import { useAuth } from '../domain/auth/composables/useAuth';
 
 export default {
     name: 'FacebookLoginDeleteAccountButton',
     setup() {
-        const appStore = useAppStore();
-        return { appStore };
+        const { logout: performLogout } = useAuth();
+        return { performLogout };
     },
     data() {
         return {
@@ -20,7 +20,7 @@ export default {
     },
     methods: {
         async logout() {
-            await this.appStore.logout();
+            await this.performLogout();
         },
     },
 };

@@ -8,7 +8,7 @@
         <template v-slot:activator="{ props }">
             <VBtn icon v-bind="props">
                 <VAvatar color="secondary" :size="32">
-                    {{ appStore.user.name.charAt(0).toUpperCase() }}
+                    {{ user.name.charAt(0).toUpperCase() }}
                 </VAvatar>
             </VBtn>
         </template>
@@ -16,28 +16,20 @@
             <VListItem :to="{ name: 'AccountPage' }">
                 <VListItemTitle>My account</VListItemTitle>
             </VListItem>
-            <VListItem v-if="!userIsLocalOnly" @click="logout">
+            <VListItem @click="logout">
                 <VListItemTitle>Logout</VListItemTitle>
             </VListItem>
         </VList>
     </VMenu>
 </template>
 <script>
-import { useAppStore } from '../stores/app';
+import { useAuth } from './domain/auth/composables/useAuth';
 
 export default {
     name: 'AvatarInitials',
     setup() {
-        const appStore = useAppStore();
-        return { appStore };
-    },
-    computed: {
-        userIsAuthenticated() {
-            return this.appStore.userIsAuthenticated;
-        },
-        userIsLocalOnly() {
-            return this.appStore.userIsLocalOnly;
-        },
+        const { user, userIsAuthenticated, logout: performLogout } = useAuth();
+        return { user, userIsAuthenticated, performLogout };
     },
     methods: {
         async logout() {
@@ -46,7 +38,7 @@ export default {
                 return;
             }
 
-            await this.appStore.logout();
+            await this.performLogout();
         },
     },
 };

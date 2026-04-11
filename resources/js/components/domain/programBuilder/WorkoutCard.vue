@@ -68,6 +68,7 @@
                             :exercise-uuid="exercise.uuid"
                             :workoutProgramProp="workoutProgramProp"
                             :routineUuid="routineUuid"
+                            :isDraggingExercise="isDraggingExercise"
                             ref="exercise-cards"
                         />
                     </template>
@@ -118,8 +119,6 @@ import ExerciseCard from './ExerciseCard';
 import Draggable from 'vuedraggable';
 import MissingValue from '../../util/MissingValue';
 import AddNewButton from '../../formFields/AddNewButton';
-import { useWorkoutSessionStore } from '../../../stores/workoutSession';
-import { useProgramBuilderStore } from '../../../stores/programBuilder';
 import { useDisplay } from 'vuetify';
 import {
     useUpdateWorkoutProgram,
@@ -182,13 +181,12 @@ const exercises = computed(() => {
     return result;
 });
 
-const programBuilderStore = useProgramBuilderStore();
-const workoutSessionStore = useWorkoutSessionStore();
 const { startWorkout: startWorkoutMutation } = useStartWorkout();
 const { xs, smAndDown } = useDisplay();
 const router = useRouter();
 
 const starting = ref(false);
+const isDraggingExercise = ref(false);
 const name = ref(workout.value?.name);
 
 const hasNoExercises = computed(() => {
@@ -218,36 +216,29 @@ const deleteWorkout = () => {
     deleteWorkoutMutation(workoutProgram.value.uuid, props.workoutUuid);
 };
 
+const onExercisesChange = (evt) => {
+    moveExercise(workoutProgram.value.uuid, props.workoutUuid, evt);
+};
+
 const onDragStart = () => {
-    programBuilderStore.setDraggingExercise(true);
+    isDraggingExercise.value = true;
 };
 
 const onDragEnd = () => {
-    programBuilderStore.setDraggingExercise(false);
-};
-
-const onExercisesChange = (evt) => {
-    moveExercise(workoutProgram.value.uuid, props.workoutUuid, evt);
+    window.setTimeout(() => {
+        isDraggingExercise.value = false;
+    }, 0);
 };
 
 const startWorkout = async () => {
     starting.value = true;
 
-    // Get myWorkoutSessions from localStorage
-    const stored = localStorage.getItem('store-state--WorkoutSession');
-    const parsed = stored ? JSON.parse(stored) : {};
-    const myWorkoutSessions = parsed.myWorkoutSessions || [];
-
     startWorkoutMutation(
         {
             originWorkout: workout.value,
-            myWorkoutSessions,
         },
         {
             onSuccess: (workoutSession) => {
-                // Update the store for compatibility with existing code
-                workoutSessionStore.workoutSession = workoutSession;
-
                 // Get first set from the new session
                 const firstSet =
                     workoutSession?.sessionExercises?.[0]?.sessionSets?.[0] ||

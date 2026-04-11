@@ -113,15 +113,6 @@ export function getAvailableThemes() {
 
 export function saveSelectedThemeKey(themeKey) {
     localStorage.setItem('themeKey', themeKey);
-
-    // Force a storage event to notify other parts of the app
-    window.dispatchEvent(
-        new StorageEvent('storage', {
-            key: 'themeKey',
-            newValue: themeKey,
-            storageArea: localStorage,
-        }),
-    );
 }
 
 export function getInitialVuetifyOptions() {

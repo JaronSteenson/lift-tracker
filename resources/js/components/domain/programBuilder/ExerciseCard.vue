@@ -4,7 +4,7 @@
         outlined
         role="button"
         :ripple="false"
-        @click="showEditModal = true"
+        @click="openEditModal"
     >
         <VCardTitle class="exercise-card-title-wrapper d-flex align-center">
             <div class="exercise-card-title flex-grow-1">
@@ -50,6 +50,7 @@
                 v-model:value="showEditModal"
                 :routineExerciseUuid="exercise.uuid"
                 :routineUuid="routineUuid"
+                :workoutProgramUuid="workoutProgram?.uuid"
             />
         </Teleport>
     </VCard>
@@ -68,6 +69,7 @@ const props = defineProps({
     exerciseUuid: { type: String, required: true },
     workoutProgramProp: { type: Object, default: null },
     routineUuid: { type: String, default: null },
+    isDraggingExercise: { type: Boolean, default: false },
 });
 
 const { workoutProgram: workoutProgramFromQuery, getExercise } =
@@ -131,6 +133,14 @@ const deleteExercise = () => {
         workoutProgram.value.uuid,
         props.exerciseUuid,
     );
+};
+
+const openEditModal = () => {
+    if (props.isDraggingExercise) {
+        return;
+    }
+
+    showEditModal.value = true;
 };
 </script>
 
