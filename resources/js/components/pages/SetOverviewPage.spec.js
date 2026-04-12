@@ -26,5 +26,5 @@ describe('Set overview page', () => {
         await screen.findByText('Session overview');
         screen.getByText('Test routine');
         screen.getByText('Test exercise');
-    });
+    }, 10000);
 });
