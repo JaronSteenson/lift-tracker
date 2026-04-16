@@ -298,6 +298,7 @@
                                     v-if="isLastSetOfWorkout"
                                     :height="xs ? '4rem' : null"
                                     large
+                                    :loading="isEndingWorkout"
                                     :ripple="false"
                                     :disabled="isEndingWorkout"
                                     :width="!smAndUp ? '100%' : null"
@@ -432,9 +433,9 @@ const {
     updateSetRestPeriodDuration,
     updateExerciseNotes: updateNotesMutation,
     updateExerciseSkipped,
-    skipExercise: skipExerciseMutation,
-    startSet,
-    endSet,
+    skipExerciseAndStartSet,
+    skipExerciseAndEndWorkout,
+    advanceToNextSet,
     startWarmUp,
     endWarmUp,
     startRestPeriod,
@@ -793,14 +794,16 @@ async function endWorkout() {
     isEndingWorkout.value = true;
     startSetChangeTransition(queryClient);
 
-    endWorkoutMutation(uuid.value);
-    await router.push({
-        name: 'SessionOverviewPage',
-        params: { workoutSessionUuid: uuid.value },
-    });
-
-    isEndingWorkout.value = false;
-    finishSetChangeTransition(queryClient);
+    try {
+        await endWorkoutMutation(uuid.value);
+        await router.push({
+            name: 'SessionOverviewPage',
+            params: { workoutSessionUuid: uuid.value },
+        });
+    } finally {
+        isEndingWorkout.value = false;
+        finishSetChangeTransition(queryClient);
+    }
 }
 
 function resetWarmUp() {
@@ -815,35 +818,56 @@ async function startNextSet() {
     startSetChangeTransition(queryClient);
 
     const nextSetUuid = nextSet.value.uuid;
-    await endSet(uuid.value, set.value.uuid);
-    await startSet(uuid.value, nextSetUuid);
+    void advanceToNextSet(uuid.value, set.value.uuid, nextSetUuid).catch(
+        () => {},
+    );
 
-    await router.push({
-        name: 'SetOverviewPage',
-        params: { sessionSetUuid: nextSetUuid },
-    });
-
-    finishSetChangeTransition(queryClient);
-}
-
-async function skipExercise() {
-    startSetChangeTransition(queryClient);
-    const nextSetUuid = nextExerciseFirstSet.value?.uuid;
-
-    await skipExerciseMutation(uuid.value, exercise.value.uuid);
-
-    if (nextSetUuid) {
-        await startSet(uuid.value, nextSetUuid);
+    try {
         await router.push({
             name: 'SetOverviewPage',
             params: { sessionSetUuid: nextSetUuid },
         });
-    } else {
-        tryEndWorkout();
+    } finally {
+        finishSetChangeTransition(queryClient);
+    }
+}
+
+async function skipExercise() {
+    const nextSetUuid = nextExerciseFirstSet.value?.uuid;
+
+    if (nextSetUuid) {
+        startSetChangeTransition(queryClient);
+        void skipExerciseAndStartSet(
+            uuid.value,
+            exercise.value.uuid,
+            nextSetUuid,
+        ).catch(() => {});
+
+        try {
+            await router.push({
+                name: 'SetOverviewPage',
+                params: { sessionSetUuid: nextSetUuid },
+            });
+        } finally {
+            finishSetChangeTransition(queryClient);
+        }
+
         return;
     }
 
-    finishSetChangeTransition(queryClient);
+    isEndingWorkout.value = true;
+    startSetChangeTransition(queryClient);
+
+    try {
+        await skipExerciseAndEndWorkout(uuid.value, exercise.value.uuid);
+        await router.push({
+            name: 'SessionOverviewPage',
+            params: { workoutSessionUuid: uuid.value },
+        });
+    } finally {
+        isEndingWorkout.value = false;
+        finishSetChangeTransition(queryClient);
+    }
 }
 
 async function markExerciseNotSkipped() {

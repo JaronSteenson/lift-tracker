@@ -542,10 +542,27 @@ function syncActiveWorkoutSession(queryClient, workoutSession) {
     }
 }
 
+function writeWorkoutSessionToCaches(queryClient, workoutSession) {
+    queryClient.setQueryData(
+        [WORKOUT_SESSION_KEY, workoutSession.uuid],
+        workoutSession,
+    );
+
+    const allSets = getAllSets(workoutSession);
+    allSets.forEach((set) => {
+        queryClient.setQueryData(
+            [WORKOUT_SESSION_BY_SET_KEY, set.uuid],
+            JSON.parse(JSON.stringify(workoutSession)),
+        );
+    });
+
+    syncActiveWorkoutSession(queryClient, workoutSession);
+}
+
 export function useStartWorkout() {
     const queryClient = useQueryClient();
 
-    const { mutate, isPending } = useMutation({
+    const { mutateAsync, isPending } = useMutation({
         mutationFn: async ({ originWorkout }) => {
             const existingCheckIn = getTimelineSessions(queryClient).find(
                 (session) => isToday(session.createdAt) && !session.startedAt,
@@ -562,12 +579,10 @@ export function useStartWorkout() {
         },
 
         onSuccess: (workoutSession) => {
-            // Update the workout session cache
-            queryClient.setQueryData(
-                [WORKOUT_SESSION_KEY, workoutSession.uuid],
-                workoutSession,
-            );
-            syncActiveWorkoutSession(queryClient, workoutSession);
+            // Starting a workout is not optimistic. We wait for the canonical
+            // server response because startup processing may add server-derived
+            // fields that the next screen should render immediately.
+            writeWorkoutSessionToCaches(queryClient, workoutSession);
             queryClient.invalidateQueries({ queryKey: [TIMELINE_QUERY_KEY] });
         },
 
@@ -577,7 +592,7 @@ export function useStartWorkout() {
     });
 
     return {
-        startWorkout: mutate,
+        startWorkout: mutateAsync,
         isStarting: isPending,
     };
 }
@@ -632,64 +647,25 @@ export function useUpdateWorkoutSession() {
                 const previousWorkoutSession =
                     queryClient.getQueryData(queryKey);
 
-                // Update the main cache
-                queryClient.setQueryData(queryKey, workoutSession);
-
-                // Also update any by-set caches that contain this session
-                // Find all sets in this session and update their caches
-                // Each cache entry gets a fresh clone to ensure reactivity
-                const allSets = getAllSets(workoutSession);
-                allSets.forEach((set) => {
-                    const bySetKey = [WORKOUT_SESSION_BY_SET_KEY, set.uuid];
-                    queryClient.setQueryData(
-                        bySetKey,
-                        JSON.parse(JSON.stringify(workoutSession)),
-                    );
-                });
-                syncActiveWorkoutSession(queryClient, workoutSession);
+                // In-session interactions stay optimistic so set/exercise edits
+                // feel instant while the user moves through the workout.
+                writeWorkoutSessionToCaches(queryClient, workoutSession);
 
                 return { previousWorkoutSession, queryKey };
             },
 
             onError: (err, workoutSession, context) => {
                 if (context?.previousWorkoutSession) {
-                    queryClient.setQueryData(
-                        context.queryKey,
+                    writeWorkoutSessionToCaches(
+                        queryClient,
                         context.previousWorkoutSession,
                     );
-
-                    // Also rollback by-set caches with fresh clones
-                    const allSets = getAllSets(context.previousWorkoutSession);
-                    allSets.forEach((set) => {
-                        const bySetKey = [WORKOUT_SESSION_BY_SET_KEY, set.uuid];
-                        queryClient.setQueryData(
-                            bySetKey,
-                            JSON.parse(
-                                JSON.stringify(context.previousWorkoutSession),
-                            ),
-                        );
-                    });
                 }
             },
 
-            onSuccess: (response, workoutSession, context) => {
-                // Deep clone to ensure new object reference
-                const clonedResponse = JSON.parse(JSON.stringify(response));
-
-                // Update main cache
-                queryClient.setQueryData(context.queryKey, clonedResponse);
-
-                // Also update by-set caches with new clones for each
-                const allSets = getAllSets(clonedResponse);
-                allSets.forEach((set) => {
-                    const bySetKey = [WORKOUT_SESSION_BY_SET_KEY, set.uuid];
-                    // Each cache entry gets a fresh clone to ensure reactivity
-                    queryClient.setQueryData(
-                        bySetKey,
-                        JSON.parse(JSON.stringify(clonedResponse)),
-                    );
-                });
-                syncActiveWorkoutSession(queryClient, clonedResponse);
+            onSuccess: () => {
+                // Keep the optimistic cache state for routine in-session edits
+                // instead of replaying slower server responses through the UI.
             },
         },
     );
@@ -842,6 +818,162 @@ export function useUpdateWorkoutSession() {
             return mutateAsync(updatedSession);
         },
 
+        skipExerciseAndStartSet: (sessionUuid, exerciseUuid, nextSetUuid) => {
+            const currentSession = queryClient.getQueryData([
+                WORKOUT_SESSION_KEY,
+                sessionUuid,
+            ]);
+
+            const exercise = currentSession?.sessionExercises?.find(
+                (ex) => ex.uuid === exerciseUuid,
+            );
+
+            if (!exercise) {
+                return Promise.resolve();
+            }
+
+            const now = utcNow();
+            const updatedSession = JSON.parse(JSON.stringify(currentSession));
+            const updatedExercise = updatedSession.sessionExercises.find(
+                (ex) => ex.uuid === exerciseUuid,
+            );
+
+            updatedExercise.skipped = true;
+
+            if (
+                updatedExercise.warmUpStartedAt &&
+                !updatedExercise.warmUpEndedAt
+            ) {
+                updatedExercise.warmUpEndedAt = now;
+                updatedExercise.warmUpDuration = differenceInSeconds(
+                    new Date(now),
+                    new Date(updatedExercise.warmUpStartedAt),
+                );
+            }
+
+            updatedExercise.sessionSets?.forEach((set) => {
+                if (!set.startedAt) {
+                    set.startedAt = now;
+                }
+
+                if (!set.endedAt) {
+                    set.endedAt = now;
+                }
+
+                if (set.restPeriodStartedAt && !set.restPeriodEndedAt) {
+                    set.restPeriodEndedAt = now;
+                    set.restPeriodDuration = differenceInSeconds(
+                        new Date(now),
+                        new Date(set.restPeriodStartedAt),
+                    );
+                }
+            });
+
+            updatedSession.sessionExercises?.forEach((sessionExercise) => {
+                sessionExercise.sessionSets?.forEach((set) => {
+                    if (set.uuid === nextSetUuid) {
+                        set.startedAt = now;
+                    }
+                });
+            });
+
+            return mutateAsync(updatedSession);
+        },
+
+        skipExerciseAndEndWorkout: async (sessionUuid, exerciseUuid) => {
+            const currentSession = queryClient.getQueryData([
+                WORKOUT_SESSION_KEY,
+                sessionUuid,
+            ]);
+
+            const exercise = currentSession?.sessionExercises?.find(
+                (ex) => ex.uuid === exerciseUuid,
+            );
+
+            if (!exercise) {
+                return Promise.resolve();
+            }
+
+            const now = utcNow();
+            const updatedSession = JSON.parse(JSON.stringify(currentSession));
+            const updatedExercise = updatedSession.sessionExercises.find(
+                (ex) => ex.uuid === exerciseUuid,
+            );
+
+            updatedExercise.skipped = true;
+
+            if (
+                updatedExercise.warmUpStartedAt &&
+                !updatedExercise.warmUpEndedAt
+            ) {
+                updatedExercise.warmUpEndedAt = now;
+                updatedExercise.warmUpDuration = differenceInSeconds(
+                    new Date(now),
+                    new Date(updatedExercise.warmUpStartedAt),
+                );
+            }
+
+            updatedExercise.sessionSets?.forEach((set) => {
+                if (!set.startedAt) {
+                    set.startedAt = now;
+                }
+
+                if (!set.endedAt) {
+                    set.endedAt = now;
+                }
+
+                if (set.restPeriodStartedAt && !set.restPeriodEndedAt) {
+                    set.restPeriodEndedAt = now;
+                    set.restPeriodDuration = differenceInSeconds(
+                        new Date(now),
+                        new Date(set.restPeriodStartedAt),
+                    );
+                }
+            });
+
+            const updatedLastExercise =
+                updatedSession.sessionExercises[
+                    updatedSession.sessionExercises.length - 1
+                ];
+            const updatedLastSet =
+                updatedLastExercise.sessionSets[
+                    updatedLastExercise.sessionSets.length - 1
+                ];
+
+            updatedLastSet.endedAt = now;
+            updatedLastExercise.endedAt = now;
+            updatedSession.endedAt = now;
+
+            const savedSession = await mutateAsync(updatedSession);
+            writeWorkoutSessionToCaches(queryClient, savedSession);
+            queryClient.invalidateQueries({ queryKey: [TIMELINE_QUERY_KEY] });
+            return savedSession;
+        },
+
+        advanceToNextSet: (sessionUuid, currentSetUuid, nextSetUuid) => {
+            const currentSession = queryClient.getQueryData([
+                WORKOUT_SESSION_KEY,
+                sessionUuid,
+            ]);
+
+            const updatedSession = JSON.parse(JSON.stringify(currentSession));
+            const now = utcNow();
+
+            updatedSession.sessionExercises?.forEach((exercise) => {
+                exercise.sessionSets?.forEach((set) => {
+                    if (set.uuid === currentSetUuid) {
+                        set.endedAt = now;
+                    }
+
+                    if (set.uuid === nextSetUuid) {
+                        set.startedAt = now;
+                    }
+                });
+            });
+
+            return mutateAsync(updatedSession);
+        },
+
         startSet: (sessionUuid, setUuid) => {
             return updateSet(sessionUuid, setUuid, { startedAt: utcNow() });
         },
@@ -952,7 +1084,11 @@ export function useUpdateWorkoutSession() {
             updatedLastExercise.endedAt = endedAt;
             updatedSession.endedAt = endedAt;
 
+            // Finishing a workout intentionally awaits the server response and
+            // writes it back. End-of-workout processing may enrich the session
+            // with server-generated data that should be reflected immediately.
             const savedSession = await mutateAsync(updatedSession);
+            writeWorkoutSessionToCaches(queryClient, savedSession);
             queryClient.invalidateQueries({ queryKey: [TIMELINE_QUERY_KEY] });
             return savedSession;
         },

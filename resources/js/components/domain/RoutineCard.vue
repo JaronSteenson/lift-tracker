@@ -66,30 +66,23 @@ const starting = ref(false);
 async function startNow() {
     starting.value = true;
 
-    // Create a new workout session from the updated master routine
-    startWorkout(
-        {
+    try {
+        const workoutSession = await startWorkout({
             originWorkout: props.routine,
-        },
-        {
-            onSuccess: (workoutSession) => {
-                // Check in
-                router.push({
-                    name: 'CheckInEditPage',
-                    params: {
-                        workoutSessionUuid: workoutSession.uuid,
-                    },
-                    query: {
-                        toFirstSetAfterSave: true,
-                    },
-                });
-                starting.value = false;
+        });
+
+        await router.push({
+            name: 'CheckInEditPage',
+            params: {
+                workoutSessionUuid: workoutSession.uuid,
             },
-            onError: () => {
-                starting.value = false;
+            query: {
+                toFirstSetAfterSave: true,
             },
-        },
-    );
+        });
+    } finally {
+        starting.value = false;
+    }
 }
 </script>
 

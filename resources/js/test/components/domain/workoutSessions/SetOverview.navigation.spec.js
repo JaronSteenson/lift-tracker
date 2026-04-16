@@ -81,14 +81,16 @@ const mountOptions = prepareForLocalVueMount();
 
 describe('SetOverview - Navigation functionality', () => {
     let mockRouterPush;
-    let endSet;
-    let startSet;
+    let advanceToNextSet;
+    let skipExerciseAndStartSet;
+    let skipExerciseAndEndWorkout;
 
     beforeEach(async () => {
         isSetChangeTransitioning.value = false;
         mockRouterPush = vi.fn().mockResolvedValue();
-        endSet = vi.fn().mockResolvedValue();
-        startSet = vi.fn().mockResolvedValue();
+        advanceToNextSet = vi.fn().mockResolvedValue();
+        skipExerciseAndStartSet = vi.fn().mockResolvedValue();
+        skipExerciseAndEndWorkout = vi.fn().mockResolvedValue();
 
         vi.mocked(useRouter).mockReturnValue({
             push: mockRouterPush,
@@ -132,8 +134,11 @@ describe('SetOverview - Navigation functionality', () => {
             updateSetRestPeriodDuration: vi.fn(),
             updateExerciseNotes: vi.fn(),
             updateExerciseSkipped: vi.fn(),
-            startSet,
-            endSet,
+            skipExerciseAndStartSet,
+            skipExerciseAndEndWorkout,
+            advanceToNextSet,
+            startSet: vi.fn(),
+            endSet: vi.fn(),
             startWarmUp: vi.fn(),
             endWarmUp: vi.fn(),
             startRestPeriod: vi.fn(),
@@ -220,37 +225,31 @@ describe('SetOverview - Navigation functionality', () => {
         });
 
     describe('startNextSet method', () => {
-        it('ends the current set, starts the next set, and navigates', async () => {
+        it('optimistically advances to the next set and navigates immediately', async () => {
             const wrapper = createWrapper();
 
             await wrapper.vm.startNextSet();
 
-            expect(endSet).toHaveBeenCalledWith(
+            expect(advanceToNextSet).toHaveBeenCalledWith(
                 'session-uuid',
                 'test-set-uuid',
-            );
-            expect(startSet).toHaveBeenCalledWith(
-                'session-uuid',
                 'next-set-uuid',
             );
             expect(mockRouterPush).toHaveBeenCalledWith({
                 name: 'SetOverviewPage',
                 params: { sessionSetUuid: 'next-set-uuid' },
             });
-            expect(endSet.mock.invocationCallOrder[0]).toBeLessThan(
-                startSet.mock.invocationCallOrder[0],
-            );
-            expect(startSet.mock.invocationCallOrder[0]).toBeLessThan(
+            expect(advanceToNextSet.mock.invocationCallOrder[0]).toBeLessThan(
                 mockRouterPush.mock.invocationCallOrder[0],
             );
         });
 
-        it('toggles isSetChangeTransitioning for the duration of the transition', async () => {
-            let resolveStartSet;
-            startSet.mockImplementation(
+        it('toggles isSetChangeTransitioning for the duration of the route transition', async () => {
+            let resolvePush;
+            mockRouterPush.mockImplementation(
                 () =>
                     new Promise((resolve) => {
-                        resolveStartSet = resolve;
+                        resolvePush = resolve;
                     }),
             );
 
@@ -262,10 +261,53 @@ describe('SetOverview - Navigation functionality', () => {
             await wrapper.vm.$nextTick();
             expect(wrapper.vm.isSetChangeTransitioning).toBe(true);
 
-            resolveStartSet();
+            resolvePush();
             await pending;
 
             expect(wrapper.vm.isSetChangeTransitioning).toBe(false);
+        });
+    });
+
+    describe('skipExercise method', () => {
+        it('optimistically skips the exercise and navigates immediately to the next exercise', async () => {
+            const queries = await import(
+                '../../../../components/domain/workoutSessions/composibles/workoutSessionQueries'
+            );
+            vi.mocked(queries.getNextExerciseFirstSet).mockReturnValue({
+                uuid: 'next-exercise-set-uuid',
+            });
+
+            const wrapper = createWrapper();
+
+            await wrapper.vm.skipExercise();
+
+            expect(skipExerciseAndStartSet).toHaveBeenCalledWith(
+                'session-uuid',
+                'exercise-uuid',
+                'next-exercise-set-uuid',
+            );
+            expect(mockRouterPush).toHaveBeenCalledWith({
+                name: 'SetOverviewPage',
+                params: { sessionSetUuid: 'next-exercise-set-uuid' },
+            });
+            expect(
+                skipExerciseAndStartSet.mock.invocationCallOrder[0],
+            ).toBeLessThan(mockRouterPush.mock.invocationCallOrder[0]);
+        });
+
+        it('skips optimistically and then ends the workout when there is no next exercise', async () => {
+            const wrapper = createWrapper();
+
+            await wrapper.vm.skipExercise();
+
+            expect(skipExerciseAndEndWorkout).toHaveBeenCalledWith(
+                'session-uuid',
+                'exercise-uuid',
+            );
+            expect(mockRouterPush).toHaveBeenCalledWith({
+                name: 'SessionOverviewPage',
+                params: { workoutSessionUuid: 'session-uuid' },
+            });
         });
     });
 

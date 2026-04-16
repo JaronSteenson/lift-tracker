@@ -90,6 +90,7 @@
                 elevation="1"
                 v-if="isSessionOverview"
                 :height="xs ? '4rem' : '72'"
+                :loading="starting"
                 :ripple="false"
                 :disabled="starting"
                 :class="{
@@ -233,36 +234,31 @@ const onDragEnd = () => {
 const startWorkout = async () => {
     starting.value = true;
 
-    startWorkoutMutation(
-        {
+    try {
+        const workoutSession = await startWorkoutMutation({
             originWorkout: workout.value,
-        },
-        {
-            onSuccess: (workoutSession) => {
-                // Get first set from the new session
-                const firstSet =
-                    workoutSession?.sessionExercises?.[0]?.sessionSets?.[0] ||
-                    null;
+        });
 
-                if (firstSet && firstSet.uuid) {
-                    router.replace({
-                        name: 'SetOverviewPage',
-                        params: { sessionSetUuid: firstSet.uuid },
-                    });
-                } else {
-                    router.replace({
-                        name: 'SessionOverviewPage',
-                        params: {
-                            workoutSessionUuid: workoutSession?.uuid,
-                        },
-                    });
-                }
+        const firstSet =
+            workoutSession?.sessionExercises?.[0]?.sessionSets?.[0] || null;
+
+        if (firstSet && firstSet.uuid) {
+            await router.replace({
+                name: 'SetOverviewPage',
+                params: { sessionSetUuid: firstSet.uuid },
+            });
+            return;
+        }
+
+        await router.replace({
+            name: 'SessionOverviewPage',
+            params: {
+                workoutSessionUuid: workoutSession?.uuid,
             },
-            onError: () => {
-                starting.value = false;
-            },
-        },
-    );
+        });
+    } finally {
+        starting.value = false;
+    }
 };
 </script>
 
