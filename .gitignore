@@ -8,3 +8,4 @@ config.json
 npm-debug.log
 .env
 hot
+.ai/scratch/**
