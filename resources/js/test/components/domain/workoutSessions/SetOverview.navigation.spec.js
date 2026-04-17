@@ -77,14 +77,11 @@ vi.mock('vuetify', async () => {
     };
 });
 
-vi.mock(
-    '../../../../components/domain/auth/composables/useAuth',
-    () => ({
-        useAuth: () => ({
-            userIsAuthenticated: ref(true),
-        }),
+vi.mock('../../../../components/domain/auth/composables/useAuth', () => ({
+    useAuth: () => ({
+        userIsAuthenticated: ref(true),
     }),
-);
+}));
 
 const mountOptions = prepareForLocalVueMount();
 
@@ -386,5 +383,4 @@ describe('SetOverview - Navigation functionality', () => {
             expect(nextClasses['text-disabled']).toBe(true);
         });
     });
-
 });

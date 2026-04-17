@@ -34,7 +34,9 @@ const props = defineProps({
     },
 });
 
-const { workoutSession } = useWorkoutSession(toRef(props, 'workoutSessionUuid'));
+const { workoutSession } = useWorkoutSession(
+    toRef(props, 'workoutSessionUuid'),
+);
 
 const refreshForce = ref(null);
 let refreshInterval = null;

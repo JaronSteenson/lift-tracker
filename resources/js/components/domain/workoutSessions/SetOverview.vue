@@ -429,7 +429,9 @@ const router = useRouter();
 const queryClient = useQueryClient();
 const { xs, smAndUp } = useDisplay();
 
-const { workoutSession } = useWorkoutSession(toRef(props, 'workoutSessionUuid'));
+const { workoutSession } = useWorkoutSession(
+    toRef(props, 'workoutSessionUuid'),
+);
 
 // Get mutation functions
 const {
