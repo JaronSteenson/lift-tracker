@@ -35,6 +35,8 @@ After:
 - Do NOT skip steps
 - Do NOT “optimize” beyond the plan
 - Keep changes minimal and consistent with existing patterns
+- If you edit frontend files, run `npm run lint-fix` after code changes are complete and before finalizing
+- If `npm run lint-fix` changes files, review the diff and rerun relevant JS tests before final output
 
 After completing all steps:
 
