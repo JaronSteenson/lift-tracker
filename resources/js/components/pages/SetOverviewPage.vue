@@ -6,7 +6,10 @@
                 Sorry we couldn't find that set.
             </NotFound>
             <template v-else>
-                <SetOverview :sessionSetUuid="sessionSetUuid" />
+                <SetOverview
+                    :workout-session-uuid="workoutSessionUuid"
+                    :session-set-uuid="sessionSetUuid"
+                />
             </template>
         </div>
     </div>
@@ -19,13 +22,20 @@ import NotFound from '../routing/NotFound';
 import SessionOverviewLoadingSkeleton from '../domain/workoutSessions/SessionOverviewLoadingSkeleton';
 import SetOverview from '../domain/workoutSessions/SetOverview';
 import { useAuth } from '../domain/auth/composables/useAuth';
-import { useWorkoutSessionBySet } from '../domain/workoutSessions/composibles/workoutSessionQueries';
+import {
+    getSet,
+    useWorkoutSession,
+} from '../domain/workoutSessions/composibles/workoutSessionQueries';
 
 const props = defineProps({
     fromCheckIn: {
         type: String,
         required: false,
         default: '',
+    },
+    workoutSessionUuid: {
+        type: String,
+        required: true,
     },
     sessionSetUuid: {
         type: String,
@@ -36,20 +46,36 @@ const props = defineProps({
 const router = useRouter();
 const { userIsAuthenticated } = useAuth();
 
-const { isPending, error } = useWorkoutSessionBySet(
-    toRef(props, 'sessionSetUuid'),
-);
+const {
+    workoutSession: workoutSessionData,
+    isPending,
+    error,
+} = useWorkoutSession(toRef(props, 'workoutSessionUuid'));
+const notFound = computed(() => {
+    if (isPending.value) {
+        return false;
+    }
 
-const notFound = computed(() => !isPending.value && error.value);
+    if (error.value) {
+        return true;
+    }
+
+    if (!workoutSessionData.value) {
+        return false;
+    }
+
+    return !getSet(workoutSessionData.value, props.sessionSetUuid);
+});
 
 // Handle fromCheckIn redirect
 watch(
     () => props.fromCheckIn,
     async (fromCheckIn) => {
-        if (fromCheckIn && !isPending.value) {
+        if (fromCheckIn && props.workoutSessionUuid && !isPending.value) {
             await router.replace({
                 name: 'SetOverviewPage',
                 params: {
+                    workoutSessionUuid: props.workoutSessionUuid,
                     sessionSetUuid: props.sessionSetUuid,
                     fromCheckIn: '',
                 },

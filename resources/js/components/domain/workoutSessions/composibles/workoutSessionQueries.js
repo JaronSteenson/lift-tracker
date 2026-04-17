@@ -15,7 +15,6 @@ import SessionExerciseService from '../../../../api/SessionExerciseService';
 import createSessionFromBuilderWorkout from '../../../../domain/createSessionFromBuilderWorkout';
 
 const WORKOUT_SESSION_KEY = 'workoutSession';
-const WORKOUT_SESSION_BY_SET_KEY = 'workoutSessionBySet';
 const EXERCISE_HISTORY_KEY = 'exerciseHistory';
 const TIMELINE_QUERY_KEY = 'timeline';
 const ACTIVE_WORKOUT_SESSION_KEY = 'activeWorkoutSession';
@@ -402,42 +401,8 @@ export function useWorkoutSession(workoutSessionUuid) {
     };
 }
 
-export function useWorkoutSessionBySet(sessionSetUuid) {
-    const queryClient = useQueryClient();
-
-    const { data, isPending, error } = useQuery({
-        queryKey: computed(() => [
-            WORKOUT_SESSION_BY_SET_KEY,
-            toValue(sessionSetUuid),
-        ]),
-        queryFn: async () => {
-            const uuid = toValue(sessionSetUuid);
-            if (!uuid) {
-                return null;
-            }
-
-            const response = await WorkoutSessionService.getBySet(uuid);
-
-            // Also populate the main workout session cache
-            if (response.data) {
-                queryClient.setQueryData(
-                    [WORKOUT_SESSION_KEY, response.data.uuid],
-                    response.data,
-                );
-            }
-
-            return response.data;
-        },
-        enabled: computed(() => !!toValue(sessionSetUuid)),
-    });
-
-    return {
-        workoutSession: data,
-        isPending,
-        error,
-    };
-}
-
+// Retained for legacy set-only deep links and compatibility consumers that
+// still identify the workout through a session set UUID.
 export function useExerciseHistory(sessionExerciseUuid) {
     const { data, isPending, error } = useQuery({
         queryKey: computed(() => [
@@ -547,14 +512,6 @@ function writeWorkoutSessionToCaches(queryClient, workoutSession) {
         [WORKOUT_SESSION_KEY, workoutSession.uuid],
         workoutSession,
     );
-
-    const allSets = getAllSets(workoutSession);
-    allSets.forEach((set) => {
-        queryClient.setQueryData(
-            [WORKOUT_SESSION_BY_SET_KEY, set.uuid],
-            JSON.parse(JSON.stringify(workoutSession)),
-        );
-    });
 
     syncActiveWorkoutSession(queryClient, workoutSession);
 }

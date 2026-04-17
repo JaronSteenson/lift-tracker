@@ -12,7 +12,7 @@
 <script setup>
 import { ref, computed, watch, onMounted, onBeforeUnmount, toRef } from 'vue';
 import {
-    useWorkoutSessionBySet,
+    useWorkoutSession,
     getExerciseBySet,
     isDuringWarmUp,
     getWarmUpTimeRemaining,
@@ -20,6 +20,10 @@ import {
 } from './workoutSessions/composibles/workoutSessionQueries';
 
 const props = defineProps({
+    workoutSessionUuid: {
+        type: String,
+        required: true,
+    },
     sessionSetUuid: {
         type: String,
         required: true,
@@ -30,9 +34,7 @@ const props = defineProps({
     },
 });
 
-const { workoutSession } = useWorkoutSessionBySet(
-    toRef(props, 'sessionSetUuid'),
-);
+const { workoutSession } = useWorkoutSession(toRef(props, 'workoutSessionUuid'));
 
 const refreshForce = ref(null);
 let refreshInterval = null;

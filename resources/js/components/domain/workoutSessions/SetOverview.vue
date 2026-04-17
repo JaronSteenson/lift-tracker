@@ -93,6 +93,7 @@
                     :to="{
                         name: 'SetOverviewPage',
                         params: {
+                            workoutSessionUuid: uuid,
                             sessionSetUuid: previousExerciseLastSet?.uuid,
                         },
                     }"
@@ -129,6 +130,7 @@
                     :to="{
                         name: 'SetOverviewPage',
                         params: {
+                            workoutSessionUuid: uuid,
                             sessionSetUuid: nextExerciseFirstSet?.uuid,
                         },
                     }"
@@ -235,6 +237,7 @@
                             cols="6"
                         >
                             <RestPeriodTimer
+                                :workout-session-uuid="workoutSessionUuid"
                                 :session-set-uuid="sessionSetUuid"
                                 :label="activeTimerLabel"
                                 data-testid="activeTimer"
@@ -267,6 +270,7 @@
                     >
                         <VCol v-if="!isLastSetOfExercise" class="pt-0" cols="6">
                             <RestPeriodTimer
+                                :workout-session-uuid="workoutSessionUuid"
                                 :session-set-uuid="sessionSetUuid"
                                 label="Rest period finished"
                             />
@@ -380,7 +384,7 @@ import { useServerSyncInfoState } from '../../composibles/useServerSyncInfoState
 import UuidHelper from '../../../UuidHelper';
 import TimerInput from '../../formFields/TimerInput.vue';
 import {
-    useWorkoutSessionBySet,
+    useWorkoutSession,
     useWorkoutSessionSaveState,
     useUpdateWorkoutSession,
     useExerciseHistory,
@@ -411,6 +415,10 @@ import {
 } from './composibles/workoutSessionQueries';
 
 const props = defineProps({
+    workoutSessionUuid: {
+        type: String,
+        required: true,
+    },
     sessionSetUuid: {
         type: String,
         required: true,
@@ -421,9 +429,7 @@ const router = useRouter();
 const queryClient = useQueryClient();
 const { xs, smAndUp } = useDisplay();
 
-const { workoutSession } = useWorkoutSessionBySet(
-    toRef(props, 'sessionSetUuid'),
-);
+const { workoutSession } = useWorkoutSession(toRef(props, 'workoutSessionUuid'));
 
 // Get mutation functions
 const {
@@ -751,7 +757,10 @@ async function changeSetFromStepper(requestedSet) {
 
     await router.push({
         name: 'SetOverviewPage',
-        params: { sessionSetUuid: setToChangeTo.uuid },
+        params: {
+            workoutSessionUuid: uuid.value,
+            sessionSetUuid: setToChangeTo.uuid,
+        },
     });
 
     finishSetChangeTransition(queryClient);
@@ -761,7 +770,10 @@ async function lookAhead() {
     startSetChangeTransition(queryClient);
     await router.push({
         name: 'SetOverviewPage',
-        params: { sessionSetUuid: nextSet.value.uuid },
+        params: {
+            workoutSessionUuid: uuid.value,
+            sessionSetUuid: nextSet.value.uuid,
+        },
     });
     finishSetChangeTransition(queryClient);
 }
@@ -770,7 +782,10 @@ async function lookBack() {
     startSetChangeTransition(queryClient);
     await router.push({
         name: 'SetOverviewPage',
-        params: { sessionSetUuid: previousSet.value.uuid },
+        params: {
+            workoutSessionUuid: uuid.value,
+            sessionSetUuid: previousSet.value.uuid,
+        },
     });
     finishSetChangeTransition(queryClient);
 }
@@ -825,7 +840,10 @@ async function startNextSet() {
     try {
         await router.push({
             name: 'SetOverviewPage',
-            params: { sessionSetUuid: nextSetUuid },
+            params: {
+                workoutSessionUuid: uuid.value,
+                sessionSetUuid: nextSetUuid,
+            },
         });
     } finally {
         finishSetChangeTransition(queryClient);
@@ -846,7 +864,10 @@ async function skipExercise() {
         try {
             await router.push({
                 name: 'SetOverviewPage',
-                params: { sessionSetUuid: nextSetUuid },
+                params: {
+                    workoutSessionUuid: uuid.value,
+                    sessionSetUuid: nextSetUuid,
+                },
             });
         } finally {
             finishSetChangeTransition(queryClient);

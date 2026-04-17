@@ -142,6 +142,7 @@ async function save() {
             await router.push({
                 name: 'SetOverviewPage',
                 params: {
+                    workoutSessionUuid: workoutSession.uuid,
                     sessionSetUuid: firstSet.uuid,
                     fromCheckIn: true,
                 },

@@ -6,7 +6,7 @@ import { prepareForLocalVueMount } from '../../../vueHelpers';
 import { useRouter } from 'vue-router';
 import {
     useUpdateWorkoutSession,
-    useWorkoutSessionBySet,
+    useWorkoutSession,
 } from '../../../../components/domain/workoutSessions/composibles/workoutSessionQueries';
 
 const isSetChangeTransitioning = ref(false);
@@ -22,7 +22,7 @@ vi.mock('vue-router', async () => {
 vi.mock(
     '../../../../components/domain/workoutSessions/composibles/workoutSessionQueries',
     () => ({
-        useWorkoutSessionBySet: vi.fn(),
+        useWorkoutSession: vi.fn(),
         useUpdateWorkoutSession: vi.fn(),
         useWorkoutSessionSaveState: () => ({
             isPending: ref(false),
@@ -77,56 +77,71 @@ vi.mock('vuetify', async () => {
     };
 });
 
+vi.mock(
+    '../../../../components/domain/auth/composables/useAuth',
+    () => ({
+        useAuth: () => ({
+            userIsAuthenticated: ref(true),
+        }),
+    }),
+);
+
 const mountOptions = prepareForLocalVueMount();
 
 describe('SetOverview - Navigation functionality', () => {
     let mockRouterPush;
+    let mockRouterReplace;
     let advanceToNextSet;
     let skipExerciseAndStartSet;
     let skipExerciseAndEndWorkout;
+    let workoutSession;
 
     beforeEach(async () => {
         isSetChangeTransitioning.value = false;
         mockRouterPush = vi.fn().mockResolvedValue();
+        mockRouterReplace = vi.fn().mockResolvedValue();
         advanceToNextSet = vi.fn().mockResolvedValue();
         skipExerciseAndStartSet = vi.fn().mockResolvedValue();
         skipExerciseAndEndWorkout = vi.fn().mockResolvedValue();
+        workoutSession = {
+            uuid: 'session-uuid',
+            createdAt: '2026-04-01T10:00:00Z',
+            startedAt: '2026-04-01T10:00:00Z',
+            endedAt: null,
+            sessionExercises: [
+                {
+                    uuid: 'exercise-uuid',
+                    name: 'Bench Press',
+                    skipped: false,
+                    routineExerciseUuid: 'routine-exercise-uuid',
+                    sessionSets: [
+                        {
+                            uuid: 'test-set-uuid',
+                            position: 0,
+                            startedAt: '2026-04-01T10:00:00Z',
+                            endedAt: null,
+                        },
+                        {
+                            uuid: 'next-set-uuid',
+                            position: 1,
+                            startedAt: null,
+                            endedAt: null,
+                        },
+                    ],
+                },
+            ],
+        };
 
         vi.mocked(useRouter).mockReturnValue({
             push: mockRouterPush,
+            replace: mockRouterReplace,
         });
 
-        vi.mocked(useWorkoutSessionBySet).mockReturnValue({
-            workoutSession: ref({
-                uuid: 'session-uuid',
-                createdAt: '2026-04-01T10:00:00Z',
-                startedAt: '2026-04-01T10:00:00Z',
-                endedAt: null,
-                sessionExercises: [
-                    {
-                        uuid: 'exercise-uuid',
-                        name: 'Bench Press',
-                        skipped: false,
-                        routineExerciseUuid: 'routine-exercise-uuid',
-                        sessionSets: [
-                            {
-                                uuid: 'test-set-uuid',
-                                position: 0,
-                                startedAt: '2026-04-01T10:00:00Z',
-                                endedAt: null,
-                            },
-                            {
-                                uuid: 'next-set-uuid',
-                                position: 1,
-                                startedAt: null,
-                                endedAt: null,
-                            },
-                        ],
-                    },
-                ],
-            }),
+        vi.mocked(useWorkoutSession).mockReturnValue({
+            workoutSession: ref(workoutSession),
+            isPending: ref(false),
+            error: ref(null),
         });
-
         vi.mocked(useUpdateWorkoutSession).mockReturnValue({
             updateSetWeight: vi.fn(),
             updateSetReps: vi.fn(),
@@ -198,6 +213,7 @@ describe('SetOverview - Navigation functionality', () => {
         shallowMount(SetOverview, {
             ...mountOptions,
             props: {
+                workoutSessionUuid: 'session-uuid',
                 sessionSetUuid: 'test-set-uuid',
             },
             global: {
@@ -237,7 +253,10 @@ describe('SetOverview - Navigation functionality', () => {
             );
             expect(mockRouterPush).toHaveBeenCalledWith({
                 name: 'SetOverviewPage',
-                params: { sessionSetUuid: 'next-set-uuid' },
+                params: {
+                    workoutSessionUuid: 'session-uuid',
+                    sessionSetUuid: 'next-set-uuid',
+                },
             });
             expect(advanceToNextSet.mock.invocationCallOrder[0]).toBeLessThan(
                 mockRouterPush.mock.invocationCallOrder[0],
@@ -288,7 +307,10 @@ describe('SetOverview - Navigation functionality', () => {
             );
             expect(mockRouterPush).toHaveBeenCalledWith({
                 name: 'SetOverviewPage',
-                params: { sessionSetUuid: 'next-exercise-set-uuid' },
+                params: {
+                    workoutSessionUuid: 'session-uuid',
+                    sessionSetUuid: 'next-exercise-set-uuid',
+                },
             });
             expect(
                 skipExerciseAndStartSet.mock.invocationCallOrder[0],
@@ -364,4 +386,5 @@ describe('SetOverview - Navigation functionality', () => {
             expect(nextClasses['text-disabled']).toBe(true);
         });
     });
+
 });

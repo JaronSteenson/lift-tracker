@@ -4,7 +4,10 @@
             elevation="10"
             :to="{
                 name: 'SetOverviewPage',
-                params: { sessionSetUuid: inProgressSet?.uuid },
+                params: {
+                    workoutSessionUuid: workoutSession?.uuid,
+                    sessionSetUuid: inProgressSet?.uuid,
+                },
             }"
             rounded
             color="secondary"
@@ -61,6 +64,7 @@ const shouldShow = computed(() => {
 
     if (
         route.name === 'SetOverviewPage' &&
+        route.params?.workoutSessionUuid === workoutSession.value?.uuid &&
         route.params?.sessionSetUuid === inProgressSet.value?.uuid
     ) {
         return false;

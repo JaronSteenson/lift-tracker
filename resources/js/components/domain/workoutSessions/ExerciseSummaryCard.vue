@@ -39,7 +39,10 @@
                 size="small"
                 :to="{
                     name: 'SetOverviewPage',
-                    params: { sessionSetUuid: firstSet.uuid },
+                    params: {
+                        workoutSessionUuid,
+                        sessionSetUuid: firstSet.uuid,
+                    },
                 }"
             >
                 Edit
@@ -70,6 +73,9 @@ export default {
         },
     },
     computed: {
+        workoutSessionUuid() {
+            return this.$route.params.workoutSessionUuid;
+        },
         firstSet() {
             return this.exercise.sessionSets[0];
         },
@@ -117,7 +123,10 @@ export default {
                         text: set.reps ?? '?',
                         to: {
                             name: 'SetOverviewPage',
-                            params: { sessionSetUuid: set.uuid },
+                            params: {
+                                workoutSessionUuid: this.workoutSessionUuid,
+                                sessionSetUuid: set.uuid,
+                            },
                         },
                     };
                 });

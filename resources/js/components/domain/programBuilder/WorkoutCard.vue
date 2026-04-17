@@ -245,7 +245,10 @@ const startWorkout = async () => {
         if (firstSet && firstSet.uuid) {
             await router.replace({
                 name: 'SetOverviewPage',
-                params: { sessionSetUuid: firstSet.uuid },
+                params: {
+                    workoutSessionUuid: workoutSession.uuid,
+                    sessionSetUuid: firstSet.uuid,
+                },
             });
             return;
         }

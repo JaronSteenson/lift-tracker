@@ -173,7 +173,7 @@ const routes = [
     },
     {
         name: 'SessionOverviewPage',
-        path: '/timeline-entry/:workoutSessionUuid',
+        path: '/workout-session/:workoutSessionUuid',
         component: SessionOverviewPage,
         props: true,
         meta: {
@@ -182,7 +182,7 @@ const routes = [
     },
     {
         name: 'SetOverviewPage',
-        path: '/set-overview/:sessionSetUuid/:fromCheckIn?',
+        path: '/workout-session/:workoutSessionUuid/set/:sessionSetUuid/:fromCheckIn?',
         component: SetOverviewPage,
         props: true,
         meta: {
