@@ -115,10 +115,64 @@ export async function renderApp() {
         sessionExercises: [],
     };
 
+    function createStartedWorkoutSession(routineUuid) {
+        const routine =
+            workoutProgram.workoutProgramRoutines.find(
+                (item) => item.uuid === routineUuid,
+            ) || workoutProgram.workoutProgramRoutines[0];
+        const firstExercise = routine.routineExercises[0];
+
+        return {
+            uuid: 'started-session-1',
+            name: routine.name,
+            startedAt: '2020-12-05T10:00:00Z',
+            endedAt: null,
+            workoutProgramRoutineUuid: routine.uuid,
+            workoutProgramRoutineName: routine.name,
+            workoutProgramUuid: workoutProgram.uuid,
+            workoutProgramName: workoutProgram.name,
+            sessionExercises: firstExercise
+                ? [
+                      {
+                          uuid: 'started-exercise-1',
+                          name: firstExercise.name,
+                          plannedWeight: firstExercise.weight,
+                          plannedRpe: firstExercise.rpe,
+                          position: firstExercise.position,
+                          skipped: false,
+                          routineExerciseUuid: firstExercise.uuid,
+                          sessionSets: [
+                              {
+                                  uuid: 'started-set-1',
+                                  weight: firstExercise.weight,
+                                  reps: null,
+                                  rpe: firstExercise.rpe,
+                                  position: 0,
+                                  startedAt: '2020-12-05T10:00:00Z',
+                                  endedAt: null,
+                                  restPeriodDuration: firstExercise.restPeriod,
+                              },
+                          ],
+                      },
+                  ]
+                : [],
+        };
+    }
+
     const handlers = [
         http.post('*', async ({ request }) => {
             const payload = await request.json();
             const url = new URL(request.url);
+
+            if (url.pathname.endsWith('/api/workout-sessions/start')) {
+                workoutSession = createStartedWorkoutSession(
+                    payload.routineUuid,
+                );
+
+                return HttpResponse.json(workoutSession, {
+                    status: 200,
+                });
+            }
 
             if (url.pathname.includes('/api/workout-sessions')) {
                 workoutSession = payload;

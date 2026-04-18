@@ -34,7 +34,8 @@ npm run lint-fix
 ```
 
 When frontend files are edited, run `npm run lint-fix` before finalizing.
-If `npm run lint-fix` changes files, review the diff and rerun relevant JS tests.
+When frontend files are edited, run the full frontend test suite with `npm run test` before finalizing.
+If `npm run lint-fix` changes files, review the diff and rerun `npm run test`.
 
 ### Backend (.NET API)
 ```bash
