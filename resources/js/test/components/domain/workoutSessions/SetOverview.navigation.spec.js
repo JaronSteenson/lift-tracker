@@ -40,7 +40,14 @@ vi.mock(
         }),
         useExerciseHistory: () => ({
             exerciseHistory: ref([]),
+            exerciseHistoryResponse: ref({
+                items: [],
+                totalCount: 0,
+            }),
             isPending: ref(false),
+            fetchNextPage: vi.fn(),
+            hasNextPage: ref(false),
+            isFetchingNextPage: ref(false),
         }),
         getSet: vi.fn(),
         getExerciseBySet: vi.fn(),

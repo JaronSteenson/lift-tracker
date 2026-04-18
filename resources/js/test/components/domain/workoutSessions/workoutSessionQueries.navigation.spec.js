@@ -1,13 +1,24 @@
+import { computed, defineComponent, h } from 'vue';
+import { flushPromises, mount } from '@vue/test-utils';
 import { describe, test, expect, vi, beforeEach } from 'vitest';
 import UuidHelper from '../../../../UuidHelper';
+import SessionExerciseService from '../../../../api/SessionExerciseService';
+import { prepareForLocalVueMount } from '../../../vueHelpers';
 import {
     getNextSet,
     setIsInFocusedSession,
+    useExerciseHistory,
 } from '../../../../components/domain/workoutSessions/composibles/workoutSessionQueries';
 
 vi.mock('../../../../UuidHelper', () => ({
     default: {
         findDeep: vi.fn(),
+    },
+}));
+
+vi.mock('../../../../api/SessionExerciseService', () => ({
+    default: {
+        getHistory: vi.fn(),
     },
 }));
 
@@ -124,6 +135,70 @@ describe('workoutSessionQueries navigation helpers', () => {
 
             expect(setIsInFocusedSession(null, 'set-uuid')).toBeNull();
             expect(UuidHelper.findDeep).toHaveBeenCalledWith(null, 'set-uuid');
+        });
+    });
+
+    describe('useExerciseHistory', () => {
+        test('flattens paginated history oldest-to-newest across loaded pages', async () => {
+            vi.mocked(SessionExerciseService.getHistory).mockImplementation(
+                async (_uuid, { pageIndex }) => ({
+                    data:
+                        pageIndex === 1
+                            ? {
+                                  items: [
+                                      { uuid: 'exercise-8' },
+                                      { uuid: 'exercise-9' },
+                                      { uuid: 'exercise-10' },
+                                  ],
+                                  pageIndex: 1,
+                                  pageSize: 3,
+                                  totalCount: 6,
+                                  totalPages: 2,
+                                  hasNextPage: true,
+                                  hasPreviousPage: false,
+                              }
+                            : {
+                                  items: [
+                                      { uuid: 'exercise-5' },
+                                      { uuid: 'exercise-6' },
+                                      { uuid: 'exercise-7' },
+                                  ],
+                                  pageIndex: 2,
+                                  pageSize: 3,
+                                  totalCount: 6,
+                                  totalPages: 2,
+                                  hasNextPage: false,
+                                  hasPreviousPage: true,
+                              },
+                }),
+            );
+
+            const Harness = defineComponent({
+                setup() {
+                    return useExerciseHistory(
+                        computed(() => 'exercise-source'),
+                    );
+                },
+                render() {
+                    return h('div');
+                },
+            });
+
+            const wrapper = mount(Harness, prepareForLocalVueMount());
+            await flushPromises();
+            await wrapper.vm.fetchNextPage();
+            await flushPromises();
+
+            expect(wrapper.vm.exerciseHistory.map((item) => item.uuid)).toEqual(
+                [
+                    'exercise-5',
+                    'exercise-6',
+                    'exercise-7',
+                    'exercise-8',
+                    'exercise-9',
+                    'exercise-10',
+                ],
+            );
         });
     });
 });

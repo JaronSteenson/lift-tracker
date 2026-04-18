@@ -33,9 +33,13 @@ public class WorkoutSessionControllerTests(WorkoutDbFixture fixture)
         );
 
         var json = await response.Content.ReadAsStringAsync();
-        var sessions = JsonConvert.DeserializeObject<List<WorkoutSessionDto>>(json);
+        var sessions =
+            JsonConvert.DeserializeObject<PaginatedListDto<WorkoutSessionDto>>(json);
 
-        var workoutSession = sessions!
+        Assert.NotNull(sessions);
+        Assert.NotEmpty(sessions!.Items);
+
+        var workoutSession = sessions.Items
             .First(session => session.Uuid == Guid.Parse("27ffe07e-ecfd-4599-b132-6ec9e35fee1d"));
 
         AssertTestSessionStructure(workoutSession);

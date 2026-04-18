@@ -30,7 +30,7 @@ public class WorkoutSessionService(LiftTrackerDbContext db, DomainEntityService 
             pageIndex,
             pageSize
         );
-        SortChildren(workoutSessions);
+        SortChildren(workoutSessions.Items);
 
         return workoutSessions;
     }
@@ -299,9 +299,11 @@ public class WorkoutSessionService(LiftTrackerDbContext db, DomainEntityService 
         await db.SaveChangesAsync();
     }
 
-    public async Task<List<SessionExercise>> GetExerciseHistory(
+    public async Task<PaginatedListDto<SessionExercise>> GetExerciseHistory(
         Guid sourceSessionExerciseUuid,
-        int userId
+        int userId,
+        int pageIndex,
+        int pageSize
     )
     {
         var sourceExercise = await FindSessionExerciseByUuidAndOwner(
@@ -312,10 +314,10 @@ public class WorkoutSessionService(LiftTrackerDbContext db, DomainEntityService 
         var sourceRoutineExerciseId = sourceExercise.RoutineExercise?.Id;
         if (sourceRoutineExerciseId == null)
         {
-            return [];
+            return new PaginatedListDto<SessionExercise>([], 0, pageIndex, pageSize);
         }
 
-        var history = await db
+        var historyQuery = db
             .SessionExercises.Include(exercise => exercise.SessionSets)
             .Include(exercise => exercise.RoutineExercise)
             .Include(exercise => exercise.WorkoutSession)
@@ -323,13 +325,29 @@ public class WorkoutSessionService(LiftTrackerDbContext db, DomainEntityService 
             .Where(exercise => !exercise.Skipped)
             .Where(exercise => exercise.WorkoutSession.UserId == userId)
             .Where(exercise => exercise.CreatedAt <= sourceExercise.CreatedAt)
+            .OrderByDescending(exercise => exercise.WorkoutSession.CreatedAt)
+            .ThenByDescending(exercise => exercise.Id);
+
+        var pagedHistory = await PaginatedListDto<SessionExercise>.CreateAsync(
+            historyQuery,
+            pageIndex,
+            pageSize
+        );
+
+        var orderedPage = pagedHistory
+            .Items
             .OrderBy(exercise => exercise.WorkoutSession.CreatedAt)
-            .Take(50)
-            .ToListAsync();
+            .ThenBy(exercise => exercise.Id)
+            .ToList();
 
-        SortChildren(history);
+        SortChildren(orderedPage);
 
-        return history;
+        return new PaginatedListDto<SessionExercise>(
+            orderedPage,
+            pagedHistory.TotalCount,
+            pagedHistory.PageIndex,
+            pagedHistory.PageSize
+        );
     }
 
     private Dictionary<Guid, SessionExercise> ToExerciseMap(WorkoutSession session)

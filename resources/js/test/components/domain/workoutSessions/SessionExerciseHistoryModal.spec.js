@@ -1,7 +1,7 @@
-import SessionExerciseStatsModal from '../../../../components/domain/workoutSessions/SessionExerciseStatsModal';
+import SessionExerciseHistoryModal from '../../../../components/domain/workoutSessions/SessionExerciseHistoryModal';
 import BackForwardToolbar from '../../../../components/BackForwardToolbar';
 import { prepareForLocalVueMount } from '../../../vueHelpers';
-import { shallowMount } from '@vue/test-utils';
+import { flushPromises, shallowMount } from '@vue/test-utils';
 import { expect, test, describe, beforeEach, vi } from 'vitest';
 import { useRoute, useRouter } from 'vue-router';
 
@@ -23,6 +23,7 @@ const set = {
 };
 
 const singleSetExercise = {
+    uuid: 'exercise-1',
     name: 'DB rows',
     createdAt: '2019-12-04T12:00:00',
     sessionSets: [set],
@@ -30,6 +31,7 @@ const singleSetExercise = {
 };
 
 const singleSetExerciseWithNotes = {
+    uuid: 'exercise-2',
     name: 'DB rows',
     createdAt: '2019-12-04T12:00:00',
     sessionSets: [set],
@@ -38,6 +40,7 @@ const singleSetExerciseWithNotes = {
 };
 
 const otherSingleSetExerciseWithNotes = {
+    uuid: 'exercise-3',
     name: 'BB bench',
     createdAt: '2019-12-04T12:00:00',
     sessionSets: [set],
@@ -46,6 +49,7 @@ const otherSingleSetExerciseWithNotes = {
 };
 
 const doubleSetExercise = {
+    uuid: 'exercise-4',
     name: 'DB rows',
     createdAt: '2019-12-04T12:00:00',
     sessionSets: [set, set],
@@ -53,6 +57,7 @@ const doubleSetExercise = {
 };
 
 const multipleSetExercise = {
+    uuid: 'exercise-5',
     name: 'DB rows',
     createdAt: '2019-12-04T12:00:00',
     sessionSets: [set, set, set],
@@ -83,7 +88,7 @@ describe('SessionExerciseStatsModal.vue', () => {
 
     test('should render correctly in single set mode', () => {
         const wrapper = shallowMount(
-            SessionExerciseStatsModal,
+            SessionExerciseHistoryModal,
             createMountOptions({
                 sessionExercises: [singleSetExercise],
             }),
@@ -100,7 +105,7 @@ describe('SessionExerciseStatsModal.vue', () => {
 
     test('should render correctly in single rest/double set mode', () => {
         const wrapper = shallowMount(
-            SessionExerciseStatsModal,
+            SessionExerciseHistoryModal,
             createMountOptions({
                 sessionExercises: [doubleSetExercise],
             }),
@@ -124,7 +129,7 @@ describe('SessionExerciseStatsModal.vue', () => {
 
     test('should render correctly in multiple set mode', () => {
         const wrapper = shallowMount(
-            SessionExerciseStatsModal,
+            SessionExerciseHistoryModal,
             createMountOptions({
                 sessionExercises: [multipleSetExercise],
             }),
@@ -145,7 +150,7 @@ describe('SessionExerciseStatsModal.vue', () => {
 
     test('should render correctly with notes', () => {
         const wrapper = shallowMount(
-            SessionExerciseStatsModal,
+            SessionExerciseHistoryModal,
             createMountOptions({
                 sessionExercises: [singleSetExerciseWithNotes],
             }),
@@ -157,7 +162,7 @@ describe('SessionExerciseStatsModal.vue', () => {
 
     test('should not render navigation when there is only a single exercise', () => {
         const wrapper = shallowMount(
-            SessionExerciseStatsModal,
+            SessionExerciseHistoryModal,
             createMountOptions({
                 sessionExercises: [singleSetExercise],
             }),
@@ -169,7 +174,7 @@ describe('SessionExerciseStatsModal.vue', () => {
 
     test('should have exercise navigation when there is multiple exercises', async () => {
         const wrapper = shallowMount(
-            SessionExerciseStatsModal,
+            SessionExerciseHistoryModal,
             createMountOptions({
                 sessionExercises: [
                     singleSetExerciseWithNotes, // DB rows.
@@ -197,5 +202,84 @@ describe('SessionExerciseStatsModal.vue', () => {
         expect(wrapper.text()).toContain('This exercise did not go very well.');
         expect(backForwardToolbar.props('enableForward')).toBe(false);
         expect(backForwardToolbar.props('enableBack')).toBe(true);
+    });
+
+    test('should prewarm the next page when opened with older history available', async () => {
+        const fetchNextPage = vi.fn().mockResolvedValue();
+
+        shallowMount(
+            SessionExerciseHistoryModal,
+            createMountOptions({
+                sessionExercises: [
+                    singleSetExerciseWithNotes,
+                    otherSingleSetExerciseWithNotes,
+                ],
+                hasNextPage: true,
+                fetchNextPage,
+            }),
+        );
+
+        await flushPromises();
+
+        expect(fetchNextPage).toHaveBeenCalledTimes(1);
+    });
+
+    test('should fetch older history when navigating back from the oldest loaded item', async () => {
+        const fetchNextPage = vi.fn().mockResolvedValue();
+        const wrapper = shallowMount(
+            SessionExerciseHistoryModal,
+            createMountOptions({
+                sessionExercises: [
+                    singleSetExerciseWithNotes,
+                    otherSingleSetExerciseWithNotes,
+                ],
+                hasNextPage: true,
+                fetchNextPage,
+            }),
+        );
+
+        const backForwardToolbar = wrapper.findComponent(BackForwardToolbar);
+        await backForwardToolbar.vm.$emit('back');
+        await wrapper.vm.$nextTick();
+        await backForwardToolbar.vm.$emit('back');
+        await flushPromises();
+
+        expect(fetchNextPage).toHaveBeenCalledTimes(2);
+    });
+
+    test('should preserve the current exercise when older history prepends', async () => {
+        const fetchNextPage = vi.fn().mockResolvedValue();
+        const wrapper = shallowMount(
+            SessionExerciseHistoryModal,
+            createMountOptions({
+                sessionExercises: [
+                    singleSetExerciseWithNotes,
+                    otherSingleSetExerciseWithNotes,
+                ],
+                hasNextPage: true,
+                fetchNextPage,
+            }),
+        );
+
+        const backForwardToolbar = wrapper.findComponent(BackForwardToolbar);
+        await backForwardToolbar.vm.$emit('back');
+        await wrapper.vm.$nextTick();
+        expect(wrapper.text()).toContain('This exercise went very well.');
+
+        await wrapper.setProps({
+            sessionExercises: [
+                {
+                    ...singleSetExercise,
+                    uuid: 'exercise-older',
+                    notes: 'Older item',
+                },
+                singleSetExerciseWithNotes,
+                otherSingleSetExerciseWithNotes,
+            ],
+        });
+        await wrapper.vm.$nextTick();
+
+        expect(wrapper.text()).toContain('This exercise went very well.');
+        expect(wrapper.text()).not.toContain('Older item');
     });
 });

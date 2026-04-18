@@ -22,10 +22,19 @@ public class SessionExerciseController(WorkoutSessionService workoutSessionServi
     }
 
     [HttpGet("history/{sourceSessionSetUuid:guid}")]
-    public async Task<IActionResult> GetHistory(Guid sourceSessionSetUuid)
+    public async Task<IActionResult> GetHistory(
+        Guid sourceSessionSetUuid,
+        [FromQuery] int pageIndex = 1,
+        [FromQuery] int pageSize = 10
+    )
     {
         var userId = (int)(HttpContext.Items["UserId"] ?? -1);
-        var history = await workoutSessionService.GetExerciseHistory(sourceSessionSetUuid, userId);
-        return Json(history.Select(WorkoutSessionDtoMapper.ToStatsDto).ToList());
+        var history = await workoutSessionService.GetExerciseHistory(
+            sourceSessionSetUuid,
+            userId,
+            pageIndex,
+            pageSize
+        );
+        return Json(WorkoutSessionDtoMapper.ToStatsDto(history));
     }
 }

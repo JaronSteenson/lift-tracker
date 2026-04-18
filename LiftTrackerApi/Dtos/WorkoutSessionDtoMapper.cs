@@ -13,7 +13,7 @@ public static class WorkoutSessionDtoMapper
     )
     {
         return new PaginatedListDto<WorkoutSessionDto>(
-            sessions.Select(ToDto).ToList(),
+            sessions.Items.Select(ToDto).ToList(),
             sessions.TotalCount,
             sessions.PageIndex,
             sessions.PageSize
@@ -38,6 +38,18 @@ public static class WorkoutSessionDtoMapper
             WorkoutProgramName = session.WorkoutProgramRoutine?.WorkoutProgram?.Name,
             SessionExercises = session.SessionExercises.Select(ToDto).ToList(),
         };
+    }
+
+    public static PaginatedListDto<SessionExerciseStatsDto> ToStatsDto(
+        PaginatedListDto<SessionExercise> exercises
+    )
+    {
+        return new PaginatedListDto<SessionExerciseStatsDto>(
+            exercises.Items.Select(ToStatsDto).ToList(),
+            exercises.TotalCount,
+            exercises.PageIndex,
+            exercises.PageSize
+        );
     }
 
     public static SessionExerciseDto ToDto(SessionExercise exercise)

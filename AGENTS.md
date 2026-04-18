@@ -93,6 +93,7 @@ dotnet ef migrations add MigrationName
 - Canonical example LiftTrackerApi/Dtos/WorkoutSessionDto.cs
 - Always use plain classes
 - Always leave all setters and getters
+- Paginated API responses must always return the full envelope object with items plus pagination metadata. Do not return bare arrays for paginated endpoints.
 - Parent-child relationships should flow downward in DTOs
 - Child collections can be embedded on the parent DTO
 - Upward relationships should be represented only by the parent GUID/UUID on the child DTO when needed

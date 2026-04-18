@@ -190,7 +190,7 @@
                                 <VProgressLinear indeterminate />
                             </span>
                             <template v-else>
-                                <template v-if="exerciseHistory.length > 1">
+                                <template v-if="exerciseHistoryTotalCount > 1">
                                     <RouterLink
                                         :to="{
                                             $route,
@@ -202,10 +202,19 @@
                                         Exercise history
                                     </RouterLink>
 
-                                    <SessionExerciseStatsModal
+                                    <SessionExerciseHistoryModal
                                         url-search-param="history"
                                         :session-exercises="exerciseHistory"
                                         :start-index="1"
+                                        :has-next-page="
+                                            !!hasNextExerciseHistoryPage
+                                        "
+                                        :is-fetching-next-page="
+                                            isFetchingNextExerciseHistoryPage
+                                        "
+                                        :fetch-next-page="
+                                            fetchNextExerciseHistoryPage
+                                        "
                                     />
                                 </template>
                                 <span v-else>
@@ -374,7 +383,7 @@ import { useRouter } from 'vue-router';
 import { useDisplay } from 'vuetify';
 import { useQueryClient } from '@tanstack/vue-query';
 import RestPeriodTimer from '../RestPeriodTimer';
-import SessionExerciseStatsModal from './SessionExerciseStatsModal';
+import SessionExerciseHistoryModal from './SessionExerciseHistoryModal';
 import ServerSyncInfo from './../../ServerSyncInfo';
 import LabeledWorkoutDuration from '../LabeledWorkoutDuration';
 import NarrowContentContainer from '../../layouts/NarrowContentContainer';
@@ -640,8 +649,14 @@ const allowInstanceEndWorkout = computed(
 );
 
 // Exercise history
-const { exerciseHistory: exerciseHistoryData, isPending: isLoadingHistory } =
-    useExerciseHistory(computed(() => exercise.value?.uuid));
+const {
+    exerciseHistory: exerciseHistoryData,
+    exerciseHistoryResponse,
+    isPending: isLoadingHistory,
+    fetchNextPage: fetchNextExerciseHistoryPage,
+    hasNextPage: hasNextExerciseHistoryPage,
+    isFetchingNextPage: isFetchingNextExerciseHistoryPage,
+} = useExerciseHistory(computed(() => exercise.value?.uuid));
 
 const exerciseHistory = computed(() => {
     const history = exerciseHistoryData.value;
@@ -656,6 +671,10 @@ const exerciseHistory = computed(() => {
         workoutSession: workoutSession.value,
     });
 });
+
+const exerciseHistoryTotalCount = computed(
+    () => exerciseHistoryResponse.value?.totalCount ?? 0,
+);
 
 const weight = ref(null);
 const reps = ref(null);
@@ -921,7 +940,7 @@ async function ensureExerciseHistoryAreLoaded() {
     }
 
     // Exercise history is loaded via the query hook
-    if (!isLoadingHistory.value && exerciseHistoryData.value) {
+    if (!isLoadingHistory.value && exerciseHistoryResponse.value) {
         hasLoadedExerciseHistory.value = true;
     }
 }

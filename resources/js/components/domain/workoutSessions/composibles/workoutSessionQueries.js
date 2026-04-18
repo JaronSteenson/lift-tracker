@@ -53,16 +53,12 @@ export function useTimelineQuery() {
                 return response.data;
             },
             initialPageParam: 1,
-            getNextPageParam: (lastPage, allPages) => {
-                if (lastPage.length < pageSize) {
-                    return undefined;
-                }
-                return allPages.length + 1;
-            },
+            getNextPageParam: (lastPage) =>
+                lastPage?.hasNextPage ? lastPage.pageIndex + 1 : undefined,
         });
 
     const flattenedData = computed(() => {
-        return data.value?.pages?.flat() ?? [];
+        return data.value?.pages?.flatMap((page) => page.items ?? []) ?? [];
     });
 
     const shouldShowNoProgramsHintStartNewSession = computed(() => {
@@ -404,27 +400,67 @@ export function useWorkoutSession(workoutSessionUuid) {
 // Retained for legacy set-only deep links and compatibility consumers that
 // still identify the workout through a session set UUID.
 export function useExerciseHistory(sessionExerciseUuid) {
-    const { data, isPending, error } = useQuery({
+    const pageSize = 10;
+
+    const {
+        data,
+        isPending,
+        error,
+        fetchNextPage,
+        hasNextPage,
+        isFetchingNextPage,
+    } = useInfiniteQuery({
         queryKey: computed(() => [
             EXERCISE_HISTORY_KEY,
             toValue(sessionExerciseUuid),
+            pageSize,
         ]),
-        queryFn: async () => {
+        queryFn: async ({ pageParam = 1 }) => {
             const uuid = toValue(sessionExerciseUuid);
             if (!uuid) {
                 return null;
             }
 
-            const response = await SessionExerciseService.getHistory(uuid);
+            const response = await SessionExerciseService.getHistory(uuid, {
+                pageIndex: pageParam,
+                pageSize,
+            });
             return response.data;
         },
+        initialPageParam: 1,
+        getNextPageParam: (lastPage) =>
+            lastPage?.hasNextPage ? lastPage.pageIndex + 1 : undefined,
         enabled: computed(() => !!toValue(sessionExerciseUuid)),
     });
 
+    const exerciseHistory = computed(() => {
+        const pages = data.value?.pages ?? [];
+        return pages
+            .slice()
+            .reverse()
+            .flatMap((page) => page?.items ?? []);
+    });
+
+    const exerciseHistoryResponse = computed(() => {
+        const firstPage = data.value?.pages?.[0];
+        if (!firstPage) {
+            return null;
+        }
+
+        return {
+            ...firstPage,
+            items: exerciseHistory.value,
+        };
+    });
+
     return {
-        exerciseHistory: data,
+        exerciseHistory,
+        exerciseHistoryResponse,
         isPending,
         error,
+        fetchNextPage,
+        hasNextPage,
+        isFetchingNextPage,
     };
 }
 

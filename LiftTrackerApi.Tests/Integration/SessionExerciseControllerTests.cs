@@ -1,9 +1,11 @@
 ﻿using System.Text;
 using LiftTrackerApi.Controllers;
+using LiftTrackerApi.Dtos;
 using LiftTrackerApi.Entities;
 using LiftTrackerApi.Tests.Integration.Fixtures;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace LiftTrackerApi.Tests.Integration;
 
@@ -120,7 +122,7 @@ public class SessionExerciseControllerTests(WorkoutDbFixture fixture)
         Assert.Equal(20, onlySet.Weight);
     }
 
-    /// <see cref="SessionExerciseController.GetHistory(Guid)" />
+    /// <see cref="SessionExerciseController.GetHistory(Guid, int, int)" />
     [Fact]
     public async Task GetHistory_ReturnsSiblingsAndSelfOlderThanSourceExercise()
     {
@@ -137,12 +139,15 @@ public class SessionExerciseControllerTests(WorkoutDbFixture fixture)
             response.Content.Headers.ContentType!.ToString()
         );
 
-        var history = JsonConvert.DeserializeObject<List<SessionExercise>>(json);
+        var history = DeserializeHistoryResponse(json);
 
-        Assert.Equal(6, history!.Count);
-        for (int i = 0; i < history.Count; i++)
+        Assert.Equal(6, history!.Items.Count);
+        Assert.Equal(1, history.PageIndex);
+        Assert.Equal(10, history.PageSize);
+        Assert.Equal(6, history.TotalCount);
+        for (int i = 0; i < history.Items.Count; i++)
         {
-            var sessionExercise = history[i];
+            var sessionExercise = history.Items[i];
             int j = i + 1;
 
             Assert.Equal(
@@ -159,7 +164,7 @@ public class SessionExerciseControllerTests(WorkoutDbFixture fixture)
         }
     }
 
-    /// <see cref="SessionExerciseController.GetHistory(Guid)" />
+    /// <see cref="SessionExerciseController.GetHistory(Guid, int, int)" />
     [Fact]
     public async Task GetHistory_DoesNotReturnExercisesFromDifferentRoutineExercise()
     {
@@ -343,17 +348,158 @@ public class SessionExerciseControllerTests(WorkoutDbFixture fixture)
         var json = await response.Content.ReadAsStringAsync();
         response.EnsureSuccessStatusCode();
 
-        var history = JsonConvert.DeserializeObject<List<SessionExercise>>(json);
+        var history = DeserializeHistoryResponse(json);
 
-        Assert.Equal(3, history!.Count);
+        Assert.Equal(3, history!.Items.Count);
         Assert.Equal(
             [
                 Guid.Parse("82000000-0000-0000-0000-000000000001"),
                 Guid.Parse("82000000-0000-0000-0000-000000000003"),
                 Guid.Parse("82000000-0000-0000-0000-000000000005"),
             ],
-            history.Select(exercise => exercise.Uuid).ToList()
+            history.Items.Select(exercise => exercise.Uuid).ToList()
         );
-        Assert.All(history, exercise => Assert.StartsWith("Pull Ups", exercise.Name));
+        Assert.All(history.Items, exercise => Assert.StartsWith("Pull Ups", exercise.Name));
+    }
+
+    /// <see cref="SessionExerciseController.GetHistory(Guid, int, int)" />
+    [Fact]
+    public async Task GetHistory_PaginatesNewestHistoryWhileReturningEachPageAscending()
+    {
+        using var scope = fixture.Factory.Services.CreateScope();
+        var db = scope.ServiceProvider.GetRequiredService<LiftTrackerDbContext>();
+        var populateRoutine = db.WorkoutProgramRoutines.First(r =>
+            r.Uuid == Guid.Parse("cd218127-b60d-46a7-bbc1-a17332bea15f")
+        );
+
+        var routineExercise = new RoutineExercise
+        {
+            Uuid = Guid.Parse("84000000-0000-0000-0000-000000000001"),
+            Name = "History Pagination Exercise",
+            Position = 20,
+            WorkoutProgramRoutine = populateRoutine,
+            CreatedAt = DateTime.UtcNow.AddDays(-40),
+        };
+
+        db.Add(routineExercise);
+
+        var baseDate = DateTime.UtcNow.AddDays(-30);
+        for (var i = 1; i <= 12; i++)
+        {
+            var createdAt = baseDate.AddDays(i);
+            db.Add(
+                new WorkoutSession
+                {
+                    Uuid = Guid.Parse($"84000000-0000-0000-0000-0000000000{i:00}"),
+                    Name = $"Paginated history {i}",
+                    UserId = 1,
+                    CreatedAt = createdAt,
+                    WorkoutProgramRoutine = populateRoutine,
+                    SessionExercises =
+                    [
+                        new SessionExercise
+                        {
+                            Uuid = Guid.Parse($"85000000-0000-0000-0000-0000000000{i:00}"),
+                            Name = $"History Exercise {i}",
+                            Position = 0,
+                            CreatedAt = createdAt,
+                            RoutineExercise = routineExercise,
+                            SessionSets =
+                            [
+                                new SessionSet
+                                {
+                                    Uuid = Guid.Parse($"86000000-0000-0000-0000-0000000000{i:00}"),
+                                    Position = 0,
+                                    Reps = i,
+                                    Weight = i * 5,
+                                },
+                            ],
+                        },
+                    ],
+                }
+            );
+        }
+
+        db.SaveChanges();
+
+        var pageOneResponse = await _client.GetAsync(
+            "/api/session-exercises/history/85000000-0000-0000-0000-000000000012?pageIndex=1&pageSize=5"
+        );
+        var pageOneJson = await pageOneResponse.Content.ReadAsStringAsync();
+        pageOneResponse.EnsureSuccessStatusCode();
+        var pageOne = DeserializeHistoryResponse(pageOneJson);
+
+        Assert.Equal(12, pageOne!.TotalCount);
+        Assert.Equal(1, pageOne.PageIndex);
+        Assert.Equal(5, pageOne.PageSize);
+        Assert.Equal(3, pageOne.TotalPages);
+        Assert.True(pageOne.HasNextPage);
+        Assert.False(pageOne.HasPreviousPage);
+        Assert.Equal(
+            [
+                Guid.Parse("85000000-0000-0000-0000-000000000008"),
+                Guid.Parse("85000000-0000-0000-0000-000000000009"),
+                Guid.Parse("85000000-0000-0000-0000-000000000010"),
+                Guid.Parse("85000000-0000-0000-0000-000000000011"),
+                Guid.Parse("85000000-0000-0000-0000-000000000012"),
+            ],
+            pageOne.Items.Select(exercise => exercise.Uuid).ToList()
+        );
+        Assert.True(
+            pageOne.Items
+                .Zip(
+                    pageOne.Items.Skip(1),
+                    (current, next) => current.CreatedAt <= next.CreatedAt
+                )
+                .All(x => x)
+        );
+
+        var pageTwoResponse = await _client.GetAsync(
+            "/api/session-exercises/history/85000000-0000-0000-0000-000000000012?pageIndex=2&pageSize=5"
+        );
+        var pageTwoJson = await pageTwoResponse.Content.ReadAsStringAsync();
+        pageTwoResponse.EnsureSuccessStatusCode();
+        var pageTwo = DeserializeHistoryResponse(pageTwoJson);
+
+        Assert.Equal(12, pageTwo!.TotalCount);
+        Assert.Equal(2, pageTwo.PageIndex);
+        Assert.Equal(5, pageTwo.PageSize);
+        Assert.True(pageTwo.HasNextPage);
+        Assert.True(pageTwo.HasPreviousPage);
+        Assert.Equal(
+            [
+                Guid.Parse("85000000-0000-0000-0000-000000000003"),
+                Guid.Parse("85000000-0000-0000-0000-000000000004"),
+                Guid.Parse("85000000-0000-0000-0000-000000000005"),
+                Guid.Parse("85000000-0000-0000-0000-000000000006"),
+                Guid.Parse("85000000-0000-0000-0000-000000000007"),
+            ],
+            pageTwo.Items.Select(exercise => exercise.Uuid).ToList()
+        );
+        Assert.True(
+            pageTwo.Items
+                .Zip(
+                    pageTwo.Items.Skip(1),
+                    (current, next) => current.CreatedAt <= next.CreatedAt
+                )
+                .All(x => x)
+        );
+    }
+
+    private static SessionExerciseHistoryResponse DeserializeHistoryResponse(string json)
+    {
+        var parsed = JObject.Parse(json);
+        return parsed.ToObject<SessionExerciseHistoryResponse>()!;
+    }
+
+    private class SessionExerciseHistoryResponse
+    {
+        public int TotalCount { get; init; }
+        public int PageIndex { get; init; }
+        public int PageSize { get; init; }
+        public int TotalPages { get; init; }
+        public bool HasPreviousPage { get; init; }
+        public bool HasNextPage { get; init; }
+        public List<SessionExerciseStatsDto> Items { get; init; } = [];
     }
 }

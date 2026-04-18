@@ -7,26 +7,26 @@ using Microsoft.EntityFrameworkCore;
 // ReSharper disable MemberCanBePrivate.Global
 namespace LiftTrackerApi.Dtos;
 
-public class PaginatedListDto<T> : List<T>
+public class PaginatedListDto<T>
 {
-    public int TotalCount { get; }
-    public int PageIndex { get; }
-    public int PageSize { get; }
-    public int TotalPages { get; }
+    public List<T> Items { get; set; }
+    public int TotalCount { get; set; }
+    public int PageIndex { get; set; }
+    public int PageSize { get; set; }
+    public int TotalPages { get; set; }
+    public bool HasPreviousPage { get; set; }
+    public bool HasNextPage { get; set; }
 
     public PaginatedListDto(List<T> items, int count, int pageIndex, int pageSize)
     {
+        Items = items;
         TotalCount = count;
         PageIndex = pageIndex;
         PageSize = pageSize;
         TotalPages = (int)Math.Ceiling(count / (double)pageSize);
-
-        this.AddRange(items);
+        HasPreviousPage = PageIndex > 1;
+        HasNextPage = PageIndex < TotalPages;
     }
-
-    public bool HasPreviousPage => PageIndex > 1;
-
-    public bool HasNextPage => PageIndex < TotalPages;
 
     public static async Task<PaginatedListDto<T>> CreateAsync(
         IQueryable<T> source,

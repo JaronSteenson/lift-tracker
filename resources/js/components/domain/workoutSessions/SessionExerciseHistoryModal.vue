@@ -104,7 +104,7 @@
 </template>
 
 <script setup>
-import { computed, ref, watch } from 'vue';
+import { computed, nextTick, ref, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useDisplay } from 'vuetify';
 import { dateDescription, minsSecDuration } from '../../../dates';
@@ -128,13 +128,31 @@ const props = defineProps({
         type: Number,
         default: 0,
     },
+    hasNextPage: {
+        type: Boolean,
+        default: false,
+    },
+    isFetchingNextPage: {
+        type: Boolean,
+        default: false,
+    },
+    fetchNextPage: {
+        type: Function,
+        default: null,
+    },
 });
 
 const route = useRoute();
 const router = useRouter();
 const display = useDisplay();
+const PREWARM_THRESHOLD = 1;
 
 const currentIndex = ref(props.sessionExercises.length - 1 - props.startIndex);
+const selectedExerciseUuid = ref(null);
+const lastPrewarmLength = ref(null);
+const isOpen = computed(
+    () => route.query[props.urlSearchParam] === props.urlSearchShowValue,
+);
 
 const sessionExercise = computed(
     () => props.sessionExercises[currentIndex.value],
@@ -142,7 +160,9 @@ const sessionExercise = computed(
 
 const bodyWeight = computed(() => sessionExercise.value?.bodyWeight);
 const hasManyExercises = computed(() => props.sessionExercises.length > 1);
-const hasPrevious = computed(() => currentIndex.value !== 0);
+const hasPrevious = computed(
+    () => currentIndex.value !== 0 || props.hasNextPage,
+);
 const hasNext = computed(
     () => currentIndex.value !== props.sessionExercises.length - 1,
 );
@@ -166,6 +186,53 @@ const rest = computed(() =>
 );
 
 watch(
+    sessionExercise,
+    (exercise) => {
+        selectedExerciseUuid.value = exercise?.uuid ?? null;
+    },
+    { immediate: true },
+);
+
+watch(
+    () => props.sessionExercises,
+    (nextExercises, previousExercises = []) => {
+        const previousCurrentUuid =
+            previousExercises[currentIndex.value]?.uuid ??
+            selectedExerciseUuid.value;
+
+        if (!previousCurrentUuid) {
+            currentIndex.value =
+                props.sessionExercises.length - 1 - props.startIndex;
+            return;
+        }
+
+        const nextIndex = nextExercises.findIndex(
+            (exercise) => exercise.uuid === previousCurrentUuid,
+        );
+
+        if (nextIndex >= 0) {
+            currentIndex.value = nextIndex;
+        }
+    },
+);
+
+watch(
+    isOpen,
+    (open) => {
+        if (open) {
+            void prewarmNextPage();
+        }
+    },
+    { immediate: true },
+);
+
+watch(currentIndex, () => {
+    if (isOpen.value && currentIndex.value <= PREWARM_THRESHOLD) {
+        void prewarmNextPage();
+    }
+});
+
+watch(
     () => route.path,
     (path, oldPath) => {
         if (path !== oldPath) {
@@ -175,9 +242,28 @@ watch(
     },
 );
 
-function showPrevious() {
-    if (hasPrevious.value) {
+async function showPrevious() {
+    if (currentIndex.value !== 0) {
         currentIndex.value--;
+        return;
+    }
+
+    if (props.hasNextPage && props.fetchNextPage && !props.isFetchingNextPage) {
+        const currentUuid = selectedExerciseUuid.value;
+        await props.fetchNextPage();
+        await nextTick();
+
+        if (!currentUuid) {
+            return;
+        }
+
+        const currentExerciseIndex = props.sessionExercises.findIndex(
+            (exercise) => exercise.uuid === currentUuid,
+        );
+
+        if (currentExerciseIndex > 0) {
+            currentIndex.value = currentExerciseIndex - 1;
+        }
     }
 }
 
@@ -201,6 +287,24 @@ function close() {
             [props.urlSearchParam]: undefined,
         },
     });
+}
+
+async function prewarmNextPage() {
+    if (
+        !props.hasNextPage ||
+        !props.fetchNextPage ||
+        props.isFetchingNextPage
+    ) {
+        return;
+    }
+
+    const currentLength = props.sessionExercises.length;
+    if (lastPrewarmLength.value === currentLength) {
+        return;
+    }
+
+    lastPrewarmLength.value = currentLength;
+    await props.fetchNextPage();
 }
 </script>
 
