@@ -1,37 +1,25 @@
-You are helping me design the [FEATURE]
+You are helping me design the 531/progression schemes.
 
 Your job is to act like a senior engineer doing an architecture review and implementation plan, not to jump straight into coding.
 
-## Goal
+## Rough plan/goal
+We are adding the concept of progression schemes to the system and one scheme 531 based on Jim wendler 531 program.
 
-I want to evaluate whether I should {low-level-details}.
-This may involve:
+Program exercises will have a new drop down option, "Progression scheme" with two options None, 531.
 
-* [1]
-* [2]
-* [3]
+In the database this will be a nullable enum on SessionExercise and ProgramExercise
+programExercise.weight, becomes "Traning max" in the ui when 531 progrsssion scheme is selected.  When 531 is selected a  531ProgressionSchemeSettings component will display, this will house a dropdwon "Current cycle week" with the options "Week 1: The "5s" Week (3x5+) ", "Week 2: The "3s" Week (3x3+) " , "Week 2: The "3s" Week (3x3+) " , "Week 4: The Deload Week" .
+Upper body (2.5kg increase per cycle) or Lower body (5kg increase per cycle) drop donw.   
+A projection for the entire cycle will be displayed also, I'm hoping this math is in your traning data or I can supply the equations round to the nearest weight plate (2.5kg), with all planned/previous reps and weights for the cycle. When the 531 settings are shown reps id disabled, this should be driven by a single point static config, rather than messy if 531 disable reps, more like if progssionScheme.handlesReps, and progressionScheme.weightLabel.
 
-I am open to multiple approaches. I want the best balance of simplicity, correctness, maintainability, and UX.
+The 531 settings excluding the projections (these are readily calculated, for display here and starting the workout) are saved in a single json database column on programExercise "progressionSchemeSettings".
 
-## Current context
+Start workout checks for progression schemes on each builder exercise, and determines if we need to populate weight and reps based on it. Again this should use the  progressionScheme same helper js object that holds handlesReps and weightLabel, it will defer the poulation of these fields to it. The start processing can remain in the front end for now, it may move to the backend at some stage, but it's not hurting anyone where it is currently.
 
-[PASTE YOUR CURRENT ARCHITECTURE HERE]
+On workout end the backend will need to have check for the existence of progressionScheme on every sessionExercise. We will create a simple ProgressionScheme strategy pattern system similar to the front end one used for projections and will advance source programExercise to the next cycle week, if it is on the deload week (last cycle step), it loops back to week one, but and increases the "Weights"/"Traning max" by 2.5kg if marked upperBody, or 5kg if marked lowerBody. This is fine to happen inline on the request, we do not need fire and forget or a queue.
 
-Include:
 
-* [1]
-* [2]
-* [3]
-* 
-## Specific problem
-
-[DESCRIBE THE PAIN CLEARLY]
-
-Examples:
-
-* [1]
-* [2]
-* [3]
+I am open to multiple approaches/variations of what I have roughly proposed. I want the best balance of simplicity, correctness, maintainability, and UX.
 
 ## What I want from you
 
@@ -59,7 +47,7 @@ Please do the following in order:
 
 ## Output format
 
-Use this exact structure in a Markdown file: ./.ai./scratch/planning-output.md
+Use this exact structure in a Markdown file: ./.ai/scratch/planning-output.md
 
 ### Current architecture summary
 
