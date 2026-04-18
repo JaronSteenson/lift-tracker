@@ -146,8 +146,19 @@ export async function renderApp() {
                 return HttpResponse.json([workoutProgram], { status: 200 });
             }
 
-            if (url.pathname.endsWith('/api/workout-sessions')) {
-                return HttpResponse.json([workoutSession], { status: 200 });
+            if (url.pathname === '/api/workout-sessions') {
+                return HttpResponse.json(
+                    {
+                        items: [workoutSession],
+                        totalCount: 1,
+                        pageIndex: 1,
+                        pageSize: 10,
+                        totalPages: 1,
+                        hasPreviousPage: false,
+                        hasNextPage: false,
+                    },
+                    { status: 200 },
+                );
             }
 
             if (
