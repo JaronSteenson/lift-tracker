@@ -1,4 +1,4 @@
-Write a detailed implementation spec based on option [n] from: ./.ai/planning-output.md
+Write a detailed implementation spec based on option [n] from: ./.ai/scratch/planning-output.md
 
 Do NOT write any code. This spec will be executed by another model, so it must be explicit, unambiguous, and step-by-step.
 
