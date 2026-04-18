@@ -659,6 +659,9 @@ export function useUpdateWorkoutSession() {
             onSuccess: () => {
                 // Keep the optimistic cache state for routine in-session edits
                 // instead of replaying slower server responses through the UI.
+                queryClient.invalidateQueries({
+                    queryKey: [TIMELINE_QUERY_KEY],
+                });
             },
         },
     );
