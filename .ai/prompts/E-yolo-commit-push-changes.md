@@ -16,6 +16,7 @@ Keep it concise and professional. No fluff.
 
 # Execute
 ```shell 
+run `npm run lint-fix` # if not already run
 git add;
 git commit; # using our crafted message
 git push; 
