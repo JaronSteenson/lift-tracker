@@ -59,7 +59,7 @@ Please do the following in order:
 
 ## Output format
 
-Use this exact structure in a Markdown file: ./planning-output.md
+Use this exact structure in a Markdown file: ./.ai./scratch/planning-output.md
 
 ### Current architecture summary
 
