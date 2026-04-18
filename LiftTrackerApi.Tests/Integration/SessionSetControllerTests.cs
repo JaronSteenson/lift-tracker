@@ -106,4 +106,134 @@ public class SessionSetControllerTests(WorkoutDbFixture fixture) : IClassFixture
         Assert.Equal(DateTime.Parse("2023-10-01T12:02:00Z"), onlySet.StartedAt);
         Assert.Equal(6, onlySet.Reps);
     }
+
+    [Theory]
+    [InlineData(null)]
+    [InlineData(1)]
+    [InlineData(10)]
+    public async Task Put_AcceptsRpeValues(int? rpe)
+    {
+        var sessionUuid = Guid.NewGuid();
+        var exerciseUuid = Guid.NewGuid();
+        var setUuid = Guid.NewGuid();
+        var newWorkoutSession = new
+        {
+            Uuid = sessionUuid,
+            Name = "Set RPE session",
+            WorkoutProgramRoutineUuid = Guid.Parse("073379e9-0bc1-4f69-9cd5-1b0e7074d1a3"),
+            SessionExercises = new[]
+            {
+                new
+                {
+                    Uuid = exerciseUuid,
+                    Name = "Deadlifts",
+                    Position = 0,
+                    RoutineExerciseUuid = Guid.Parse("21ba1db3-8045-473c-901d-18b19ba33fe5"),
+                    SessionSets = new[]
+                    {
+                        new
+                        {
+                            Uuid = setUuid,
+                            Reps = (decimal?)null,
+                            Weight = 180m,
+                            Position = 0,
+                        },
+                    },
+                },
+            },
+        };
+
+        var response = await _client.PostAsync(
+            "/api/workout-sessions",
+            new StringContent(
+                JsonConvert.SerializeObject(newWorkoutSession),
+                Encoding.UTF8,
+                "application/json"
+            )
+        );
+        response.EnsureSuccessStatusCode();
+
+        var json = await response.Content.ReadAsStringAsync();
+        var createdSession = JsonConvert.DeserializeObject<WorkoutSessionDto>(json);
+        var set = createdSession!.SessionExercises.First().SessionSets.First();
+        set.Rpe = rpe;
+
+        var responseFromEdit = await _client.PutAsync(
+            "/api/session-sets",
+            new StringContent(JsonConvert.SerializeObject(set), Encoding.UTF8, "application/json")
+        );
+
+        responseFromEdit.EnsureSuccessStatusCode();
+        var editedJson = await responseFromEdit.Content.ReadAsStringAsync();
+        var editedSet = JsonConvert.DeserializeObject<SessionSetDto>(editedJson);
+        Assert.Equal(rpe, editedSet!.Rpe);
+
+        await _client.DeleteAsync($"/api/workout-sessions/{sessionUuid}");
+    }
+
+    [Theory]
+    [InlineData(0)]
+    [InlineData(11)]
+    public async Task Put_ReturnsBadRequest_WhenRpeIsOutOfRange(int rpe)
+    {
+        var sessionUuid = Guid.NewGuid();
+        var exerciseUuid = Guid.NewGuid();
+        var setUuid = Guid.NewGuid();
+        var response = await _client.PostAsync(
+            "/api/workout-sessions",
+            new StringContent(
+                JsonConvert.SerializeObject(
+                    new
+                    {
+                        Uuid = sessionUuid,
+                        Name = "Invalid set RPE session",
+                        WorkoutProgramRoutineUuid = Guid.Parse(
+                            "073379e9-0bc1-4f69-9cd5-1b0e7074d1a3"
+                        ),
+                        SessionExercises = new[]
+                        {
+                            new
+                            {
+                                Uuid = exerciseUuid,
+                                Name = "Deadlifts",
+                                Position = 0,
+                                RoutineExerciseUuid = Guid.Parse(
+                                    "21ba1db3-8045-473c-901d-18b19ba33fe5"
+                                ),
+                                SessionSets = new[]
+                                {
+                                    new
+                                    {
+                                        Uuid = setUuid,
+                                        Reps = (decimal?)null,
+                                        Weight = 180m,
+                                        Position = 0,
+                                    },
+                                },
+                            },
+                        },
+                    }
+                ),
+                Encoding.UTF8,
+                "application/json"
+            )
+        );
+        response.EnsureSuccessStatusCode();
+
+        var json = await response.Content.ReadAsStringAsync();
+        var createdSession = JsonConvert.DeserializeObject<WorkoutSessionDto>(json);
+        var set = createdSession!.SessionExercises.First().SessionSets.First();
+        set.Rpe = rpe;
+
+        var responseFromEdit = await _client.PutAsync(
+            "/api/session-sets",
+            new StringContent(JsonConvert.SerializeObject(set), Encoding.UTF8, "application/json")
+        );
+
+        Assert.Equal(HttpStatusCode.BadRequest, responseFromEdit.StatusCode);
+        var responseJson = await responseFromEdit.Content.ReadAsStringAsync();
+        responseJson.Should().Contain("RPE must be between 1 and 10");
+
+        await _client.DeleteAsync($"/api/workout-sessions/{sessionUuid}");
+    }
 }

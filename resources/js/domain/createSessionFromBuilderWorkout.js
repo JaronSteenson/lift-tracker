@@ -86,12 +86,14 @@ function createExerciseForEmptyWorkout(name) {
         name,
         position: 0,
         plannedWeight: null,
+        plannedRpe: null,
         plannedRestPeriodDuration: null,
         plannedWarmUp: null,
         sessionSets: [
             {
                 uuid: UuidHelper.assign(),
                 weight: null,
+                rpe: null,
                 position: 0,
                 startedAt: null,
             },
@@ -108,6 +110,7 @@ function createSessionExerciseFromBuilderExercise(builderExercise) {
         name: builderExercise.name || 'Unnamed exercise',
         notes: builderExercise.notes || null,
         plannedWeight: builderExercise.weight,
+        plannedRpe: builderExercise.rpe,
         position: builderExercise.position,
         skipped: false,
         warmUpDuration: builderExercise.warmUp,
@@ -117,6 +120,7 @@ function createSessionExerciseFromBuilderExercise(builderExercise) {
             return {
                 uuid: UuidHelper.assign(),
                 weight: builderExercise.weight,
+                rpe: builderExercise.rpe,
                 restPeriodDuration: builderExercise.restPeriod,
                 position: index,
                 startedAt: null,

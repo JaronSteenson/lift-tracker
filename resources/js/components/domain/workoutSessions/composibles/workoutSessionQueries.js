@@ -292,6 +292,13 @@ export function getRepsForCurrentSet(workoutSession, sessionSetUuid) {
     return set?.reps || null;
 }
 
+export function getRpeForCurrentSet(workoutSession, sessionSetUuid) {
+    const set = workoutSession?.sessionExercises
+        ?.flatMap((ex) => ex.sessionSets)
+        ?.find((set) => set.uuid === sessionSetUuid);
+    return set?.rpe ?? null;
+}
+
 export function getRestPeriodForCurrentSet(workoutSession, sessionSetUuid) {
     const set = UuidHelper.findDeep(workoutSession, sessionSetUuid);
     return set?.restPeriodDuration || 0;
@@ -753,6 +760,10 @@ export function useUpdateWorkoutSession() {
 
         updateSetReps: (sessionUuid, setUuid, reps) => {
             return updateSet(sessionUuid, setUuid, { reps });
+        },
+
+        updateSetRpe: (sessionUuid, setUuid, rpe) => {
+            return updateSet(sessionUuid, setUuid, { rpe });
         },
 
         updateExerciseWarmUpDuration: (

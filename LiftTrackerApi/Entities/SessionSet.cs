@@ -11,6 +11,8 @@ public partial class SessionSet : DomainEntity, IPositionable
 
     public decimal? Weight { get; set; }
 
+    public int? Rpe { get; set; }
+
     public int? RestPeriodDuration { get; set; }
 
     public DateTime? RestPeriodStartedAt { get; set; }

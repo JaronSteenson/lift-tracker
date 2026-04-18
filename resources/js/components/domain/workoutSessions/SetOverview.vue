@@ -143,7 +143,7 @@
             <VCardText class="px-0">
                 <VContainer class="py-0 px-0">
                     <VRow>
-                        <VCol class="pt-0" cols="6" md="6" sm="6">
+                        <VCol class="pt-0" cols="12" md="4" sm="4">
                             <VTextField
                                 class="mt-0"
                                 label="Weight (kg)"
@@ -155,7 +155,7 @@
                                 @blur="saveWeight"
                             />
                         </VCol>
-                        <VCol class="pt-0" cols="6" md="6" sm="6">
+                        <VCol class="pt-0" cols="12" md="4" sm="4">
                             <VTextField
                                 class="mt-0"
                                 label="Reps"
@@ -164,6 +164,15 @@
                                 :min="0"
                                 v-model.number="reps"
                                 @blur="saveReps"
+                            />
+                        </VCol>
+                        <VCol class="pt-0" cols="12" md="4" sm="4">
+                            <VSelect
+                                class="mt-0"
+                                v-model="rpe"
+                                :items="rpeOptions"
+                                label="RPE"
+                                @update:model-value="saveRpe"
                             />
                         </VCol>
                     </VRow>
@@ -410,6 +419,7 @@ import {
     isLastSetOfExercise as checkIsLastSetOfExercise,
     getWeightForCurrentSet,
     getRepsForCurrentSet,
+    getRpeForCurrentSet,
     getRestPeriodForCurrentSet,
     getWarmUpForCurrentExercise,
     isDuringWarmUp as checkIsDuringWarmUp,
@@ -446,6 +456,7 @@ const { workoutSession } = useWorkoutSession(
 const {
     updateSetWeight: updateWeightMutation,
     updateSetReps: updateRepsMutation,
+    updateSetRpe: updateRpeMutation,
     updateExerciseWarmUpDuration,
     updateSetRestPeriodDuration,
     updateExerciseNotes: updateNotesMutation,
@@ -678,12 +689,20 @@ const exerciseHistoryTotalCount = computed(
 
 const weight = ref(null);
 const reps = ref(null);
+const rpe = ref(null);
 const activeTimer = ref(0);
 const exerciseNotes = ref('');
 
 const wasAddedOnTheFly = computed(() => exercise.value?.wasAddedOnTheFly);
 
 const createdAt = computed(() => workoutSession.value?.createdAt);
+const rpeOptions = [
+    { title: 'N/A', value: null },
+    ...Array.from({ length: 10 }, (_, index) => ({
+        title: String(index + 1),
+        value: index + 1,
+    })),
+];
 
 // Methods
 function getStepColor(otherSet) {
@@ -700,6 +719,10 @@ function getCurrentWeight() {
 
 function getCurrentReps() {
     return getRepsForCurrentSet(workoutSession.value, props.sessionSetUuid);
+}
+
+function getCurrentRpe() {
+    return getRpeForCurrentSet(workoutSession.value, props.sessionSetUuid);
 }
 
 function getCurrentActiveTimer() {
@@ -719,6 +742,7 @@ function getCurrentActiveTimer() {
 function syncFormValues() {
     weight.value = getCurrentWeight();
     reps.value = getCurrentReps();
+    rpe.value = getCurrentRpe();
     activeTimer.value = getCurrentActiveTimer();
     exerciseNotes.value = exercise.value?.notes ?? '';
 }
@@ -737,6 +761,14 @@ function saveReps() {
     }
 
     updateRepsMutation(uuid.value, props.sessionSetUuid, reps.value);
+}
+
+function saveRpe() {
+    if (!uuid.value || !props.sessionSetUuid) {
+        return;
+    }
+
+    updateRpeMutation(uuid.value, props.sessionSetUuid, rpe.value);
 }
 
 function saveActiveTimer() {
@@ -959,6 +991,7 @@ watch(
         set.value?.uuid,
         set.value?.weight,
         set.value?.reps,
+        set.value?.rpe,
         set.value?.restPeriodDuration,
         set.value?.endedAt,
         exercise.value?.uuid,

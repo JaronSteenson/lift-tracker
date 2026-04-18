@@ -69,6 +69,23 @@
                         {{ repCount }}
                     </div>
                 </div>
+                <template v-if="rpeValues.length >= 1">
+                    <hr class="mt-1 mb-6" />
+                    <h3 class="mb-1 mt-2">RPE</h3>
+                    <VSparkline
+                        v-if="shouldShowRpeSparkline"
+                        :model-value="rpeValues"
+                        color="primary"
+                        :line-width="2"
+                        smooth
+                        padding="16"
+                    />
+                    <div class="d-flex justify-space-between w-100">
+                        <div :key="i" v-for="(rpe, i) in rpeValues">
+                            {{ rpe ?? 'N/A' }}
+                        </div>
+                    </div>
+                </template>
                 <template v-if="rest.length >= 1">
                     <hr class="mt-1 mb-6" />
                     <h3 class="mb-1 mt-4">Rest</h3>
@@ -175,6 +192,14 @@ const weights = computed(() =>
 );
 const reps = computed(() =>
     sessionExercise.value.sessionSets.map((set) => set.reps || 0),
+);
+const rpeValues = computed(() =>
+    sessionExercise.value.sessionSets.map((set) => set.rpe ?? null),
+);
+const shouldShowRpeSparkline = computed(
+    () =>
+        rpeValues.value.length > 1 &&
+        rpeValues.value.every((rpe) => Number.isInteger(rpe)),
 );
 const setsForRest = computed(() => {
     const sets = [...sessionExercise.value.sessionSets];

@@ -21,6 +21,7 @@ public class SessionExerciseStatsDto
     public string Name { get; set; } = null!;
 
     public decimal? PlannedWeight { get; set; }
+    public int? PlannedRpe { get; set; }
     public int? PlannedRestPeriodDuration { get; set; }
 
     [StringLength(maximumLength: 1000, ErrorMessage = "Notes must not exceed 1000 characters")]

@@ -438,6 +438,7 @@ export function useUpdateWorkoutProgram(routineUuid = null) {
                 restPeriod: 60,
                 warmUp: 60,
                 weight: null,
+                rpe: null,
             };
 
             // Create new objects/arrays immutably

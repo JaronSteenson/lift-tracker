@@ -62,6 +62,7 @@ vi.mock(
         isLastSetOfExercise: vi.fn(),
         getWeightForCurrentSet: vi.fn(),
         getRepsForCurrentSet: vi.fn(),
+        getRpeForCurrentSet: vi.fn(),
         getRestPeriodForCurrentSet: vi.fn(),
         getWarmUpForCurrentExercise: vi.fn(),
         isDuringWarmUp: vi.fn(),
@@ -149,6 +150,7 @@ describe('SetOverview - Navigation functionality', () => {
         vi.mocked(useUpdateWorkoutSession).mockReturnValue({
             updateSetWeight: vi.fn(),
             updateSetReps: vi.fn(),
+            updateSetRpe: vi.fn(),
             updateExerciseWarmUpDuration: vi.fn(),
             updateSetRestPeriodDuration: vi.fn(),
             updateExerciseNotes: vi.fn(),
@@ -199,6 +201,7 @@ describe('SetOverview - Navigation functionality', () => {
         vi.mocked(queries.isLastSetOfExercise).mockReturnValue(false);
         vi.mocked(queries.getWeightForCurrentSet).mockReturnValue(null);
         vi.mocked(queries.getRepsForCurrentSet).mockReturnValue(null);
+        vi.mocked(queries.getRpeForCurrentSet).mockReturnValue(null);
         vi.mocked(queries.getRestPeriodForCurrentSet).mockReturnValue(60);
         vi.mocked(queries.getWarmUpForCurrentExercise).mockReturnValue(60);
         vi.mocked(queries.isDuringWarmUp).mockReturnValue(false);

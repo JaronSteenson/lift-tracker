@@ -2,7 +2,7 @@
     <VDialog
         :model-value="value"
         @update:model-value="$emit('update:value', $event)"
-        max-width="600px"
+        max-width="720px"
         :fullscreen="display.xs.value"
     >
         <VCard>
@@ -17,7 +17,7 @@
                                 autofocus
                             />
                         </VCol>
-                        <VCol cols="12" md="6" sm="6">
+                        <VCol cols="12" md="4" sm="4">
                             <VTextField
                                 label="Weight (kg)"
                                 type="number"
@@ -28,13 +28,21 @@
                                 v-model="weight"
                             />
                         </VCol>
-                        <VCol cols="12" md="6" sm="6">
+                        <VCol cols="12" md="4" sm="4">
                             <VSelect
                                 :items="numberOfSetsOptions"
                                 required
                                 label="Number of sets"
                                 variant="outlined"
                                 v-model="numberOfSets"
+                            />
+                        </VCol>
+                        <VCol cols="12" md="4" sm="4">
+                            <VSelect
+                                v-model="rpe"
+                                :items="rpeOptions"
+                                label="RPE"
+                                variant="outlined"
                             />
                         </VCol>
                         <VCol cols="6">
@@ -124,9 +132,17 @@ const numberOfSetsOptions = [
     { title: 'Nine', value: 9 },
     { title: 'Ten', value: 10 },
 ];
+const rpeOptions = [
+    { title: 'N/A', value: null },
+    ...Array.from({ length: 10 }, (_, index) => ({
+        title: String(index + 1),
+        value: index + 1,
+    })),
+];
 
 const name = ref('');
 const weight = ref(null);
+const rpe = ref(null);
 const numberOfSets = ref(3);
 const restPeriod = ref(60);
 const warmUp = ref(60);
@@ -140,6 +156,7 @@ watch(
             if (exercise) {
                 name.value = exercise.name;
                 weight.value = exercise.weight;
+                rpe.value = exercise.rpe;
                 numberOfSets.value = exercise.numberOfSets;
                 restPeriod.value = exercise.restPeriod;
                 warmUp.value = exercise.warmUp;
@@ -159,6 +176,7 @@ const closeModal = () => {
         uuid: props.routineExerciseUuid,
         name: name.value,
         weight: weight.value,
+        rpe: rpe.value,
         numberOfSets: numberOfSets.value,
         restPeriod: restPeriod.value,
         warmUp: warmUp.value,

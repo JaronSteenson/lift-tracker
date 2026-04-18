@@ -588,6 +588,110 @@ public class WorkoutSessionControllerTests(WorkoutDbFixture fixture)
         );
     }
 
+    [Theory]
+    [InlineData(null)]
+    [InlineData(1)]
+    [InlineData(10)]
+    public async Task Post_AcceptsPlannedRpeValues(int? plannedRpe)
+    {
+        var sessionUuid = Guid.NewGuid();
+        var exerciseUuid = Guid.NewGuid();
+        var setUuid = Guid.NewGuid();
+        var newWorkoutSession = new
+        {
+            Uuid = sessionUuid,
+            Name = "Planned RPE workout",
+            WorkoutProgramRoutineUuid = (Guid?)null,
+            SessionExercises = new[]
+            {
+                new
+                {
+                    Uuid = exerciseUuid,
+                    Name = "Deadlifts",
+                    PlannedRpe = plannedRpe,
+                    Position = 0,
+                    RoutineExerciseUuid = (Guid?)null,
+                    SessionSets = new[]
+                    {
+                        new
+                        {
+                            Uuid = setUuid,
+                            Reps = 5m,
+                            Weight = 180m,
+                            Position = 0,
+                        },
+                    },
+                },
+            },
+        };
+
+        var response = await _client.PostAsync(
+            "/api/workout-sessions",
+            new StringContent(
+                JsonConvert.SerializeObject(newWorkoutSession),
+                Encoding.UTF8,
+                "application/json"
+            )
+        );
+
+        response.EnsureSuccessStatusCode();
+        var json = await response.Content.ReadAsStringAsync();
+        var createdSession = JsonConvert.DeserializeObject<WorkoutSessionDto>(json);
+        Assert.Equal(plannedRpe, Assert.Single(createdSession!.SessionExercises).PlannedRpe);
+
+        await _client.DeleteAsync($"/api/workout-sessions/{sessionUuid}");
+    }
+
+    [Theory]
+    [InlineData(0)]
+    [InlineData(11)]
+    public async Task Post_ReturnsBadRequest_WhenPlannedRpeIsOutOfRange(int plannedRpe)
+    {
+        var sessionUuid = Guid.NewGuid();
+        var exerciseUuid = Guid.NewGuid();
+        var setUuid = Guid.NewGuid();
+        var newWorkoutSession = new
+        {
+            Uuid = sessionUuid,
+            Name = "Invalid planned RPE workout",
+            WorkoutProgramRoutineUuid = (Guid?)null,
+            SessionExercises = new[]
+            {
+                new
+                {
+                    Uuid = exerciseUuid,
+                    Name = "Deadlifts",
+                    PlannedRpe = plannedRpe,
+                    Position = 0,
+                    RoutineExerciseUuid = (Guid?)null,
+                    SessionSets = new[]
+                    {
+                        new
+                        {
+                            Uuid = setUuid,
+                            Reps = 5m,
+                            Weight = 180m,
+                            Position = 0,
+                        },
+                    },
+                },
+            },
+        };
+
+        var response = await _client.PostAsync(
+            "/api/workout-sessions",
+            new StringContent(
+                JsonConvert.SerializeObject(newWorkoutSession),
+                Encoding.UTF8,
+                "application/json"
+            )
+        );
+
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        var responseJson = await response.Content.ReadAsStringAsync();
+        responseJson.Should().Contain("Planned RPE must be between 1 and 10");
+    }
+
     private static async Task<WorkoutSessionDto> AssertSimpleCreateResponse(
         HttpResponseMessage response
     )

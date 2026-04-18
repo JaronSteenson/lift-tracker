@@ -6,6 +6,7 @@ import SessionExerciseService from '../../../../api/SessionExerciseService';
 import { prepareForLocalVueMount } from '../../../vueHelpers';
 import {
     getNextSet,
+    getRpeForCurrentSet,
     setIsInFocusedSession,
     useExerciseHistory,
 } from '../../../../components/domain/workoutSessions/composibles/workoutSessionQueries';
@@ -135,6 +136,23 @@ describe('workoutSessionQueries navigation helpers', () => {
 
             expect(setIsInFocusedSession(null, 'set-uuid')).toBeNull();
             expect(UuidHelper.findDeep).toHaveBeenCalledWith(null, 'set-uuid');
+        });
+    });
+
+    describe('getRpeForCurrentSet', () => {
+        test('returns the current set rpe', () => {
+            const workoutSession = {
+                sessionExercises: [
+                    {
+                        sessionSets: [
+                            { uuid: 'set-1', rpe: null },
+                            { uuid: 'set-2', rpe: 8 },
+                        ],
+                    },
+                ],
+            };
+
+            expect(getRpeForCurrentSet(workoutSession, 'set-2')).toBe(8);
         });
     });
 

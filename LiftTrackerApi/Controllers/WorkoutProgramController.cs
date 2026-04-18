@@ -119,6 +119,7 @@ public class WorkoutProgramController(
         return string.IsNullOrWhiteSpace(exercise.Name)
             && exercise.NumberOfSets == null
             && exercise.Weight == null
+            && exercise.Rpe == null
             && exercise.RestPeriod == null
             && exercise.WarmUp == null;
     }

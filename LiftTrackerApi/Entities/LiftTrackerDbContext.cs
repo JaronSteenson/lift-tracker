@@ -125,6 +125,7 @@ public partial class LiftTrackerDbContext(
             entity.Property(e => e.Name).HasMaxLength(255).HasColumnName("name");
             entity.Property(e => e.NumberOfSets).HasColumnName("numberOfSets");
             entity.Property(e => e.Position).HasColumnName("position");
+            entity.Property(e => e.Rpe).HasColumnName("rpe");
             entity.Property(e => e.RestPeriod).HasColumnName("restPeriod");
             entity.Property(e => e.UpdatedAt).HasColumnType("timestamp").HasColumnName("updatedAt");
             entity.Property(e => e.Uuid).HasColumnName("uuid");
@@ -165,6 +166,7 @@ public partial class LiftTrackerDbContext(
             entity.Property(e => e.DeletedAt).HasColumnType("timestamp").HasColumnName("deletedAt");
             entity.Property(e => e.Name).HasMaxLength(100).IsFixedLength().HasColumnName("name");
             entity.Property(e => e.Notes).HasColumnType("text").HasColumnName("notes");
+            entity.Property(e => e.PlannedRpe).HasColumnName("plannedRpe");
             entity
                 .Property(e => e.PlannedRestPeriodDuration)
                 .HasColumnName("plannedRestPeriodDuration");
@@ -213,6 +215,7 @@ public partial class LiftTrackerDbContext(
                 .Property(e => e.Reps)
                 .HasColumnType("decimal(6,2) unsigned")
                 .HasColumnName("reps");
+            entity.Property(e => e.Rpe).HasColumnName("rpe");
             entity.Property(e => e.RestPeriodDuration).HasColumnName("restPeriodDuration");
             entity
                 .Property(e => e.RestPeriodEndedAt)

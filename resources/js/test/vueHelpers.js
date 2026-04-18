@@ -94,6 +94,7 @@ export async function renderApp() {
                         name: 'Test exercise',
                         numberOfSets: 1,
                         weight: 50,
+                        rpe: null,
                         restPeriod: 60,
                         warmUp: 60,
                         position: 0,

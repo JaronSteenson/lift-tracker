@@ -19,6 +19,7 @@ const mountOptions = prepareForLocalVueMount();
 const set = {
     weight: 50,
     reps: 10,
+    rpe: 8,
     restPeriodDuration: 90,
 };
 
@@ -121,10 +122,10 @@ describe('SessionExerciseStatsModal.vue', () => {
         // Should have rest period displayed
         expect(wrapper.text()).toContain('1m 30s');
 
-        // Should be 2 spark lines, Weight, Reps.
+        // Should be 3 spark lines, Weight, Reps, RPE.
         expect(
             wrapper.findAllComponents({ name: 'VSparkline' }).length,
-        ).toEqual(2);
+        ).toEqual(3);
     });
 
     test('should render correctly in multiple set mode', () => {
@@ -142,10 +143,35 @@ describe('SessionExerciseStatsModal.vue', () => {
             wrapper.findAllComponents({ name: 'VSparkline' }).length,
         ).toBeGreaterThan(0);
 
-        // Should be 3 spark lines, Weight, Reps, Rest periods.
+        // Should be 4 spark lines, Weight, Reps, RPE, Rest periods.
         expect(
             wrapper.findAllComponents({ name: 'VSparkline' }).length,
-        ).toEqual(3);
+        ).toEqual(4);
+    });
+
+    test('should render rpe after reps and show N/A without an rpe sparkline for mixed values', () => {
+        const wrapper = shallowMount(
+            SessionExerciseHistoryModal,
+            createMountOptions({
+                sessionExercises: [
+                    {
+                        ...doubleSetExercise,
+                        sessionSets: [
+                            { ...set, rpe: 8 },
+                            { ...set, rpe: null },
+                        ],
+                    },
+                ],
+            }),
+        );
+
+        const text = wrapper.text();
+        expect(text.indexOf('Reps')).toBeLessThan(text.indexOf('RPE'));
+        expect(text).toContain('N/A');
+
+        expect(
+            wrapper.findAllComponents({ name: 'VSparkline' }).length,
+        ).toEqual(2);
     });
 
     test('should render correctly with notes', () => {

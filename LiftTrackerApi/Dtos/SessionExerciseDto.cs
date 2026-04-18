@@ -21,6 +21,8 @@ public class SessionExerciseDto
     public string Name { get; set; } = null!;
 
     public decimal? PlannedWeight { get; set; }
+    [Range(1, 10, ErrorMessage = "Planned RPE must be between 1 and 10")]
+    public int? PlannedRpe { get; set; }
     public int? PlannedRestPeriodDuration { get; set; }
 
     [StringLength(maximumLength: 1000, ErrorMessage = "Notes must not exceed 1000 characters")]

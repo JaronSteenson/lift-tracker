@@ -72,6 +72,7 @@ describe('createSessionFromBuilderWorkout', () => {
                     name: 'Bench Press',
                     notes: 'Focus on form',
                     weight: 100,
+                    rpe: 8,
                     numberOfSets: 3,
                     restPeriod: 120,
                     warmUp: 30,
@@ -81,6 +82,7 @@ describe('createSessionFromBuilderWorkout', () => {
                     uuid: 'exercise-2-uuid',
                     name: 'Push-ups',
                     weight: null,
+                    rpe: null,
                     numberOfSets: 2,
                     restPeriod: null,
                     warmUp: null,
@@ -125,6 +127,7 @@ describe('createSessionFromBuilderWorkout', () => {
                     name: 'Bench Press',
                     notes: 'Focus on form',
                     plannedWeight: 100,
+                    plannedRpe: 8,
                     warmUpDuration: 30,
                     position: 0,
                     skipped: false,
@@ -134,6 +137,7 @@ describe('createSessionFromBuilderWorkout', () => {
                             createdAt: mockNow,
                             position: 0,
                             restPeriodDuration: 120,
+                            rpe: 8,
                             startedAt: mockNow,
                             updatedAt: mockNow,
                             uuid: mockUuid,
@@ -143,6 +147,7 @@ describe('createSessionFromBuilderWorkout', () => {
                             createdAt: mockNow,
                             position: 1,
                             restPeriodDuration: 120,
+                            rpe: 8,
                             startedAt: null,
                             updatedAt: mockNow,
                             uuid: mockUuid,
@@ -152,6 +157,7 @@ describe('createSessionFromBuilderWorkout', () => {
                             createdAt: mockNow,
                             position: 2,
                             restPeriodDuration: 120,
+                            rpe: 8,
                             startedAt: null,
                             updatedAt: mockNow,
                             uuid: mockUuid,
@@ -175,6 +181,7 @@ describe('createSessionFromBuilderWorkout', () => {
                 expect(set).toEqual({
                     uuid: mockUuid,
                     weight: 100,
+                    rpe: 8,
                     position: index,
                     restPeriodDuration: 120,
                     startedAt: index === 0 ? mockNow : null,
@@ -182,6 +189,30 @@ describe('createSessionFromBuilderWorkout', () => {
                     updatedAt: mockNow,
                 });
             });
+        });
+
+        test('should copy numeric builder rpe to planned and seeded set rpe values', () => {
+            const session = createSessionFromBuilderWorkout({
+                existingCheckIn,
+                originWorkout,
+            });
+
+            expect(session.sessionExercises[0].plannedRpe).toBe(8);
+            expect(
+                session.sessionExercises[0].sessionSets.map((set) => set.rpe),
+            ).toEqual([8, 8, 8]);
+        });
+
+        test('should keep null builder rpe as null on planned and seeded set values', () => {
+            const session = createSessionFromBuilderWorkout({
+                existingCheckIn,
+                originWorkout,
+            });
+
+            expect(session.sessionExercises[1].plannedRpe).toBeNull();
+            expect(
+                session.sessionExercises[1].sessionSets.map((set) => set.rpe),
+            ).toEqual([null, null]);
         });
 
         test('should set startedAt on the first set of the first exercise', () => {
@@ -207,11 +238,13 @@ describe('createSessionFromBuilderWorkout', () => {
                     name: 'Push-ups',
                     notes: null,
                     plannedWeight: null,
+                    plannedRpe: null,
                     sessionSets: [
                         {
                             createdAt: mockNow,
                             position: 0,
                             restPeriodDuration: null,
+                            rpe: null,
                             startedAt: null,
                             updatedAt: mockNow,
                             uuid: mockUuid,
@@ -221,6 +254,7 @@ describe('createSessionFromBuilderWorkout', () => {
                             createdAt: mockNow,
                             position: 1,
                             restPeriodDuration: null,
+                            rpe: null,
                             startedAt: null,
                             updatedAt: mockNow,
                             uuid: mockUuid,
@@ -328,12 +362,14 @@ describe('createSessionFromBuilderWorkout', () => {
                 name: 'Empty Workout',
                 position: 0,
                 plannedWeight: null,
+                plannedRpe: null,
                 plannedRestPeriodDuration: null,
                 plannedWarmUp: null,
                 sessionSets: [
                     {
                         uuid: mockUuid,
                         weight: null,
+                        rpe: null,
                         position: 0,
                         startedAt: mockNow,
                     },
