@@ -24,6 +24,17 @@ public class WorkoutSessionController(WorkoutSessionService workoutSessionServic
         return Json(WorkoutSessionDtoMapper.ToDto(workoutSessions));
     }
 
+    [HttpGet("in-progress")]
+    public async Task<IActionResult> GetInProgress()
+    {
+        var userId = (int)(HttpContext.Items["UserId"] ?? -1);
+
+        var workoutSession = await workoutSessionService.FindInProgressForOwner(userId);
+        return Json(
+            workoutSession == null ? null : WorkoutSessionDtoMapper.ToDto(workoutSession)
+        );
+    }
+
     [HttpGet("{uuid:guid}")]
     public async Task<IActionResult> Get(Guid uuid)
     {

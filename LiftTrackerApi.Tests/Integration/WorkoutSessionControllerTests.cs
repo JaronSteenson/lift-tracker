@@ -91,6 +91,199 @@ public class WorkoutSessionControllerTests(WorkoutDbFixture fixture)
         AssertTestSessionStructure(workoutSession);
     }
 
+    /// <see cref="WorkoutSessionController.GetInProgress()" />
+    [Fact]
+    public async Task GetInProgress_ReturnsNull_WhenNoActiveWorkoutExists()
+    {
+        await RemoveInProgressWorkoutSessions();
+
+        var response = await _client.GetAsync("/api/workout-sessions/in-progress");
+
+        response.EnsureSuccessStatusCode();
+        Assert.Equal(
+            "application/json; charset=utf-8",
+            response.Content.Headers.ContentType!.ToString()
+        );
+
+        var json = await response.Content.ReadAsStringAsync();
+        var workoutSession = JsonConvert.DeserializeObject<WorkoutSessionDto?>(json);
+
+        Assert.Null(workoutSession);
+    }
+
+    /// <see cref="WorkoutSessionController.GetInProgress()" />
+    [Fact]
+    public async Task GetInProgress_ReturnsTheCurrentUsersActiveWorkout()
+    {
+        await RemoveInProgressWorkoutSessions();
+
+        await AddWorkoutSession(
+            new WorkoutSession
+            {
+                Uuid = Guid.Parse("5da5242e-b754-4855-8e70-6e8b6726dc0a"),
+                Name = "Active workout",
+                UserId = 1,
+                CreatedAt = DateTime.Parse("2026-04-18T08:00:00Z"),
+                UpdatedAt = DateTime.Parse("2026-04-18T08:30:00Z"),
+                StartedAt = DateTime.Parse("2026-04-18T08:01:00Z"),
+                SessionExercises =
+                [
+                    new SessionExercise
+                    {
+                        Uuid = Guid.Parse("dc0f777d-962a-4b78-8d45-db73808cbf7f"),
+                        Name = "Bench",
+                        Position = 0,
+                        SessionSets =
+                        [
+                            new SessionSet
+                            {
+                                Uuid = Guid.Parse("446f03f5-b030-4197-b40c-1eb7485f8e60"),
+                                Position = 0,
+                                StartedAt = DateTime.Parse("2026-04-18T08:02:00Z"),
+                            },
+                        ],
+                    },
+                ],
+            }
+        );
+
+        var response = await _client.GetAsync("/api/workout-sessions/in-progress");
+
+        response.EnsureSuccessStatusCode();
+        var json = await response.Content.ReadAsStringAsync();
+        var workoutSession = JsonConvert.DeserializeObject<WorkoutSessionDto>(json);
+
+        Assert.NotNull(workoutSession);
+        Assert.Equal(Guid.Parse("5da5242e-b754-4855-8e70-6e8b6726dc0a"), workoutSession!.Uuid);
+        Assert.Equal("Active workout", workoutSession.Name);
+        Assert.True(workoutSession.StartedAt.HasValue);
+        Assert.Null(workoutSession.EndedAt);
+        Assert.Single(workoutSession.SessionExercises);
+        Assert.Single(workoutSession.SessionExercises[0].SessionSets);
+    }
+
+    /// <see cref="WorkoutSessionController.GetInProgress()" />
+    [Fact]
+    public async Task GetInProgress_DoesNotReturnAnotherUsersActiveWorkout()
+    {
+        await RemoveInProgressWorkoutSessions();
+
+        await AddWorkoutSession(
+            new WorkoutSession
+            {
+                Uuid = Guid.Parse("f06d8888-0ccf-4513-87fa-5802eaf45b4b"),
+                Name = "Other user active workout",
+                UserId = 2,
+                CreatedAt = DateTime.Parse("2026-04-18T08:00:00Z"),
+                UpdatedAt = DateTime.Parse("2026-04-18T08:30:00Z"),
+                StartedAt = DateTime.Parse("2026-04-18T08:01:00Z"),
+                SessionExercises =
+                [
+                    new SessionExercise
+                    {
+                        Uuid = Guid.Parse("e5021ae0-9a54-4e37-b769-5e38b7bfab11"),
+                        Name = "Rows",
+                        Position = 0,
+                        SessionSets =
+                        [
+                            new SessionSet
+                            {
+                                Uuid = Guid.Parse("d2d8286d-2252-42a0-80d7-69377db196d2"),
+                                Position = 0,
+                                StartedAt = DateTime.Parse("2026-04-18T08:02:00Z"),
+                            },
+                        ],
+                    },
+                ],
+            }
+        );
+
+        var response = await _client.GetAsync("/api/workout-sessions/in-progress");
+
+        response.EnsureSuccessStatusCode();
+        var json = await response.Content.ReadAsStringAsync();
+        var workoutSession = JsonConvert.DeserializeObject<WorkoutSessionDto?>(json);
+
+        Assert.Null(workoutSession);
+    }
+
+    /// <see cref="WorkoutSessionController.GetInProgress()" />
+    [Fact]
+    public async Task GetInProgress_ReturnsTheNewestActiveWorkout_WhenMultipleExist()
+    {
+        await RemoveInProgressWorkoutSessions();
+
+        await AddWorkoutSession(
+            new WorkoutSession
+            {
+                Uuid = Guid.Parse("1da0fb36-b63d-4209-a10b-e6674ef1a7bd"),
+                Name = "Older active workout",
+                UserId = 1,
+                CreatedAt = DateTime.Parse("2026-04-18T07:00:00Z"),
+                UpdatedAt = DateTime.Parse("2026-04-18T07:30:00Z"),
+                StartedAt = DateTime.Parse("2026-04-18T07:01:00Z"),
+                SessionExercises =
+                [
+                    new SessionExercise
+                    {
+                        Uuid = Guid.Parse("45a9c778-5087-4cd5-b8fd-965d13f9878d"),
+                        Name = "Squat",
+                        Position = 0,
+                        SessionSets =
+                        [
+                            new SessionSet
+                            {
+                                Uuid = Guid.Parse("d4b99ac9-df56-45d4-a85f-95fcb2a8c69d"),
+                                Position = 0,
+                                StartedAt = DateTime.Parse("2026-04-18T07:02:00Z"),
+                            },
+                        ],
+                    },
+                ],
+            }
+        );
+
+        await AddWorkoutSession(
+            new WorkoutSession
+            {
+                Uuid = Guid.Parse("6ca8d819-21f4-44c5-9ae2-8b245cb1a3e7"),
+                Name = "Newest active workout",
+                UserId = 1,
+                CreatedAt = DateTime.Parse("2026-04-18T09:00:00Z"),
+                UpdatedAt = DateTime.Parse("2026-04-18T09:30:00Z"),
+                StartedAt = DateTime.Parse("2026-04-18T09:01:00Z"),
+                SessionExercises =
+                [
+                    new SessionExercise
+                    {
+                        Uuid = Guid.Parse("f6e33599-8106-42e7-a260-ebd78caa0d29"),
+                        Name = "Press",
+                        Position = 0,
+                        SessionSets =
+                        [
+                            new SessionSet
+                            {
+                                Uuid = Guid.Parse("48f5a120-33be-476b-a02f-c76354761414"),
+                                Position = 0,
+                                StartedAt = DateTime.Parse("2026-04-18T09:02:00Z"),
+                            },
+                        ],
+                    },
+                ],
+            }
+        );
+
+        var response = await _client.GetAsync("/api/workout-sessions/in-progress");
+
+        response.EnsureSuccessStatusCode();
+        var json = await response.Content.ReadAsStringAsync();
+        var workoutSession = JsonConvert.DeserializeObject<WorkoutSessionDto>(json);
+
+        Assert.NotNull(workoutSession);
+        Assert.Equal(Guid.Parse("6ca8d819-21f4-44c5-9ae2-8b245cb1a3e7"), workoutSession!.Uuid);
+        Assert.Equal("Newest active workout", workoutSession.Name);
+    }
+
     private void AssertTestSessionStructure(WorkoutSessionDto workoutSession)
     {
         Assert.Equal(Guid.Parse("27ffe07e-ecfd-4599-b132-6ec9e35fee1d"), workoutSession.Uuid);
@@ -445,5 +638,25 @@ public class WorkoutSessionControllerTests(WorkoutDbFixture fixture)
         Assert.Null(onlySet.RestPeriodEndedAt);
 
         return workoutSession;
+    }
+
+    private async Task AddWorkoutSession(WorkoutSession workoutSession)
+    {
+        using var scope = fixture.Factory.Services.CreateScope();
+        var db = scope.ServiceProvider.GetRequiredService<LiftTrackerDbContext>();
+        db.WorkoutSessions.Add(workoutSession);
+        await db.SaveChangesAsync();
+    }
+
+    private async Task RemoveInProgressWorkoutSessions()
+    {
+        using var scope = fixture.Factory.Services.CreateScope();
+        var db = scope.ServiceProvider.GetRequiredService<LiftTrackerDbContext>();
+        var inProgressSessions = await db
+            .WorkoutSessions.Where(session => session.StartedAt != null)
+            .Where(session => session.EndedAt == null)
+            .ToListAsync();
+        db.WorkoutSessions.RemoveRange(inProgressSessions);
+        await db.SaveChangesAsync();
     }
 }

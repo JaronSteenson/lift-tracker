@@ -13,11 +13,12 @@ import UuidHelper from '../../../../UuidHelper/index';
 import WorkoutSessionService from '../../../../api/WorkoutSessionService';
 import SessionExerciseService from '../../../../api/SessionExerciseService';
 import createSessionFromBuilderWorkout from '../../../../domain/createSessionFromBuilderWorkout';
+import { useAuth } from '../../auth/composables/useAuth';
 
 const WORKOUT_SESSION_KEY = 'workoutSession';
 const EXERCISE_HISTORY_KEY = 'exerciseHistory';
 const TIMELINE_QUERY_KEY = 'timeline';
-const ACTIVE_WORKOUT_SESSION_KEY = 'activeWorkoutSession';
+const IN_PROGRESS_WORKOUT_QUERY_KEY = 'inProgressWorkout';
 const SET_CHANGE_TRANSITION_KEY = 'setChangeTransition';
 const WORKOUT_SESSION_SAVE_MUTATION_KEY = ['workoutSessionSave'];
 let setChangeTransitionResetTimeout = null;
@@ -464,20 +465,22 @@ export function useExerciseHistory(sessionExerciseUuid) {
     };
 }
 
-export function useActiveWorkoutSession() {
-    const queryClient = useQueryClient();
+export function useInProgressWorkout() {
+    const { isBootstrapped, isAuthenticated } = useAuth();
 
-    const { data } = useQuery({
-        queryKey: [ACTIVE_WORKOUT_SESSION_KEY],
-        queryFn: () =>
-            queryClient.getQueryData([ACTIVE_WORKOUT_SESSION_KEY]) || null,
-        initialData: () =>
-            queryClient.getQueryData([ACTIVE_WORKOUT_SESSION_KEY]) || null,
-        staleTime: Infinity,
+    const { data, isPending, error } = useQuery({
+        queryKey: [IN_PROGRESS_WORKOUT_QUERY_KEY],
+        queryFn: async () => {
+            const response = await WorkoutSessionService.getInProgress();
+            return response.data;
+        },
+        enabled: computed(() => isBootstrapped.value && isAuthenticated.value),
     });
 
     return {
         workoutSession: data,
+        isPending,
+        error,
     };
 }
 
@@ -529,17 +532,20 @@ function getTimelineSessions(queryClient) {
     return timelineData?.pages?.flatMap((page) => page.items ?? []) || [];
 }
 
-function syncActiveWorkoutSession(queryClient, workoutSession) {
+function syncInProgressWorkout(queryClient, workoutSession) {
     if (workoutSession?.startedAt && !workoutSession?.endedAt) {
-        queryClient.setQueryData([ACTIVE_WORKOUT_SESSION_KEY], workoutSession);
+        queryClient.setQueryData(
+            [IN_PROGRESS_WORKOUT_QUERY_KEY],
+            workoutSession,
+        );
         return;
     }
 
-    const activeSession = queryClient.getQueryData([
-        ACTIVE_WORKOUT_SESSION_KEY,
+    const inProgressWorkout = queryClient.getQueryData([
+        IN_PROGRESS_WORKOUT_QUERY_KEY,
     ]);
-    if (activeSession?.uuid === workoutSession?.uuid) {
-        queryClient.setQueryData([ACTIVE_WORKOUT_SESSION_KEY], null);
+    if (inProgressWorkout?.uuid === workoutSession?.uuid) {
+        queryClient.setQueryData([IN_PROGRESS_WORKOUT_QUERY_KEY], null);
     }
 }
 
@@ -549,7 +555,7 @@ function writeWorkoutSessionToCaches(queryClient, workoutSession) {
         workoutSession,
     );
 
-    syncActiveWorkoutSession(queryClient, workoutSession);
+    syncInProgressWorkout(queryClient, workoutSession);
 }
 
 export function useStartWorkout() {
@@ -639,12 +645,19 @@ export function useUpdateWorkoutSession() {
 
                 const previousWorkoutSession =
                     queryClient.getQueryData(queryKey);
+                const previousInProgressWorkout = queryClient.getQueryData([
+                    IN_PROGRESS_WORKOUT_QUERY_KEY,
+                ]);
 
                 // In-session interactions stay optimistic so set/exercise edits
                 // feel instant while the user moves through the workout.
                 writeWorkoutSessionToCaches(queryClient, workoutSession);
 
-                return { previousWorkoutSession, queryKey };
+                return {
+                    previousWorkoutSession,
+                    previousInProgressWorkout,
+                    queryKey,
+                };
             },
 
             onError: (err, workoutSession, context) => {
@@ -654,6 +667,11 @@ export function useUpdateWorkoutSession() {
                         context.previousWorkoutSession,
                     );
                 }
+
+                queryClient.setQueryData(
+                    [IN_PROGRESS_WORKOUT_QUERY_KEY],
+                    context?.previousInProgressWorkout ?? null,
+                );
             },
 
             onSuccess: () => {
@@ -661,6 +679,9 @@ export function useUpdateWorkoutSession() {
                 // instead of replaying slower server responses through the UI.
                 queryClient.invalidateQueries({
                     queryKey: [TIMELINE_QUERY_KEY],
+                });
+                queryClient.invalidateQueries({
+                    queryKey: [IN_PROGRESS_WORKOUT_QUERY_KEY],
                 });
             },
         },
@@ -1106,11 +1127,11 @@ export function useDeleteWorkoutSession() {
                 queryKey: [WORKOUT_SESSION_KEY, workoutSessionUuid],
             });
 
-            const activeSession = queryClient.getQueryData([
-                ACTIVE_WORKOUT_SESSION_KEY,
+            const inProgressWorkout = queryClient.getQueryData([
+                IN_PROGRESS_WORKOUT_QUERY_KEY,
             ]);
-            if (activeSession?.uuid === workoutSessionUuid) {
-                queryClient.setQueryData([ACTIVE_WORKOUT_SESSION_KEY], null);
+            if (inProgressWorkout?.uuid === workoutSessionUuid) {
+                queryClient.setQueryData([IN_PROGRESS_WORKOUT_QUERY_KEY], null);
             }
 
             return { workoutSessionUuid };

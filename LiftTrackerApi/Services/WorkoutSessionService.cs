@@ -58,6 +58,34 @@ public class WorkoutSessionService(LiftTrackerDbContext db, DomainEntityService 
         return session;
     }
 
+    public async Task<WorkoutSession?> FindInProgressForOwner(int userId)
+    {
+        var session = await db
+            .WorkoutSessions.Include(workoutSession => workoutSession.SessionExercises)
+            .ThenInclude(exercise => exercise.SessionSets)
+            .Include(workoutSession => workoutSession.SessionExercises)
+            .ThenInclude(exercise => exercise.RoutineExercise)
+            .Include(workoutSession => workoutSession.WorkoutProgramRoutine)
+            .ThenInclude(routine => routine!.WorkoutProgram)
+            .Where(workoutSession => workoutSession.UserId == userId)
+            .Where(workoutSession => workoutSession.StartedAt != null)
+            .Where(workoutSession => workoutSession.EndedAt == null)
+            .OrderByDescending(workoutSession => workoutSession.UpdatedAt)
+            .ThenByDescending(workoutSession => workoutSession.CreatedAt)
+            .ThenByDescending(workoutSession => workoutSession.Id)
+            .AsNoTracking()
+            .FirstOrDefaultAsync();
+
+        if (session == null)
+        {
+            return null;
+        }
+
+        SortChildren(session);
+
+        return session;
+    }
+
     public async Task<SessionExercise> FindSessionExerciseByUuidAndOwner(
         Guid sessionExerciseUuid,
         int userId

@@ -6,6 +6,10 @@ const WorkoutSessionService = {
         return ApiService.get(RESOURCE_NAME, uuid);
     },
 
+    getInProgress() {
+        return ApiService.get(`${RESOURCE_NAME}/in-progress`);
+    },
+
     /**
      * @return {Promise<any>}
      */

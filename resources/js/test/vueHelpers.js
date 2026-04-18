@@ -161,6 +161,15 @@ export async function renderApp() {
                 );
             }
 
+            if (url.pathname === '/api/workout-sessions/in-progress') {
+                return HttpResponse.json(
+                    workoutSession.startedAt && !workoutSession.endedAt
+                        ? workoutSession
+                        : null,
+                    { status: 200 },
+                );
+            }
+
             if (
                 url.pathname.endsWith(
                     `/api/workout-sessions/${workoutSession.uuid}`,

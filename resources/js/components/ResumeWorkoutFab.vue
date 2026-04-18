@@ -32,14 +32,14 @@ import { useDisplay } from 'vuetify';
 import { useAuth } from './domain/auth/composables/useAuth';
 import {
     getCurrentSetForInProgressWorkout,
-    useActiveWorkoutSession,
+    useInProgressWorkout,
     useSetChangeTransition,
 } from './domain/workoutSessions/composibles/workoutSessionQueries';
 
 const display = useDisplay();
 const { isBootstrapped, isAuthenticated } = useAuth();
 const route = useRoute();
-const { workoutSession } = useActiveWorkoutSession();
+const { workoutSession } = useInProgressWorkout();
 const { isSetChangeTransitioning } = useSetChangeTransition();
 
 const inProgressSet = computed(() =>
@@ -50,7 +50,7 @@ const inProgressSet = computed(() =>
 );
 
 const shouldShow = computed(() => {
-    if (!isBootstrapped.value && !isAuthenticated.value) {
+    if (!isBootstrapped.value || !isAuthenticated.value) {
         return false;
     }
 
