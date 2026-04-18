@@ -526,7 +526,7 @@ export function finishSetChangeTransition(queryClient, delayMs = 0) {
 
 function getTimelineSessions(queryClient) {
     const timelineData = queryClient.getQueryData([TIMELINE_QUERY_KEY]);
-    return timelineData?.pages?.flat() || [];
+    return timelineData?.pages?.flatMap((page) => page.items ?? []) || [];
 }
 
 function syncActiveWorkoutSession(queryClient, workoutSession) {
