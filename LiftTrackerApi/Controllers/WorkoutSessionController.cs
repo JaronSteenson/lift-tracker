@@ -70,6 +70,27 @@ public class WorkoutSessionController(WorkoutSessionService workoutSessionServic
         return Json(WorkoutSessionDtoMapper.ToDto(created));
     }
 
+    [HttpPost("start")]
+    public async Task<IActionResult> Start([FromBody] StartWorkoutRequestDto request)
+    {
+        var userId = (int)(HttpContext.Items["UserId"] ?? -1);
+
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(ModelState);
+        }
+
+        try
+        {
+            var started = await workoutSessionService.StartWorkout(request, userId);
+            return Json(WorkoutSessionDtoMapper.ToDto(started));
+        }
+        catch (ArgumentException exception)
+        {
+            return BadRequest(new { error = exception.Message });
+        }
+    }
+
     [HttpPut]
     public async Task<IActionResult> Update([FromBody] WorkoutSessionDto workoutSession)
     {
@@ -80,8 +101,15 @@ public class WorkoutSessionController(WorkoutSessionService workoutSessionServic
             return BadRequest(ModelState);
         }
 
-        var updated = await workoutSessionService.UpdateWithChildren(workoutSession, userId);
-        return Json(WorkoutSessionDtoMapper.ToDto(updated));
+        try
+        {
+            var updated = await workoutSessionService.UpdateWithChildren(workoutSession, userId);
+            return Json(WorkoutSessionDtoMapper.ToDto(updated));
+        }
+        catch (ArgumentException exception)
+        {
+            return BadRequest(new { error = exception.Message });
+        }
     }
 
     [HttpDelete("{uuid:guid}")]

@@ -6,7 +6,12 @@ using Microsoft.EntityFrameworkCore;
 
 namespace LiftTrackerApi.Services;
 
-public class WorkoutSessionService(LiftTrackerDbContext db, DomainEntityService domainEntityService)
+public class WorkoutSessionService(
+    LiftTrackerDbContext db,
+    DomainEntityService domainEntityService,
+    WorkoutProgramService workoutProgramService,
+    ProgressionSchemeRegistry progressionSchemeRegistry
+)
 {
     public async Task<PaginatedListDto<WorkoutSession>> FindWorkoutSessionsForUserId(
         int userId,
@@ -168,6 +173,69 @@ public class WorkoutSessionService(LiftTrackerDbContext db, DomainEntityService 
         return savedWorkoutSession;
     }
 
+    public async Task<WorkoutSession> StartWorkout(StartWorkoutRequestDto request, int userId)
+    {
+        if (!request.RoutineUuid.HasValue)
+        {
+            throw new ArgumentException("Routine UUID is required.");
+        }
+
+        var routine = await workoutProgramService.FindRoutineByUuidAndOwner(request.RoutineUuid.Value, userId);
+        var startedAt = DateTime.UtcNow;
+        var existingCheckIn = await db
+            .WorkoutSessions.Include(session => session.SessionExercises)
+            .ThenInclude(exercise => exercise.SessionSets)
+            .Where(session => session.UserId == userId)
+            .Where(session => session.StartedAt == null)
+            .Where(session => session.CreatedAt >= startedAt.Date)
+            .Where(session => session.CreatedAt < startedAt.Date.AddDays(1))
+            .OrderByDescending(session => session.UpdatedAt ?? session.CreatedAt)
+            .FirstOrDefaultAsync();
+
+        WorkoutSession session;
+        if (existingCheckIn == null)
+        {
+            db.Entry(routine).State = EntityState.Modified;
+            session = new WorkoutSession
+            {
+                UserId = userId,
+                Name = routine.Name,
+                StartedAt = startedAt,
+                EndedAt = null,
+                WorkoutProgramRoutine = routine,
+                SessionExercises = BuildSessionExercises(routine),
+            };
+
+            await VerifyOrAssignNewUuids(session);
+            await db.AddAsync(session);
+        }
+        else
+        {
+            if (existingCheckIn.SessionExercises.Count > 0)
+            {
+                db.RemoveRange(existingCheckIn.SessionExercises.SelectMany(exercise => exercise.SessionSets));
+                db.RemoveRange(existingCheckIn.SessionExercises);
+            }
+
+            db.Entry(routine).State = EntityState.Modified;
+            existingCheckIn.Name = routine.Name;
+            existingCheckIn.StartedAt = startedAt;
+            existingCheckIn.EndedAt = null;
+            existingCheckIn.WorkoutProgramRoutine = routine;
+            existingCheckIn.SessionExercises = BuildSessionExercises(routine);
+            session = existingCheckIn;
+            await AssignNewChildUuids(session.SessionExercises);
+        }
+
+        MarkFirstSetStarted(session, startedAt);
+
+        await db.SaveChangesAsync();
+
+        var savedWorkoutSession = await FindByUuidAndOwner(session.Uuid ?? Guid.Empty, userId);
+        SortChildren(savedWorkoutSession);
+        return savedWorkoutSession;
+    }
+
     private async Task AssociateSourceRoutine(
         WorkoutSession editedWorkoutSession,
         Guid? workoutProgramRoutineUuid
@@ -249,6 +317,7 @@ public class WorkoutSessionService(LiftTrackerDbContext db, DomainEntityService 
         await AssociateSourceExercises(updated, request.SessionExercises);
 
         var existing = await FindByUuidAndOwner(request.Uuid.Value, userId);
+        var shouldAdvanceProgression = existing.EndedAt == null && updated.EndedAt != null;
         domainEntityService.ReattachRequestEntity(existing: existing, updated: updated);
 
         domainEntityService.TrackEntityDiffChanges(
@@ -261,6 +330,12 @@ public class WorkoutSessionService(LiftTrackerDbContext db, DomainEntityService 
         );
 
         await db.SaveChangesAsync();
+
+        if (shouldAdvanceProgression)
+        {
+            await AdvanceProgressionSchemes(updated);
+            await db.SaveChangesAsync();
+        }
 
         if (existing.WorkoutProgramRoutine == null)
         {
@@ -453,6 +528,147 @@ public class WorkoutSessionService(LiftTrackerDbContext db, DomainEntityService 
         sessionExercise.RoutineExercise = sourceExercise;
     }
 
+    private async Task AdvanceProgressionSchemes(WorkoutSession session)
+    {
+        var routineExerciseIds = session.SessionExercises
+            .Where(exercise => !exercise.Skipped)
+            .Where(exercise => exercise.ProgressionScheme != null)
+            .Select(exercise => exercise.RoutineExercise?.Id)
+            .Where(id => id != null)
+            .Distinct()
+            .ToList();
+
+        if (routineExerciseIds.Count == 0)
+        {
+            return;
+        }
+
+        var routineExercises = await db
+            .RoutineExercises.Where(exercise => routineExerciseIds.Contains(exercise.Id))
+            .ToDictionaryAsync(exercise => exercise.Id!.Value);
+        var advancedRoutineExerciseIds = new HashSet<int>();
+
+        foreach (var sessionExercise in session.SessionExercises.Where(exercise => !exercise.Skipped))
+        {
+            if (sessionExercise.ProgressionScheme == null)
+            {
+                continue;
+            }
+
+            var routineExerciseId = sessionExercise.RoutineExercise?.Id;
+            if (routineExerciseId == null)
+            {
+                continue;
+            }
+
+            var routineExerciseKey = routineExerciseId.Value;
+            if (
+                !routineExercises.TryGetValue(routineExerciseKey, out var routineExercise)
+                || !advancedRoutineExerciseIds.Add(routineExerciseKey)
+            )
+            {
+                continue;
+            }
+
+            var strategy = progressionSchemeRegistry.GetRequiredStrategy(sessionExercise.ProgressionScheme);
+            strategy.Advance(routineExercise);
+        }
+    }
+
+    private List<SessionExercise> BuildSessionExercises(WorkoutProgramRoutine routine)
+    {
+        if (routine.RoutineExercises.Count == 0)
+        {
+            return [CreateExerciseForEmptyWorkout(routine.Name)];
+        }
+
+        return routine.RoutineExercises.Select(CreateSessionExerciseFromRoutineExercise).ToList();
+    }
+
+    private SessionExercise CreateSessionExerciseFromRoutineExercise(RoutineExercise routineExercise)
+    {
+        if (routineExercise.ProgressionScheme == null)
+        {
+            return new SessionExercise
+            {
+                Name = routineExercise.Name ?? "Unnamed exercise",
+                PlannedWeight = routineExercise.Weight,
+                ProgressionScheme = null,
+                PlannedRpe = routineExercise.Rpe,
+                PlannedRestPeriodDuration = routineExercise.RestPeriod,
+                Position = routineExercise.Position,
+                Skipped = false,
+                PlannedWarmUp = routineExercise.WarmUp,
+                WarmUpDuration = routineExercise.WarmUp,
+                RoutineExercise = routineExercise,
+                SessionSets = Enumerable
+                    .Range(0, routineExercise.NumberOfSets ?? 1)
+                    .Select(index => new SessionSet
+                    {
+                        Position = index,
+                        Weight = routineExercise.Weight,
+                        Rpe = routineExercise.Rpe,
+                        RestPeriodDuration = routineExercise.RestPeriod,
+                    })
+                    .ToList(),
+            };
+        }
+
+        var strategy = progressionSchemeRegistry.GetRequiredStrategy(routineExercise.ProgressionScheme);
+        var sessionExercise = strategy.CreateSessionExercise(routineExercise);
+        sessionExercise.RoutineExercise = routineExercise;
+        return sessionExercise;
+    }
+
+    private static SessionExercise CreateExerciseForEmptyWorkout(string? routineName)
+    {
+        return new SessionExercise
+        {
+            Name = routineName ?? "Workout",
+            Position = 0,
+            PlannedWeight = null,
+            ProgressionScheme = null,
+            PlannedRpe = null,
+            PlannedRestPeriodDuration = null,
+            PlannedWarmUp = null,
+            WarmUpDuration = null,
+            Skipped = false,
+            SessionSets =
+            [
+                new SessionSet
+                {
+                    Position = 0,
+                },
+            ],
+        };
+    }
+
+    private static void MarkFirstSetStarted(WorkoutSession session, DateTime startedAt)
+    {
+        var firstSet = session.SessionExercises
+            .OrderBy(exercise => exercise.Position)
+            .FirstOrDefault()
+            ?.SessionSets.OrderBy(set => set.Position)
+            .FirstOrDefault();
+
+        if (firstSet != null)
+        {
+            firstSet.StartedAt = startedAt;
+        }
+    }
+
+    private async Task AssignNewChildUuids(IEnumerable<SessionExercise> exercises)
+    {
+        foreach (var exercise in exercises)
+        {
+            await domainEntityService.VerifyOrAssignNewEntityUuid(exercise);
+            foreach (var set in exercise.SessionSets)
+            {
+                await domainEntityService.VerifyOrAssignNewEntityUuid(set);
+            }
+        }
+    }
+
     private static WorkoutSession MapWorkoutSession(WorkoutSessionDto request)
     {
         return new WorkoutSession
@@ -478,6 +694,7 @@ public class WorkoutSessionService(LiftTrackerDbContext db, DomainEntityService 
             UpdatedAt = request.UpdatedAt,
             Name = request.Name,
             PlannedWeight = request.PlannedWeight,
+            ProgressionScheme = request.ProgressionScheme,
             PlannedRpe = request.PlannedRpe,
             PlannedRestPeriodDuration = request.PlannedRestPeriodDuration,
             Notes = request.Notes,

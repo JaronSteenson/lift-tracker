@@ -201,6 +201,131 @@ public class WorkoutProgramControllerTests(WorkoutDbFixture fixture)
         }
     }
 
+    [Fact]
+    public async Task Put_SavesProgressionSchemeFields()
+    {
+        var exerciseUuid = Guid.Parse("231f3f81-4680-4086-b228-168116ae330a");
+        var originalExercise = await CaptureRoutineExerciseState(exerciseUuid);
+
+        try
+        {
+            var response = await _client.GetAsync(
+                "/api/workout-programs/186383a6-e369-4071-b80d-70c82d2495d1"
+            );
+            response.EnsureSuccessStatusCode();
+            var json = await response.Content.ReadAsStringAsync();
+            var workoutProgram = JsonConvert.DeserializeObject<WorkoutProgram>(json);
+
+            var exercise = workoutProgram!.WorkoutProgramRoutines
+                .Single(routine => routine.Uuid == Guid.Parse("cd218127-b60d-46a7-bbc1-a17332bea15f"))
+                .RoutineExercises.Single();
+            exercise.ProgressionScheme = ProgressionScheme.FiveThreeOne;
+            exercise.ProgressionSchemeSettings = new ProgressionScheme531Settings
+            {
+                CurrentCycleWeek = 2,
+                BodyType = ProgressionScheme531BodyType.Upper,
+            };
+            exercise.Weight = 100m;
+
+            var requestJson = JsonConvert.SerializeObject(workoutProgram);
+            var content = new StringContent(requestJson, Encoding.UTF8, "application/json");
+
+            var updateResponse = await _client.PutAsync("/api/workout-programs", content);
+
+            updateResponse.EnsureSuccessStatusCode();
+            var updatedJson = await updateResponse.Content.ReadAsStringAsync();
+            var updatedWorkoutProgram = JsonConvert.DeserializeObject<WorkoutProgram>(updatedJson);
+            var updatedExercise = updatedWorkoutProgram!.WorkoutProgramRoutines
+                .Single(routine => routine.Uuid == Guid.Parse("cd218127-b60d-46a7-bbc1-a17332bea15f"))
+                .RoutineExercises.Single();
+
+            updatedExercise.ProgressionScheme.Should().Be(ProgressionScheme.FiveThreeOne);
+            updatedExercise.ProgressionSchemeSettings!.CurrentCycleWeek.Should().Be(2);
+            updatedExercise.ProgressionSchemeSettings.BodyType.Should().Be(
+                ProgressionScheme531BodyType.Upper
+            );
+        }
+        finally
+        {
+            await RestoreRoutineExerciseState(exerciseUuid, originalExercise);
+        }
+    }
+
+    [Fact]
+    public async Task Put_ReturnsBadRequest_WhenFiveThreeOneSettingsAreMissing()
+    {
+        var exerciseUuid = Guid.Parse("231f3f81-4680-4086-b228-168116ae330a");
+        var originalExercise = await CaptureRoutineExerciseState(exerciseUuid);
+
+        try
+        {
+            var response = await _client.GetAsync(
+                "/api/workout-programs/186383a6-e369-4071-b80d-70c82d2495d1"
+            );
+            response.EnsureSuccessStatusCode();
+            var json = await response.Content.ReadAsStringAsync();
+            var workoutProgram = JsonConvert.DeserializeObject<WorkoutProgram>(json);
+
+            var exercise = workoutProgram!.WorkoutProgramRoutines
+                .Single(routine => routine.Uuid == Guid.Parse("cd218127-b60d-46a7-bbc1-a17332bea15f"))
+                .RoutineExercises.Single();
+            exercise.ProgressionScheme = ProgressionScheme.FiveThreeOne;
+            exercise.ProgressionSchemeSettings = null;
+            exercise.Weight = 100m;
+
+            var requestJson = JsonConvert.SerializeObject(workoutProgram);
+            var content = new StringContent(requestJson, Encoding.UTF8, "application/json");
+
+            var updateResponse = await _client.PutAsync("/api/workout-programs", content);
+
+            updateResponse.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+        }
+        finally
+        {
+            await RestoreRoutineExerciseState(exerciseUuid, originalExercise);
+        }
+    }
+
+    private async Task<(decimal? Weight, ProgressionScheme? Scheme, ProgressionScheme531Settings? Settings)> CaptureRoutineExerciseState(
+        Guid exerciseUuid
+    )
+    {
+        using var scope = _fixture.Factory.Services.CreateScope();
+        var db = scope.ServiceProvider.GetRequiredService<LiftTrackerDbContext>();
+        var exercise = await db.RoutineExercises.WhereUuid(exerciseUuid).FirstAsync();
+        return (
+            exercise.Weight,
+            exercise.ProgressionScheme,
+            exercise.ProgressionSchemeSettings == null
+                ? null
+                : new ProgressionScheme531Settings
+                {
+                    CurrentCycleWeek = exercise.ProgressionSchemeSettings.CurrentCycleWeek,
+                    BodyType = exercise.ProgressionSchemeSettings.BodyType,
+                }
+        );
+    }
+
+    private async Task RestoreRoutineExerciseState(
+        Guid exerciseUuid,
+        (decimal? Weight, ProgressionScheme? Scheme, ProgressionScheme531Settings? Settings) originalExercise
+    )
+    {
+        using var scope = _fixture.Factory.Services.CreateScope();
+        var db = scope.ServiceProvider.GetRequiredService<LiftTrackerDbContext>();
+        var exercise = await db.RoutineExercises.WhereUuid(exerciseUuid).FirstAsync();
+        exercise.Weight = originalExercise.Weight;
+        exercise.ProgressionScheme = originalExercise.Scheme;
+        exercise.ProgressionSchemeSettings = originalExercise.Settings == null
+            ? null
+            : new ProgressionScheme531Settings
+            {
+                CurrentCycleWeek = originalExercise.Settings.CurrentCycleWeek,
+                BodyType = originalExercise.Settings.BodyType,
+            };
+        await db.SaveChangesAsync();
+    }
+
     /// <see cref="WorkoutProgramController.Create(WorkoutProgram)" />
     /// <see cref="WorkoutProgramController.Update(WorkoutProgram)" />
     [Fact]

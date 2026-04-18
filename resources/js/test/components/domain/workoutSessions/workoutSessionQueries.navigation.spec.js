@@ -3,12 +3,14 @@ import { flushPromises, mount } from '@vue/test-utils';
 import { describe, test, expect, vi, beforeEach } from 'vitest';
 import UuidHelper from '../../../../UuidHelper';
 import SessionExerciseService from '../../../../api/SessionExerciseService';
+import WorkoutSessionService from '../../../../api/WorkoutSessionService';
 import { prepareForLocalVueMount } from '../../../vueHelpers';
 import {
     getNextSet,
     getRpeForCurrentSet,
     setIsInFocusedSession,
     useExerciseHistory,
+    useStartWorkout,
 } from '../../../../components/domain/workoutSessions/composibles/workoutSessionQueries';
 
 vi.mock('../../../../UuidHelper', () => ({
@@ -20,6 +22,13 @@ vi.mock('../../../../UuidHelper', () => ({
 vi.mock('../../../../api/SessionExerciseService', () => ({
     default: {
         getHistory: vi.fn(),
+        getCycleProjection: vi.fn(),
+    },
+}));
+
+vi.mock('../../../../api/WorkoutSessionService', () => ({
+    default: {
+        start: vi.fn(),
     },
 }));
 
@@ -217,6 +226,38 @@ describe('workoutSessionQueries navigation helpers', () => {
                     'exercise-10',
                 ],
             );
+        });
+    });
+
+    describe('useStartWorkout', () => {
+        test('uses the backend start endpoint', async () => {
+            vi.mocked(WorkoutSessionService.start).mockResolvedValue({
+                data: {
+                    uuid: 'session-1',
+                    sessionExercises: [],
+                },
+            });
+
+            const Harness = defineComponent({
+                setup() {
+                    return useStartWorkout();
+                },
+                render() {
+                    return h('div');
+                },
+            });
+
+            const wrapper = mount(Harness, prepareForLocalVueMount());
+            const workoutSession = await wrapper.vm.startWorkout({
+                originWorkout: {
+                    uuid: 'routine-1',
+                },
+            });
+
+            expect(WorkoutSessionService.start).toHaveBeenCalledWith({
+                routineUuid: 'routine-1',
+            });
+            expect(workoutSession.uuid).toBe('session-1');
         });
     });
 });

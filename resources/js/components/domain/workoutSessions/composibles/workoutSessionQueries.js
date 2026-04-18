@@ -7,12 +7,11 @@ import {
     useMutationState,
 } from '@tanstack/vue-query';
 import { computed, toValue } from 'vue';
-import { differenceInSeconds, isToday } from 'date-fns';
+import { differenceInSeconds } from 'date-fns';
 import { utcNow } from '../../../../dates';
 import UuidHelper from '../../../../UuidHelper/index';
 import WorkoutSessionService from '../../../../api/WorkoutSessionService';
 import SessionExerciseService from '../../../../api/SessionExerciseService';
-import createSessionFromBuilderWorkout from '../../../../domain/createSessionFromBuilderWorkout';
 import { useAuth } from '../../auth/composables/useAuth';
 
 const WORKOUT_SESSION_KEY = 'workoutSession';
@@ -534,11 +533,6 @@ export function finishSetChangeTransition(queryClient, delayMs = 0) {
     }, delayMs);
 }
 
-function getTimelineSessions(queryClient) {
-    const timelineData = queryClient.getQueryData([TIMELINE_QUERY_KEY]);
-    return timelineData?.pages?.flatMap((page) => page.items ?? []) || [];
-}
-
 function syncInProgressWorkout(queryClient, workoutSession) {
     if (workoutSession?.startedAt && !workoutSession?.endedAt) {
         queryClient.setQueryData(
@@ -569,18 +563,10 @@ export function useStartWorkout() {
     const queryClient = useQueryClient();
 
     const { mutateAsync, isPending } = useMutation({
-        mutationFn: async ({ originWorkout }) => {
-            const existingCheckIn = getTimelineSessions(queryClient).find(
-                (session) => isToday(session.createdAt) && !session.startedAt,
-            );
-
-            // Create a new workout session from the routine
-            const sessionData = createSessionFromBuilderWorkout({
-                existingCheckIn,
-                originWorkout,
+        mutationFn: async ({ originWorkout, routineUuid }) => {
+            const response = await WorkoutSessionService.start({
+                routineUuid: routineUuid || originWorkout?.uuid,
             });
-
-            const response = await WorkoutSessionService.save(sessionData);
             return response.data;
         },
 

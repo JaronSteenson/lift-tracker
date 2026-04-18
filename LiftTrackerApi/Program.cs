@@ -68,6 +68,8 @@ builder.Services.AddDbContext<LiftTrackerDbContext>();
 builder.Services.AddScoped<DomainEntityService>();
 builder.Services.AddScoped<WorkoutProgramService>();
 builder.Services.AddScoped<WorkoutSessionService>();
+builder.Services.AddScoped<ProgressionSchemeRegistry>();
+builder.Services.AddScoped<IProgressionSchemeStrategy, FiveThreeOneProgressionStrategy>();
 
 // Add default JSON options.
 builder

@@ -3,12 +3,16 @@ using LiftTrackerApi.Entities.Interfaces;
 
 namespace LiftTrackerApi.Entities;
 
-public partial class RoutineExercise : DomainEntity, IPositionable
+public partial class RoutineExercise : DomainEntity, IPositionable, IValidatableObject
 {
     [MaxLength(100, ErrorMessage = "Name must be at most 100 characters")]
     public string? Name { get; set; }
 
     public int? NumberOfSets { get; set; }
+
+    public ProgressionScheme? ProgressionScheme { get; set; }
+
+    public ProgressionScheme531Settings? ProgressionSchemeSettings { get; set; }
 
     public int? WorkoutProgramRoutineId { get; set; }
 
@@ -25,4 +29,12 @@ public partial class RoutineExercise : DomainEntity, IPositionable
     public int? WarmUp { get; set; }
 
     public virtual WorkoutProgramRoutine? WorkoutProgramRoutine { get; set; }
+
+    public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
+    {
+        return ProgressionSchemeValidation.ValidateRoutineExercise(
+            ProgressionScheme,
+            ProgressionSchemeSettings
+        );
+    }
 }

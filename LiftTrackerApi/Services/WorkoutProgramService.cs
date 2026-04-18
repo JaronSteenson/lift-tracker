@@ -7,6 +7,71 @@ namespace LiftTrackerApi.Services;
 
 public class WorkoutProgramService(LiftTrackerDbContext db, DomainEntityService domainEntityService)
 {
+    public async Task<WorkoutProgramRoutine> FindRoutineByUuidAndOwner(Guid routineUuid, int userId)
+    {
+        var routine =
+            await db
+                .WorkoutProgramRoutines.Include(item => item.RoutineExercises)
+                .Include(item => item.WorkoutProgram)
+                .Where(item => item.WorkoutProgram != null && item.WorkoutProgram.UserId == userId)
+                .WhereUuid(routineUuid)
+                .FirstOrDefaultAsync()
+            ?? throw new NotFoundException(
+                $"WorkoutProgramRoutine with UUID {routineUuid} not found for user {userId}."
+            );
+
+        routine.RoutineExercises = routine.RoutineExercises.OrderByPosition().ToList();
+        return routine;
+    }
+
+    public async Task<RoutineExercise> FindRoutineExerciseByUuidAndOwner(Guid exerciseUuid, int userId)
+    {
+        return await db
+                .RoutineExercises.Include(item => item.WorkoutProgramRoutine)
+                .ThenInclude(routine => routine!.WorkoutProgram)
+                .Where(item =>
+                    item.WorkoutProgramRoutine != null
+                    && item.WorkoutProgramRoutine.WorkoutProgram != null
+                    && item.WorkoutProgramRoutine.WorkoutProgram.UserId == userId
+                )
+                .WhereUuid(exerciseUuid)
+                .FirstOrDefaultAsync()
+            ?? throw new NotFoundException(
+                $"RoutineExercise with UUID {exerciseUuid} not found for user {userId}."
+            );
+    }
+
+    public RoutineExercise CreateProjectionExerciseOverride(
+        RoutineExercise exercise,
+        decimal? trainingMax,
+        int? currentCycleWeek,
+        ProgressionScheme531BodyType? bodyType
+    )
+    {
+        var settings = exercise.ProgressionSchemeSettings == null
+            ? null
+            : new ProgressionScheme531Settings
+            {
+                CurrentCycleWeek =
+                    currentCycleWeek ?? exercise.ProgressionSchemeSettings.CurrentCycleWeek,
+                BodyType = bodyType ?? exercise.ProgressionSchemeSettings.BodyType,
+            };
+
+        return new RoutineExercise
+        {
+            Uuid = exercise.Uuid,
+            Name = exercise.Name,
+            NumberOfSets = exercise.NumberOfSets,
+            ProgressionScheme = exercise.ProgressionScheme,
+            ProgressionSchemeSettings = settings,
+            Position = exercise.Position,
+            Weight = trainingMax ?? exercise.Weight,
+            Rpe = exercise.Rpe,
+            RestPeriod = exercise.RestPeriod,
+            WarmUp = exercise.WarmUp,
+        };
+    }
+
     public async Task<object?> FindWorkoutProgramByRoutineUuid(Guid routineUuid, int userId)
     {
         var query = db

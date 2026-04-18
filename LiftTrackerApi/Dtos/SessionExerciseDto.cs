@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using LiftTrackerApi.Entities;
 
 // ReSharper disable CollectionNeverUpdated.Global
 // ReSharper disable AutoPropertyCanBeMadeGetOnly.Global
@@ -6,7 +7,7 @@ using System.ComponentModel.DataAnnotations;
 // ReSharper disable PropertyCanBeMadeInitOnly.Global
 namespace LiftTrackerApi.Dtos;
 
-public class SessionExerciseDto
+public class SessionExerciseDto : IValidatableObject
 {
     public Guid? Uuid { get; set; }
     public Guid? WorkoutSessionUuid { get; set; }
@@ -21,6 +22,7 @@ public class SessionExerciseDto
     public string Name { get; set; } = null!;
 
     public decimal? PlannedWeight { get; set; }
+    public ProgressionScheme? ProgressionScheme { get; set; }
     [Range(1, 10, ErrorMessage = "Planned RPE must be between 1 and 10")]
     public int? PlannedRpe { get; set; }
     public int? PlannedRestPeriodDuration { get; set; }
@@ -36,4 +38,12 @@ public class SessionExerciseDto
     public int? WarmUpDuration { get; set; }
     public Guid? RoutineExerciseUuid { get; set; }
     public List<SessionSetDto> SessionSets { get; set; } = [];
+
+    public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
+    {
+        return ProgressionSchemeValidation.ValidateSessionExercise(
+            ProgressionScheme,
+            nameof(ProgressionScheme)
+        );
+    }
 }

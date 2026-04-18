@@ -27,6 +27,12 @@ const WorkoutSessionService = {
         return ApiService.save(RESOURCE_NAME, workoutSession);
     },
 
+    start({ routineUuid }) {
+        return ApiService.post(`${RESOURCE_NAME}/start`, {
+            routineUuid,
+        });
+    },
+
     delete(uuid) {
         return ApiService.delete(RESOURCE_NAME, uuid);
     },

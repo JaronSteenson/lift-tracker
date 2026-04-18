@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using LiftTrackerApi.Entities;
 
 // ReSharper disable CollectionNeverUpdated.Global
 // ReSharper disable AutoPropertyCanBeMadeGetOnly.Global
@@ -21,6 +22,7 @@ public class SessionExerciseStatsDto
     public string Name { get; set; } = null!;
 
     public decimal? PlannedWeight { get; set; }
+    public ProgressionScheme? ProgressionScheme { get; set; }
     public int? PlannedRpe { get; set; }
     public int? PlannedRestPeriodDuration { get; set; }
 

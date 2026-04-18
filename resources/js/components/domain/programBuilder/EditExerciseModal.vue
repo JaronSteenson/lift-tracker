@@ -19,7 +19,7 @@
                         </VCol>
                         <VCol cols="12" md="4" sm="4">
                             <VTextField
-                                label="Weight (kg)"
+                                :label="`${schemeConfig.weightLabel} (kg)`"
                                 type="number"
                                 :step="2.5"
                                 :max="9999"
@@ -34,6 +34,7 @@
                                 required
                                 label="Number of sets"
                                 variant="outlined"
+                                :disabled="schemeConfig.lockReps"
                                 v-model="numberOfSets"
                             />
                         </VCol>
@@ -54,6 +55,25 @@
                                 v-model="restPeriod"
                             />
                         </VCol>
+                        <VCol cols="12" md="6">
+                            <VSelect
+                                v-model="progressionScheme"
+                                :items="progressionSchemeOptions"
+                                label="Progression scheme"
+                                variant="outlined"
+                            />
+                        </VCol>
+                        <VCol v-if="schemeConfig.showSettings" cols="12">
+                            <ProgressionSchemeSettings531
+                                :settings="progressionSchemeSettings"
+                                :projection="projection"
+                                :is-projection-loading="isProjectionLoading"
+                                :has-persisted-exercise="hasPersistedExercise"
+                                @update:settings="
+                                    progressionSchemeSettings = $event
+                                "
+                            />
+                        </VCol>
                     </VRow>
                 </VContainer>
             </VCardText>
@@ -67,14 +87,22 @@
 </template>
 
 <script setup>
-import { ref, watch, computed } from 'vue';
+import { ref, watch, computed, onBeforeUnmount } from 'vue';
 import { useDisplay } from 'vuetify';
 import TimerInput from '../../formFields/TimerInput.vue';
+import SessionExerciseService from '../../../api/SessionExerciseService';
+import ProgressionSchemeSettings531 from './531ProgressionSchemeSettings.vue';
 import {
     useUpdateWorkoutProgram,
     useWorkoutProgram,
     useWorkoutProgramByRoutine,
 } from './composibles/programBuilderQueries';
+import {
+    getProgressionSchemeConfig,
+    progressionSchemeOptions,
+    PROGRESSION_SCHEME,
+    PROGRESSION_SCHEME_531_BODY_TYPE,
+} from './progressionSchemeRegistry';
 
 const props = defineProps({
     value: {
@@ -115,6 +143,9 @@ const getExercise = (uuid) => {
 
     return routineWorkoutProgramQuery.getExercise.value(uuid);
 };
+const currentExercise = computed(() =>
+    props.routineExerciseUuid ? getExercise(props.routineExerciseUuid) : null,
+);
 
 const { updateExercise } = useUpdateWorkoutProgram(props.routineUuid);
 
@@ -144,8 +175,18 @@ const name = ref('');
 const weight = ref(null);
 const rpe = ref(null);
 const numberOfSets = ref(3);
+const progressionScheme = ref(null);
+const progressionSchemeSettings = ref(null);
 const restPeriod = ref(60);
 const warmUp = ref(60);
+const projection = ref(null);
+const isProjectionLoading = ref(false);
+const schemeConfig = computed(() =>
+    getProgressionSchemeConfig(progressionScheme.value),
+);
+const hasPersistedExercise = computed(() => !!currentExercise.value?.createdAt);
+let projectionTimeoutId = null;
+let latestProjectionRequestId = 0;
 
 // Watch for modal opening and load current exercise data
 watch(
@@ -158,6 +199,9 @@ watch(
                 weight.value = exercise.weight;
                 rpe.value = exercise.rpe;
                 numberOfSets.value = exercise.numberOfSets;
+                progressionScheme.value = exercise.progressionScheme ?? null;
+                progressionSchemeSettings.value =
+                    exercise.progressionSchemeSettings ?? null;
                 restPeriod.value = exercise.restPeriod;
                 warmUp.value = exercise.warmUp;
             }
@@ -165,6 +209,96 @@ watch(
     },
     { immediate: true },
 );
+
+watch(progressionScheme, (newProgressionScheme) => {
+    if (newProgressionScheme === PROGRESSION_SCHEME.FIVE_THREE_ONE) {
+        numberOfSets.value = 3;
+        progressionSchemeSettings.value = progressionSchemeSettings.value || {
+            currentCycleWeek: 1,
+            bodyType: PROGRESSION_SCHEME_531_BODY_TYPE.UPPER,
+        };
+        return;
+    }
+
+    projection.value = null;
+    progressionSchemeSettings.value = null;
+});
+
+watch(
+    [
+        () => props.value,
+        progressionScheme,
+        weight,
+        () => progressionSchemeSettings.value?.currentCycleWeek,
+        () => progressionSchemeSettings.value?.bodyType,
+        hasPersistedExercise,
+    ],
+    ([isOpen, activeProgressionScheme]) => {
+        if (projectionTimeoutId) {
+            window.clearTimeout(projectionTimeoutId);
+            projectionTimeoutId = null;
+        }
+
+        if (
+            !isOpen ||
+            activeProgressionScheme !== PROGRESSION_SCHEME.FIVE_THREE_ONE
+        ) {
+            projection.value = null;
+            isProjectionLoading.value = false;
+            return;
+        }
+
+        if (!hasPersistedExercise.value) {
+            projection.value = null;
+            isProjectionLoading.value = false;
+            return;
+        }
+
+        projectionTimeoutId = window.setTimeout(async () => {
+            const requestId = latestProjectionRequestId + 1;
+            latestProjectionRequestId = requestId;
+            isProjectionLoading.value = true;
+
+            try {
+                const response =
+                    await SessionExerciseService.getCycleProjection(
+                        props.routineExerciseUuid,
+                        {
+                            trainingMax:
+                                weight.value === null || weight.value === ''
+                                    ? null
+                                    : Number(weight.value),
+                            currentCycleWeek:
+                                progressionSchemeSettings.value
+                                    ?.currentCycleWeek ?? null,
+                            bodyType:
+                                progressionSchemeSettings.value?.bodyType ??
+                                null,
+                        },
+                    );
+
+                if (requestId === latestProjectionRequestId) {
+                    projection.value = response.data;
+                }
+            } catch (error) {
+                if (requestId === latestProjectionRequestId) {
+                    projection.value = null;
+                }
+            } finally {
+                if (requestId === latestProjectionRequestId) {
+                    isProjectionLoading.value = false;
+                }
+            }
+        }, 300);
+    },
+    { immediate: true },
+);
+
+onBeforeUnmount(() => {
+    if (projectionTimeoutId) {
+        window.clearTimeout(projectionTimeoutId);
+    }
+});
 
 const closeModal = () => {
     emit('update:value', false);
@@ -178,6 +312,11 @@ const closeModal = () => {
         weight: weight.value,
         rpe: rpe.value,
         numberOfSets: numberOfSets.value,
+        progressionScheme: progressionScheme.value,
+        progressionSchemeSettings:
+            progressionScheme.value === PROGRESSION_SCHEME.FIVE_THREE_ONE
+                ? progressionSchemeSettings.value
+                : null,
         restPeriod: restPeriod.value,
         warmUp: warmUp.value,
     });

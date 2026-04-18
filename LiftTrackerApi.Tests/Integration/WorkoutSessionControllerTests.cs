@@ -4,6 +4,7 @@ using FluentAssertions;
 using LiftTrackerApi.Controllers;
 using LiftTrackerApi.Dtos;
 using LiftTrackerApi.Entities;
+using LiftTrackerApi.Extensions;
 using LiftTrackerApi.Tests.Integration.Fixtures;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -284,6 +285,104 @@ public class WorkoutSessionControllerTests(WorkoutDbFixture fixture)
         Assert.Equal("Newest active workout", workoutSession.Name);
     }
 
+    [Fact]
+    public async Task PostStart_GeneratesFiveThreeOneWorkoutOnBackend()
+    {
+        var exerciseUuid = Guid.Parse("231f3f81-4680-4086-b228-168116ae330a");
+        var originalExercise = await ConfigureFiveThreeOneExercise(
+            exerciseUuid,
+            100m,
+            2,
+            ProgressionScheme531BodyType.Upper
+        );
+        var movedSessions = await MoveTodayUnstartedSessionsOutOfMergeWindow();
+        Guid? createdSessionUuid = null;
+
+        try
+        {
+            var requestJson = JsonConvert.SerializeObject(
+                new
+                {
+                    RoutineUuid = Guid.Parse("cd218127-b60d-46a7-bbc1-a17332bea15f"),
+                }
+            );
+            var content = new StringContent(requestJson, Encoding.UTF8, "application/json");
+
+            var response = await _client.PostAsync("/api/workout-sessions/start", content);
+
+            response.EnsureSuccessStatusCode();
+            var json = await response.Content.ReadAsStringAsync();
+            var workoutSession = JsonConvert.DeserializeObject<WorkoutSessionDto>(json);
+
+            createdSessionUuid = workoutSession!.Uuid;
+            workoutSession.WorkoutProgramRoutineUuid.Should().Be(
+                Guid.Parse("cd218127-b60d-46a7-bbc1-a17332bea15f")
+            );
+            var exercise = workoutSession.SessionExercises.Single();
+            exercise.ProgressionScheme.Should().Be(ProgressionScheme.FiveThreeOne);
+            exercise.SessionSets.Select(set => set.Weight).Should().Equal(70m, 80m, 90m);
+            exercise.SessionSets.Select(set => set.Reps).Should().Equal(3m, 3m, 3m);
+            exercise.SessionSets.First().StartedAt.Should().NotBeNull();
+        }
+        finally
+        {
+            await RestoreFiveThreeOneExercise(exerciseUuid, originalExercise);
+            await RestoreMovedSessions(movedSessions);
+            await DeleteWorkoutSession(createdSessionUuid);
+        }
+    }
+
+    [Fact]
+    public async Task Put_AdvancesFiveThreeOneOnlyWhenSessionTransitionsToCompleted()
+    {
+        var exerciseUuid = Guid.Parse("231f3f81-4680-4086-b228-168116ae330a");
+        var originalExercise = await ConfigureFiveThreeOneExercise(
+            exerciseUuid,
+            100m,
+            4,
+            ProgressionScheme531BodyType.Upper
+        );
+        var movedSessions = await MoveTodayUnstartedSessionsOutOfMergeWindow();
+        Guid? createdSessionUuid = null;
+
+        try
+        {
+            var startRequestJson = JsonConvert.SerializeObject(
+                new
+                {
+                    RoutineUuid = Guid.Parse("cd218127-b60d-46a7-bbc1-a17332bea15f"),
+                }
+            );
+            var startContent = new StringContent(startRequestJson, Encoding.UTF8, "application/json");
+            var startResponse = await _client.PostAsync("/api/workout-sessions/start", startContent);
+            startResponse.EnsureSuccessStatusCode();
+            var startedSession = JsonConvert.DeserializeObject<WorkoutSessionDto>(
+                await startResponse.Content.ReadAsStringAsync()
+            );
+
+            createdSessionUuid = startedSession!.Uuid;
+            startedSession.EndedAt = DateTime.Parse("2026-04-18T10:00:00Z");
+            var updateJson = JsonConvert.SerializeObject(startedSession);
+            var updateContent = new StringContent(updateJson, Encoding.UTF8, "application/json");
+
+            var firstUpdateResponse = await _client.PutAsync("/api/workout-sessions", updateContent);
+            firstUpdateResponse.EnsureSuccessStatusCode();
+
+            await AssertRoutineExerciseProgression(exerciseUuid, 102.5m, 1);
+
+            var secondUpdateResponse = await _client.PutAsync("/api/workout-sessions", updateContent);
+            secondUpdateResponse.EnsureSuccessStatusCode();
+
+            await AssertRoutineExerciseProgression(exerciseUuid, 102.5m, 1);
+        }
+        finally
+        {
+            await RestoreFiveThreeOneExercise(exerciseUuid, originalExercise);
+            await RestoreMovedSessions(movedSessions);
+            await DeleteWorkoutSession(createdSessionUuid);
+        }
+    }
+
     private void AssertTestSessionStructure(WorkoutSessionDto workoutSession)
     {
         Assert.Equal(Guid.Parse("27ffe07e-ecfd-4599-b132-6ec9e35fee1d"), workoutSession.Uuid);
@@ -341,6 +440,132 @@ public class WorkoutSessionControllerTests(WorkoutDbFixture fixture)
 
         var squatsSets = squatsLast.SessionSets;
         Assert.Single(squatsSets);
+    }
+
+    private async Task<(decimal? Weight, ProgressionScheme? Scheme, ProgressionScheme531Settings? Settings)> ConfigureFiveThreeOneExercise(
+        Guid exerciseUuid,
+        decimal trainingMax,
+        int currentCycleWeek,
+        ProgressionScheme531BodyType bodyType
+    )
+    {
+        using var scope = fixture.Factory.Services.CreateScope();
+        var db = scope.ServiceProvider.GetRequiredService<LiftTrackerDbContext>();
+        var exercise = await db.RoutineExercises.WhereUuid(exerciseUuid).FirstAsync();
+        var original = (
+            exercise.Weight,
+            exercise.ProgressionScheme,
+            exercise.ProgressionSchemeSettings == null
+                ? null
+                : new ProgressionScheme531Settings
+                {
+                    CurrentCycleWeek = exercise.ProgressionSchemeSettings.CurrentCycleWeek,
+                    BodyType = exercise.ProgressionSchemeSettings.BodyType,
+                }
+        );
+        exercise.Weight = trainingMax;
+        exercise.ProgressionScheme = ProgressionScheme.FiveThreeOne;
+        exercise.ProgressionSchemeSettings = new ProgressionScheme531Settings
+        {
+            CurrentCycleWeek = currentCycleWeek,
+            BodyType = bodyType,
+        };
+        await db.SaveChangesAsync();
+        return original;
+    }
+
+    private async Task AssertRoutineExerciseProgression(
+        Guid exerciseUuid,
+        decimal expectedTrainingMax,
+        int expectedCycleWeek
+    )
+    {
+        using var scope = fixture.Factory.Services.CreateScope();
+        var db = scope.ServiceProvider.GetRequiredService<LiftTrackerDbContext>();
+        var exercise = await db.RoutineExercises.WhereUuid(exerciseUuid).FirstAsync();
+        exercise.Weight.Should().Be(expectedTrainingMax);
+        exercise.ProgressionSchemeSettings!.CurrentCycleWeek.Should().Be(expectedCycleWeek);
+    }
+
+    private async Task RestoreFiveThreeOneExercise(
+        Guid exerciseUuid,
+        (decimal? Weight, ProgressionScheme? Scheme, ProgressionScheme531Settings? Settings) originalExercise
+    )
+    {
+        using var scope = fixture.Factory.Services.CreateScope();
+        var db = scope.ServiceProvider.GetRequiredService<LiftTrackerDbContext>();
+        var exercise = await db.RoutineExercises.WhereUuid(exerciseUuid).FirstAsync();
+        exercise.Weight = originalExercise.Weight;
+        exercise.ProgressionScheme = originalExercise.Scheme;
+        exercise.ProgressionSchemeSettings = originalExercise.Settings == null
+            ? null
+            : new ProgressionScheme531Settings
+            {
+                CurrentCycleWeek = originalExercise.Settings.CurrentCycleWeek,
+                BodyType = originalExercise.Settings.BodyType,
+            };
+        await db.SaveChangesAsync();
+    }
+
+    private async Task<List<(Guid Uuid, DateTime? CreatedAt)>> MoveTodayUnstartedSessionsOutOfMergeWindow()
+    {
+        using var scope = fixture.Factory.Services.CreateScope();
+        var db = scope.ServiceProvider.GetRequiredService<LiftTrackerDbContext>();
+        var now = DateTime.UtcNow;
+        var sessions = await db
+            .WorkoutSessions.Where(session => session.StartedAt == null)
+            .Where(session => session.CreatedAt >= now.Date)
+            .Where(session => session.CreatedAt < now.Date.AddDays(1))
+            .ToListAsync();
+
+        var originalValues = sessions
+            .Select(session => (session.Uuid ?? Guid.Empty, session.CreatedAt))
+            .ToList();
+
+        foreach (var session in sessions)
+        {
+            session.CreatedAt = now.Date.AddDays(-1);
+        }
+
+        await db.SaveChangesAsync();
+        return originalValues;
+    }
+
+    private async Task RestoreMovedSessions(List<(Guid Uuid, DateTime? CreatedAt)> sessions)
+    {
+        using var scope = fixture.Factory.Services.CreateScope();
+        var db = scope.ServiceProvider.GetRequiredService<LiftTrackerDbContext>();
+        foreach (var (uuid, createdAt) in sessions)
+        {
+            var session = await db.WorkoutSessions.WhereUuid(uuid).FirstAsync();
+            session.CreatedAt = createdAt;
+        }
+
+        await db.SaveChangesAsync();
+    }
+
+    private async Task DeleteWorkoutSession(Guid? workoutSessionUuid)
+    {
+        if (workoutSessionUuid == null)
+        {
+            return;
+        }
+
+        using var scope = fixture.Factory.Services.CreateScope();
+        var db = scope.ServiceProvider.GetRequiredService<LiftTrackerDbContext>();
+        var session = await db
+            .WorkoutSessions.Include(item => item.SessionExercises)
+            .ThenInclude(item => item.SessionSets)
+            .WhereUuid(workoutSessionUuid.Value)
+            .FirstOrDefaultAsync();
+
+        if (session == null)
+        {
+            return;
+        }
+
+        db.WorkoutSessions.Remove(session);
+        await db.SaveChangesAsync();
     }
 
     /// <see cref="WorkoutProgramController.Create(WorkoutProgram)" />

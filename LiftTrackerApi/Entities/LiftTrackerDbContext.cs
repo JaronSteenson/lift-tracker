@@ -1,5 +1,7 @@
 ﻿using System.Linq.Expressions;
+using System.Text.Json;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 
 namespace LiftTrackerApi.Entities;
 
@@ -8,6 +10,8 @@ public partial class LiftTrackerDbContext(
     IConfiguration config
 ) : DbContext(options)
 {
+    private static readonly JsonSerializerOptions JsonSerializerOptions = new();
+
     public virtual DbSet<RoutineExercise> RoutineExercises { get; set; }
 
     public virtual DbSet<SessionExercise> SessionExercises { get; set; }
@@ -111,6 +115,19 @@ public partial class LiftTrackerDbContext(
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        var progressionSchemeSettingsComparer =
+            new ValueComparer<ProgressionScheme531Settings?>(
+                (left, right) =>
+                    JsonSerializer.Serialize(left, JsonSerializerOptions)
+                    == JsonSerializer.Serialize(right, JsonSerializerOptions),
+                settings => JsonSerializer.Serialize(settings, JsonSerializerOptions).GetHashCode(),
+                settings =>
+                    JsonSerializer.Deserialize<ProgressionScheme531Settings>(
+                        JsonSerializer.Serialize(settings, JsonSerializerOptions),
+                        JsonSerializerOptions
+                    )
+            );
+
         modelBuilder.Entity<RoutineExercise>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("PRIMARY");
@@ -125,6 +142,22 @@ public partial class LiftTrackerDbContext(
             entity.Property(e => e.Name).HasMaxLength(255).HasColumnName("name");
             entity.Property(e => e.NumberOfSets).HasColumnName("numberOfSets");
             entity.Property(e => e.Position).HasColumnName("position");
+            entity.Property(e => e.ProgressionScheme).HasColumnName("progressionScheme");
+            entity
+                .Property(e => e.ProgressionSchemeSettings)
+                .HasColumnType("json")
+                .HasColumnName("progressionSchemeSettings")
+                .HasConversion(
+                    value => JsonSerializer.Serialize(value, JsonSerializerOptions),
+                    value =>
+                        string.IsNullOrWhiteSpace(value)
+                            ? null
+                            : JsonSerializer.Deserialize<ProgressionScheme531Settings>(
+                                value,
+                                JsonSerializerOptions
+                            )
+                )
+                .Metadata.SetValueComparer(progressionSchemeSettingsComparer);
             entity.Property(e => e.Rpe).HasColumnName("rpe");
             entity.Property(e => e.RestPeriod).HasColumnName("restPeriod");
             entity.Property(e => e.UpdatedAt).HasColumnType("timestamp").HasColumnName("updatedAt");
@@ -166,6 +199,7 @@ public partial class LiftTrackerDbContext(
             entity.Property(e => e.DeletedAt).HasColumnType("timestamp").HasColumnName("deletedAt");
             entity.Property(e => e.Name).HasMaxLength(100).IsFixedLength().HasColumnName("name");
             entity.Property(e => e.Notes).HasColumnType("text").HasColumnName("notes");
+            entity.Property(e => e.ProgressionScheme).HasColumnName("progressionScheme");
             entity.Property(e => e.PlannedRpe).HasColumnName("plannedRpe");
             entity
                 .Property(e => e.PlannedRestPeriodDuration)

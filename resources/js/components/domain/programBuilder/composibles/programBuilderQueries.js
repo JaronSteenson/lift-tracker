@@ -435,6 +435,8 @@ export function useUpdateWorkoutProgram(routineUuid = null) {
                 name: `Exercise ${exerciseNumber}`,
                 position: workoutProgramRoutine.routineExercises.length,
                 numberOfSets: 3,
+                progressionScheme: null,
+                progressionSchemeSettings: null,
                 restPeriod: 60,
                 warmUp: 60,
                 weight: null,
