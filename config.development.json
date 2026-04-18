@@ -1,5 +1,5 @@
 {
-    "apiBaseUrl": "http://localhost:5299/api",
+    "apiBaseUrl": "/api",
     "auth0": {
         "domain": "dev-tjfr6n7ocu2ifro1.us.auth0.com",
         "clientId": "iTalNUeYTJLtH9r3QyxHzqlB5qLn3M64",

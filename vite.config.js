@@ -21,6 +21,12 @@ export default defineConfig({
         port: 3000,
         host: 'localhost',
         strictPort: true,
+        proxy: {
+            '/api': {
+                target: 'http://localhost:5299',
+                changeOrigin: false,
+            },
+        },
     },
     define: {
         __VUE_OPTIONS_API__: JSON.stringify(true),
