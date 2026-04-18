@@ -2,12 +2,12 @@ import { computed, ref } from 'vue';
 import { flushPromises, shallowMount } from '@vue/test-utils';
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 import EditExerciseModal from '../../../../components/domain/programBuilder/EditExerciseModal.vue';
-import SessionExerciseService from '../../../../api/SessionExerciseService';
 import { prepareForLocalVueMount } from '../../../vueHelpers';
 
 const exercise = ref(null);
 const workoutProgram = ref(null);
 const updateExercise = vi.fn();
+const projectionQueryArgs = [];
 
 vi.mock(
     '../../../../components/domain/programBuilder/composibles/programBuilderQueries',
@@ -31,19 +31,23 @@ vi.mock(
         useUpdateWorkoutProgram: () => ({
             updateExercise,
         }),
+        useExerciseCycleProjection: (args) => {
+            projectionQueryArgs.push(args);
+            return {
+                projection: ref({
+                    weeks: [],
+                }),
+                isProjectionLoading: ref(false),
+            };
+        },
     }),
 );
-
-vi.mock('../../../../api/SessionExerciseService', () => ({
-    default: {
-        getCycleProjection: vi.fn(),
-    },
-}));
 
 describe('EditExerciseModal', () => {
     beforeEach(() => {
         vi.useFakeTimers();
         vi.clearAllMocks();
+        projectionQueryArgs.length = 0;
         exercise.value = {
             uuid: 'exercise-1',
             createdAt: '2026-04-18T08:00:00Z',
@@ -68,11 +72,6 @@ describe('EditExerciseModal', () => {
                 },
             ],
         };
-        vi.mocked(SessionExerciseService.getCycleProjection).mockResolvedValue({
-            data: {
-                weeks: [],
-            },
-        });
     });
 
     afterEach(() => {
@@ -117,13 +116,14 @@ describe('EditExerciseModal', () => {
 
         expect(wrapper.vm.schemeConfig.weightLabel).toBe('Training max');
         expect(wrapper.vm.schemeConfig.lockReps).toBe(true);
-        expect(SessionExerciseService.getCycleProjection).toHaveBeenCalledWith(
+        expect(projectionQueryArgs).toHaveLength(1);
+        expect(projectionQueryArgs[0].routineExerciseUuid.value).toBe(
             'exercise-1',
-            {
-                trainingMax: 100,
-                currentCycleWeek: 2,
-                bodyType: 1,
-            },
         );
+        expect(projectionQueryArgs[0].enabled.value).toBe(true);
+        expect(projectionQueryArgs[0].progressionScheme.value).toBe(1);
+        expect(projectionQueryArgs[0].trainingMax.value).toBe(100);
+        expect(projectionQueryArgs[0].currentCycleWeek.value).toBe(2);
+        expect(projectionQueryArgs[0].bodyType.value).toBe(1);
     });
 });

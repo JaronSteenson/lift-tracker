@@ -80,6 +80,7 @@ dotnet ef migrations add MigrationName
 
 #### TanStack Query
 - Domain mutations and queries should live in composables next to the domain (`programBuilderQueries.js`, `workoutSessionQueries.js`)
+- Frontend fetches should go through TanStack Query composables rather than calling API services directly from components, even for short-lived or zero-cache reads
 - Prefer optimistic cache updates for program builder and workout session flows
 - If a save indicator or other UI state needs to observe mutations started from multiple components, use a shared `mutationKey` plus `useIsMutating` / `useMutationState`
 - If the UI is driven by one local mutation instance only, reading that local mutation state directly is acceptable

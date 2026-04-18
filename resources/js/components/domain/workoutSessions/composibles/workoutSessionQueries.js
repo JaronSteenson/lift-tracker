@@ -20,6 +20,9 @@ const TIMELINE_QUERY_KEY = 'timeline';
 const IN_PROGRESS_WORKOUT_QUERY_KEY = 'inProgressWorkout';
 const SET_CHANGE_TRANSITION_KEY = 'setChangeTransition';
 const WORKOUT_SESSION_SAVE_MUTATION_KEY = ['workoutSessionSave'];
+const WORKOUT_PROGRAM_KEY = 'workoutProgram';
+const WORKOUT_PROGRAM_BY_ROUTINE_KEY = 'workoutProgramByRoutine';
+const WORKOUT_PROGRAM_LIST_KEY = 'workoutProgramList';
 let setChangeTransitionResetTimeout = null;
 
 function getSecondsRemaining({ expectedDuration, startTime }) {
@@ -550,6 +553,25 @@ function syncInProgressWorkout(queryClient, workoutSession) {
     }
 }
 
+function invalidateWorkoutProgramBuilderCaches(queryClient, workoutSession) {
+    queryClient.invalidateQueries({ queryKey: [WORKOUT_PROGRAM_LIST_KEY] });
+
+    if (workoutSession?.workoutProgramUuid) {
+        queryClient.invalidateQueries({
+            queryKey: [WORKOUT_PROGRAM_KEY, workoutSession.workoutProgramUuid],
+        });
+    }
+
+    if (workoutSession?.workoutProgramRoutineUuid) {
+        queryClient.invalidateQueries({
+            queryKey: [
+                WORKOUT_PROGRAM_BY_ROUTINE_KEY,
+                workoutSession.workoutProgramRoutineUuid,
+            ],
+        });
+    }
+}
+
 function writeWorkoutSessionToCaches(queryClient, workoutSession) {
     queryClient.setQueryData(
         [WORKOUT_SESSION_KEY, workoutSession.uuid],
@@ -961,6 +983,7 @@ export function useUpdateWorkoutSession() {
             const savedSession = await mutateAsync(updatedSession);
             writeWorkoutSessionToCaches(queryClient, savedSession);
             queryClient.invalidateQueries({ queryKey: [TIMELINE_QUERY_KEY] });
+            invalidateWorkoutProgramBuilderCaches(queryClient, savedSession);
             return savedSession;
         },
 
@@ -1104,6 +1127,7 @@ export function useUpdateWorkoutSession() {
             const savedSession = await mutateAsync(updatedSession);
             writeWorkoutSessionToCaches(queryClient, savedSession);
             queryClient.invalidateQueries({ queryKey: [TIMELINE_QUERY_KEY] });
+            invalidateWorkoutProgramBuilderCaches(queryClient, savedSession);
             return savedSession;
         },
     };

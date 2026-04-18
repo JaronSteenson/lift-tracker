@@ -43,26 +43,34 @@ public class WorkoutProgramService(LiftTrackerDbContext db, DomainEntityService 
 
     public RoutineExercise CreateProjectionExerciseOverride(
         RoutineExercise exercise,
+        ProgressionScheme? progressionScheme,
         decimal? trainingMax,
         int? currentCycleWeek,
         ProgressionScheme531BodyType? bodyType
     )
     {
-        var settings = exercise.ProgressionSchemeSettings == null
-            ? null
-            : new ProgressionScheme531Settings
-            {
-                CurrentCycleWeek =
-                    currentCycleWeek ?? exercise.ProgressionSchemeSettings.CurrentCycleWeek,
-                BodyType = bodyType ?? exercise.ProgressionSchemeSettings.BodyType,
-            };
+        var effectiveProgressionScheme = progressionScheme ?? exercise.ProgressionScheme;
+        var settings =
+            effectiveProgressionScheme == ProgressionScheme.FiveThreeOne
+                ? new ProgressionScheme531Settings
+                {
+                    CurrentCycleWeek =
+                        currentCycleWeek
+                        ?? exercise.ProgressionSchemeSettings?.CurrentCycleWeek
+                        ?? 1,
+                    BodyType =
+                        bodyType
+                        ?? exercise.ProgressionSchemeSettings?.BodyType
+                        ?? ProgressionScheme531BodyType.Upper,
+                }
+                : null;
 
         return new RoutineExercise
         {
             Uuid = exercise.Uuid,
             Name = exercise.Name,
             NumberOfSets = exercise.NumberOfSets,
-            ProgressionScheme = exercise.ProgressionScheme,
+            ProgressionScheme = effectiveProgressionScheme,
             ProgressionSchemeSettings = settings,
             Position = exercise.Position,
             Weight = trainingMax ?? exercise.Weight,

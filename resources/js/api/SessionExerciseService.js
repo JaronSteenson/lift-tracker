@@ -11,9 +11,13 @@ const SessionExerciseService = {
 
     getCycleProjection(
         exerciseUuid,
-        { trainingMax, currentCycleWeek, bodyType } = {},
+        { progressionScheme, trainingMax, currentCycleWeek, bodyType } = {},
     ) {
         const searchParams = new URLSearchParams();
+
+        if (progressionScheme !== null && progressionScheme !== undefined) {
+            searchParams.set('progressionScheme', progressionScheme);
+        }
 
         if (trainingMax !== null && trainingMax !== undefined) {
             searchParams.set('trainingMax', trainingMax);

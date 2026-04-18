@@ -20,48 +20,56 @@
         </VCol>
         <VCol cols="12">
             <div class="text-subtitle-2 mb-2">Cycle projection</div>
-            <div
-                v-if="!hasPersistedExercise"
-                class="text-body-2 text-medium-emphasis"
-            >
-                Save the program to load the 4-week 531 projection.
-            </div>
-            <div
-                v-else-if="isProjectionLoading"
-                class="text-body-2 text-medium-emphasis"
-            >
-                Loading cycle projection...
-            </div>
-            <div
-                v-else-if="!projection?.weeks?.length"
-                class="text-body-2 text-medium-emphasis"
-            >
-                Projection will appear here.
-            </div>
-            <VRow v-else>
-                <VCol
-                    v-for="week in projection.weeks"
-                    :key="week.week"
-                    cols="12"
-                    md="6"
+            <div class="projection-surface">
+                <div
+                    v-if="!hasPersistedExercise"
+                    class="projection-empty-state text-body-2 text-medium-emphasis"
                 >
-                    <VCard variant="outlined">
-                        <VCardText>
-                            <div class="text-subtitle-2 mb-2">
-                                {{ week.label }}
-                            </div>
-                            <div
-                                v-for="set in week.sets"
-                                :key="`${week.week}-${set.position}`"
-                                class="text-body-2"
-                            >
-                                {{ set.weight }}kg x {{ set.reps }}
-                                <span v-if="set.isAmrap">+</span>
-                            </div>
-                        </VCardText>
-                    </VCard>
-                </VCol>
-            </VRow>
+                    Save the program to load the 4-week 531 projection.
+                </div>
+                <VRow v-else-if="isProjectionLoading" class="projection-grid">
+                    <VCol v-for="index in 4" :key="index" cols="12" md="6">
+                        <VCard variant="outlined" class="projection-week-card">
+                            <VCardText class="projection-card-text">
+                                <VSkeletonLoader
+                                    type="heading, text@3"
+                                    boilerplate
+                                />
+                            </VCardText>
+                        </VCard>
+                    </VCol>
+                </VRow>
+                <div
+                    v-else-if="!projection?.weeks?.length"
+                    class="projection-empty-state text-body-2 text-medium-emphasis"
+                >
+                    Projection will appear here.
+                </div>
+                <VRow v-else class="projection-grid">
+                    <VCol
+                        v-for="week in projection.weeks"
+                        :key="week.week"
+                        cols="12"
+                        md="6"
+                    >
+                        <VCard variant="outlined" class="projection-week-card">
+                            <VCardText class="projection-card-text">
+                                <div class="text-subtitle-2 mb-2">
+                                    {{ week.label }}
+                                </div>
+                                <div
+                                    v-for="set in week.sets"
+                                    :key="`${week.week}-${set.position}`"
+                                    class="text-body-2"
+                                >
+                                    {{ set.weight }}kg x {{ set.reps }}
+                                    <span v-if="set.isAmrap">+</span>
+                                </div>
+                            </VCardText>
+                        </VCard>
+                    </VCol>
+                </VRow>
+            </div>
         </VCol>
     </VRow>
 </template>
@@ -100,3 +108,31 @@ function updateSetting(key, value) {
     });
 }
 </script>
+
+<style scoped>
+.projection-surface {
+    min-height: 288px;
+}
+
+.projection-grid {
+    margin: -6px;
+}
+
+.projection-grid :deep(.v-col) {
+    padding: 6px;
+}
+
+.projection-card-text {
+    min-height: 126px;
+}
+
+.projection-week-card {
+    border-color: rgba(var(--v-theme-on-surface), 0.08) !important;
+}
+
+.projection-empty-state {
+    min-height: 288px;
+    display: flex;
+    align-items: center;
+}
+</style>

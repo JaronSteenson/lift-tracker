@@ -8,6 +8,7 @@ import {
 import { computed, toValue } from 'vue';
 import { useRoute } from 'vue-router';
 import UuidHelper from '../../../../UuidHelper/index';
+import SessionExerciseService from '../../../../api/SessionExerciseService';
 import WorkoutProgramService from '../../../../api/WorkoutProgramService';
 
 const WORKOUT_PROGRAM_LIST_KEY = 'workoutProgramList';
@@ -190,6 +191,46 @@ export function useWorkoutProgramByRoutine(routineUuid) {
     };
 }
 
+export function useExerciseCycleProjection({
+    routineExerciseUuid,
+    progressionScheme,
+    trainingMax,
+    currentCycleWeek,
+    bodyType,
+    enabled,
+}) {
+    const { data, isPending } = useQuery({
+        queryKey: computed(() => [
+            'exerciseCycleProjection',
+            toValue(routineExerciseUuid),
+            toValue(progressionScheme),
+            toValue(trainingMax),
+            toValue(currentCycleWeek),
+            toValue(bodyType),
+        ]),
+        queryFn: async () => {
+            const response = await SessionExerciseService.getCycleProjection(
+                toValue(routineExerciseUuid),
+                {
+                    progressionScheme: toValue(progressionScheme),
+                    trainingMax: toValue(trainingMax),
+                    currentCycleWeek: toValue(currentCycleWeek),
+                    bodyType: toValue(bodyType),
+                },
+            );
+            return response.data;
+        },
+        enabled: computed(() => !!toValue(enabled)),
+        staleTime: 0,
+        gcTime: 0,
+    });
+
+    return {
+        projection: data,
+        isProjectionLoading: isPending,
+    };
+}
+
 export function useDeleteWorkoutProgram() {
     const queryClient = useQueryClient();
 
@@ -367,6 +408,9 @@ export function useUpdateWorkoutProgram(routineUuid = null) {
                     response.data,
                 );
             }
+            queryClient.invalidateQueries({
+                queryKey: [WORKOUT_PROGRAM_LIST_KEY],
+            });
         },
     });
 

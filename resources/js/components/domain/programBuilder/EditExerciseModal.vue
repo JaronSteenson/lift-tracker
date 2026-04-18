@@ -90,9 +90,9 @@
 import { ref, watch, computed, onBeforeUnmount } from 'vue';
 import { useDisplay } from 'vuetify';
 import TimerInput from '../../formFields/TimerInput.vue';
-import SessionExerciseService from '../../../api/SessionExerciseService';
 import ProgressionSchemeSettings531 from './531ProgressionSchemeSettings.vue';
 import {
+    useExerciseCycleProjection,
     useUpdateWorkoutProgram,
     useWorkoutProgram,
     useWorkoutProgramByRoutine,
@@ -179,14 +179,44 @@ const progressionScheme = ref(null);
 const progressionSchemeSettings = ref(null);
 const restPeriod = ref(60);
 const warmUp = ref(60);
-const projection = ref(null);
-const isProjectionLoading = ref(false);
 const schemeConfig = computed(() =>
     getProgressionSchemeConfig(progressionScheme.value),
 );
 const hasPersistedExercise = computed(() => !!currentExercise.value?.createdAt);
+const canLoadProjection = computed(
+    () =>
+        props.value &&
+        !!props.routineExerciseUuid &&
+        hasPersistedExercise.value &&
+        progressionScheme.value === PROGRESSION_SCHEME.FIVE_THREE_ONE,
+);
+const debouncedProjectionInputs = ref(null);
+const isProjectionDebouncing = ref(false);
 let projectionTimeoutId = null;
-let latestProjectionRequestId = 0;
+const { projection, isProjectionLoading: isProjectionQueryLoading } =
+    useExerciseCycleProjection({
+        routineExerciseUuid: computed(() => props.routineExerciseUuid),
+        progressionScheme: computed(
+            () => debouncedProjectionInputs.value?.progressionScheme ?? null,
+        ),
+        trainingMax: computed(
+            () => debouncedProjectionInputs.value?.trainingMax ?? null,
+        ),
+        currentCycleWeek: computed(
+            () => debouncedProjectionInputs.value?.currentCycleWeek ?? null,
+        ),
+        bodyType: computed(
+            () => debouncedProjectionInputs.value?.bodyType ?? null,
+        ),
+        enabled: computed(
+            () =>
+                canLoadProjection.value &&
+                debouncedProjectionInputs.value !== null,
+        ),
+    });
+const isProjectionLoading = computed(
+    () => isProjectionDebouncing.value || isProjectionQueryLoading.value,
+);
 
 // Watch for modal opening and load current exercise data
 watch(
@@ -220,75 +250,43 @@ watch(progressionScheme, (newProgressionScheme) => {
         return;
     }
 
-    projection.value = null;
     progressionSchemeSettings.value = null;
 });
 
 watch(
     [
-        () => props.value,
+        canLoadProjection,
         progressionScheme,
         weight,
         () => progressionSchemeSettings.value?.currentCycleWeek,
         () => progressionSchemeSettings.value?.bodyType,
-        hasPersistedExercise,
     ],
-    ([isOpen, activeProgressionScheme]) => {
+    ([canQueryProjection]) => {
         if (projectionTimeoutId) {
             window.clearTimeout(projectionTimeoutId);
             projectionTimeoutId = null;
         }
 
-        if (
-            !isOpen ||
-            activeProgressionScheme !== PROGRESSION_SCHEME.FIVE_THREE_ONE
-        ) {
-            projection.value = null;
-            isProjectionLoading.value = false;
+        if (!canQueryProjection) {
+            debouncedProjectionInputs.value = null;
+            isProjectionDebouncing.value = false;
             return;
         }
 
-        if (!hasPersistedExercise.value) {
-            projection.value = null;
-            isProjectionLoading.value = false;
-            return;
-        }
+        isProjectionDebouncing.value = true;
 
-        projectionTimeoutId = window.setTimeout(async () => {
-            const requestId = latestProjectionRequestId + 1;
-            latestProjectionRequestId = requestId;
-            isProjectionLoading.value = true;
-
-            try {
-                const response =
-                    await SessionExerciseService.getCycleProjection(
-                        props.routineExerciseUuid,
-                        {
-                            trainingMax:
-                                weight.value === null || weight.value === ''
-                                    ? null
-                                    : Number(weight.value),
-                            currentCycleWeek:
-                                progressionSchemeSettings.value
-                                    ?.currentCycleWeek ?? null,
-                            bodyType:
-                                progressionSchemeSettings.value?.bodyType ??
-                                null,
-                        },
-                    );
-
-                if (requestId === latestProjectionRequestId) {
-                    projection.value = response.data;
-                }
-            } catch (error) {
-                if (requestId === latestProjectionRequestId) {
-                    projection.value = null;
-                }
-            } finally {
-                if (requestId === latestProjectionRequestId) {
-                    isProjectionLoading.value = false;
-                }
-            }
+        projectionTimeoutId = window.setTimeout(() => {
+            debouncedProjectionInputs.value = {
+                progressionScheme: progressionScheme.value,
+                trainingMax:
+                    weight.value === null || weight.value === ''
+                        ? null
+                        : Number(weight.value),
+                currentCycleWeek:
+                    progressionSchemeSettings.value?.currentCycleWeek ?? null,
+                bodyType: progressionSchemeSettings.value?.bodyType ?? null,
+            };
+            isProjectionDebouncing.value = false;
         }, 300);
     },
     { immediate: true },

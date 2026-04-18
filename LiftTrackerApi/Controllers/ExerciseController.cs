@@ -14,6 +14,7 @@ public class ExerciseController(
     [HttpGet("{uuid:guid}/cycle-projection")]
     public async Task<IActionResult> GetCycleProjection(
         Guid uuid,
+        [FromQuery] ProgressionScheme? progressionScheme,
         [FromQuery] decimal? trainingMax,
         [FromQuery] int? currentCycleWeek,
         [FromQuery] ProgressionScheme531BodyType? bodyType
@@ -22,17 +23,18 @@ public class ExerciseController(
         var userId = (int)(HttpContext.Items["UserId"] ?? -1);
         var exercise = await workoutProgramService.FindRoutineExerciseByUuidAndOwner(uuid, userId);
 
-        if (exercise.ProgressionScheme != ProgressionScheme.FiveThreeOne)
-        {
-            return BadRequest(new { error = "Cycle projection is only available for 531 exercises." });
-        }
-
         var effectiveExercise = workoutProgramService.CreateProjectionExerciseOverride(
             exercise,
+            progressionScheme,
             trainingMax,
             currentCycleWeek,
             bodyType
         );
+
+        if (effectiveExercise.ProgressionScheme != ProgressionScheme.FiveThreeOne)
+        {
+            return BadRequest(new { error = "Cycle projection is only available for 531 exercises." });
+        }
 
         try
         {
