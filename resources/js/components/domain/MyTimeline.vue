@@ -112,6 +112,10 @@
                 Loading more...
             </div>
         </div>
+        <div
+            ref="tableInfiniteScrollSentinel"
+            class="infinite-scroll-sentinel"
+        />
     </VContainer>
 
     <NarrowContentContainer
@@ -153,11 +157,15 @@
                 Loading more...
             </div>
         </div>
+        <div
+            ref="cardInfiniteScrollSentinel"
+            class="infinite-scroll-sentinel"
+        />
     </NarrowContentContainer>
 </template>
 
 <script setup>
-import { ref, computed, onMounted, onBeforeUnmount } from 'vue';
+import { ref, computed, onMounted, onBeforeUnmount, watch } from 'vue';
 import NarrowContentContainer from '../layouts/NarrowContentContainer';
 import SessionStatsCard from '../domain/workoutSessions/SessionStatsCard';
 import { dateDescription, hoursMinutesSecondsFromStartEnd } from '../../dates';
@@ -196,9 +204,13 @@ const theme = useTheme();
 const { deleteWorkoutSession } = useDeleteWorkoutSession();
 
 const toolbarColor = theme.current.value.colors.toolbar;
+const INFINITE_SCROLL_ROOT_MARGIN = '0px 0px 300px 0px';
 
 const showTable = ref(localStorage.getItem('homePageShowTable') === 'true');
 const loadingNextPage = ref(false);
+const tableInfiniteScrollSentinel = ref(null);
+const cardInfiniteScrollSentinel = ref(null);
+let infiniteScrollObserver = null;
 
 const headers = computed(() => {
     if (display.xs.value) {
@@ -268,20 +280,13 @@ function setHomePageShowTable() {
     );
 }
 
-function infiniteScroll() {
-    const atBottom =
-        document.documentElement.scrollTop + window.innerHeight ===
-        document.documentElement.offsetHeight;
-
-    if (atBottom && !props.isPending && props.hasNextPage) {
-        loadNextPage();
-    }
-}
-
 async function loadNextPage() {
     loadingNextPage.value = true;
-    await props.fetchNextPage();
-    loadingNextPage.value = false;
+    try {
+        await props.fetchNextPage();
+    } finally {
+        loadingNextPage.value = false;
+    }
 }
 
 function showDeleteConfirmation(workoutSessionUuid) {
@@ -306,12 +311,65 @@ function getFormattedDate(workoutSession) {
     return startedAt;
 }
 
+function observeInfiniteScrollSentinel(element) {
+    if (element && infiniteScrollObserver) {
+        infiniteScrollObserver.observe(element);
+    }
+}
+
 onMounted(() => {
-    infiniteScroll();
-    window.addEventListener('scroll', infiniteScroll);
+    if (typeof IntersectionObserver === 'undefined') {
+        return;
+    }
+
+    infiniteScrollObserver = new IntersectionObserver(
+        (entries) => {
+            const shouldLoadNextPage = entries.some(
+                (entry) => entry.isIntersecting,
+            );
+
+            if (
+                shouldLoadNextPage &&
+                !props.isPending &&
+                !loadingNextPage.value &&
+                props.hasNextPage
+            ) {
+                loadNextPage();
+            }
+        },
+        {
+            root: null,
+            rootMargin: INFINITE_SCROLL_ROOT_MARGIN,
+        },
+    );
+
+    observeInfiniteScrollSentinel(tableInfiniteScrollSentinel.value);
+    observeInfiniteScrollSentinel(cardInfiniteScrollSentinel.value);
+});
+
+watch(tableInfiniteScrollSentinel, (newElement, oldElement) => {
+    if (oldElement && infiniteScrollObserver) {
+        infiniteScrollObserver.unobserve(oldElement);
+    }
+
+    observeInfiniteScrollSentinel(newElement);
+});
+
+watch(cardInfiniteScrollSentinel, (newElement, oldElement) => {
+    if (oldElement && infiniteScrollObserver) {
+        infiniteScrollObserver.unobserve(oldElement);
+    }
+
+    observeInfiniteScrollSentinel(newElement);
 });
 
 onBeforeUnmount(() => {
-    window.removeEventListener('scroll', infiniteScroll);
+    infiniteScrollObserver?.disconnect();
 });
 </script>
+
+<style scoped>
+.infinite-scroll-sentinel {
+    height: 1px;
+}
+</style>
