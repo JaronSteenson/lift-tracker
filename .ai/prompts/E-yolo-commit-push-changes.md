@@ -12,6 +12,8 @@ Prefer chore(ai) or feat(ai) where appropriate
 Optional bullet points for key changes (if useful).
 Keep it concise and professional. No fluff.
 
+**Never add literal \r\n  or \n in the commit message**
+
 # Execute
 ```shell 
 git add;
