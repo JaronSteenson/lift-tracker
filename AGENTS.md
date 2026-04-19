@@ -134,3 +134,8 @@ dotnet ef migrations add MigrationName
 - xUnit framework in `LiftTrackerApi.Tests/`
 - Integration tests for controllers
 - Uses test database configuration
+
+## AI
+- `./.ai ` Ai workflow helpers
+  - `/prompts` Prompt templates, typical feature workflow goes from A-E
+  - `/scratch` Ephemeral storage (git ignored) for implementation plans, designs and other intermediate artefacts
