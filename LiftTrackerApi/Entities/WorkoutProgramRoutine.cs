@@ -18,5 +18,8 @@ public partial class WorkoutProgramRoutine : DomainEntity, IPositionable
     public virtual ICollection<RoutineExercise> RoutineExercises { get; set; } =
         new List<RoutineExercise>();
 
+    public virtual ICollection<RoutineExerciseRotationGroup> RoutineExerciseRotationGroups { get; set; } =
+        new List<RoutineExerciseRotationGroup>();
+
     public virtual WorkoutProgram? WorkoutProgram { get; set; }
 }

@@ -29,6 +29,20 @@
         </VCardTitle>
         <VCardText class="py-0">
             <VContainer>
+                <VRow v-if="rotationGroupLabel" class="mb-1">
+                    <VCol class="px-0 py-0">
+                        <VChip size="small" variant="outlined">
+                            {{ rotationGroupLabel }}
+                            <VIcon
+                                v-if="isNextRotationExercise"
+                                class="ms-1"
+                                size="x-small"
+                            >
+                                {{ $svgIcons.mdiTarget }}
+                            </VIcon>
+                        </VChip>
+                    </VCol>
+                </VRow>
                 <VRow justify="space-between">
                     <VCol class="px-0 py-0">{{ setsAndRepsBlurb }}</VCol>
                     <VCol
@@ -97,6 +111,14 @@ const exercise = computed(() => {
     }
     return getExercise(props.exerciseUuid);
 });
+const routine = computed(() => {
+    const routines = workoutProgram.value?.workoutProgramRoutines ?? [];
+    return routines.find((routine) =>
+        routine.routineExercises?.some(
+            (exercise) => exercise.uuid === props.exerciseUuid,
+        ),
+    );
+});
 
 const showEditModal = ref(false);
 
@@ -126,6 +148,68 @@ const setsAndRepsBlurb = computed(() => {
     }
 
     return '';
+});
+const rotationGroupLabel = computed(() => {
+    if (!exercise.value?.rotationGroupUuid) {
+        return null;
+    }
+
+    const groupIndex =
+        routine.value?.routineExerciseRotationGroups?.findIndex(
+            (group) => group.uuid === exercise.value.rotationGroupUuid,
+        ) ?? -1;
+
+    const groupLabel =
+        groupIndex >= 0 ? `Rotation group ${groupIndex + 1}` : 'Rotation group';
+
+    if (exercise.value.rotationGroupPosition === null) {
+        return groupLabel;
+    }
+
+    return `${groupLabel} · ${exercise.value.rotationGroupPosition + 1}`;
+});
+const isNextRotationExercise = computed(() => {
+    if (!exercise.value?.rotationGroupUuid) {
+        return false;
+    }
+
+    const rotationGroup = routine.value?.routineExerciseRotationGroups?.find(
+        (group) => group.uuid === exercise.value.rotationGroupUuid,
+    );
+
+    if (!rotationGroup) {
+        return false;
+    }
+
+    const groupedExercises = (routine.value?.routineExercises ?? [])
+        .filter(
+            (candidate) =>
+                candidate.rotationGroupUuid ===
+                exercise.value.rotationGroupUuid,
+        )
+        .sort((left, right) => {
+            const leftPosition =
+                left.rotationGroupPosition ?? Number.MAX_SAFE_INTEGER;
+            const rightPosition =
+                right.rotationGroupPosition ?? Number.MAX_SAFE_INTEGER;
+
+            if (leftPosition !== rightPosition) {
+                return leftPosition - rightPosition;
+            }
+
+            return (left.position ?? 0) - (right.position ?? 0);
+        });
+
+    if (groupedExercises.length === 0) {
+        return false;
+    }
+
+    const nextIndex =
+        (rotationGroup.nextExerciseIndex ?? 0) < 0
+            ? 0
+            : (rotationGroup.nextExerciseIndex ?? 0) % groupedExercises.length;
+
+    return groupedExercises[nextIndex]?.uuid === exercise.value.uuid;
 });
 
 const deleteExercise = () => {

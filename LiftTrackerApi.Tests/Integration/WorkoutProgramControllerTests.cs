@@ -286,6 +286,182 @@ public class WorkoutProgramControllerTests(WorkoutDbFixture fixture)
         }
     }
 
+    [Fact]
+    public async Task PostPut_SavesRotationGroupsAndExerciseMembership()
+    {
+        var workoutProgramUuid = Guid.NewGuid();
+        var routineUuid = Guid.NewGuid();
+        var rotationGroupUuid = Guid.NewGuid();
+        var firstExerciseUuid = Guid.NewGuid();
+        var secondExerciseUuid = Guid.NewGuid();
+        var thirdExerciseUuid = Guid.NewGuid();
+
+        var newWorkoutProgram = new WorkoutProgram
+        {
+            Uuid = workoutProgramUuid,
+            Name = "Rotation Group Save Test",
+            UserId = 1,
+            WorkoutProgramRoutines =
+            [
+                new WorkoutProgramRoutine
+                {
+                    Uuid = routineUuid,
+                    Name = "Workout A",
+                    NormalDay = "any",
+                    Position = 0,
+                    RoutineExerciseRotationGroups =
+                    [
+                        new RoutineExerciseRotationGroup
+                        {
+                            Uuid = rotationGroupUuid,
+                            NextExerciseIndex = 1,
+                        },
+                    ],
+                    RoutineExercises =
+                    [
+                        new RoutineExercise
+                        {
+                            Uuid = firstExerciseUuid,
+                            Name = "Bench 531",
+                            NumberOfSets = 3,
+                            Position = 0,
+                            Weight = 100,
+                            RotationGroupUuid = rotationGroupUuid,
+                            RotationGroupPosition = 0,
+                        },
+                        new RoutineExercise
+                        {
+                            Uuid = secondExerciseUuid,
+                            Name = "DB Bench Volume",
+                            NumberOfSets = 4,
+                            Position = 1,
+                            Weight = 35,
+                            RotationGroupUuid = rotationGroupUuid,
+                            RotationGroupPosition = 1,
+                        },
+                        new RoutineExercise
+                        {
+                            Uuid = thirdExerciseUuid,
+                            Name = "Rows",
+                            NumberOfSets = 3,
+                            Position = 2,
+                            Weight = 60,
+                        },
+                    ],
+                },
+            ],
+        };
+
+        var requestJson = JsonConvert.SerializeObject(newWorkoutProgram);
+        var content = new StringContent(requestJson, Encoding.UTF8, "application/json");
+
+        try
+        {
+            var postResponse = await _client.PostAsync("/api/workout-programs", content);
+            postResponse.EnsureSuccessStatusCode();
+
+            var postJson = await postResponse.Content.ReadAsStringAsync();
+            var createdWorkoutProgram = JsonConvert.DeserializeObject<WorkoutProgram>(postJson);
+            var createdRoutine = createdWorkoutProgram!.WorkoutProgramRoutines.Single();
+            var createdExercise = createdRoutine.RoutineExercises.Single(exercise =>
+                exercise.Uuid == firstExerciseUuid
+            );
+
+            createdRoutine.RoutineExerciseRotationGroups.Should().ContainSingle(group =>
+                group.Uuid == rotationGroupUuid && group.NextExerciseIndex == 1
+            );
+            createdExercise.RotationGroupUuid.Should().Be(rotationGroupUuid);
+            createdExercise.RotationGroupPosition.Should().Be(0);
+
+            createdExercise.RotationGroupPosition = 1;
+            createdRoutine.RoutineExercises.Single(exercise => exercise.Uuid == secondExerciseUuid)
+                .RotationGroupPosition = 0;
+            createdRoutine.RoutineExerciseRotationGroups.Single(group =>
+                group.Uuid == rotationGroupUuid
+            ).NextExerciseIndex = 0;
+
+            var putJson = JsonConvert.SerializeObject(createdWorkoutProgram);
+            var putContent = new StringContent(putJson, Encoding.UTF8, "application/json");
+            var putResponse = await _client.PutAsync("/api/workout-programs", putContent);
+
+            putResponse.EnsureSuccessStatusCode();
+
+            var getResponse = await _client.GetAsync($"/api/workout-programs/{workoutProgramUuid}");
+            getResponse.EnsureSuccessStatusCode();
+            var getJson = await getResponse.Content.ReadAsStringAsync();
+            var reloadedWorkoutProgram = JsonConvert.DeserializeObject<WorkoutProgram>(getJson);
+            var reloadedRoutine = reloadedWorkoutProgram!.WorkoutProgramRoutines.Single();
+
+            reloadedRoutine.RoutineExerciseRotationGroups.Should().ContainSingle(group =>
+                group.Uuid == rotationGroupUuid && group.NextExerciseIndex == 0
+            );
+            reloadedRoutine.RoutineExercises.Single(exercise => exercise.Uuid == firstExerciseUuid)
+                .RotationGroupPosition.Should().Be(1);
+            reloadedRoutine.RoutineExercises.Single(exercise => exercise.Uuid == secondExerciseUuid)
+                .RotationGroupPosition.Should().Be(0);
+            reloadedRoutine.RoutineExercises.Single(exercise => exercise.Uuid == thirdExerciseUuid)
+                .RotationGroupUuid.Should().BeNull();
+        }
+        finally
+        {
+            await _client.DeleteAsync($"/api/workout-programs/{workoutProgramUuid}");
+        }
+    }
+
+    [Fact]
+    public async Task Put_ReturnsBadRequest_WhenRotationGroupReferenceIsUnknown()
+    {
+        var response = await _client.GetAsync("/api/workout-programs/186383a6-e369-4071-b80d-70c82d2495d1");
+        response.EnsureSuccessStatusCode();
+        var json = await response.Content.ReadAsStringAsync();
+        var workoutProgram = JsonConvert.DeserializeObject<WorkoutProgram>(json);
+
+        var routine = workoutProgram!.WorkoutProgramRoutines
+            .Single(r => r.Uuid == Guid.Parse("cd218127-b60d-46a7-bbc1-a17332bea15f"));
+        var exercise = routine.RoutineExercises.Single();
+        exercise.RotationGroupUuid = Guid.Parse("e4d97140-d462-4d5d-a8b6-619b67d6f0ce");
+        exercise.RotationGroupPosition = 0;
+
+        var requestJson = JsonConvert.SerializeObject(workoutProgram);
+        var content = new StringContent(requestJson, Encoding.UTF8, "application/json");
+
+        var updateResponse = await _client.PutAsync("/api/workout-programs", content);
+
+        updateResponse.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+    }
+
+    [Fact]
+    public async Task Put_RemovesRotationGroupsThatHaveNoMembers()
+    {
+        var response = await _client.GetAsync("/api/workout-programs/186383a6-e369-4071-b80d-70c82d2495d1");
+        response.EnsureSuccessStatusCode();
+        var json = await response.Content.ReadAsStringAsync();
+        var workoutProgram = JsonConvert.DeserializeObject<WorkoutProgram>(json);
+
+        var routine = workoutProgram!.WorkoutProgramRoutines
+            .Single(r => r.Uuid == Guid.Parse("cd218127-b60d-46a7-bbc1-a17332bea15f"));
+        routine.RoutineExerciseRotationGroups =
+        [
+            new RoutineExerciseRotationGroup
+            {
+                Uuid = Guid.NewGuid(),
+                NextExerciseIndex = 0,
+            },
+        ];
+
+        var requestJson = JsonConvert.SerializeObject(workoutProgram);
+        var content = new StringContent(requestJson, Encoding.UTF8, "application/json");
+
+        var updateResponse = await _client.PutAsync("/api/workout-programs", content);
+
+        updateResponse.EnsureSuccessStatusCode();
+        var updatedJson = await updateResponse.Content.ReadAsStringAsync();
+        var updatedWorkoutProgram = JsonConvert.DeserializeObject<WorkoutProgram>(updatedJson);
+        updatedWorkoutProgram!.WorkoutProgramRoutines
+            .Single(r => r.Uuid == Guid.Parse("cd218127-b60d-46a7-bbc1-a17332bea15f"))
+            .RoutineExerciseRotationGroups.Should().BeEmpty();
+    }
+
     private async Task<(decimal? Weight, ProgressionScheme? Scheme, ProgressionScheme531Settings? Settings)> CaptureRoutineExerciseState(
         Guid exerciseUuid
     )
@@ -395,11 +571,16 @@ public class WorkoutProgramControllerTests(WorkoutDbFixture fixture)
         var response = await _client.PostAsync("/api/workout-programs", content);
 
         // Assert
-        await AssertSimpleSaveResponse(response);
+        var createdWorkoutProgram = await AssertSimpleSaveResponse(response);
 
         // Act
         // We should be able to resave it all without any issues.
-        var originalPostResponse = await response.Content.ReadAsStringAsync();
+        foreach (var routine in createdWorkoutProgram.WorkoutProgramRoutines)
+        {
+            routine.RoutineExerciseRotationGroups = [];
+        }
+
+        var originalPostResponse = JsonConvert.SerializeObject(createdWorkoutProgram);
         var putJson = new StringContent(originalPostResponse, Encoding.UTF8, "application/json");
         var responseFromEdit = await _client.PutAsync("/api/workout-programs", putJson);
 
@@ -416,15 +597,15 @@ public class WorkoutProgramControllerTests(WorkoutDbFixture fixture)
         );
     }
 
-    private static async Task AssertSimpleSaveResponse(HttpResponseMessage response)
+    private static async Task<WorkoutProgram> AssertSimpleSaveResponse(HttpResponseMessage response)
     {
-        response.EnsureSuccessStatusCode();
+        var json = await response.Content.ReadAsStringAsync();
+        response.IsSuccessStatusCode.Should().BeTrue(json);
 
         Assert.Equal(
             "application/json; charset=utf-8",
             response.Content.Headers.ContentType!.ToString()
         );
-        var json = await response.Content.ReadAsStringAsync();
 
         var workoutProgram = JsonConvert.DeserializeObject<WorkoutProgram>(json);
 
@@ -474,6 +655,8 @@ public class WorkoutProgramControllerTests(WorkoutDbFixture fixture)
         Assert.Equal("Thursday", thursdayLast.NormalDay);
         Assert.Equal(2, thursdayLast.Position);
         Assert.Empty(thursdayLast.RoutineExercises);
+
+        return workoutProgram;
     }
 
     /// <see cref="WorkoutProgramController.Create(WorkoutProgram)" />

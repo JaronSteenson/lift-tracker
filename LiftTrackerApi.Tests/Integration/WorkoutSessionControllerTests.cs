@@ -383,6 +383,169 @@ public class WorkoutSessionControllerTests(WorkoutDbFixture fixture)
         }
     }
 
+    [Fact]
+    public async Task PostStart_KeepsTheCurrentRotationMemberUntilWorkoutIsCompleted()
+    {
+        var movedSessions = await MoveTodayUnstartedSessionsOutOfMergeWindow();
+        var workoutProgramUuid = Guid.NewGuid();
+        var routineUuid = Guid.NewGuid();
+        Guid? firstSessionUuid = null;
+        Guid? secondSessionUuid = null;
+        Guid rotationGroupUuid = Guid.Empty;
+
+        try
+        {
+            rotationGroupUuid = await CreateRotationGroupWorkoutProgram(
+                workoutProgramUuid,
+                routineUuid
+            );
+
+            var firstSession = await StartWorkout(routineUuid);
+            firstSessionUuid = firstSession.Uuid;
+            firstSession.SessionExercises.Should().HaveCount(2);
+            firstSession.SessionExercises.Select(exercise => exercise.Name).Should().Equal(
+                "Bench 531",
+                "Rows"
+            );
+
+            var secondSession = await StartWorkout(routineUuid);
+            secondSessionUuid = secondSession.Uuid;
+            secondSession.SessionExercises.Should().HaveCount(2);
+            secondSession.SessionExercises.Select(exercise => exercise.Name).Should().Equal(
+                "Bench 531",
+                "Rows"
+            );
+
+            using var scope = fixture.Factory.Services.CreateScope();
+            var db = scope.ServiceProvider.GetRequiredService<LiftTrackerDbContext>();
+            var rotationGroup = await db
+                .RoutineExerciseRotationGroups.WhereUuid(rotationGroupUuid)
+                .FirstAsync();
+            rotationGroup.NextExerciseIndex.Should().Be(0);
+        }
+        finally
+        {
+            await DeleteWorkoutSession(firstSessionUuid);
+            await DeleteWorkoutSession(secondSessionUuid);
+            await _client.DeleteAsync($"/api/workout-programs/{workoutProgramUuid}");
+            await RestoreMovedSessions(movedSessions);
+        }
+    }
+
+    [Fact]
+    public async Task PostStart_ReusesSameDayCheckInWithoutAdvancingRotation()
+    {
+        var movedSessions = await MoveTodayUnstartedSessionsOutOfMergeWindow();
+        var workoutProgramUuid = Guid.NewGuid();
+        var routineUuid = Guid.NewGuid();
+        var checkInUuid = Guid.NewGuid();
+        Guid rotationGroupUuid = Guid.Empty;
+
+        try
+        {
+            rotationGroupUuid = await CreateRotationGroupWorkoutProgram(
+                workoutProgramUuid,
+                routineUuid
+            );
+            await AddWorkoutSession(
+                new WorkoutSession
+                {
+                    Uuid = checkInUuid,
+                    Name = "Check-in",
+                    UserId = 1,
+                    CreatedAt = DateTime.UtcNow,
+                    StartedAt = null,
+                    EndedAt = null,
+                    SessionExercises = [],
+                }
+            );
+
+            var startedSession = await StartWorkout(routineUuid);
+
+            startedSession.Uuid.Should().Be(checkInUuid);
+            startedSession.SessionExercises.Select(exercise => exercise.Name).Should().Equal(
+                "Bench 531",
+                "Rows"
+            );
+
+            using var scope = fixture.Factory.Services.CreateScope();
+            var db = scope.ServiceProvider.GetRequiredService<LiftTrackerDbContext>();
+            var rotationGroup = await db
+                .RoutineExerciseRotationGroups.WhereUuid(rotationGroupUuid)
+                .FirstAsync();
+            rotationGroup.NextExerciseIndex.Should().Be(0);
+        }
+        finally
+        {
+            await DeleteWorkoutSession(checkInUuid);
+            await _client.DeleteAsync($"/api/workout-programs/{workoutProgramUuid}");
+            await RestoreMovedSessions(movedSessions);
+        }
+    }
+
+    [Fact]
+    public async Task Put_AdvancesRotationGroupsOnlyWhenWorkoutTransitionsToCompleted()
+    {
+        var movedSessions = await MoveTodayUnstartedSessionsOutOfMergeWindow();
+        var workoutProgramUuid = Guid.NewGuid();
+        var routineUuid = Guid.NewGuid();
+        Guid? createdSessionUuid = null;
+        Guid rotationGroupUuid = Guid.Empty;
+
+        try
+        {
+            rotationGroupUuid = await CreateRotationGroupWorkoutProgram(
+                workoutProgramUuid,
+                routineUuid
+            );
+
+            var startedSession = await StartWorkout(routineUuid);
+            createdSessionUuid = startedSession.Uuid;
+
+            using (var scope = fixture.Factory.Services.CreateScope())
+            {
+                var db = scope.ServiceProvider.GetRequiredService<LiftTrackerDbContext>();
+                var rotationGroup = await db
+                    .RoutineExerciseRotationGroups.WhereUuid(rotationGroupUuid)
+                    .FirstAsync();
+                rotationGroup.NextExerciseIndex.Should().Be(0);
+            }
+
+            startedSession.EndedAt = DateTime.Parse("2026-04-18T10:00:00Z");
+            var updateResponse = await _client.PutAsync(
+                "/api/workout-sessions",
+                new StringContent(
+                    JsonConvert.SerializeObject(startedSession),
+                    Encoding.UTF8,
+                    "application/json"
+                )
+            );
+            updateResponse.EnsureSuccessStatusCode();
+
+            using (var scope = fixture.Factory.Services.CreateScope())
+            {
+                var db = scope.ServiceProvider.GetRequiredService<LiftTrackerDbContext>();
+                var rotationGroup = await db
+                    .RoutineExerciseRotationGroups.WhereUuid(rotationGroupUuid)
+                    .FirstAsync();
+                rotationGroup.NextExerciseIndex.Should().Be(1);
+            }
+
+            var nextSession = await StartWorkout(routineUuid);
+            nextSession.SessionExercises.Select(exercise => exercise.Name).Should().Equal(
+                "DB Bench Volume",
+                "Rows"
+            );
+            await DeleteWorkoutSession(nextSession.Uuid);
+        }
+        finally
+        {
+            await DeleteWorkoutSession(createdSessionUuid);
+            await _client.DeleteAsync($"/api/workout-programs/{workoutProgramUuid}");
+            await RestoreMovedSessions(movedSessions);
+        }
+    }
+
     private void AssertTestSessionStructure(WorkoutSessionDto workoutSession)
     {
         Assert.Equal(Guid.Parse("27ffe07e-ecfd-4599-b132-6ec9e35fee1d"), workoutSession.Uuid);
@@ -933,6 +1096,95 @@ public class WorkoutSessionControllerTests(WorkoutDbFixture fixture)
         Assert.Empty(workoutSession.SessionExercises);
 
         return workoutSession;
+    }
+
+    private async Task<Guid> CreateRotationGroupWorkoutProgram(Guid workoutProgramUuid, Guid routineUuid)
+    {
+        var rotationGroupUuid = Guid.NewGuid();
+        var firstExerciseUuid = Guid.NewGuid();
+        var secondExerciseUuid = Guid.NewGuid();
+        var thirdExerciseUuid = Guid.NewGuid();
+        var workoutProgram = new WorkoutProgram
+        {
+            Uuid = workoutProgramUuid,
+            Name = "Rotation Start Test",
+            UserId = 1,
+            WorkoutProgramRoutines =
+            [
+                new WorkoutProgramRoutine
+                {
+                    Uuid = routineUuid,
+                    Name = "Workout A",
+                    NormalDay = "any",
+                    Position = 0,
+                    RoutineExerciseRotationGroups =
+                    [
+                        new RoutineExerciseRotationGroup
+                        {
+                            Uuid = rotationGroupUuid,
+                            NextExerciseIndex = 0,
+                        },
+                    ],
+                    RoutineExercises =
+                    [
+                        new RoutineExercise
+                        {
+                            Uuid = firstExerciseUuid,
+                            Name = "Bench 531",
+                            NumberOfSets = 3,
+                            Position = 0,
+                            Weight = 100,
+                            RotationGroupUuid = rotationGroupUuid,
+                            RotationGroupPosition = 0,
+                        },
+                        new RoutineExercise
+                        {
+                            Uuid = secondExerciseUuid,
+                            Name = "DB Bench Volume",
+                            NumberOfSets = 4,
+                            Position = 1,
+                            Weight = 35,
+                            RotationGroupUuid = rotationGroupUuid,
+                            RotationGroupPosition = 1,
+                        },
+                        new RoutineExercise
+                        {
+                            Uuid = thirdExerciseUuid,
+                            Name = "Rows",
+                            NumberOfSets = 3,
+                            Position = 2,
+                            Weight = 60,
+                        },
+                    ],
+                },
+            ],
+        };
+
+        var response = await _client.PostAsync(
+            "/api/workout-programs",
+            new StringContent(
+                JsonConvert.SerializeObject(workoutProgram),
+                Encoding.UTF8,
+                "application/json"
+            )
+        );
+        response.EnsureSuccessStatusCode();
+        return rotationGroupUuid;
+    }
+
+    private async Task<WorkoutSessionDto> StartWorkout(Guid routineUuid)
+    {
+        var response = await _client.PostAsync(
+            "/api/workout-sessions/start",
+            new StringContent(
+                JsonConvert.SerializeObject(new { RoutineUuid = routineUuid }),
+                Encoding.UTF8,
+                "application/json"
+            )
+        );
+        response.EnsureSuccessStatusCode();
+        var json = await response.Content.ReadAsStringAsync();
+        return JsonConvert.DeserializeObject<WorkoutSessionDto>(json)!;
     }
 
     private static async Task<WorkoutSessionDto> AssertSimpleEditResponse(

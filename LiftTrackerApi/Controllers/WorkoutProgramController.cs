@@ -46,6 +46,7 @@ public class WorkoutProgramController(
     {
         var userId = (int)(HttpContext.Items["UserId"] ?? -1);
         ValidateRoutineExercises(workoutProgram, userId);
+        ValidateRotationGroups(workoutProgram);
 
         if (!ModelState.IsValid)
         {
@@ -61,6 +62,7 @@ public class WorkoutProgramController(
     {
         var userId = (int)(HttpContext.Items["UserId"] ?? -1);
         ValidateRoutineExercises(workoutProgram, userId);
+        ValidateRotationGroups(workoutProgram);
 
         if (!ModelState.IsValid)
         {
@@ -122,5 +124,15 @@ public class WorkoutProgramController(
             && exercise.Rpe == null
             && exercise.RestPeriod == null
             && exercise.WarmUp == null;
+    }
+
+    private void ValidateRotationGroups(WorkoutProgram workoutProgram)
+    {
+        foreach (var (key, message) in RoutineExerciseRotationValidation.ValidateWorkoutProgram(
+                     workoutProgram
+                 ))
+        {
+            ModelState.AddModelError(key, message);
+        }
     }
 }

@@ -598,6 +598,7 @@ export function useStartWorkout() {
             // fields that the next screen should render immediately.
             writeWorkoutSessionToCaches(queryClient, workoutSession);
             queryClient.invalidateQueries({ queryKey: [TIMELINE_QUERY_KEY] });
+            invalidateWorkoutProgramBuilderCaches(queryClient, workoutSession);
         },
 
         onError: (error) => {

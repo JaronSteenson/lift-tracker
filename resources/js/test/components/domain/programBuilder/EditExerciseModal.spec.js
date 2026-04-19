@@ -6,12 +6,19 @@ import { prepareForLocalVueMount } from '../../../vueHelpers';
 
 const exercise = ref(null);
 const workoutProgram = ref(null);
-const updateExercise = vi.fn();
+const updateWorkoutProgram = vi.fn();
 const projectionQueryArgs = [];
+const { createDraftRotationGroup } = vi.hoisted(() => ({
+    createDraftRotationGroup: vi.fn(() => ({
+        uuid: 'rotation-group-new',
+        nextExerciseIndex: 0,
+    })),
+}));
 
 vi.mock(
     '../../../../components/domain/programBuilder/composibles/programBuilderQueries',
     () => ({
+        createDraftRotationGroup,
         useWorkoutProgram: () => ({
             workoutProgram,
             getExercise: (uuid) =>
@@ -29,7 +36,7 @@ vi.mock(
             ),
         }),
         useUpdateWorkoutProgram: () => ({
-            updateExercise,
+            updateWorkoutProgram,
         }),
         useExerciseCycleProjection: (args) => {
             projectionQueryArgs.push(args);
@@ -60,6 +67,8 @@ describe('EditExerciseModal', () => {
                 currentCycleWeek: 2,
                 bodyType: 1,
             },
+            rotationGroupUuid: 'rotation-group-1',
+            rotationGroupPosition: 1,
             restPeriod: 120,
             warmUp: 60,
         };
@@ -68,6 +77,12 @@ describe('EditExerciseModal', () => {
             workoutProgramRoutines: [
                 {
                     uuid: 'routine-1',
+                    routineExerciseRotationGroups: [
+                        {
+                            uuid: 'rotation-group-1',
+                            nextExerciseIndex: 0,
+                        },
+                    ],
                     routineExercises: [exercise.value],
                 },
             ],
@@ -125,5 +140,90 @@ describe('EditExerciseModal', () => {
         expect(projectionQueryArgs[0].trainingMax.value).toBe(100);
         expect(projectionQueryArgs[0].currentCycleWeek.value).toBe(2);
         expect(projectionQueryArgs[0].bodyType.value).toBe(1);
+    });
+
+    test('creates a new rotation group and saves its membership through the whole-program mutation', async () => {
+        const wrapper = shallowMount(EditExerciseModal, {
+            ...prepareForLocalVueMount(),
+            props: {
+                value: true,
+                routineExerciseUuid: 'exercise-1',
+                routineUuid: 'routine-1',
+                workoutProgramUuid: 'program-1',
+            },
+            global: {
+                ...prepareForLocalVueMount().global,
+                stubs: {
+                    ...prepareForLocalVueMount().global.stubs,
+                    TimerInput: {
+                        props: ['label'],
+                        template:
+                            '<div class="timer-input" :data-label="label" />',
+                    },
+                },
+            },
+        });
+
+        await flushPromises();
+
+        wrapper.vm.selectedRotationGroupUuid = '__create__';
+        wrapper.vm.rotationGroupPosition = 0;
+        wrapper.vm.closeModal();
+
+        expect(createDraftRotationGroup).toHaveBeenCalled();
+        expect(updateWorkoutProgram).toHaveBeenCalledWith('program-1', {
+            workoutProgramRoutines: [
+                {
+                    uuid: 'routine-1',
+                    routineExerciseRotationGroups: [
+                        {
+                            uuid: 'rotation-group-new',
+                            nextExerciseIndex: 0,
+                        },
+                    ],
+                    routineExercises: [
+                        expect.objectContaining({
+                            uuid: 'exercise-1',
+                            rotationGroupUuid: 'rotation-group-new',
+                            rotationGroupPosition: 0,
+                        }),
+                    ],
+                },
+            ],
+        });
+    });
+
+    test('removes an empty rotation group when the last member is set to none', async () => {
+        const wrapper = shallowMount(EditExerciseModal, {
+            ...prepareForLocalVueMount(),
+            props: {
+                value: true,
+                routineExerciseUuid: 'exercise-1',
+                routineUuid: 'routine-1',
+                workoutProgramUuid: 'program-1',
+            },
+        });
+
+        await flushPromises();
+
+        wrapper.vm.selectedRotationGroupUuid = null;
+        wrapper.vm.rotationGroupPosition = null;
+        wrapper.vm.closeModal();
+
+        expect(updateWorkoutProgram).toHaveBeenCalledWith('program-1', {
+            workoutProgramRoutines: [
+                expect.objectContaining({
+                    uuid: 'routine-1',
+                    routineExerciseRotationGroups: [],
+                    routineExercises: [
+                        expect.objectContaining({
+                            uuid: 'exercise-1',
+                            rotationGroupUuid: null,
+                            rotationGroupPosition: null,
+                        }),
+                    ],
+                }),
+            ],
+        });
     });
 });

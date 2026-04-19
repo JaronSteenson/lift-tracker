@@ -12,6 +12,8 @@ public class WorkoutProgramService(LiftTrackerDbContext db, DomainEntityService 
         var routine =
             await db
                 .WorkoutProgramRoutines.Include(item => item.RoutineExercises)
+                .ThenInclude(exercise => exercise.RoutineExerciseRotationGroup)
+                .Include(item => item.RoutineExerciseRotationGroups)
                 .Include(item => item.WorkoutProgram)
                 .Where(item => item.WorkoutProgram != null && item.WorkoutProgram.UserId == userId)
                 .WhereUuid(routineUuid)
@@ -20,14 +22,15 @@ public class WorkoutProgramService(LiftTrackerDbContext db, DomainEntityService 
                 $"WorkoutProgramRoutine with UUID {routineUuid} not found for user {userId}."
             );
 
-        routine.RoutineExercises = routine.RoutineExercises.OrderByPosition().ToList();
+        SortChildren(routine);
         return routine;
     }
 
     public async Task<RoutineExercise> FindRoutineExerciseByUuidAndOwner(Guid exerciseUuid, int userId)
     {
         return await db
-                .RoutineExercises.Include(item => item.WorkoutProgramRoutine)
+                .RoutineExercises.Include(item => item.RoutineExerciseRotationGroup)
+                .Include(item => item.WorkoutProgramRoutine)
                 .ThenInclude(routine => routine!.WorkoutProgram)
                 .Where(item =>
                     item.WorkoutProgramRoutine != null
@@ -85,6 +88,9 @@ public class WorkoutProgramService(LiftTrackerDbContext db, DomainEntityService 
         var query = db
             .WorkoutPrograms.Include(workoutProgram => workoutProgram.WorkoutProgramRoutines)
             .ThenInclude(routine => routine.RoutineExercises)
+            .ThenInclude(exercise => exercise.RoutineExerciseRotationGroup)
+            .Include(workoutProgram => workoutProgram.WorkoutProgramRoutines)
+            .ThenInclude(routine => routine.RoutineExerciseRotationGroups)
             .Where(workoutProgram => workoutProgram.UserId == userId)
             .Where(workoutProgram =>
                 workoutProgram.WorkoutProgramRoutines.Any(routine => routine.Uuid == routineUuid)
@@ -104,6 +110,9 @@ public class WorkoutProgramService(LiftTrackerDbContext db, DomainEntityService 
         var query = db
             .WorkoutPrograms.Include(workoutProgram => workoutProgram.WorkoutProgramRoutines)
             .ThenInclude(routine => routine.RoutineExercises)
+            .ThenInclude(exercise => exercise.RoutineExerciseRotationGroup)
+            .Include(workoutProgram => workoutProgram.WorkoutProgramRoutines)
+            .ThenInclude(routine => routine.RoutineExerciseRotationGroups)
             .Where(workoutProgram => workoutProgram.UserId == userId)
             .OrderBy(workoutProgram => workoutProgram.Name);
 
@@ -120,6 +129,9 @@ public class WorkoutProgramService(LiftTrackerDbContext db, DomainEntityService 
                 .WorkoutPrograms.AsNoTracking()
                 .Include(workoutProgram => workoutProgram.WorkoutProgramRoutines)
                 .ThenInclude(routine => routine.RoutineExercises)
+                .ThenInclude(exercise => exercise.RoutineExerciseRotationGroup)
+                .Include(workoutProgram => workoutProgram.WorkoutProgramRoutines)
+                .ThenInclude(routine => routine.RoutineExerciseRotationGroups)
                 .Where(workoutProgram => workoutProgram.UserId == userId)
                 .WhereUuid(workoutProgramUid)
                 .FirstOrDefaultAsync()
@@ -137,6 +149,8 @@ public class WorkoutProgramService(LiftTrackerDbContext db, DomainEntityService 
         var query = db
             .WorkoutProgramRoutines.Include(routine => routine.WorkoutProgram)
             .Include(routine => routine.RoutineExercises)
+            .ThenInclude(exercise => exercise.RoutineExerciseRotationGroup)
+            .Include(routine => routine.RoutineExerciseRotationGroups)
             .Where(routine =>
                 routine.WorkoutProgram != null && routine.WorkoutProgram.UserId == userId
             )
@@ -159,6 +173,7 @@ public class WorkoutProgramService(LiftTrackerDbContext db, DomainEntityService 
     {
         newWorkoutProgram.UserId = userId;
         await VerifyOrAssignNewUuids(newWorkoutProgram);
+        BindRotationGroupMemberships(newWorkoutProgram);
 
         await db.AddAsync(newWorkoutProgram);
         await db.SaveChangesAsync();
@@ -183,11 +198,16 @@ public class WorkoutProgramService(LiftTrackerDbContext db, DomainEntityService 
         }
 
         var existing = await FindByUuidAndOwner(updated.Uuid.Value, userId);
+        BindRotationGroupMemberships(updated);
 
         domainEntityService.ReattachRequestEntity(existing: existing, updated: updated);
         domainEntityService.TrackEntityDiffChanges(
             existingMap: ToRoutineMap(existing),
             updatedMap: ToRoutineMap(updated)
+        );
+        domainEntityService.TrackEntityDiffChanges(
+            existingMap: ToRotationGroupMap(existing),
+            updatedMap: ToRotationGroupMap(updated)
         );
         domainEntityService.TrackEntityDiffChanges(
             existingMap: ToExerciseMap(existing),
@@ -221,16 +241,85 @@ public class WorkoutProgramService(LiftTrackerDbContext db, DomainEntityService 
             .ToDictionary(exercise => exercise.Uuid ?? Guid.Empty);
     }
 
+    private Dictionary<Guid, RoutineExerciseRotationGroup> ToRotationGroupMap(WorkoutProgram program)
+    {
+        return program
+            .WorkoutProgramRoutines.SelectMany(routine => routine.RoutineExerciseRotationGroups)
+            .ToDictionary(group => group.Uuid ?? Guid.Empty);
+    }
+
     private async Task VerifyOrAssignNewUuids(WorkoutProgram workoutProgram)
     {
         await domainEntityService.VerifyOrAssignNewEntityUuid(workoutProgram);
         foreach (var routine in workoutProgram.WorkoutProgramRoutines)
         {
             await domainEntityService.VerifyOrAssignNewEntityUuid(routine);
+            foreach (var rotationGroup in routine.RoutineExerciseRotationGroups)
+            {
+                await domainEntityService.VerifyOrAssignNewEntityUuid(rotationGroup);
+            }
             foreach (var exercise in routine.RoutineExercises)
             {
                 await domainEntityService.VerifyOrAssignNewEntityUuid(exercise);
             }
+        }
+    }
+
+    private static void BindRotationGroupMemberships(WorkoutProgram workoutProgram)
+    {
+        foreach (var routine in workoutProgram.WorkoutProgramRoutines)
+        {
+            routine.RoutineExerciseRotationGroups = routine.RoutineExerciseRotationGroups
+                .Where(group =>
+                    routine.RoutineExercises.Any(exercise => exercise.RotationGroupUuid == group.Uuid)
+                )
+                .ToList();
+
+            var groupsByUuid = routine.RoutineExerciseRotationGroups.ToDictionary(
+                group => group.Uuid ?? Guid.Empty
+            );
+
+            foreach (var exercise in routine.RoutineExercises)
+            {
+                if (!exercise.RotationGroupUuid.HasValue)
+                {
+                    exercise.RoutineExerciseRotationGroup = null;
+                    exercise.RoutineExerciseRotationGroupId = null;
+                    exercise.RotationGroupPosition = null;
+                    continue;
+                }
+
+                var rotationGroupUuid = exercise.RotationGroupUuid.Value;
+                if (!groupsByUuid.TryGetValue(rotationGroupUuid, out var rotationGroup))
+                {
+                    throw new ArgumentException(
+                        $"RoutineExercise rotation group {rotationGroupUuid} was not found on routine {routine.Uuid}."
+                    );
+                }
+
+                exercise.RoutineExerciseRotationGroup = rotationGroup;
+            }
+
+            routine.RoutineExerciseRotationGroups = routine.RoutineExerciseRotationGroups
+                .Select(group =>
+                {
+                    var memberCount = routine.RoutineExercises.Count(exercise =>
+                        exercise.RotationGroupUuid == group.Uuid
+                    );
+
+                    if (memberCount == 0)
+                    {
+                        group.NextExerciseIndex = 0;
+                        return group;
+                    }
+
+                    group.NextExerciseIndex =
+                        group.NextExerciseIndex < 0
+                            ? 0
+                            : group.NextExerciseIndex % memberCount;
+                    return group;
+                })
+                .ToList();
         }
     }
 
@@ -252,8 +341,29 @@ public class WorkoutProgramService(LiftTrackerDbContext db, DomainEntityService 
     private void SortChildren(ICollection<WorkoutProgramRoutine> workoutProgramRoutines)
     {
         foreach (var workoutProgramRoutine in workoutProgramRoutines)
-            workoutProgramRoutine.RoutineExercises = workoutProgramRoutine
-                .RoutineExercises.OrderByPosition()
-                .ToList();
+            SortChildren(workoutProgramRoutine);
+    }
+
+    private void SortChildren(WorkoutProgramRoutine workoutProgramRoutine)
+    {
+        workoutProgramRoutine.RoutineExercises = workoutProgramRoutine
+            .RoutineExercises.OrderByPosition()
+            .ToList();
+
+        workoutProgramRoutine.RoutineExerciseRotationGroups = workoutProgramRoutine
+            .RoutineExerciseRotationGroups.OrderBy(group =>
+                group.RoutineExercises
+                    .Select(exercise => exercise.Position)
+                    .DefaultIfEmpty(int.MaxValue)
+                    .Min()
+            )
+            .ThenBy(group => group.CreatedAt)
+            .ThenBy(group => group.Id)
+            .ToList();
+
+        foreach (var exercise in workoutProgramRoutine.RoutineExercises)
+        {
+            exercise.RotationGroupUuid = exercise.RoutineExerciseRotationGroup?.Uuid;
+        }
     }
 }

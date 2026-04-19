@@ -334,6 +334,7 @@ public class WorkoutSessionService(
         if (shouldAdvanceProgression)
         {
             await AdvanceProgressionSchemes(updated);
+            await AdvanceRotationGroupsOnCompletion(updated);
             await db.SaveChangesAsync();
         }
 
@@ -577,12 +578,97 @@ public class WorkoutSessionService(
 
     private List<SessionExercise> BuildSessionExercises(WorkoutProgramRoutine routine)
     {
-        if (routine.RoutineExercises.Count == 0)
+        var selectedExercises = GetSelectedRoutineExercises(routine);
+
+        if (selectedExercises.Count == 0)
         {
             return [CreateExerciseForEmptyWorkout(routine.Name)];
         }
 
-        return routine.RoutineExercises.Select(CreateSessionExerciseFromRoutineExercise).ToList();
+        return selectedExercises
+            .OrderBy(selection => selection.Position)
+            .Select((selection, index) =>
+            {
+                var sessionExercise = CreateSessionExerciseFromRoutineExercise(selection.RoutineExercise);
+                sessionExercise.Position = index;
+                return sessionExercise;
+            })
+            .ToList();
+    }
+
+    private List<(RoutineExercise RoutineExercise, int Position)> GetSelectedRoutineExercises(
+        WorkoutProgramRoutine routine
+    )
+    {
+        var selectedExercises = routine.RoutineExercises
+            .Where(exercise => exercise.RoutineExerciseRotationGroupId == null)
+            .Select(exercise => (RoutineExercise: exercise, Position: exercise.Position))
+            .ToList();
+
+        foreach (var rotationGroup in routine.RoutineExerciseRotationGroups)
+        {
+            var groupExercises = routine.RoutineExercises
+                .Where(exercise => exercise.RoutineExerciseRotationGroupId == rotationGroup.Id)
+                .OrderBy(exercise => exercise.RotationGroupPosition ?? int.MaxValue)
+                .ThenBy(exercise => exercise.Position)
+                .ToList();
+
+            if (groupExercises.Count == 0)
+            {
+                continue;
+            }
+
+            var currentIndex =
+                rotationGroup.NextExerciseIndex < 0
+                    ? 0
+                    : rotationGroup.NextExerciseIndex % groupExercises.Count;
+            selectedExercises.Add(
+                (
+                    groupExercises[currentIndex],
+                    groupExercises.Min(exercise => exercise.Position)
+                )
+            );
+        }
+
+        return selectedExercises;
+    }
+
+    private async Task AdvanceRotationGroupsOnCompletion(WorkoutSession session)
+    {
+        var rotationGroupIds = session.SessionExercises
+            .Select(exercise => exercise.RoutineExercise?.RoutineExerciseRotationGroupId)
+            .Where(id => id != null)
+            .Select(id => id!.Value)
+            .Distinct()
+            .ToList();
+
+        if (rotationGroupIds.Count == 0)
+        {
+            return;
+        }
+
+        var rotationGroups = await db
+            .RoutineExerciseRotationGroups.Where(group => rotationGroupIds.Contains(group.Id!.Value))
+            .ToListAsync();
+
+        foreach (var rotationGroup in rotationGroups)
+        {
+            var groupExerciseCount = await db.RoutineExercises.CountAsync(exercise =>
+                exercise.RoutineExerciseRotationGroupId == rotationGroup.Id
+            );
+
+            if (groupExerciseCount == 0)
+            {
+                rotationGroup.NextExerciseIndex = 0;
+                continue;
+            }
+
+            var currentIndex =
+                rotationGroup.NextExerciseIndex < 0
+                    ? 0
+                    : rotationGroup.NextExerciseIndex % groupExerciseCount;
+            rotationGroup.NextExerciseIndex = (currentIndex + 1) % groupExerciseCount;
+        }
     }
 
     private SessionExercise CreateSessionExerciseFromRoutineExercise(RoutineExercise routineExercise)

@@ -14,6 +14,8 @@ public partial class LiftTrackerDbContext(
 
     public virtual DbSet<RoutineExercise> RoutineExercises { get; set; }
 
+    public virtual DbSet<RoutineExerciseRotationGroup> RoutineExerciseRotationGroups { get; set; }
+
     public virtual DbSet<SessionExercise> SessionExercises { get; set; }
 
     public virtual DbSet<SessionSet> SessionSets { get; set; }
@@ -158,8 +160,14 @@ public partial class LiftTrackerDbContext(
                             )
                 )
                 .Metadata.SetValueComparer(progressionSchemeSettingsComparer);
+            entity
+                .Property(e => e.RotationGroupPosition)
+                .HasColumnName("rotationGroupPosition");
             entity.Property(e => e.Rpe).HasColumnName("rpe");
             entity.Property(e => e.RestPeriod).HasColumnName("restPeriod");
+            entity
+                .Property(e => e.RoutineExerciseRotationGroupId)
+                .HasColumnName("routineExerciseRotationGroupId");
             entity.Property(e => e.UpdatedAt).HasColumnType("timestamp").HasColumnName("updatedAt");
             entity.Property(e => e.Uuid).HasColumnName("uuid");
             entity.Property(e => e.WarmUp).HasColumnName("warmUp");
@@ -174,6 +182,12 @@ public partial class LiftTrackerDbContext(
                 .HasForeignKey(d => d.WorkoutProgramRoutineId)
                 .OnDelete(DeleteBehavior.Cascade)
                 .HasConstraintName("RoutineExercises_ibfk_1");
+
+            entity
+                .HasOne(d => d.RoutineExerciseRotationGroup)
+                .WithMany(p => p.RoutineExercises)
+                .HasForeignKey(d => d.RoutineExerciseRotationGroupId)
+                .OnDelete(DeleteBehavior.SetNull);
         });
 
         modelBuilder.Entity<SessionExercise>(entity =>
@@ -339,6 +353,35 @@ public partial class LiftTrackerDbContext(
                 .HasForeignKey(d => d.WorkoutProgramId)
                 .OnDelete(DeleteBehavior.Cascade)
                 .HasConstraintName("WorkoutProgramRoutines_ibfk_1");
+        });
+
+        modelBuilder.Entity<RoutineExerciseRotationGroup>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PRIMARY");
+
+            entity.HasIndex(
+                e => e.WorkoutProgramRoutineId,
+                "RoutineExerciseRotationGroups_ibfk_1"
+            );
+
+            entity.HasIndex(e => e.Uuid, "idx_uuid").IsUnique();
+
+            entity.Property(e => e.Id).HasColumnName("id");
+            entity.Property(e => e.CreatedAt).HasColumnType("timestamp").HasColumnName("createdAt");
+            entity.Property(e => e.DeletedAt).HasColumnType("timestamp").HasColumnName("deletedAt");
+            entity.Property(e => e.NextExerciseIndex).HasColumnName("nextExerciseIndex");
+            entity.Property(e => e.UpdatedAt).HasColumnType("timestamp").HasColumnName("updatedAt");
+            entity.Property(e => e.Uuid).HasColumnName("uuid");
+            entity
+                .Property(e => e.WorkoutProgramRoutineId)
+                .HasColumnName("workoutProgramRoutineId");
+
+            entity
+                .HasOne(d => d.WorkoutProgramRoutine)
+                .WithMany(p => p.RoutineExerciseRotationGroups)
+                .HasForeignKey(d => d.WorkoutProgramRoutineId)
+                .OnDelete(DeleteBehavior.Cascade)
+                .HasConstraintName("RoutineExerciseRotationGroups_ibfk_1");
         });
 
         modelBuilder.Entity<WorkoutSession>(entity =>

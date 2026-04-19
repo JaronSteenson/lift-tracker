@@ -1,4 +1,5 @@
 import { computed, defineComponent, h } from 'vue';
+import { useQueryClient } from '@tanstack/vue-query';
 import { flushPromises, mount } from '@vue/test-utils';
 import { describe, test, expect, vi, beforeEach } from 'vitest';
 import UuidHelper from '../../../../UuidHelper';
@@ -234,13 +235,18 @@ describe('workoutSessionQueries navigation helpers', () => {
             vi.mocked(WorkoutSessionService.start).mockResolvedValue({
                 data: {
                     uuid: 'session-1',
+                    workoutProgramUuid: 'program-1',
+                    workoutProgramRoutineUuid: 'routine-1',
                     sessionExercises: [],
                 },
             });
 
             const Harness = defineComponent({
                 setup() {
-                    return useStartWorkout();
+                    return {
+                        ...useStartWorkout(),
+                        queryClient: useQueryClient(),
+                    };
                 },
                 render() {
                     return h('div');
@@ -248,6 +254,10 @@ describe('workoutSessionQueries navigation helpers', () => {
             });
 
             const wrapper = mount(Harness, prepareForLocalVueMount());
+            const invalidateQueriesSpy = vi.spyOn(
+                wrapper.vm.queryClient,
+                'invalidateQueries',
+            );
             const workoutSession = await wrapper.vm.startWorkout({
                 originWorkout: {
                     uuid: 'routine-1',
@@ -258,6 +268,18 @@ describe('workoutSessionQueries navigation helpers', () => {
                 routineUuid: 'routine-1',
             });
             expect(workoutSession.uuid).toBe('session-1');
+            expect(invalidateQueriesSpy).toHaveBeenCalledWith({
+                queryKey: ['timeline'],
+            });
+            expect(invalidateQueriesSpy).toHaveBeenCalledWith({
+                queryKey: ['workoutProgramList'],
+            });
+            expect(invalidateQueriesSpy).toHaveBeenCalledWith({
+                queryKey: ['workoutProgram', 'program-1'],
+            });
+            expect(invalidateQueriesSpy).toHaveBeenCalledWith({
+                queryKey: ['workoutProgramByRoutine', 'routine-1'],
+            });
         });
     });
 });

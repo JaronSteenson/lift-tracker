@@ -74,6 +74,30 @@
                                 "
                             />
                         </VCol>
+                        <VCol cols="12">
+                            <VDivider class="mb-4" />
+                            <div class="text-body-2 text-medium-emphasis mb-3">
+                                Rotation groups alternate exercises between
+                                completed workouts. Only one exercise from the
+                                group appears in the session each time.
+                            </div>
+                        </VCol>
+                        <VCol cols="12" md="6">
+                            <VSelect
+                                v-model="selectedRotationGroupUuid"
+                                :items="rotationGroupOptions"
+                                label="Rotation group"
+                                variant="outlined"
+                            />
+                        </VCol>
+                        <VCol v-if="showRotationGroupOrder" cols="12" md="6">
+                            <VSelect
+                                v-model="rotationGroupPosition"
+                                :items="rotationGroupPositionOptions"
+                                label="Rotation order"
+                                variant="outlined"
+                            />
+                        </VCol>
                     </VRow>
                 </VContainer>
             </VCardText>
@@ -92,6 +116,7 @@ import { useDisplay } from 'vuetify';
 import TimerInput from '../../formFields/TimerInput.vue';
 import ProgressionSchemeSettings531 from './531ProgressionSchemeSettings.vue';
 import {
+    createDraftRotationGroup,
     useExerciseCycleProjection,
     useUpdateWorkoutProgram,
     useWorkoutProgram,
@@ -146,8 +171,19 @@ const getExercise = (uuid) => {
 const currentExercise = computed(() =>
     props.routineExerciseUuid ? getExercise(props.routineExerciseUuid) : null,
 );
+const currentRoutine = computed(() => {
+    if (!workoutProgram.value?.workoutProgramRoutines) {
+        return null;
+    }
 
-const { updateExercise } = useUpdateWorkoutProgram(props.routineUuid);
+    return workoutProgram.value.workoutProgramRoutines.find((routine) =>
+        routine.routineExercises?.some(
+            (exercise) => exercise.uuid === props.routineExerciseUuid,
+        ),
+    );
+});
+
+const { updateWorkoutProgram } = useUpdateWorkoutProgram(props.routineUuid);
 
 const display = useDisplay();
 
@@ -177,6 +213,8 @@ const rpe = ref(null);
 const numberOfSets = ref(3);
 const progressionScheme = ref(null);
 const progressionSchemeSettings = ref(null);
+const selectedRotationGroupUuid = ref(null);
+const rotationGroupPosition = ref(null);
 const restPeriod = ref(60);
 const warmUp = ref(60);
 const schemeConfig = computed(() =>
@@ -217,6 +255,37 @@ const { projection, isProjectionLoading: isProjectionQueryLoading } =
 const isProjectionLoading = computed(
     () => isProjectionDebouncing.value || isProjectionQueryLoading.value,
 );
+const rotationGroups = computed(
+    () => currentRoutine.value?.routineExerciseRotationGroups ?? [],
+);
+const rotationGroupOptions = computed(() => [
+    { title: 'None', value: null },
+    ...rotationGroups.value.map((group, index) => ({
+        title: `Rotation group ${index + 1}`,
+        value: group.uuid,
+    })),
+    { title: 'Create new group', value: '__create__' },
+]);
+const showRotationGroupOrder = computed(
+    () => !!selectedRotationGroupUuid.value,
+);
+const rotationGroupPositionOptions = computed(() => {
+    if (!selectedRotationGroupUuid.value) {
+        return [];
+    }
+
+    const siblingCount =
+        currentRoutine.value?.routineExercises?.filter(
+            (exercise) =>
+                exercise.uuid !== props.routineExerciseUuid &&
+                exercise.rotationGroupUuid === selectedRotationGroupUuid.value,
+        )?.length ?? 0;
+
+    return Array.from({ length: siblingCount + 1 }, (_, index) => ({
+        title: `Position ${index + 1}`,
+        value: index,
+    }));
+});
 
 // Watch for modal opening and load current exercise data
 watch(
@@ -232,6 +301,10 @@ watch(
                 progressionScheme.value = exercise.progressionScheme ?? null;
                 progressionSchemeSettings.value =
                     exercise.progressionSchemeSettings ?? null;
+                selectedRotationGroupUuid.value =
+                    exercise.rotationGroupUuid ?? null;
+                rotationGroupPosition.value =
+                    exercise.rotationGroupPosition ?? null;
                 restPeriod.value = exercise.restPeriod;
                 warmUp.value = exercise.warmUp;
             }
@@ -251,6 +324,19 @@ watch(progressionScheme, (newProgressionScheme) => {
     }
 
     progressionSchemeSettings.value = null;
+});
+
+watch(selectedRotationGroupUuid, (newRotationGroupUuid) => {
+    if (!newRotationGroupUuid) {
+        rotationGroupPosition.value = null;
+        return;
+    }
+
+    if (rotationGroupPosition.value === null) {
+        rotationGroupPosition.value = rotationGroupPositionOptions.value.length
+            ? rotationGroupPositionOptions.value.length - 1
+            : 0;
+    }
 });
 
 watch(
@@ -304,8 +390,38 @@ const closeModal = () => {
         return;
     }
 
-    updateExercise(workoutProgram.value.uuid, {
-        uuid: props.routineExerciseUuid,
+    const updatedWorkoutProgram = JSON.parse(
+        JSON.stringify(workoutProgram.value),
+    );
+    const updatedRoutine = updatedWorkoutProgram.workoutProgramRoutines.find(
+        (routine) =>
+            routine.routineExercises?.some(
+                (exercise) => exercise.uuid === props.routineExerciseUuid,
+            ),
+    );
+    const updatedExercise = updatedRoutine?.routineExercises?.find(
+        (exercise) => exercise.uuid === props.routineExerciseUuid,
+    );
+
+    if (!updatedRoutine || !updatedExercise) {
+        return;
+    }
+
+    const hasCreateRotationGroupSelection =
+        selectedRotationGroupUuid.value === '__create__';
+    const previousRotationGroupUuid = updatedExercise.rotationGroupUuid ?? null;
+    let persistedRotationGroupUuid = selectedRotationGroupUuid.value;
+
+    if (hasCreateRotationGroupSelection) {
+        const newRotationGroup = createDraftRotationGroup();
+        updatedRoutine.routineExerciseRotationGroups = [
+            ...(updatedRoutine.routineExerciseRotationGroups ?? []),
+            newRotationGroup,
+        ];
+        persistedRotationGroupUuid = newRotationGroup.uuid;
+    }
+
+    Object.assign(updatedExercise, {
         name: name.value,
         weight: weight.value,
         rpe: rpe.value,
@@ -315,8 +431,106 @@ const closeModal = () => {
             progressionScheme.value === PROGRESSION_SCHEME.FIVE_THREE_ONE
                 ? progressionSchemeSettings.value
                 : null,
+        rotationGroupUuid: persistedRotationGroupUuid,
+        rotationGroupPosition: persistedRotationGroupUuid
+            ? (rotationGroupPosition.value ?? 0)
+            : null,
         restPeriod: restPeriod.value,
         warmUp: warmUp.value,
     });
+
+    normalizeRotationGroupPositions(
+        updatedRoutine,
+        previousRotationGroupUuid,
+        props.routineExerciseUuid,
+    );
+    normalizeRotationGroupPositions(
+        updatedRoutine,
+        persistedRotationGroupUuid,
+        props.routineExerciseUuid,
+        updatedExercise.rotationGroupPosition ?? 0,
+    );
+    pruneEmptyRotationGroups(updatedRoutine);
+    clampRotationGroupPointers(updatedRoutine);
+
+    updateWorkoutProgram(workoutProgram.value.uuid, {
+        workoutProgramRoutines: updatedWorkoutProgram.workoutProgramRoutines,
+    });
 };
+
+function normalizeRotationGroupPositions(
+    routine,
+    rotationGroupUuid,
+    exerciseUuid,
+    desiredPosition = null,
+) {
+    if (!rotationGroupUuid || rotationGroupUuid === '__create__') {
+        return;
+    }
+
+    const groupedExercises = routine.routineExercises
+        .filter(
+            (exercise) =>
+                exercise.rotationGroupUuid === rotationGroupUuid &&
+                exercise.uuid !== exerciseUuid,
+        )
+        .sort(
+            (left, right) =>
+                (left.rotationGroupPosition ?? 0) -
+                (right.rotationGroupPosition ?? 0),
+        );
+
+    const targetExercise = routine.routineExercises.find(
+        (exercise) => exercise.uuid === exerciseUuid,
+    );
+
+    if (targetExercise?.rotationGroupUuid === rotationGroupUuid) {
+        const nextPosition = Math.max(
+            0,
+            Math.min(
+                desiredPosition ?? groupedExercises.length,
+                groupedExercises.length,
+            ),
+        );
+        groupedExercises.splice(nextPosition, 0, targetExercise);
+    }
+
+    groupedExercises.forEach((exercise, index) => {
+        exercise.rotationGroupPosition = index;
+    });
+}
+
+function pruneEmptyRotationGroups(routine) {
+    const remainingGroupUuids = new Set(
+        routine.routineExercises
+            .map((exercise) => exercise.rotationGroupUuid)
+            .filter(Boolean),
+    );
+
+    routine.routineExerciseRotationGroups = (
+        routine.routineExerciseRotationGroups ?? []
+    ).filter((group) => remainingGroupUuids.has(group.uuid));
+}
+
+function clampRotationGroupPointers(routine) {
+    routine.routineExerciseRotationGroups = (
+        routine.routineExerciseRotationGroups ?? []
+    ).map((group) => {
+        const memberCount = routine.routineExercises.filter(
+            (exercise) => exercise.rotationGroupUuid === group.uuid,
+        ).length;
+
+        if (memberCount === 0) {
+            return group;
+        }
+
+        return {
+            ...group,
+            nextExerciseIndex:
+                (group.nextExerciseIndex ?? 0) < 0
+                    ? 0
+                    : (group.nextExerciseIndex ?? 0) % memberCount,
+        };
+    });
+}
 </script>

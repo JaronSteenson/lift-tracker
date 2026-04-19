@@ -1,4 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json.Serialization;
 using LiftTrackerApi.Entities.Interfaces;
 
 namespace LiftTrackerApi.Entities;
@@ -13,6 +15,14 @@ public partial class RoutineExercise : DomainEntity, IPositionable, IValidatable
     public ProgressionScheme? ProgressionScheme { get; set; }
 
     public ProgressionScheme531Settings? ProgressionSchemeSettings { get; set; }
+
+    [JsonIgnore]
+    public int? RoutineExerciseRotationGroupId { get; set; }
+
+    public int? RotationGroupPosition { get; set; }
+
+    [NotMapped]
+    public Guid? RotationGroupUuid { get; set; }
 
     public int? WorkoutProgramRoutineId { get; set; }
 
@@ -29,6 +39,9 @@ public partial class RoutineExercise : DomainEntity, IPositionable, IValidatable
     public int? WarmUp { get; set; }
 
     public virtual WorkoutProgramRoutine? WorkoutProgramRoutine { get; set; }
+
+    [JsonIgnore]
+    public virtual RoutineExerciseRotationGroup? RoutineExerciseRotationGroup { get; set; }
 
     public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
     {

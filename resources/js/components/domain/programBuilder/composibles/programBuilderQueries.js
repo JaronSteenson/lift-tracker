@@ -17,8 +17,51 @@ const WORKOUT_PROGRAM_BY_ROUTINE_KEY = 'workoutProgramByRoutine';
 const NEW_WORKOUT_PROGRAM_KEY = 'new';
 const WORKOUT_PROGRAM_SAVE_MUTATION_KEY = ['workoutProgramSave'];
 
-function createDraftWorkoutProgram() {
+export function createDraftRotationGroup() {
     return {
+        uuid: UuidHelper.assign(),
+        nextExerciseIndex: 0,
+        createdAt: null,
+        updatedAt: null,
+    };
+}
+
+function normalizeExercise(exercise) {
+    return {
+        progressionScheme: null,
+        progressionSchemeSettings: null,
+        rotationGroupUuid: null,
+        rotationGroupPosition: null,
+        ...exercise,
+    };
+}
+
+function normalizeRoutine(routine) {
+    return {
+        ...routine,
+        routineExerciseRotationGroups:
+            routine?.routineExerciseRotationGroups ?? [],
+        routineExercises: (routine?.routineExercises ?? []).map(
+            normalizeExercise,
+        ),
+    };
+}
+
+function normalizeWorkoutProgram(workoutProgram) {
+    if (!workoutProgram) {
+        return workoutProgram;
+    }
+
+    return {
+        ...workoutProgram,
+        workoutProgramRoutines: (
+            workoutProgram.workoutProgramRoutines ?? []
+        ).map(normalizeRoutine),
+    };
+}
+
+function createDraftWorkoutProgram() {
+    return normalizeWorkoutProgram({
         uuid: null,
         name: 'New Program',
         workoutProgramRoutines: [
@@ -27,12 +70,13 @@ function createDraftWorkoutProgram() {
                 name: 'Workout 1',
                 normalDay: 'any',
                 position: 0,
+                routineExerciseRotationGroups: [],
                 routineExercises: [],
             },
         ],
         createdAt: null,
         updatedAt: null,
-    };
+    });
 }
 
 function getWorkoutProgramQueryKey(workoutProgramUuid) {
@@ -70,7 +114,7 @@ export function useWorkoutProgramList() {
         queryKey: [WORKOUT_PROGRAM_LIST_KEY],
         queryFn: async () => {
             const response = await WorkoutProgramService.getAll();
-            return response.data;
+            return (response.data ?? []).map(normalizeWorkoutProgram);
         },
     });
 
@@ -117,7 +161,7 @@ export function useWorkoutProgram(workoutProgramUuid = null) {
             }
 
             const response = await WorkoutProgramService.get(resolvedUuid);
-            return response.data;
+            return normalizeWorkoutProgram(response.data);
         },
         enabled: computed(() => !!toValue(uuid)),
         initialData: () => {
@@ -161,14 +205,17 @@ export function useWorkoutProgramByRoutine(routineUuid) {
             }
 
             const response = await WorkoutProgramService.getByRoutine(uuid);
-
-            // Also update the main workout program cache
-            queryClient.setQueryData(
-                [WORKOUT_PROGRAM_KEY, response.data.uuid],
+            const normalizedWorkoutProgram = normalizeWorkoutProgram(
                 response.data,
             );
 
-            return response.data;
+            // Also update the main workout program cache
+            queryClient.setQueryData(
+                [WORKOUT_PROGRAM_KEY, normalizedWorkoutProgram.uuid],
+                normalizedWorkoutProgram,
+            );
+
+            return normalizedWorkoutProgram;
         },
         enabled: computed(() => !!toValue(routineUuid)),
     });
@@ -396,18 +443,30 @@ export function useUpdateWorkoutProgram(routineUuid = null) {
         },
 
         onSuccess: (response, updatedWorkoutProgram, context) => {
-            // Update with server response
-            queryClient.setQueryData(context.queryKey, response.data);
-            queryClient.setQueryData(
-                getWorkoutProgramQueryKey(response.data.uuid),
+            const normalizedWorkoutProgram = normalizeWorkoutProgram(
                 response.data,
+            );
+            // Update with server response
+            queryClient.setQueryData(
+                context.queryKey,
+                normalizedWorkoutProgram,
+            );
+            queryClient.setQueryData(
+                getWorkoutProgramQueryKey(normalizedWorkoutProgram.uuid),
+                normalizedWorkoutProgram,
             );
             if (context.routineQueryKey) {
                 queryClient.setQueryData(
                     context.routineQueryKey,
-                    response.data,
+                    normalizedWorkoutProgram,
                 );
+                queryClient.invalidateQueries({
+                    queryKey: context.routineQueryKey,
+                });
             }
+            queryClient.invalidateQueries({
+                queryKey: context.queryKey,
+            });
             queryClient.invalidateQueries({
                 queryKey: [WORKOUT_PROGRAM_LIST_KEY],
             });
@@ -481,6 +540,8 @@ export function useUpdateWorkoutProgram(routineUuid = null) {
                 numberOfSets: 3,
                 progressionScheme: null,
                 progressionSchemeSettings: null,
+                rotationGroupUuid: null,
+                rotationGroupPosition: null,
                 restPeriod: 60,
                 warmUp: 60,
                 weight: null,
@@ -625,6 +686,7 @@ export function useUpdateWorkoutProgram(routineUuid = null) {
                 name: `Workout ${current.workoutProgramRoutines.length + 1}`,
                 normalDay: 'any',
                 position: current.workoutProgramRoutines.length,
+                routineExerciseRotationGroups: [],
                 routineExercises: [],
             };
 
