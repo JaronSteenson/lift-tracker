@@ -60,6 +60,22 @@ public class ExerciseControllerTests(WorkoutDbFixture fixture) : IClassFixture<W
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
     }
 
+    [Fact]
+    public async Task GetCycleProjection_AcceptsProgressionSchemeOverride_ForExistingExercise()
+    {
+        var response = await _client.GetAsync(
+            "/api/exercise/231f3f81-4680-4086-b228-168116ae330a/cycle-projection?progressionScheme=1&trainingMax=100&currentCycleWeek=1&bodyType=1"
+        );
+
+        response.EnsureSuccessStatusCode();
+        var json = await response.Content.ReadAsStringAsync();
+        var projection = JsonConvert.DeserializeObject<ExerciseCycleProjectionDto>(json);
+
+        projection.Should().NotBeNull();
+        projection!.ProgressionScheme.Should().Be(ProgressionScheme.FiveThreeOne);
+        projection.Weeks.Should().HaveCount(4);
+    }
+
     private async Task<(decimal? Weight, ProgressionScheme? Scheme, ProgressionScheme531Settings? Settings)> ConfigureFiveThreeOneExercise(
         Guid exerciseUuid,
         decimal trainingMax,
