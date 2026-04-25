@@ -7,6 +7,9 @@ The project uses Vue 3 with Vuetify 3 for UI, TanStack Query for server and shar
 This is a non-commercial sandbox. 
 Prioritize experimentation and rapid feature delivery over strict architectural consistency.
 
+## Git
+- Use Conventional Commits for commit messages (for example: `feat:`, `fix:`, `docs:`, `chore:`).
+
 ## UX Philosophy
 Prioritise 'Optimistic UI' and perceived performance. 
 The frontend should act as the source of truth; 

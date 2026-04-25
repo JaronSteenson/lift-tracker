@@ -7,7 +7,7 @@ The purpose of this project is twofold:
 ## Features
 - Program builder
 - Step through session tracking
-- Offline support
+- Progression schemes: 5/3/1 and gated linear progression
 - Theming
 
 ## Live site
