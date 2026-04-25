@@ -21,7 +21,7 @@ For save indicators, smooth rapid optimistic saves and hide secondary text on co
 
 ## Tech Stack
 - Frontend: Vue 3.5, Vuetify 3.7, tanstack/vue-query 5.92, Vue Router 4.5
-- Build: Vite, Node.js 22
+- Build: Vite, Node.js 24 (Node.js 25 tolerated locally)
 - Backend: .NET 9, ASP.NET Core, Entity Framework Core with MySQL
 - Authentication: Auth0
 - Testing: Vitest (frontend), xUnit (.NET)
