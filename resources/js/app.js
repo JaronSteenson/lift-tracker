@@ -1,7 +1,6 @@
 import { createApp } from 'vue';
 import router from './router/router';
 import { createVuetify, svgIcons } from './vuetify';
-import initRollbar from './rollbar/rollbar';
 import App from './components/App.vue';
 import 'vuetify/dist/vuetify.css';
 import './app.css';
@@ -15,7 +14,6 @@ import { bootstrapAuth } from './components/domain/auth/composables/useAuth';
 
 (async function () {
     initNewRelic();
-    initRollbar();
 
     if ('serviceWorker' in navigator) {
         await navigator.serviceWorker.register('/service-worker.js');

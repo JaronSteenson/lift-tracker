@@ -2,6 +2,10 @@ import Rollbar from 'rollbar';
 import config from '../../../config.json';
 
 export default function initRollbar() {
+    if (rollbar) {
+        return rollbar;
+    }
+
     if (!config.rollbarAccessToken) {
         return;
     }

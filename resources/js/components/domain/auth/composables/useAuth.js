@@ -3,7 +3,7 @@ import { computed } from 'vue';
 import { useQuery } from '@tanstack/vue-query';
 import { createAuth0Client } from '@auth0/auth0-spa-js';
 import config from '../../../../../../config.json';
-import { rollbar } from '../../../../rollbar/rollbar';
+import initRollbar, { rollbar } from '../../../../rollbar/rollbar';
 import { getSharedQueryClient } from '../../../../queryClient';
 
 const PROD_URL = 'https://lift-tracker.app';
@@ -162,6 +162,8 @@ async function bootstrapAuth0Client() {
 
         if (isAuthenticated) {
             user = { ...(await auth0Client.getUser()) };
+            initRollbar();
+            configureRollbarPerson({ ...user });
 
             const token = await auth0Client.getTokenSilently({
                 authorizationParams,
@@ -170,6 +172,7 @@ async function bootstrapAuth0Client() {
             setAxiosAuthorizationHeader(token);
         } else {
             setAxiosAuthorizationHeader(null);
+            configureRollbarPerson(null);
         }
 
         patchAuthState({
@@ -184,8 +187,6 @@ async function bootstrapAuth0Client() {
         if (clearQueryParams) {
             clearCurrentQueryParams();
         }
-
-        configureRollbarPerson(user ? { ...user } : null);
     } catch (error) {
         await reloadToRetryAuth(error);
     }
@@ -224,6 +225,7 @@ export async function logout() {
 
     await currentState.auth0Client?.logout();
     setAxiosAuthorizationHeader(null);
+    configureRollbarPerson(null);
 
     patchAuthState({
         ...currentState,
