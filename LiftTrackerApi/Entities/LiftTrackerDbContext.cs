@@ -118,13 +118,13 @@ public partial class LiftTrackerDbContext(
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         var progressionSchemeSettingsComparer =
-            new ValueComparer<ProgressionScheme531Settings?>(
+            new ValueComparer<ProgressionSchemeSettings?>(
                 (left, right) =>
                     JsonSerializer.Serialize(left, JsonSerializerOptions)
                     == JsonSerializer.Serialize(right, JsonSerializerOptions),
                 settings => JsonSerializer.Serialize(settings, JsonSerializerOptions).GetHashCode(),
                 settings =>
-                    JsonSerializer.Deserialize<ProgressionScheme531Settings>(
+                    JsonSerializer.Deserialize<ProgressionSchemeSettings>(
                         JsonSerializer.Serialize(settings, JsonSerializerOptions),
                         JsonSerializerOptions
                     )
@@ -154,7 +154,7 @@ public partial class LiftTrackerDbContext(
                     value =>
                         string.IsNullOrWhiteSpace(value)
                             ? null
-                            : JsonSerializer.Deserialize<ProgressionScheme531Settings>(
+                            : JsonSerializer.Deserialize<ProgressionSchemeSettings>(
                                 value,
                                 JsonSerializerOptions
                             )

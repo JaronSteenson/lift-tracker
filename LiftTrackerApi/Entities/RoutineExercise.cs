@@ -14,7 +14,7 @@ public partial class RoutineExercise : DomainEntity, IPositionable, IValidatable
 
     public ProgressionScheme? ProgressionScheme { get; set; }
 
-    public ProgressionScheme531Settings? ProgressionSchemeSettings { get; set; }
+    public ProgressionSchemeSettings? ProgressionSchemeSettings { get; set; }
 
     [JsonIgnore]
     public int? RoutineExerciseRotationGroupId { get; set; }
@@ -47,7 +47,8 @@ public partial class RoutineExercise : DomainEntity, IPositionable, IValidatable
     {
         return ProgressionSchemeValidation.ValidateRoutineExercise(
             ProgressionScheme,
-            ProgressionSchemeSettings
+            ProgressionSchemeSettings,
+            Weight
         );
     }
 }

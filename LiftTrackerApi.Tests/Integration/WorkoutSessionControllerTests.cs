@@ -384,6 +384,261 @@ public class WorkoutSessionControllerTests(WorkoutDbFixture fixture)
     }
 
     [Fact]
+    public async Task PostStart_GeneratesGatedLinearWorkoutWithStandardSets()
+    {
+        var exerciseUuid = Guid.Parse("231f3f81-4680-4086-b228-168116ae330a");
+        var originalExercise = await ConfigureGatedLinearExercise(
+            exerciseUuid,
+            100m,
+            2,
+            0,
+            8,
+            5m,
+            true,
+            2.5m
+        );
+        var movedSessions = await MoveTodayUnstartedSessionsOutOfMergeWindow();
+        Guid? createdSessionUuid = null;
+
+        try
+        {
+            var workoutSession = await StartWorkout(
+                Guid.Parse("cd218127-b60d-46a7-bbc1-a17332bea15f")
+            );
+
+            createdSessionUuid = workoutSession.Uuid;
+            var exercise = workoutSession.SessionExercises.Single();
+            exercise.ProgressionScheme.Should().Be(ProgressionScheme.GatedLinear);
+            exercise.SessionSets.Select(set => set.Weight).Should().Equal(100m, 100m, 100m);
+            exercise.SessionSets.Select(set => set.Reps).Should().OnlyContain(reps => reps == null);
+            exercise.SessionSets.First().StartedAt.Should().NotBeNull();
+        }
+        finally
+        {
+            await RestoreRoutineExerciseState(exerciseUuid, originalExercise);
+            await RestoreMovedSessions(movedSessions);
+            await DeleteWorkoutSession(createdSessionUuid);
+        }
+    }
+
+    [Fact]
+    public async Task Put_TracksGatedLinearConsecutiveSuccessAndIncrementsWeightAtThreshold()
+    {
+        var exerciseUuid = Guid.Parse("231f3f81-4680-4086-b228-168116ae330a");
+        var originalExercise = await ConfigureGatedLinearExercise(
+            exerciseUuid,
+            100m,
+            2,
+            0,
+            8,
+            5m,
+            true,
+            2.5m
+        );
+        var movedSessions = await MoveTodayUnstartedSessionsOutOfMergeWindow();
+        Guid? firstSessionUuid = null;
+        Guid? secondSessionUuid = null;
+
+        try
+        {
+            var firstSession = await StartWorkout(Guid.Parse("cd218127-b60d-46a7-bbc1-a17332bea15f"));
+            firstSessionUuid = firstSession.Uuid;
+            ApplySetMetrics(firstSession, 100m, 5m, 8);
+            firstSession.EndedAt = DateTime.Parse("2026-04-18T10:00:00Z");
+
+            var firstUpdateResponse = await _client.PutAsync(
+                "/api/workout-sessions",
+                new StringContent(
+                    JsonConvert.SerializeObject(firstSession),
+                    Encoding.UTF8,
+                    "application/json"
+                )
+            );
+            firstUpdateResponse.EnsureSuccessStatusCode();
+
+            await AssertGatedLinearProgression(exerciseUuid, 100m, 1);
+
+            var secondSession = await StartWorkout(
+                Guid.Parse("cd218127-b60d-46a7-bbc1-a17332bea15f")
+            );
+            secondSessionUuid = secondSession.Uuid;
+            ApplySetMetrics(secondSession, 100m, 5m, 8);
+            secondSession.EndedAt = DateTime.Parse("2026-04-19T10:00:00Z");
+
+            var secondUpdateResponse = await _client.PutAsync(
+                "/api/workout-sessions",
+                new StringContent(
+                    JsonConvert.SerializeObject(secondSession),
+                    Encoding.UTF8,
+                    "application/json"
+                )
+            );
+            secondUpdateResponse.EnsureSuccessStatusCode();
+
+            await AssertGatedLinearProgression(exerciseUuid, 102.5m, 0);
+        }
+        finally
+        {
+            await RestoreRoutineExerciseState(exerciseUuid, originalExercise);
+            await RestoreMovedSessions(movedSessions);
+            await DeleteWorkoutSession(firstSessionUuid);
+            await DeleteWorkoutSession(secondSessionUuid);
+        }
+    }
+
+    [Fact]
+    public async Task Put_ResetsGatedLinearStreak_WhenEnabledMetricIsMissing()
+    {
+        var exerciseUuid = Guid.Parse("231f3f81-4680-4086-b228-168116ae330a");
+        var originalExercise = await ConfigureGatedLinearExercise(
+            exerciseUuid,
+            100m,
+            3,
+            1,
+            8,
+            5m,
+            true,
+            2.5m
+        );
+        var movedSessions = await MoveTodayUnstartedSessionsOutOfMergeWindow();
+        Guid? createdSessionUuid = null;
+
+        try
+        {
+            var startedSession = await StartWorkout(
+                Guid.Parse("cd218127-b60d-46a7-bbc1-a17332bea15f")
+            );
+            createdSessionUuid = startedSession.Uuid;
+            ApplySetMetrics(startedSession, 100m, 5m, 8);
+            startedSession.SessionExercises.Single().SessionSets.First().Rpe = null;
+            startedSession.EndedAt = DateTime.Parse("2026-04-18T10:00:00Z");
+
+            var updateResponse = await _client.PutAsync(
+                "/api/workout-sessions",
+                new StringContent(
+                    JsonConvert.SerializeObject(startedSession),
+                    Encoding.UTF8,
+                    "application/json"
+                )
+            );
+            updateResponse.EnsureSuccessStatusCode();
+
+            await AssertGatedLinearProgression(exerciseUuid, 100m, 0);
+        }
+        finally
+        {
+            await RestoreRoutineExerciseState(exerciseUuid, originalExercise);
+            await RestoreMovedSessions(movedSessions);
+            await DeleteWorkoutSession(createdSessionUuid);
+        }
+    }
+
+    [Fact]
+    public async Task Put_ResetsGatedLinearStreak_WhenASetWeightFallsBelowCurrentWeight()
+    {
+        var exerciseUuid = Guid.Parse("231f3f81-4680-4086-b228-168116ae330a");
+        var originalExercise = await ConfigureGatedLinearExercise(
+            exerciseUuid,
+            100m,
+            3,
+            1,
+            null,
+            5m,
+            true,
+            2.5m
+        );
+        var movedSessions = await MoveTodayUnstartedSessionsOutOfMergeWindow();
+        Guid? createdSessionUuid = null;
+
+        try
+        {
+            var startedSession = await StartWorkout(
+                Guid.Parse("cd218127-b60d-46a7-bbc1-a17332bea15f")
+            );
+            createdSessionUuid = startedSession.Uuid;
+            ApplySetMetrics(startedSession, 100m, 5m, null);
+            startedSession.SessionExercises.Single().SessionSets.First().Weight = 97.5m;
+            startedSession.EndedAt = DateTime.Parse("2026-04-18T10:00:00Z");
+
+            var updateResponse = await _client.PutAsync(
+                "/api/workout-sessions",
+                new StringContent(
+                    JsonConvert.SerializeObject(startedSession),
+                    Encoding.UTF8,
+                    "application/json"
+                )
+            );
+            updateResponse.EnsureSuccessStatusCode();
+
+            await AssertGatedLinearProgression(exerciseUuid, 100m, 0);
+        }
+        finally
+        {
+            await RestoreRoutineExerciseState(exerciseUuid, originalExercise);
+            await RestoreMovedSessions(movedSessions);
+            await DeleteWorkoutSession(createdSessionUuid);
+        }
+    }
+
+    [Fact]
+    public async Task Put_AdvancesGatedLinearOnlyWhenSessionTransitionsToCompleted()
+    {
+        var exerciseUuid = Guid.Parse("231f3f81-4680-4086-b228-168116ae330a");
+        var originalExercise = await ConfigureGatedLinearExercise(
+            exerciseUuid,
+            100m,
+            1,
+            0,
+            null,
+            5m,
+            true,
+            2.5m
+        );
+        var movedSessions = await MoveTodayUnstartedSessionsOutOfMergeWindow();
+        Guid? createdSessionUuid = null;
+
+        try
+        {
+            var startedSession = await StartWorkout(
+                Guid.Parse("cd218127-b60d-46a7-bbc1-a17332bea15f")
+            );
+            createdSessionUuid = startedSession.Uuid;
+            ApplySetMetrics(startedSession, 100m, 5m, null);
+            startedSession.EndedAt = DateTime.Parse("2026-04-18T10:00:00Z");
+
+            var firstUpdateResponse = await _client.PutAsync(
+                "/api/workout-sessions",
+                new StringContent(
+                    JsonConvert.SerializeObject(startedSession),
+                    Encoding.UTF8,
+                    "application/json"
+                )
+            );
+            firstUpdateResponse.EnsureSuccessStatusCode();
+
+            await AssertGatedLinearProgression(exerciseUuid, 102.5m, 0);
+
+            var secondUpdateResponse = await _client.PutAsync(
+                "/api/workout-sessions",
+                new StringContent(
+                    JsonConvert.SerializeObject(startedSession),
+                    Encoding.UTF8,
+                    "application/json"
+                )
+            );
+            secondUpdateResponse.EnsureSuccessStatusCode();
+
+            await AssertGatedLinearProgression(exerciseUuid, 102.5m, 0);
+        }
+        finally
+        {
+            await RestoreRoutineExerciseState(exerciseUuid, originalExercise);
+            await RestoreMovedSessions(movedSessions);
+            await DeleteWorkoutSession(createdSessionUuid);
+        }
+    }
+
+    [Fact]
     public async Task PostStart_KeepsTheCurrentRotationMemberUntilWorkoutIsCompleted()
     {
         var movedSessions = await MoveTodayUnstartedSessionsOutOfMergeWindow();
@@ -605,7 +860,7 @@ public class WorkoutSessionControllerTests(WorkoutDbFixture fixture)
         Assert.Single(squatsSets);
     }
 
-    private async Task<(decimal? Weight, ProgressionScheme? Scheme, ProgressionScheme531Settings? Settings)> ConfigureFiveThreeOneExercise(
+    private async Task<(decimal? Weight, ProgressionScheme? Scheme, ProgressionSchemeSettings? Settings)> ConfigureFiveThreeOneExercise(
         Guid exerciseUuid,
         decimal trainingMax,
         int currentCycleWeek,
@@ -618,13 +873,7 @@ public class WorkoutSessionControllerTests(WorkoutDbFixture fixture)
         var original = (
             exercise.Weight,
             exercise.ProgressionScheme,
-            exercise.ProgressionSchemeSettings == null
-                ? null
-                : new ProgressionScheme531Settings
-                {
-                    CurrentCycleWeek = exercise.ProgressionSchemeSettings.CurrentCycleWeek,
-                    BodyType = exercise.ProgressionSchemeSettings.BodyType,
-                }
+            exercise.ProgressionSchemeSettings?.Clone()
         );
         exercise.Weight = trainingMax;
         exercise.ProgressionScheme = ProgressionScheme.FiveThreeOne;
@@ -646,13 +895,14 @@ public class WorkoutSessionControllerTests(WorkoutDbFixture fixture)
         using var scope = fixture.Factory.Services.CreateScope();
         var db = scope.ServiceProvider.GetRequiredService<LiftTrackerDbContext>();
         var exercise = await db.RoutineExercises.WhereUuid(exerciseUuid).FirstAsync();
+        var settings = AssertFiveThreeOneSettings(exercise.ProgressionSchemeSettings);
         exercise.Weight.Should().Be(expectedTrainingMax);
-        exercise.ProgressionSchemeSettings!.CurrentCycleWeek.Should().Be(expectedCycleWeek);
+        settings.CurrentCycleWeek.Should().Be(expectedCycleWeek);
     }
 
     private async Task RestoreFiveThreeOneExercise(
         Guid exerciseUuid,
-        (decimal? Weight, ProgressionScheme? Scheme, ProgressionScheme531Settings? Settings) originalExercise
+        (decimal? Weight, ProgressionScheme? Scheme, ProgressionSchemeSettings? Settings) originalExercise
     )
     {
         using var scope = fixture.Factory.Services.CreateScope();
@@ -660,14 +910,101 @@ public class WorkoutSessionControllerTests(WorkoutDbFixture fixture)
         var exercise = await db.RoutineExercises.WhereUuid(exerciseUuid).FirstAsync();
         exercise.Weight = originalExercise.Weight;
         exercise.ProgressionScheme = originalExercise.Scheme;
-        exercise.ProgressionSchemeSettings = originalExercise.Settings == null
-            ? null
-            : new ProgressionScheme531Settings
-            {
-                CurrentCycleWeek = originalExercise.Settings.CurrentCycleWeek,
-                BodyType = originalExercise.Settings.BodyType,
-            };
+        exercise.ProgressionSchemeSettings = originalExercise.Settings?.Clone();
         await db.SaveChangesAsync();
+    }
+
+    private async Task<(decimal? Weight, ProgressionScheme? Scheme, ProgressionSchemeSettings? Settings)> ConfigureGatedLinearExercise(
+        Guid exerciseUuid,
+        decimal weight,
+        int requiredSuccessStreak,
+        int currentSuccessStreak,
+        int? targetRpe,
+        decimal? targetReps,
+        bool useWeightGate,
+        decimal incrementBy
+    )
+    {
+        using var scope = fixture.Factory.Services.CreateScope();
+        var db = scope.ServiceProvider.GetRequiredService<LiftTrackerDbContext>();
+        var exercise = await db.RoutineExercises.WhereUuid(exerciseUuid).FirstAsync();
+        var original = (
+            exercise.Weight,
+            exercise.ProgressionScheme,
+            exercise.ProgressionSchemeSettings?.Clone()
+        );
+        exercise.Weight = weight;
+        exercise.ProgressionScheme = ProgressionScheme.GatedLinear;
+        exercise.ProgressionSchemeSettings = new ProgressionSchemeGatedLinearSettings
+        {
+            RequiredSuccessStreak = requiredSuccessStreak,
+            CurrentSuccessStreak = currentSuccessStreak,
+            TargetRpe = targetRpe,
+            TargetReps = targetReps,
+            UseWeightGate = useWeightGate,
+            IncrementBy = incrementBy,
+        };
+        await db.SaveChangesAsync();
+        return original;
+    }
+
+    private async Task AssertGatedLinearProgression(
+        Guid exerciseUuid,
+        decimal expectedWeight,
+        int expectedCurrentSuccessStreak
+    )
+    {
+        using var scope = fixture.Factory.Services.CreateScope();
+        var db = scope.ServiceProvider.GetRequiredService<LiftTrackerDbContext>();
+        var exercise = await db.RoutineExercises.WhereUuid(exerciseUuid).FirstAsync();
+        var settings = AssertGatedLinearSettings(exercise.ProgressionSchemeSettings);
+        exercise.Weight.Should().Be(expectedWeight);
+        settings.CurrentSuccessStreak.Should().Be(expectedCurrentSuccessStreak);
+    }
+
+    private async Task RestoreRoutineExerciseState(
+        Guid exerciseUuid,
+        (decimal? Weight, ProgressionScheme? Scheme, ProgressionSchemeSettings? Settings) originalExercise
+    )
+    {
+        using var scope = fixture.Factory.Services.CreateScope();
+        var db = scope.ServiceProvider.GetRequiredService<LiftTrackerDbContext>();
+        var exercise = await db.RoutineExercises.WhereUuid(exerciseUuid).FirstAsync();
+        exercise.Weight = originalExercise.Weight;
+        exercise.ProgressionScheme = originalExercise.Scheme;
+        exercise.ProgressionSchemeSettings = originalExercise.Settings?.Clone();
+        await db.SaveChangesAsync();
+    }
+
+    private static void ApplySetMetrics(
+        WorkoutSessionDto workoutSession,
+        decimal weight,
+        decimal reps,
+        int? rpe
+    )
+    {
+        foreach (var sessionSet in workoutSession.SessionExercises.Single().SessionSets)
+        {
+            sessionSet.Weight = weight;
+            sessionSet.Reps = reps;
+            sessionSet.Rpe = rpe;
+        }
+    }
+
+    private static ProgressionScheme531Settings AssertFiveThreeOneSettings(
+        ProgressionSchemeSettings? settings
+    )
+    {
+        settings.Should().BeOfType<ProgressionScheme531Settings>();
+        return (ProgressionScheme531Settings)settings!;
+    }
+
+    private static ProgressionSchemeGatedLinearSettings AssertGatedLinearSettings(
+        ProgressionSchemeSettings? settings
+    )
+    {
+        settings.Should().BeOfType<ProgressionSchemeGatedLinearSettings>();
+        return (ProgressionSchemeGatedLinearSettings)settings!;
     }
 
     private async Task<List<(Guid Uuid, DateTime? CreatedAt)>> MoveTodayUnstartedSessionsOutOfMergeWindow()

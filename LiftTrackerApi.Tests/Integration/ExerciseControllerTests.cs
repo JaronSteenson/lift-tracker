@@ -76,7 +76,7 @@ public class ExerciseControllerTests(WorkoutDbFixture fixture) : IClassFixture<W
         projection.Weeks.Should().HaveCount(4);
     }
 
-    private async Task<(decimal? Weight, ProgressionScheme? Scheme, ProgressionScheme531Settings? Settings)> ConfigureFiveThreeOneExercise(
+    private async Task<(decimal? Weight, ProgressionScheme? Scheme, ProgressionSchemeSettings? Settings)> ConfigureFiveThreeOneExercise(
         Guid exerciseUuid,
         decimal trainingMax,
         int currentCycleWeek,
@@ -89,13 +89,7 @@ public class ExerciseControllerTests(WorkoutDbFixture fixture) : IClassFixture<W
         var original = (
             exercise.Weight,
             exercise.ProgressionScheme,
-            exercise.ProgressionSchemeSettings == null
-                ? null
-                : new ProgressionScheme531Settings
-                {
-                    CurrentCycleWeek = exercise.ProgressionSchemeSettings.CurrentCycleWeek,
-                    BodyType = exercise.ProgressionSchemeSettings.BodyType,
-                }
+            exercise.ProgressionSchemeSettings?.Clone()
         );
         exercise.Weight = trainingMax;
         exercise.ProgressionScheme = ProgressionScheme.FiveThreeOne;
@@ -110,7 +104,7 @@ public class ExerciseControllerTests(WorkoutDbFixture fixture) : IClassFixture<W
 
     private async Task RestoreFiveThreeOneExercise(
         Guid exerciseUuid,
-        (decimal? Weight, ProgressionScheme? Scheme, ProgressionScheme531Settings? Settings) originalExercise
+        (decimal? Weight, ProgressionScheme? Scheme, ProgressionSchemeSettings? Settings) originalExercise
     )
     {
         using var scope = _fixture.Factory.Services.CreateScope();
@@ -118,13 +112,7 @@ public class ExerciseControllerTests(WorkoutDbFixture fixture) : IClassFixture<W
         var exercise = await db.RoutineExercises.WhereUuid(exerciseUuid).FirstAsync();
         exercise.Weight = originalExercise.Weight;
         exercise.ProgressionScheme = originalExercise.Scheme;
-        exercise.ProgressionSchemeSettings = originalExercise.Settings == null
-            ? null
-            : new ProgressionScheme531Settings
-            {
-                CurrentCycleWeek = originalExercise.Settings.CurrentCycleWeek,
-                BodyType = originalExercise.Settings.BodyType,
-            };
+        exercise.ProgressionSchemeSettings = originalExercise.Settings?.Clone();
         await db.SaveChangesAsync();
     }
 }

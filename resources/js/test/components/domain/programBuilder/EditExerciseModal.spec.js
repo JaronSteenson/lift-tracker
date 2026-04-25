@@ -142,6 +142,82 @@ describe('EditExerciseModal', () => {
         expect(projectionQueryArgs[0].bodyType.value).toBe(1);
     });
 
+    test('switches to gated linear defaults and disables the 531 projection query', async () => {
+        const wrapper = shallowMount(EditExerciseModal, {
+            ...prepareForLocalVueMount(),
+            props: {
+                value: true,
+                routineExerciseUuid: 'exercise-1',
+                routineUuid: 'routine-1',
+                workoutProgramUuid: 'program-1',
+            },
+        });
+
+        await flushPromises();
+
+        wrapper.vm.progressionScheme = 2;
+        await flushPromises();
+
+        expect(wrapper.vm.schemeConfig.weightLabel).toBe('Weight');
+        expect(wrapper.vm.schemeConfig.lockReps).toBe(false);
+        expect(wrapper.vm.progressionSchemeSettings).toEqual({
+            requiredSuccessStreak: 1,
+            currentSuccessStreak: 0,
+            targetRpe: null,
+            targetReps: null,
+            useWeightGate: true,
+            incrementBy: 2.5,
+        });
+        expect(projectionQueryArgs[0].enabled.value).toBe(false);
+    });
+
+    test('saves gated linear settings through the whole-program mutation', async () => {
+        const wrapper = shallowMount(EditExerciseModal, {
+            ...prepareForLocalVueMount(),
+            props: {
+                value: true,
+                routineExerciseUuid: 'exercise-1',
+                routineUuid: 'routine-1',
+                workoutProgramUuid: 'program-1',
+            },
+        });
+
+        await flushPromises();
+
+        wrapper.vm.progressionScheme = 2;
+        wrapper.vm.progressionSchemeSettings = {
+            requiredSuccessStreak: 3,
+            currentSuccessStreak: 1,
+            targetRpe: 8,
+            targetReps: 5,
+            useWeightGate: true,
+            incrementBy: 2.5,
+        };
+        wrapper.vm.closeModal();
+
+        expect(updateWorkoutProgram).toHaveBeenCalledWith('program-1', {
+            workoutProgramRoutines: [
+                expect.objectContaining({
+                    uuid: 'routine-1',
+                    routineExercises: [
+                        expect.objectContaining({
+                            uuid: 'exercise-1',
+                            progressionScheme: 2,
+                            progressionSchemeSettings: {
+                                requiredSuccessStreak: 3,
+                                currentSuccessStreak: 1,
+                                targetRpe: 8,
+                                targetReps: 5,
+                                useWeightGate: true,
+                                incrementBy: 2.5,
+                            },
+                        }),
+                    ],
+                }),
+            ],
+        });
+    });
+
     test('creates a new rotation group and saves its membership through the whole-program mutation', async () => {
         const wrapper = shallowMount(EditExerciseModal, {
             ...prepareForLocalVueMount(),

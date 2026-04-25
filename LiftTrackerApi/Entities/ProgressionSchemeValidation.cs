@@ -6,7 +6,8 @@ public static class ProgressionSchemeValidation
 {
     public static IEnumerable<ValidationResult> ValidateRoutineExercise(
         ProgressionScheme? progressionScheme,
-        ProgressionScheme531Settings? progressionSchemeSettings,
+        ProgressionSchemeSettings? progressionSchemeSettings,
+        decimal? weight,
         string settingsMemberName = nameof(RoutineExercise.ProgressionSchemeSettings)
     )
     {
@@ -32,20 +33,84 @@ public static class ProgressionSchemeValidation
             yield break;
         }
 
-        if (progressionScheme != ProgressionScheme.FiveThreeOne)
+        switch (progressionScheme)
         {
-            yield break;
-        }
+            case ProgressionScheme.FiveThreeOne:
+                if (progressionSchemeSettings is not ProgressionScheme531Settings fiveThreeOneSettings)
+                {
+                    yield return new ValidationResult(
+                        "531 progression scheme settings are required.",
+                        [settingsMemberName]
+                    );
+                    yield break;
+                }
 
-        if (progressionSchemeSettings == null)
+                foreach (
+                    var validationResult in ValidateProgressionSettings(
+                        fiveThreeOneSettings,
+                        settingsMemberName
+                    )
+                )
+                {
+                    yield return validationResult;
+                }
+
+                yield break;
+            case ProgressionScheme.GatedLinear:
+                if (
+                    progressionSchemeSettings is not ProgressionSchemeGatedLinearSettings gatedLinearSettings
+                )
+                {
+                    yield return new ValidationResult(
+                        "Gated linear progression settings are required.",
+                        [settingsMemberName]
+                    );
+                    yield break;
+                }
+
+                foreach (
+                    var validationResult in ValidateProgressionSettings(
+                        gatedLinearSettings,
+                        settingsMemberName
+                    )
+                )
+                {
+                    yield return validationResult;
+                }
+
+                if (weight == null)
+                {
+                    yield return new ValidationResult(
+                        "Weight is required for gated linear progression.",
+                        [nameof(RoutineExercise.Weight)]
+                    );
+                }
+
+                yield break;
+            default:
+                yield break;
+        }
+    }
+
+    public static IEnumerable<ValidationResult> ValidateSessionExercise(
+        ProgressionScheme? progressionScheme,
+        string schemeMemberName
+    )
+    {
+        if (progressionScheme != null && !Enum.IsDefined(progressionScheme.Value))
         {
             yield return new ValidationResult(
-                "531 progression scheme settings are required.",
-                [settingsMemberName]
+                "Progression scheme is invalid.",
+                [schemeMemberName]
             );
-            yield break;
         }
+    }
 
+    private static IEnumerable<ValidationResult> ValidateProgressionSettings(
+        ProgressionSchemeSettings progressionSchemeSettings,
+        string settingsMemberName
+    )
+    {
         var validationContext = new ValidationContext(progressionSchemeSettings);
         var validationResults = new List<ValidationResult>();
         Validator.TryValidateObject(
@@ -61,20 +126,6 @@ public static class ProgressionSchemeValidation
                 ? validationResult.MemberNames.Select(memberName => $"{settingsMemberName}.{memberName}")
                 : [settingsMemberName];
             yield return new ValidationResult(validationResult.ErrorMessage, memberNames);
-        }
-    }
-
-    public static IEnumerable<ValidationResult> ValidateSessionExercise(
-        ProgressionScheme? progressionScheme,
-        string schemeMemberName
-    )
-    {
-        if (progressionScheme != null && !Enum.IsDefined(progressionScheme.Value))
-        {
-            yield return new ValidationResult(
-                "Progression scheme is invalid.",
-                [schemeMemberName]
-            );
         }
     }
 }

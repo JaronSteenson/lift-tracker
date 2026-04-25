@@ -572,7 +572,7 @@ public class WorkoutSessionService(
             }
 
             var strategy = progressionSchemeRegistry.GetRequiredStrategy(sessionExercise.ProgressionScheme);
-            strategy.Advance(routineExercise);
+            strategy.Advance(sessionExercise, routineExercise);
         }
     }
 

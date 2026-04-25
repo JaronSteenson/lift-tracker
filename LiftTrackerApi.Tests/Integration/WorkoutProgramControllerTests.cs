@@ -238,12 +238,11 @@ public class WorkoutProgramControllerTests(WorkoutDbFixture fixture)
             var updatedExercise = updatedWorkoutProgram!.WorkoutProgramRoutines
                 .Single(routine => routine.Uuid == Guid.Parse("cd218127-b60d-46a7-bbc1-a17332bea15f"))
                 .RoutineExercises.Single();
+            var settings = AssertFiveThreeOneSettings(updatedExercise.ProgressionSchemeSettings);
 
             updatedExercise.ProgressionScheme.Should().Be(ProgressionScheme.FiveThreeOne);
-            updatedExercise.ProgressionSchemeSettings!.CurrentCycleWeek.Should().Be(2);
-            updatedExercise.ProgressionSchemeSettings.BodyType.Should().Be(
-                ProgressionScheme531BodyType.Upper
-            );
+            settings.CurrentCycleWeek.Should().Be(2);
+            settings.BodyType.Should().Be(ProgressionScheme531BodyType.Upper);
         }
         finally
         {
@@ -279,6 +278,240 @@ public class WorkoutProgramControllerTests(WorkoutDbFixture fixture)
             var updateResponse = await _client.PutAsync("/api/workout-programs", content);
 
             updateResponse.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+        }
+        finally
+        {
+            await RestoreRoutineExerciseState(exerciseUuid, originalExercise);
+        }
+    }
+
+    [Fact]
+    public async Task Put_SavesGatedLinearProgressionFields()
+    {
+        var exerciseUuid = Guid.Parse("231f3f81-4680-4086-b228-168116ae330a");
+        var originalExercise = await CaptureRoutineExerciseState(exerciseUuid);
+
+        try
+        {
+            var response = await _client.GetAsync(
+                "/api/workout-programs/186383a6-e369-4071-b80d-70c82d2495d1"
+            );
+            response.EnsureSuccessStatusCode();
+            var json = await response.Content.ReadAsStringAsync();
+            var workoutProgram = JsonConvert.DeserializeObject<WorkoutProgram>(json);
+
+            var exercise = workoutProgram!.WorkoutProgramRoutines
+                .Single(routine => routine.Uuid == Guid.Parse("cd218127-b60d-46a7-bbc1-a17332bea15f"))
+                .RoutineExercises.Single();
+            exercise.ProgressionScheme = ProgressionScheme.GatedLinear;
+            exercise.ProgressionSchemeSettings = new ProgressionSchemeGatedLinearSettings
+            {
+                RequiredSuccessStreak = 2,
+                CurrentSuccessStreak = 1,
+                TargetRpe = 8,
+                TargetReps = 10m,
+                UseWeightGate = true,
+                IncrementBy = 2.5m,
+            };
+            exercise.Weight = 100m;
+
+            var requestJson = JsonConvert.SerializeObject(workoutProgram);
+            var content = new StringContent(requestJson, Encoding.UTF8, "application/json");
+
+            var updateResponse = await _client.PutAsync("/api/workout-programs", content);
+
+            updateResponse.EnsureSuccessStatusCode();
+            var updatedJson = await updateResponse.Content.ReadAsStringAsync();
+            var updatedWorkoutProgram = JsonConvert.DeserializeObject<WorkoutProgram>(updatedJson);
+            var updatedExercise = updatedWorkoutProgram!.WorkoutProgramRoutines
+                .Single(routine => routine.Uuid == Guid.Parse("cd218127-b60d-46a7-bbc1-a17332bea15f"))
+                .RoutineExercises.Single();
+            var settings = AssertGatedLinearSettings(updatedExercise.ProgressionSchemeSettings);
+
+            updatedExercise.ProgressionScheme.Should().Be(ProgressionScheme.GatedLinear);
+            settings.RequiredSuccessStreak.Should().Be(2);
+            settings.CurrentSuccessStreak.Should().Be(0);
+            settings.TargetRpe.Should().Be(8);
+            settings.TargetReps.Should().Be(10m);
+            settings.UseWeightGate.Should().BeTrue();
+            settings.IncrementBy.Should().Be(2.5m);
+        }
+        finally
+        {
+            await RestoreRoutineExerciseState(exerciseUuid, originalExercise);
+        }
+    }
+
+    [Fact]
+    public async Task Put_ReturnsBadRequest_WhenGatedLinearSettingsAreMissing()
+    {
+        var exerciseUuid = Guid.Parse("231f3f81-4680-4086-b228-168116ae330a");
+        var originalExercise = await CaptureRoutineExerciseState(exerciseUuid);
+
+        try
+        {
+            var response = await _client.GetAsync(
+                "/api/workout-programs/186383a6-e369-4071-b80d-70c82d2495d1"
+            );
+            response.EnsureSuccessStatusCode();
+            var json = await response.Content.ReadAsStringAsync();
+            var workoutProgram = JsonConvert.DeserializeObject<WorkoutProgram>(json);
+
+            var exercise = workoutProgram!.WorkoutProgramRoutines
+                .Single(routine => routine.Uuid == Guid.Parse("cd218127-b60d-46a7-bbc1-a17332bea15f"))
+                .RoutineExercises.Single();
+            exercise.ProgressionScheme = ProgressionScheme.GatedLinear;
+            exercise.ProgressionSchemeSettings = null;
+            exercise.Weight = 100m;
+
+            var requestJson = JsonConvert.SerializeObject(workoutProgram);
+            var content = new StringContent(requestJson, Encoding.UTF8, "application/json");
+
+            var updateResponse = await _client.PutAsync("/api/workout-programs", content);
+
+            updateResponse.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+        }
+        finally
+        {
+            await RestoreRoutineExerciseState(exerciseUuid, originalExercise);
+        }
+    }
+
+    [Fact]
+    public async Task Put_ReturnsBadRequest_WhenGatedLinearWeightIsMissing()
+    {
+        var exerciseUuid = Guid.Parse("231f3f81-4680-4086-b228-168116ae330a");
+        var originalExercise = await CaptureRoutineExerciseState(exerciseUuid);
+
+        try
+        {
+            var response = await _client.GetAsync(
+                "/api/workout-programs/186383a6-e369-4071-b80d-70c82d2495d1"
+            );
+            response.EnsureSuccessStatusCode();
+            var json = await response.Content.ReadAsStringAsync();
+            var workoutProgram = JsonConvert.DeserializeObject<WorkoutProgram>(json);
+
+            var exercise = workoutProgram!.WorkoutProgramRoutines
+                .Single(routine => routine.Uuid == Guid.Parse("cd218127-b60d-46a7-bbc1-a17332bea15f"))
+                .RoutineExercises.Single();
+            exercise.ProgressionScheme = ProgressionScheme.GatedLinear;
+            exercise.ProgressionSchemeSettings = new ProgressionSchemeGatedLinearSettings
+            {
+                RequiredSuccessStreak = 2,
+                CurrentSuccessStreak = 1,
+                TargetRpe = 8,
+                TargetReps = 10m,
+                UseWeightGate = true,
+                IncrementBy = 2.5m,
+            };
+            exercise.Weight = null;
+
+            var requestJson = JsonConvert.SerializeObject(workoutProgram);
+            var content = new StringContent(requestJson, Encoding.UTF8, "application/json");
+
+            var updateResponse = await _client.PutAsync("/api/workout-programs", content);
+
+            updateResponse.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+        }
+        finally
+        {
+            await RestoreRoutineExerciseState(exerciseUuid, originalExercise);
+        }
+    }
+
+    [Fact]
+    public async Task Put_PreservesGatedLinearStreak_WhenRulesDoNotChange()
+    {
+        var exerciseUuid = Guid.Parse("231f3f81-4680-4086-b228-168116ae330a");
+        var originalExercise = await ConfigureGatedLinearExercise(
+            exerciseUuid,
+            100m,
+            3,
+            2,
+            8,
+            5m,
+            true,
+            2.5m
+        );
+
+        try
+        {
+            var response = await _client.GetAsync(
+                "/api/workout-programs/186383a6-e369-4071-b80d-70c82d2495d1"
+            );
+            response.EnsureSuccessStatusCode();
+            var json = await response.Content.ReadAsStringAsync();
+            var workoutProgram = JsonConvert.DeserializeObject<WorkoutProgram>(json);
+
+            var exercise = workoutProgram!.WorkoutProgramRoutines
+                .Single(routine => routine.Uuid == Guid.Parse("cd218127-b60d-46a7-bbc1-a17332bea15f"))
+                .RoutineExercises.Single();
+
+            var requestJson = JsonConvert.SerializeObject(workoutProgram);
+            var content = new StringContent(requestJson, Encoding.UTF8, "application/json");
+
+            var updateResponse = await _client.PutAsync("/api/workout-programs", content);
+
+            updateResponse.EnsureSuccessStatusCode();
+            var updatedJson = await updateResponse.Content.ReadAsStringAsync();
+            var updatedWorkoutProgram = JsonConvert.DeserializeObject<WorkoutProgram>(updatedJson);
+            var updatedExercise = updatedWorkoutProgram!.WorkoutProgramRoutines
+                .Single(routine => routine.Uuid == Guid.Parse("cd218127-b60d-46a7-bbc1-a17332bea15f"))
+                .RoutineExercises.Single();
+            var settings = AssertGatedLinearSettings(updatedExercise.ProgressionSchemeSettings);
+
+            settings.CurrentSuccessStreak.Should().Be(2);
+        }
+        finally
+        {
+            await RestoreRoutineExerciseState(exerciseUuid, originalExercise);
+        }
+    }
+
+    [Fact]
+    public async Task Put_ResetsGatedLinearStreak_WhenRulesChange()
+    {
+        var exerciseUuid = Guid.Parse("231f3f81-4680-4086-b228-168116ae330a");
+        var originalExercise = await ConfigureGatedLinearExercise(
+            exerciseUuid,
+            100m,
+            3,
+            2,
+            8,
+            5m,
+            true,
+            2.5m
+        );
+
+        try
+        {
+            var response = await _client.GetAsync(
+                "/api/workout-programs/186383a6-e369-4071-b80d-70c82d2495d1"
+            );
+            response.EnsureSuccessStatusCode();
+            var json = await response.Content.ReadAsStringAsync();
+            var workoutProgram = JsonConvert.DeserializeObject<WorkoutProgram>(json);
+
+            var exercise = workoutProgram!.WorkoutProgramRoutines
+                .Single(routine => routine.Uuid == Guid.Parse("cd218127-b60d-46a7-bbc1-a17332bea15f"))
+                .RoutineExercises.Single();
+            exercise.Weight = 102.5m;
+
+            var requestJson = JsonConvert.SerializeObject(workoutProgram);
+            var content = new StringContent(requestJson, Encoding.UTF8, "application/json");
+
+            var updateResponse = await _client.PutAsync("/api/workout-programs", content);
+
+            updateResponse.EnsureSuccessStatusCode();
+            var updatedJson = await updateResponse.Content.ReadAsStringAsync();
+            var updatedWorkoutProgram = JsonConvert.DeserializeObject<WorkoutProgram>(updatedJson);
+            var updatedExercise = updatedWorkoutProgram!.WorkoutProgramRoutines
+                .Single(routine => routine.Uuid == Guid.Parse("cd218127-b60d-46a7-bbc1-a17332bea15f"))
+                .RoutineExercises.Single();
+            var settings = AssertGatedLinearSettings(updatedExercise.ProgressionSchemeSettings);
+
+            settings.CurrentSuccessStreak.Should().Be(0);
         }
         finally
         {
@@ -462,7 +695,7 @@ public class WorkoutProgramControllerTests(WorkoutDbFixture fixture)
             .RoutineExerciseRotationGroups.Should().BeEmpty();
     }
 
-    private async Task<(decimal? Weight, ProgressionScheme? Scheme, ProgressionScheme531Settings? Settings)> CaptureRoutineExerciseState(
+    private async Task<(decimal? Weight, ProgressionScheme? Scheme, ProgressionSchemeSettings? Settings)> CaptureRoutineExerciseState(
         Guid exerciseUuid
     )
     {
@@ -472,19 +705,13 @@ public class WorkoutProgramControllerTests(WorkoutDbFixture fixture)
         return (
             exercise.Weight,
             exercise.ProgressionScheme,
-            exercise.ProgressionSchemeSettings == null
-                ? null
-                : new ProgressionScheme531Settings
-                {
-                    CurrentCycleWeek = exercise.ProgressionSchemeSettings.CurrentCycleWeek,
-                    BodyType = exercise.ProgressionSchemeSettings.BodyType,
-                }
+            exercise.ProgressionSchemeSettings?.Clone()
         );
     }
 
     private async Task RestoreRoutineExerciseState(
         Guid exerciseUuid,
-        (decimal? Weight, ProgressionScheme? Scheme, ProgressionScheme531Settings? Settings) originalExercise
+        (decimal? Weight, ProgressionScheme? Scheme, ProgressionSchemeSettings? Settings) originalExercise
     )
     {
         using var scope = _fixture.Factory.Services.CreateScope();
@@ -492,14 +719,56 @@ public class WorkoutProgramControllerTests(WorkoutDbFixture fixture)
         var exercise = await db.RoutineExercises.WhereUuid(exerciseUuid).FirstAsync();
         exercise.Weight = originalExercise.Weight;
         exercise.ProgressionScheme = originalExercise.Scheme;
-        exercise.ProgressionSchemeSettings = originalExercise.Settings == null
-            ? null
-            : new ProgressionScheme531Settings
-            {
-                CurrentCycleWeek = originalExercise.Settings.CurrentCycleWeek,
-                BodyType = originalExercise.Settings.BodyType,
-            };
+        exercise.ProgressionSchemeSettings = originalExercise.Settings?.Clone();
         await db.SaveChangesAsync();
+    }
+
+    private async Task<(decimal? Weight, ProgressionScheme? Scheme, ProgressionSchemeSettings? Settings)> ConfigureGatedLinearExercise(
+        Guid exerciseUuid,
+        decimal weight,
+        int requiredSuccessStreak,
+        int currentSuccessStreak,
+        int? targetRpe,
+        decimal? targetReps,
+        bool useWeightGate,
+        decimal incrementBy
+    )
+    {
+        var original = await CaptureRoutineExerciseState(exerciseUuid);
+
+        using var scope = _fixture.Factory.Services.CreateScope();
+        var db = scope.ServiceProvider.GetRequiredService<LiftTrackerDbContext>();
+        var exercise = await db.RoutineExercises.WhereUuid(exerciseUuid).FirstAsync();
+        exercise.Weight = weight;
+        exercise.ProgressionScheme = ProgressionScheme.GatedLinear;
+        exercise.ProgressionSchemeSettings = new ProgressionSchemeGatedLinearSettings
+        {
+            RequiredSuccessStreak = requiredSuccessStreak,
+            CurrentSuccessStreak = currentSuccessStreak,
+            TargetRpe = targetRpe,
+            TargetReps = targetReps,
+            UseWeightGate = useWeightGate,
+            IncrementBy = incrementBy,
+        };
+        await db.SaveChangesAsync();
+
+        return original;
+    }
+
+    private static ProgressionScheme531Settings AssertFiveThreeOneSettings(
+        ProgressionSchemeSettings? settings
+    )
+    {
+        settings.Should().BeOfType<ProgressionScheme531Settings>();
+        return (ProgressionScheme531Settings)settings!;
+    }
+
+    private static ProgressionSchemeGatedLinearSettings AssertGatedLinearSettings(
+        ProgressionSchemeSettings? settings
+    )
+    {
+        settings.Should().BeOfType<ProgressionSchemeGatedLinearSettings>();
+        return (ProgressionSchemeGatedLinearSettings)settings!;
     }
 
     /// <see cref="WorkoutProgramController.Create(WorkoutProgram)" />

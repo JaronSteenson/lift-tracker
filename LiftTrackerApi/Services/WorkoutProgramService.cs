@@ -59,14 +59,15 @@ public class WorkoutProgramService(LiftTrackerDbContext db, DomainEntityService 
                 {
                     CurrentCycleWeek =
                         currentCycleWeek
-                        ?? exercise.ProgressionSchemeSettings?.CurrentCycleWeek
+                        ?? (exercise.ProgressionSchemeSettings as ProgressionScheme531Settings)
+                            ?.CurrentCycleWeek
                         ?? 1,
                     BodyType =
                         bodyType
-                        ?? exercise.ProgressionSchemeSettings?.BodyType
+                        ?? (exercise.ProgressionSchemeSettings as ProgressionScheme531Settings)?.BodyType
                         ?? ProgressionScheme531BodyType.Upper,
                 }
-                : null;
+                : exercise.ProgressionSchemeSettings?.Clone();
 
         return new RoutineExercise
         {
@@ -172,6 +173,7 @@ public class WorkoutProgramService(LiftTrackerDbContext db, DomainEntityService 
     )
     {
         newWorkoutProgram.UserId = userId;
+        ResetNewGatedLinearProgressionState(newWorkoutProgram);
         await VerifyOrAssignNewUuids(newWorkoutProgram);
         BindRotationGroupMemberships(newWorkoutProgram);
 
@@ -199,6 +201,7 @@ public class WorkoutProgramService(LiftTrackerDbContext db, DomainEntityService 
 
         var existing = await FindByUuidAndOwner(updated.Uuid.Value, userId);
         BindRotationGroupMemberships(updated);
+        NormalizeGatedLinearProgressionState(existing, updated);
 
         domainEntityService.ReattachRequestEntity(existing: existing, updated: updated);
         domainEntityService.TrackEntityDiffChanges(
@@ -219,6 +222,80 @@ public class WorkoutProgramService(LiftTrackerDbContext db, DomainEntityService 
         var savedWorkoutProgram = await FindByUuidAndOwner(updated.Uuid.Value, userId);
         SortChildren(savedWorkoutProgram);
         return savedWorkoutProgram;
+    }
+
+    private static void ResetNewGatedLinearProgressionState(WorkoutProgram workoutProgram)
+    {
+        foreach (var exercise in EnumerateExercises(workoutProgram))
+        {
+            if (exercise.ProgressionSchemeSettings is ProgressionSchemeGatedLinearSettings settings)
+            {
+                settings.CurrentSuccessStreak = 0;
+            }
+        }
+    }
+
+    private static void NormalizeGatedLinearProgressionState(
+        WorkoutProgram existing,
+        WorkoutProgram updated
+    )
+    {
+        var existingExercises = EnumerateExercises(existing)
+            .Where(exercise => exercise.Uuid != null)
+            .ToDictionary(exercise => exercise.Uuid!.Value);
+
+        foreach (var updatedExercise in EnumerateExercises(updated))
+        {
+            if (
+                updatedExercise.ProgressionScheme != ProgressionScheme.GatedLinear
+                || updatedExercise.ProgressionSchemeSettings
+                    is not ProgressionSchemeGatedLinearSettings updatedSettings
+            )
+            {
+                continue;
+            }
+
+            if (
+                !updatedExercise.Uuid.HasValue
+                || !existingExercises.TryGetValue(updatedExercise.Uuid.Value, out var existingExercise)
+                || existingExercise.ProgressionScheme != ProgressionScheme.GatedLinear
+                || existingExercise.ProgressionSchemeSettings
+                    is not ProgressionSchemeGatedLinearSettings existingSettings
+            )
+            {
+                updatedSettings.CurrentSuccessStreak = 0;
+                continue;
+            }
+
+            updatedSettings.CurrentSuccessStreak = HasGatedLinearConfigurationChanged(
+                existingExercise,
+                existingSettings,
+                updatedExercise,
+                updatedSettings
+            )
+                ? 0
+                : existingSettings.CurrentSuccessStreak;
+        }
+    }
+
+    private static bool HasGatedLinearConfigurationChanged(
+        RoutineExercise existingExercise,
+        ProgressionSchemeGatedLinearSettings existingSettings,
+        RoutineExercise updatedExercise,
+        ProgressionSchemeGatedLinearSettings updatedSettings
+    )
+    {
+        return existingExercise.Weight != updatedExercise.Weight
+            || existingSettings.RequiredSuccessStreak != updatedSettings.RequiredSuccessStreak
+            || existingSettings.TargetRpe != updatedSettings.TargetRpe
+            || existingSettings.TargetReps != updatedSettings.TargetReps
+            || existingSettings.UseWeightGate != updatedSettings.UseWeightGate
+            || existingSettings.IncrementBy != updatedSettings.IncrementBy;
+    }
+
+    private static IEnumerable<RoutineExercise> EnumerateExercises(WorkoutProgram workoutProgram)
+    {
+        return workoutProgram.WorkoutProgramRoutines.SelectMany(routine => routine.RoutineExercises);
     }
 
     public async Task DeleteWorkoutProgram(Guid workoutProgramUuid, int userId)

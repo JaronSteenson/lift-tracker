@@ -70,6 +70,7 @@ builder.Services.AddScoped<WorkoutProgramService>();
 builder.Services.AddScoped<WorkoutSessionService>();
 builder.Services.AddScoped<ProgressionSchemeRegistry>();
 builder.Services.AddScoped<IProgressionSchemeStrategy, FiveThreeOneProgressionStrategy>();
+builder.Services.AddScoped<IProgressionSchemeStrategy, GatedLinearProgressionStrategy>();
 
 // Add default JSON options.
 builder

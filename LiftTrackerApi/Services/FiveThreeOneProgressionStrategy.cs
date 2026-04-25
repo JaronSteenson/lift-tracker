@@ -94,7 +94,7 @@ public class FiveThreeOneProgressionStrategy : IProgressionSchemeStrategy
         };
     }
 
-    public void Advance(RoutineExercise routineExercise)
+    public void Advance(SessionExercise sessionExercise, RoutineExercise routineExercise)
     {
         var settings = GetRequiredSettings(routineExercise);
         var trainingMax = GetRequiredTrainingMax(routineExercise);
@@ -119,14 +119,15 @@ public class FiveThreeOneProgressionStrategy : IProgressionSchemeStrategy
         }
 
         if (
-            routineExercise.ProgressionSchemeSettings?.CurrentCycleWeek == null
-            || routineExercise.ProgressionSchemeSettings.BodyType == null
+            routineExercise.ProgressionSchemeSettings is not ProgressionScheme531Settings settings
+            || settings.CurrentCycleWeek == null
+            || settings.BodyType == null
         )
         {
             throw new ArgumentException("Routine exercise has invalid 531 progression settings.");
         }
 
-        return routineExercise.ProgressionSchemeSettings;
+        return settings;
     }
 
     private static decimal GetRequiredTrainingMax(RoutineExercise routineExercise)

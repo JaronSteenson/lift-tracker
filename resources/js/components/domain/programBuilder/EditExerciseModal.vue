@@ -63,12 +63,32 @@
                                 variant="outlined"
                             />
                         </VCol>
-                        <VCol v-if="schemeConfig.showSettings" cols="12">
+                        <VCol
+                            v-if="
+                                progressionScheme ===
+                                PROGRESSION_SCHEME.FIVE_THREE_ONE
+                            "
+                            cols="12"
+                        >
                             <ProgressionSchemeSettings531
                                 :settings="progressionSchemeSettings"
                                 :projection="projection"
                                 :is-projection-loading="isProjectionLoading"
                                 :has-persisted-exercise="hasPersistedExercise"
+                                @update:settings="
+                                    progressionSchemeSettings = $event
+                                "
+                            />
+                        </VCol>
+                        <VCol
+                            v-else-if="
+                                progressionScheme ===
+                                PROGRESSION_SCHEME.GATED_LINEAR
+                            "
+                            cols="12"
+                        >
+                            <GatedLinearProgressionSchemeSettings
+                                :settings="progressionSchemeSettings"
                                 @update:settings="
                                     progressionSchemeSettings = $event
                                 "
@@ -115,6 +135,7 @@ import { ref, watch, computed, onBeforeUnmount } from 'vue';
 import { useDisplay } from 'vuetify';
 import TimerInput from '../../formFields/TimerInput.vue';
 import ProgressionSchemeSettings531 from './531ProgressionSchemeSettings.vue';
+import GatedLinearProgressionSchemeSettings from './GatedLinearProgressionSchemeSettings.vue';
 import {
     createDraftRotationGroup,
     useExerciseCycleProjection,
@@ -123,10 +144,10 @@ import {
     useWorkoutProgramByRoutine,
 } from './composibles/programBuilderQueries';
 import {
+    createProgressionSchemeSettings,
     getProgressionSchemeConfig,
     progressionSchemeOptions,
     PROGRESSION_SCHEME,
-    PROGRESSION_SCHEME_531_BODY_TYPE,
 } from './progressionSchemeRegistry';
 
 const props = defineProps({
@@ -300,7 +321,10 @@ watch(
                 numberOfSets.value = exercise.numberOfSets;
                 progressionScheme.value = exercise.progressionScheme ?? null;
                 progressionSchemeSettings.value =
-                    exercise.progressionSchemeSettings ?? null;
+                    createProgressionSchemeSettings(
+                        exercise.progressionScheme ?? null,
+                        exercise.progressionSchemeSettings ?? null,
+                    );
                 selectedRotationGroupUuid.value =
                     exercise.rotationGroupUuid ?? null;
                 rotationGroupPosition.value =
@@ -316,10 +340,18 @@ watch(
 watch(progressionScheme, (newProgressionScheme) => {
     if (newProgressionScheme === PROGRESSION_SCHEME.FIVE_THREE_ONE) {
         numberOfSets.value = 3;
-        progressionSchemeSettings.value = progressionSchemeSettings.value || {
-            currentCycleWeek: 1,
-            bodyType: PROGRESSION_SCHEME_531_BODY_TYPE.UPPER,
-        };
+        progressionSchemeSettings.value = createProgressionSchemeSettings(
+            newProgressionScheme,
+            progressionSchemeSettings.value,
+        );
+        return;
+    }
+
+    if (newProgressionScheme === PROGRESSION_SCHEME.GATED_LINEAR) {
+        progressionSchemeSettings.value = createProgressionSchemeSettings(
+            newProgressionScheme,
+            progressionSchemeSettings.value,
+        );
         return;
     }
 
@@ -427,10 +459,9 @@ const closeModal = () => {
         rpe: rpe.value,
         numberOfSets: numberOfSets.value,
         progressionScheme: progressionScheme.value,
-        progressionSchemeSettings:
-            progressionScheme.value === PROGRESSION_SCHEME.FIVE_THREE_ONE
-                ? progressionSchemeSettings.value
-                : null,
+        progressionSchemeSettings: schemeConfig.value.showSettings
+            ? progressionSchemeSettings.value
+            : null,
         rotationGroupUuid: persistedRotationGroupUuid,
         rotationGroupPosition: persistedRotationGroupUuid
             ? (rotationGroupPosition.value ?? 0)

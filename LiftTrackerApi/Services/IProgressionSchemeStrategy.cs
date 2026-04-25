@@ -8,5 +8,5 @@ public interface IProgressionSchemeStrategy
     ProgressionScheme Scheme { get; }
     ExerciseCycleProjectionDto CreateProjection(RoutineExercise routineExercise);
     SessionExercise CreateSessionExercise(RoutineExercise routineExercise);
-    void Advance(RoutineExercise routineExercise);
+    void Advance(SessionExercise sessionExercise, RoutineExercise routineExercise);
 }
