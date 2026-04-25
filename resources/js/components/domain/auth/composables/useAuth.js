@@ -7,6 +7,7 @@ import { rollbar } from '../../../../rollbar/rollbar';
 import { getSharedQueryClient } from '../../../../queryClient';
 
 const PROD_URL = 'https://lift-tracker.app';
+const LOCALHOST_HOSTNAME = 'localhost';
 const AUTH_QUERY_KEY = ['auth'];
 const LOGIN_ERROR_COUNT_STORAGE_KEY = 'auth-login-error-count';
 
@@ -100,6 +101,12 @@ function clearCurrentQueryParams() {
     window.history.replaceState({}, '', nextUrl);
 }
 
+export function getAuthRecoveryRedirectUrl(location = window.location) {
+    return location.hostname === LOCALHOST_HOSTNAME
+        ? location.origin
+        : PROD_URL;
+}
+
 async function reloadToRetryAuth(error) {
     const { loginErrorCount } = getAuthState();
 
@@ -114,12 +121,12 @@ async function reloadToRetryAuth(error) {
     setStoredLoginErrorCount(nextLoginErrorCount);
 
     rollbar?.warning(error);
-    window.location.replace(PROD_URL);
+    window.location.replace(getAuthRecoveryRedirectUrl());
 }
 
 async function bootstrapAuth0Client() {
     if (!window.isSecureContext) {
-        window.location.replace(PROD_URL);
+        window.location.replace(getAuthRecoveryRedirectUrl());
         return;
     }
 
