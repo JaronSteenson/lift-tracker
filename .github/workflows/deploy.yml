@@ -127,13 +127,18 @@ jobs:
       - name: Purge Cloudflare cache
         env:
           CLOUDFLARE_AUTH_TOKEN: ${{ secrets.CLOUDFLARE_AUTH_TOKEN }}
-          CLOUDFLARE_ZONE_ID: ${{ vars.CLOUDFLARE_ZONE_ID }}
-        run: >
-          curl --fail-with-body
-          -X POST "https://api.cloudflare.com/client/v4/zones/$CLOUDFLARE_ZONE_ID/purge_cache"
-          -H "Authorization: Bearer $CLOUDFLARE_AUTH_TOKEN"
-          -H "Content-Type: application/json"
-          --data '{"purge_everything":true}'
+        run: |
+          set -euo pipefail
+          zone_id=$(
+            curl --fail-with-body --silent "https://api.cloudflare.com/client/v4/zones?name=lift-tracker.app" \
+              -H "Authorization: Bearer $CLOUDFLARE_AUTH_TOKEN" \
+              | node -e "let body=''; process.stdin.on('data', chunk => body += chunk); process.stdin.on('end', () => { const response = JSON.parse(body); const zoneId = response.result?.[0]?.id; if (!zoneId) { console.error(body); process.exit(1); } process.stdout.write(zoneId); });"
+          )
+          curl --fail-with-body \
+            -X POST "https://api.cloudflare.com/client/v4/zones/$zone_id/purge_cache" \
+            -H "Authorization: Bearer $CLOUDFLARE_AUTH_TOKEN" \
+            -H "Content-Type: application/json" \
+            --data '{"purge_everything":true}'
 
   backend:
     name: Build, test, deploy backend
