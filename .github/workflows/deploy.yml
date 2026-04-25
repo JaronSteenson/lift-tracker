@@ -1,0 +1,235 @@
+name: Deploy
+
+on:
+  push:
+    branches:
+      - master
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: production-deploy-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  detect_changes:
+    name: Detect changed areas
+    runs-on: ubuntu-24.04
+    outputs:
+      frontend: ${{ steps.filter.outputs.frontend }}
+      backend: ${{ steps.filter.outputs.backend }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Detect changed paths
+        id: filter
+        uses: dorny/paths-filter@v4
+        with:
+          base: ${{ github.ref }}
+          filters: |
+            frontend:
+              - '.github/workflows/**'
+              - 'resources/**'
+              - 'public/**'
+              - 'package.json'
+              - 'package-lock.json'
+              - 'vite.config.js'
+              - 'vitest.config.js'
+              - '.eslintrc.js'
+              - '.prettierrc.js'
+              - 'config.template.json'
+              - 'ci/replace-config.js'
+              - 'ci/version-service-worker.js'
+            backend:
+              - '.github/workflows/**'
+              - 'LiftTrackerApi/**'
+              - 'LiftTrackerApi.Tests/**'
+
+  frontend:
+    name: Build, test, deploy frontend
+    needs: detect_changes
+    if: ${{ github.event_name == 'workflow_dispatch' || needs.detect_changes.outputs.frontend == 'true' }}
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version-file: package.json
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run linter
+        run: npm run lint
+
+      - name: Build test config
+        run: node ci/replace-config.js test-stub=true
+
+      - name: Run tests
+        run: npm test
+
+      - name: Build production config
+        env:
+          AUTH0_DOMAIN: ${{ secrets.AUTH0_DOMAIN }}
+          AUTH0_CLIENT_ID: ${{ secrets.AUTH0_CLIENT_ID }}
+          AUTH0_AUDIENCE: ${{ secrets.AUTH0_AUDIENCE }}
+          ROLLBAR_ACCESS_TOKEN: ${{ secrets.ROLLBAR_ACCESS_TOKEN }}
+          NEW_RELIC_APPLICATION_ID: ${{ secrets.NEW_RELIC_APPLICATION_ID }}
+          NEW_RELIC_LICENSE_KEY: ${{ secrets.NEW_RELIC_LICENSE_KEY }}
+        run: node ci/replace-config.js
+
+      - name: Build frontend
+        env:
+          BITBUCKET_COMMIT: ${{ github.sha }}
+        run: npm run prod
+
+      - name: Create frontend artifact
+        run: tar -czf artifacts-frontend.tar.gz -C dist .
+
+      - name: Prepare remote frontend directory
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.PROD_IP }}
+          username: ${{ secrets.PROD_USER }}
+          key: ${{ secrets.PROD_SSH_KEY }}
+          script: |
+            rm -rf /tmp/deploy-frontend
+            mkdir -p /tmp/deploy-frontend
+
+      - name: Upload frontend artifact
+        uses: appleboy/scp-action@v1
+        with:
+          host: ${{ secrets.PROD_IP }}
+          username: ${{ secrets.PROD_USER }}
+          key: ${{ secrets.PROD_SSH_KEY }}
+          source: artifacts-frontend.tar.gz
+          target: /tmp/deploy-frontend
+
+      - name: Deploy frontend
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.PROD_IP }}
+          username: ${{ secrets.PROD_USER }}
+          key: ${{ secrets.PROD_SSH_KEY }}
+          script: |
+            set -eux
+            rm -rf /var/www/html/lift-tracker/index.html
+            rm -rf /var/www/html/lift-tracker/js
+            tar -xf /tmp/deploy-frontend/artifacts-frontend.tar.gz -C /var/www/html/lift-tracker
+            sudo systemctl reload nginx
+
+      - name: Purge Cloudflare cache
+        env:
+          CLOUDFLARE_AUTH_TOKEN: ${{ secrets.CLOUDFLARE_AUTH_TOKEN }}
+        run: >
+          curl --fail-with-body
+          -X POST "https://api.cloudflare.com/client/v4/zones/c1c95b982d4310a8f3ccd3b8483c6df7/purge_cache"
+          -H "Authorization: Bearer $CLOUDFLARE_AUTH_TOKEN"
+          -H "Content-Type: application/json"
+          --data '{"purge_everything":true}'
+
+  backend:
+    name: Build, test, deploy backend
+    needs: detect_changes
+    if: ${{ github.event_name == 'workflow_dispatch' || needs.detect_changes.outputs.backend == 'true' }}
+    runs-on: ubuntu-24.04
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_DATABASE: lift_tracker_api_test
+          MYSQL_USER: lift_tracker_api_test
+          MYSQL_PASSWORD: lift_tracker_api_test
+          MYSQL_ROOT_PASSWORD: lift_tracker_api_test_root
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping -h 127.0.0.1 -uroot -plift_tracker_api_test_root --silent"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 9.0.x
+
+      - name: Install gettext
+        run: sudo apt-get update && sudo apt-get install -y gettext-base
+
+      - name: Restore dotnet tools
+        working-directory: LiftTrackerApi
+        run: dotnet tool restore
+
+      - name: Check formatting
+        working-directory: LiftTrackerApi
+        run: dotnet csharpier check . && dotnet csharpier check ../LiftTrackerApi.Tests
+
+      - name: Migrate test database
+        working-directory: LiftTrackerApi
+        env:
+          ASPNETCORE_ENVIRONMENT: Test
+        run: dotnet ef database update
+
+      - name: Run backend tests
+        working-directory: LiftTrackerApi
+        run: dotnet test
+
+      - name: Build production settings
+        working-directory: LiftTrackerApi
+        env:
+          DB_CONNECTION_STRING: ${{ secrets.DB_CONNECTION_STRING }}
+          AUTH0_DOMAIN: ${{ secrets.AUTH0_DOMAIN }}
+          AUTH0_AUDIENCE: ${{ secrets.AUTH0_AUDIENCE }}
+        run: envsubst < appsettings.Production.template.json > appsettings.Production.json
+
+      - name: Publish backend
+        working-directory: LiftTrackerApi
+        run: dotnet publish LiftTrackerApi.csproj -c Release -r linux-x64 --self-contained true -o ./publish
+
+      - name: Create backend artifact
+        working-directory: LiftTrackerApi
+        run: tar -czf artifacts-backend.tar.gz ./publish
+
+      - name: Prepare remote backend directory
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.PROD_IP }}
+          username: ${{ secrets.PROD_USER }}
+          key: ${{ secrets.PROD_SSH_KEY }}
+          script: |
+            rm -rf /tmp/deploy-backend
+            mkdir -p /tmp/deploy-backend
+
+      - name: Upload backend artifact
+        uses: appleboy/scp-action@v1
+        with:
+          host: ${{ secrets.PROD_IP }}
+          username: ${{ secrets.PROD_USER }}
+          key: ${{ secrets.PROD_SSH_KEY }}
+          source: LiftTrackerApi/artifacts-backend.tar.gz
+          target: /tmp/deploy-backend
+
+      - name: Deploy backend
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.PROD_IP }}
+          username: ${{ secrets.PROD_USER }}
+          key: ${{ secrets.PROD_SSH_KEY }}
+          script: |
+            set -eux
+            tar -xf /tmp/deploy-backend/artifacts-backend.tar.gz -C /var/www/html/lift-tracker
+            sudo systemctl reload nginx
+            sudo systemctl restart lt-api
