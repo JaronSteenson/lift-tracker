@@ -79,13 +79,18 @@ jobs:
 
       - name: Build production config
         env:
-          AUTH0_DOMAIN: ${{ secrets.AUTH0_DOMAIN }}
-          AUTH0_CLIENT_ID: ${{ secrets.AUTH0_CLIENT_ID }}
-          AUTH0_AUDIENCE: ${{ secrets.AUTH0_AUDIENCE }}
+          AUTH0_DOMAIN: ${{ vars.AUTH0_DOMAIN }}
+          AUTH0_CLIENT_ID: ${{ vars.AUTH0_CLIENT_ID }}
+          AUTH0_AUDIENCE: ${{ vars.AUTH0_AUDIENCE }}
           ROLLBAR_ACCESS_TOKEN: ${{ secrets.ROLLBAR_ACCESS_TOKEN }}
           NEW_RELIC_APPLICATION_ID: ${{ secrets.NEW_RELIC_APPLICATION_ID }}
           NEW_RELIC_LICENSE_KEY: ${{ secrets.NEW_RELIC_LICENSE_KEY }}
-        run: node ci/replace-config.js
+        run: |
+          set -euo pipefail
+          : "${AUTH0_DOMAIN:?AUTH0_DOMAIN repository variable is required}"
+          : "${AUTH0_CLIENT_ID:?AUTH0_CLIENT_ID repository variable is required}"
+          : "${AUTH0_AUDIENCE:?AUTH0_AUDIENCE repository variable is required}"
+          node ci/replace-config.js
 
       - name: Build frontend
         env:
@@ -194,9 +199,14 @@ jobs:
         working-directory: LiftTrackerApi
         env:
           DB_CONNECTION_STRING: ${{ secrets.DB_CONNECTION_STRING }}
-          AUTH0_DOMAIN: ${{ secrets.AUTH0_DOMAIN }}
-          AUTH0_AUDIENCE: ${{ secrets.AUTH0_AUDIENCE }}
-        run: envsubst < appsettings.Production.template.json > appsettings.Production.json
+          AUTH0_DOMAIN: ${{ vars.AUTH0_DOMAIN }}
+          AUTH0_AUDIENCE: ${{ vars.AUTH0_AUDIENCE }}
+        run: |
+          set -euo pipefail
+          : "${DB_CONNECTION_STRING:?DB_CONNECTION_STRING secret is required}"
+          : "${AUTH0_DOMAIN:?AUTH0_DOMAIN repository variable is required}"
+          : "${AUTH0_AUDIENCE:?AUTH0_AUDIENCE repository variable is required}"
+          envsubst < appsettings.Production.template.json > appsettings.Production.json
 
       - name: Publish backend
         working-directory: LiftTrackerApi
