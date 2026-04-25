@@ -213,6 +213,9 @@
 
                                     <SessionExerciseHistoryModal
                                         url-search-param="history"
+                                        :current-session-exercise-uuid="
+                                            exercise?.uuid
+                                        "
                                         :session-exercises="exerciseHistory"
                                         :start-index="1"
                                         :has-next-page="
@@ -224,6 +227,7 @@
                                         :fetch-next-page="
                                             fetchNextExerciseHistoryPage
                                         "
+                                        @copy-notes="copyNotesToCurrentExercise"
                                     />
                                 </template>
                                 <span v-else>
@@ -802,6 +806,21 @@ function saveExerciseNotes() {
     }
 
     updateNotesMutation(uuid.value, exercise.value.uuid, exerciseNotes.value);
+}
+
+function copyNotesToCurrentExercise(notesToCopy) {
+    if (!uuid.value || !exercise.value?.uuid || !notesToCopy?.trim()) {
+        return;
+    }
+
+    const currentNotes = exerciseNotes.value ?? '';
+    const nextNotes =
+        currentNotes.trim().length > 0
+            ? `${currentNotes.trimEnd()} ${notesToCopy}`
+            : notesToCopy;
+
+    exerciseNotes.value = nextNotes;
+    updateNotesMutation(uuid.value, exercise.value.uuid, nextNotes);
 }
 
 async function changeSetFromStepper(requestedSet) {

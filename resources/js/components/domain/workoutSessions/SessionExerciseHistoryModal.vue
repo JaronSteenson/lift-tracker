@@ -105,7 +105,19 @@
                     </div>
                 </template>
                 <hr class="mt-1 mb-6" />
-                <h3 class="mb-1 mt-2">Notes</h3>
+                <div class="d-flex align-center justify-space-between">
+                    <h3 class="mb-1 mt-2">Notes</h3>
+                    <VBtn
+                        v-if="canCopyNotes"
+                        aria-label="Copy notes to current session"
+                        icon
+                        size="small"
+                        variant="text"
+                        @click="copyNotes"
+                    >
+                        <VIcon>{{ $svgIcons.mdiContentCopy }}</VIcon>
+                    </VBtn>
+                </div>
                 <p v-if="sessionExercise.notes" class="notes">
                     {{ sessionExercise.notes }}
                 </p>
@@ -157,7 +169,12 @@ const props = defineProps({
         type: Function,
         default: null,
     },
+    currentSessionExerciseUuid: {
+        type: String,
+        default: null,
+    },
 });
+const emit = defineEmits(['copy-notes']);
 
 const route = useRoute();
 const router = useRouter();
@@ -173,6 +190,12 @@ const isOpen = computed(
 
 const sessionExercise = computed(
     () => props.sessionExercises[currentIndex.value],
+);
+const canCopyNotes = computed(
+    () =>
+        !!props.currentSessionExerciseUuid &&
+        !!sessionExercise.value?.notes?.trim() &&
+        sessionExercise.value.uuid !== props.currentSessionExerciseUuid,
 );
 
 const bodyWeight = computed(() => sessionExercise.value?.bodyWeight);
@@ -312,6 +335,14 @@ function close() {
             [props.urlSearchParam]: undefined,
         },
     });
+}
+
+function copyNotes() {
+    if (!canCopyNotes.value) {
+        return;
+    }
+
+    emit('copy-notes', sessionExercise.value.notes);
 }
 
 async function prewarmNextPage() {

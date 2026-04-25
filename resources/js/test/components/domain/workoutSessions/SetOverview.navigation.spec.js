@@ -99,6 +99,7 @@ describe('SetOverview - Navigation functionality', () => {
     let advanceToNextSet;
     let skipExerciseAndStartSet;
     let skipExerciseAndEndWorkout;
+    let updateExerciseNotes;
     let workoutSession;
 
     beforeEach(async () => {
@@ -108,6 +109,7 @@ describe('SetOverview - Navigation functionality', () => {
         advanceToNextSet = vi.fn().mockResolvedValue();
         skipExerciseAndStartSet = vi.fn().mockResolvedValue();
         skipExerciseAndEndWorkout = vi.fn().mockResolvedValue();
+        updateExerciseNotes = vi.fn();
         workoutSession = {
             uuid: 'session-uuid',
             createdAt: '2026-04-01T10:00:00Z',
@@ -153,7 +155,7 @@ describe('SetOverview - Navigation functionality', () => {
             updateSetRpe: vi.fn(),
             updateExerciseWarmUpDuration: vi.fn(),
             updateSetRestPeriodDuration: vi.fn(),
-            updateExerciseNotes: vi.fn(),
+            updateExerciseNotes,
             updateExerciseSkipped: vi.fn(),
             skipExerciseAndStartSet,
             skipExerciseAndEndWorkout,
@@ -391,6 +393,35 @@ describe('SetOverview - Navigation functionality', () => {
 
             expect(nextClasses['cursor-pointer']).toBe(false);
             expect(nextClasses['text-disabled']).toBe(true);
+        });
+    });
+
+    describe('copyNotesToCurrentExercise method', () => {
+        it('appends copied notes to the current exercise notes', () => {
+            const wrapper = createWrapper();
+
+            wrapper.vm.exerciseNotes = 'Existing note';
+            wrapper.vm.copyNotesToCurrentExercise('Copied note');
+
+            expect(wrapper.vm.exerciseNotes).toBe('Existing note Copied note');
+            expect(updateExerciseNotes).toHaveBeenCalledWith(
+                'session-uuid',
+                'exercise-uuid',
+                'Existing note Copied note',
+            );
+        });
+
+        it('sets copied notes when the current exercise has no notes yet', () => {
+            const wrapper = createWrapper();
+
+            wrapper.vm.copyNotesToCurrentExercise('Copied note');
+
+            expect(wrapper.vm.exerciseNotes).toBe('Copied note');
+            expect(updateExerciseNotes).toHaveBeenCalledWith(
+                'session-uuid',
+                'exercise-uuid',
+                'Copied note',
+            );
         });
     });
 });

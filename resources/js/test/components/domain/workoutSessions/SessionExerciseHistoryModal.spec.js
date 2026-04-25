@@ -186,6 +186,56 @@ describe('SessionExerciseStatsModal.vue', () => {
         expect(wrapper.text()).toContain('This exercise went very well.');
     });
 
+    test('should render a copy notes button for a historical exercise with notes', () => {
+        const wrapper = shallowMount(
+            SessionExerciseHistoryModal,
+            createMountOptions({
+                currentSessionExerciseUuid: 'current-exercise-uuid',
+                sessionExercises: [singleSetExerciseWithNotes],
+            }),
+        );
+
+        expect(
+            wrapper
+                .find('[aria-label="Copy notes to current session"]')
+                .exists(),
+        ).toBe(true);
+    });
+
+    test('should not render a copy notes button when viewing the current session exercise', () => {
+        const wrapper = shallowMount(
+            SessionExerciseHistoryModal,
+            createMountOptions({
+                currentSessionExerciseUuid: singleSetExerciseWithNotes.uuid,
+                sessionExercises: [singleSetExerciseWithNotes],
+            }),
+        );
+
+        expect(
+            wrapper
+                .find('[aria-label="Copy notes to current session"]')
+                .exists(),
+        ).toBe(false);
+    });
+
+    test('should emit copy-notes with the viewed note text', async () => {
+        const wrapper = shallowMount(
+            SessionExerciseHistoryModal,
+            createMountOptions({
+                currentSessionExerciseUuid: 'current-exercise-uuid',
+                sessionExercises: [singleSetExerciseWithNotes],
+            }),
+        );
+
+        await wrapper
+            .find('[aria-label="Copy notes to current session"]')
+            .trigger('click');
+
+        expect(wrapper.emitted('copy-notes')).toEqual([
+            ['This exercise went very well.'],
+        ]);
+    });
+
     test('should not render navigation when there is only a single exercise', () => {
         const wrapper = shallowMount(
             SessionExerciseHistoryModal,
