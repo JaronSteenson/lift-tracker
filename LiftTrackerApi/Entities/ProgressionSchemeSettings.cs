@@ -113,7 +113,11 @@ internal sealed class ProgressionSchemeSettingsJsonConverter
         switch (value)
         {
             case ProgressionScheme531Settings fiveThreeOneSettings:
-                WriteNullableNumber(writer, "currentCycleWeek", fiveThreeOneSettings.CurrentCycleWeek);
+                WriteNullableNumber(
+                    writer,
+                    "currentCycleWeek",
+                    fiveThreeOneSettings.CurrentCycleWeek
+                );
                 WriteNullableNumber(writer, "bodyType", (int?)fiveThreeOneSettings.BodyType);
                 break;
             case ProgressionSchemeGatedLinearSettings gatedLinearSettings:
@@ -122,7 +126,10 @@ internal sealed class ProgressionSchemeSettingsJsonConverter
                     "requiredSuccessStreak",
                     gatedLinearSettings.RequiredSuccessStreak
                 );
-                writer.WriteNumber("currentSuccessStreak", gatedLinearSettings.CurrentSuccessStreak);
+                writer.WriteNumber(
+                    "currentSuccessStreak",
+                    gatedLinearSettings.CurrentSuccessStreak
+                );
                 WriteNullableNumber(writer, "targetRpe", gatedLinearSettings.TargetRpe);
                 WriteNullableNumber(writer, "targetReps", gatedLinearSettings.TargetReps);
                 writer.WriteBoolean("useWeightGate", gatedLinearSettings.UseWeightGate);
@@ -133,11 +140,7 @@ internal sealed class ProgressionSchemeSettingsJsonConverter
         writer.WriteEndObject();
     }
 
-    private static bool TryGetProperty(
-        JsonElement root,
-        string propertyName,
-        out JsonElement value
-    )
+    private static bool TryGetProperty(JsonElement root, string propertyName, out JsonElement value)
     {
         foreach (var property in root.EnumerateObject())
         {
@@ -154,7 +157,10 @@ internal sealed class ProgressionSchemeSettingsJsonConverter
 
     private static int? ReadInt32(JsonElement root, string propertyName)
     {
-        if (!TryGetProperty(root, propertyName, out var value) || value.ValueKind == JsonValueKind.Null)
+        if (
+            !TryGetProperty(root, propertyName, out var value)
+            || value.ValueKind == JsonValueKind.Null
+        )
         {
             return null;
         }
@@ -182,7 +188,10 @@ internal sealed class ProgressionSchemeSettingsJsonConverter
 
     private static decimal? ReadNullableDecimal(JsonElement root, string propertyName)
     {
-        if (!TryGetProperty(root, propertyName, out var value) || value.ValueKind == JsonValueKind.Null)
+        if (
+            !TryGetProperty(root, propertyName, out var value)
+            || value.ValueKind == JsonValueKind.Null
+        )
         {
             return null;
         }
@@ -205,7 +214,10 @@ internal sealed class ProgressionSchemeSettingsJsonConverter
 
     private static bool? ReadBoolean(JsonElement root, string propertyName)
     {
-        if (!TryGetProperty(root, propertyName, out var value) || value.ValueKind == JsonValueKind.Null)
+        if (
+            !TryGetProperty(root, propertyName, out var value)
+            || value.ValueKind == JsonValueKind.Null
+        )
         {
             return null;
         }

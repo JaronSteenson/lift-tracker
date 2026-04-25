@@ -9,7 +9,9 @@ public class GatedLinearProgressionStrategy : IProgressionSchemeStrategy
 
     public ExerciseCycleProjectionDto CreateProjection(RoutineExercise routineExercise)
     {
-        throw new ArgumentException("Cycle projection is not available for gated linear progression.");
+        throw new ArgumentException(
+            "Cycle projection is not available for gated linear progression."
+        );
     }
 
     public SessionExercise CreateSessionExercise(RoutineExercise routineExercise)
@@ -78,7 +80,10 @@ public class GatedLinearProgressionStrategy : IProgressionSchemeStrategy
         decimal currentWeight
     )
     {
-        if (settings.TargetRpe != null && (sessionSet.Rpe == null || sessionSet.Rpe > settings.TargetRpe))
+        if (
+            settings.TargetRpe != null
+            && (sessionSet.Rpe == null || sessionSet.Rpe > settings.TargetRpe)
+        )
         {
             return false;
         }
@@ -91,7 +96,10 @@ public class GatedLinearProgressionStrategy : IProgressionSchemeStrategy
             return false;
         }
 
-        if (settings.UseWeightGate && (sessionSet.Weight == null || sessionSet.Weight < currentWeight))
+        if (
+            settings.UseWeightGate
+            && (sessionSet.Weight == null || sessionSet.Weight < currentWeight)
+        )
         {
             return false;
         }
@@ -111,7 +119,8 @@ public class GatedLinearProgressionStrategy : IProgressionSchemeStrategy
         }
 
         if (
-            routineExercise.ProgressionSchemeSettings is not ProgressionSchemeGatedLinearSettings settings
+            routineExercise.ProgressionSchemeSettings
+                is not ProgressionSchemeGatedLinearSettings settings
             || settings.RequiredSuccessStreak == null
             || settings.IncrementBy == null
         )

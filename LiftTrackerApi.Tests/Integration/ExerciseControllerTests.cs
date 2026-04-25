@@ -4,8 +4,8 @@ using LiftTrackerApi.Dtos;
 using LiftTrackerApi.Entities;
 using LiftTrackerApi.Extensions;
 using LiftTrackerApi.Tests.Integration.Fixtures;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
 
 namespace LiftTrackerApi.Tests.Integration;
@@ -76,7 +76,11 @@ public class ExerciseControllerTests(WorkoutDbFixture fixture) : IClassFixture<W
         projection.Weeks.Should().HaveCount(4);
     }
 
-    private async Task<(decimal? Weight, ProgressionScheme? Scheme, ProgressionSchemeSettings? Settings)> ConfigureFiveThreeOneExercise(
+    private async Task<(
+        decimal? Weight,
+        ProgressionScheme? Scheme,
+        ProgressionSchemeSettings? Settings
+    )> ConfigureFiveThreeOneExercise(
         Guid exerciseUuid,
         decimal trainingMax,
         int currentCycleWeek,
@@ -104,7 +108,11 @@ public class ExerciseControllerTests(WorkoutDbFixture fixture) : IClassFixture<W
 
     private async Task RestoreFiveThreeOneExercise(
         Guid exerciseUuid,
-        (decimal? Weight, ProgressionScheme? Scheme, ProgressionSchemeSettings? Settings) originalExercise
+        (
+            decimal? Weight,
+            ProgressionScheme? Scheme,
+            ProgressionSchemeSettings? Settings
+        ) originalExercise
     )
     {
         using var scope = _fixture.Factory.Services.CreateScope();

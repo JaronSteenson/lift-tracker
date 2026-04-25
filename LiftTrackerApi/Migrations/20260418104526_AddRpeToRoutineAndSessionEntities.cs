@@ -14,35 +14,32 @@ namespace LiftTrackerApi.Migrations
                 name: "rpe",
                 table: "SessionSets",
                 type: "int",
-                nullable: true);
+                nullable: true
+            );
 
             migrationBuilder.AddColumn<int>(
                 name: "plannedRpe",
                 table: "SessionExercises",
                 type: "int",
-                nullable: true);
+                nullable: true
+            );
 
             migrationBuilder.AddColumn<int>(
                 name: "rpe",
                 table: "RoutineExercises",
                 type: "int",
-                nullable: true);
+                nullable: true
+            );
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropColumn(
-                name: "rpe",
-                table: "SessionSets");
+            migrationBuilder.DropColumn(name: "rpe", table: "SessionSets");
 
-            migrationBuilder.DropColumn(
-                name: "plannedRpe",
-                table: "SessionExercises");
+            migrationBuilder.DropColumn(name: "plannedRpe", table: "SessionExercises");
 
-            migrationBuilder.DropColumn(
-                name: "rpe",
-                table: "RoutineExercises");
+            migrationBuilder.DropColumn(name: "rpe", table: "RoutineExercises");
         }
     }
 }

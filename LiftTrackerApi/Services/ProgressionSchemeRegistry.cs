@@ -4,9 +4,8 @@ namespace LiftTrackerApi.Services;
 
 public class ProgressionSchemeRegistry(IEnumerable<IProgressionSchemeStrategy> strategies)
 {
-    private readonly Dictionary<ProgressionScheme, IProgressionSchemeStrategy> _strategies = strategies.ToDictionary(
-        strategy => strategy.Scheme
-    );
+    private readonly Dictionary<ProgressionScheme, IProgressionSchemeStrategy> _strategies =
+        strategies.ToDictionary(strategy => strategy.Scheme);
 
     public IProgressionSchemeStrategy GetRequiredStrategy(ProgressionScheme? progressionScheme)
     {

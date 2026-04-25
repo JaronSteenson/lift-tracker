@@ -33,7 +33,9 @@ public class ExerciseController(
 
         if (effectiveExercise.ProgressionScheme != ProgressionScheme.FiveThreeOne)
         {
-            return BadRequest(new { error = "Cycle projection is only available for 531 exercises." });
+            return BadRequest(
+                new { error = "Cycle projection is only available for 531 exercises." }
+            );
         }
 
         try

@@ -6,7 +6,11 @@ public static class RoutineExerciseRotationValidation
         WorkoutProgram workoutProgram
     )
     {
-        for (var routineIndex = 0; routineIndex < workoutProgram.WorkoutProgramRoutines.Count; routineIndex++)
+        for (
+            var routineIndex = 0;
+            routineIndex < workoutProgram.WorkoutProgramRoutines.Count;
+            routineIndex++
+        )
         {
             var routine = workoutProgram.WorkoutProgramRoutines.ElementAt(routineIndex);
             var routinePath = $"WorkoutProgramRoutines[{routineIndex}]";
@@ -44,8 +48,8 @@ public static class RoutineExerciseRotationValidation
                     continue;
                 }
 
-                var duplicatePositions = exerciseGroup.Value
-                    .Where(exercise => exercise.RotationGroupPosition.HasValue)
+                var duplicatePositions = exerciseGroup
+                    .Value.Where(exercise => exercise.RotationGroupPosition.HasValue)
                     .GroupBy(exercise => exercise.RotationGroupPosition!.Value)
                     .Where(group => group.Count() > 1)
                     .Select(group => group.Key)
@@ -59,9 +63,11 @@ public static class RoutineExerciseRotationValidation
                     );
                 }
 
-                foreach (var exercise in exerciseGroup.Value.Where(exercise =>
-                             !exercise.RotationGroupPosition.HasValue
-                         ))
+                foreach (
+                    var exercise in exerciseGroup.Value.Where(exercise =>
+                        !exercise.RotationGroupPosition.HasValue
+                    )
+                )
                 {
                     yield return (
                         $"{routinePath}.RoutineExercises",
@@ -70,7 +76,9 @@ public static class RoutineExerciseRotationValidation
                 }
             }
 
-            foreach (var exercise in exercises.Where(exercise => !exercise.RotationGroupUuid.HasValue))
+            foreach (
+                var exercise in exercises.Where(exercise => !exercise.RotationGroupUuid.HasValue)
+            )
             {
                 if (exercise.RotationGroupPosition.HasValue)
                 {

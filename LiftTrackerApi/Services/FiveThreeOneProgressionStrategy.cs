@@ -48,15 +48,20 @@ public class FiveThreeOneProgressionStrategy : IProgressionSchemeStrategy
                 {
                     Week = week.Week,
                     Label = week.Label,
-                    Sets = week.Sets
-                        .Select((set, index) => new ExerciseCycleProjectionSetDto
-                        {
-                            Position = index,
-                            Percentage = set.Percentage,
-                            Reps = set.Reps,
-                            IsAmrap = set.IsAmrap,
-                            Weight = RoundToNearestTwoPointFive(trainingMax * set.Percentage),
-                        })
+                    Sets = week
+                        .Sets.Select(
+                            (set, index) =>
+                                new ExerciseCycleProjectionSetDto
+                                {
+                                    Position = index,
+                                    Percentage = set.Percentage,
+                                    Reps = set.Reps,
+                                    IsAmrap = set.IsAmrap,
+                                    Weight = RoundToNearestTwoPointFive(
+                                        trainingMax * set.Percentage
+                                    ),
+                                }
+                        )
                         .ToList(),
                 })
                 .ToList(),
@@ -66,9 +71,8 @@ public class FiveThreeOneProgressionStrategy : IProgressionSchemeStrategy
     public SessionExercise CreateSessionExercise(RoutineExercise routineExercise)
     {
         var settings = GetRequiredSettings(routineExercise);
-        var projectedWeek = CreateProjection(routineExercise).Weeks.First(
-            week => week.Week == settings.CurrentCycleWeek
-        );
+        var projectedWeek = CreateProjection(routineExercise)
+            .Weeks.First(week => week.Week == settings.CurrentCycleWeek);
 
         return new SessionExercise
         {
@@ -81,8 +85,8 @@ public class FiveThreeOneProgressionStrategy : IProgressionSchemeStrategy
             PlannedWarmUp = routineExercise.WarmUp,
             WarmUpDuration = routineExercise.WarmUp,
             Skipped = false,
-            SessionSets = projectedWeek.Sets
-                .Select(set => new SessionSet
+            SessionSets = projectedWeek
+                .Sets.Select(set => new SessionSet
                 {
                     Position = set.Position,
                     Weight = set.Weight,
@@ -103,8 +107,7 @@ public class FiveThreeOneProgressionStrategy : IProgressionSchemeStrategy
         {
             settings.CurrentCycleWeek = 1;
             routineExercise.Weight =
-                trainingMax
-                + (settings.BodyType == ProgressionScheme531BodyType.Upper ? 2.5m : 5m);
+                trainingMax + (settings.BodyType == ProgressionScheme531BodyType.Upper ? 2.5m : 5m);
             return;
         }
 
@@ -134,7 +137,9 @@ public class FiveThreeOneProgressionStrategy : IProgressionSchemeStrategy
     {
         if (routineExercise.Weight == null)
         {
-            throw new ArgumentException("Routine exercise requires a training max for 531 progression.");
+            throw new ArgumentException(
+                "Routine exercise requires a training max for 531 progression."
+            );
         }
 
         return routineExercise.Weight.Value;

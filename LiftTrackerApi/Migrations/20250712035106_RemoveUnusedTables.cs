@@ -17,7 +17,8 @@ namespace LiftTrackerApi.Migrations
                 type: "timestamp",
                 nullable: true,
                 oldClrType: typeof(DateTime),
-                oldType: "timestamp");
+                oldType: "timestamp"
+            );
 
             migrationBuilder.AlterColumn<string>(
                 name: "name",
@@ -27,7 +28,8 @@ namespace LiftTrackerApi.Migrations
                 nullable: true,
                 oldClrType: typeof(string),
                 oldType: "varchar(255)",
-                oldMaxLength: 255);
+                oldMaxLength: 255
+            );
 
             migrationBuilder.AlterColumn<DateTime>(
                 name: "createdAt",
@@ -35,7 +37,8 @@ namespace LiftTrackerApi.Migrations
                 type: "timestamp",
                 nullable: true,
                 oldClrType: typeof(DateTime),
-                oldType: "timestamp");
+                oldType: "timestamp"
+            );
 
             migrationBuilder.AlterColumn<string>(
                 name: "name",
@@ -45,7 +48,8 @@ namespace LiftTrackerApi.Migrations
                 nullable: true,
                 oldClrType: typeof(string),
                 oldType: "varchar(255)",
-                oldMaxLength: 255);
+                oldMaxLength: 255
+            );
 
             migrationBuilder.AlterColumn<DateTime>(
                 name: "createdAt",
@@ -53,7 +57,8 @@ namespace LiftTrackerApi.Migrations
                 type: "timestamp",
                 nullable: true,
                 oldClrType: typeof(DateTime),
-                oldType: "timestamp");
+                oldType: "timestamp"
+            );
 
             migrationBuilder.AlterColumn<DateTime>(
                 name: "createdAt",
@@ -61,7 +66,8 @@ namespace LiftTrackerApi.Migrations
                 type: "timestamp",
                 nullable: true,
                 oldClrType: typeof(DateTime),
-                oldType: "timestamp");
+                oldType: "timestamp"
+            );
 
             migrationBuilder.AlterColumn<DateTime>(
                 name: "createdAt",
@@ -69,7 +75,8 @@ namespace LiftTrackerApi.Migrations
                 type: "timestamp",
                 nullable: true,
                 oldClrType: typeof(DateTime),
-                oldType: "timestamp");
+                oldType: "timestamp"
+            );
 
             migrationBuilder.AlterColumn<DateTime>(
                 name: "createdAt",
@@ -77,7 +84,8 @@ namespace LiftTrackerApi.Migrations
                 type: "timestamp",
                 nullable: true,
                 oldClrType: typeof(DateTime),
-                oldType: "timestamp");
+                oldType: "timestamp"
+            );
 
             migrationBuilder.AlterColumn<string>(
                 name: "name",
@@ -87,7 +95,8 @@ namespace LiftTrackerApi.Migrations
                 nullable: true,
                 oldClrType: typeof(string),
                 oldType: "varchar(255)",
-                oldMaxLength: 255);
+                oldMaxLength: 255
+            );
 
             migrationBuilder.AlterColumn<DateTime>(
                 name: "createdAt",
@@ -95,7 +104,8 @@ namespace LiftTrackerApi.Migrations
                 type: "timestamp",
                 nullable: true,
                 oldClrType: typeof(DateTime),
-                oldType: "timestamp");
+                oldType: "timestamp"
+            );
         }
 
         /// <inheritdoc />
@@ -109,7 +119,8 @@ namespace LiftTrackerApi.Migrations
                 defaultValue: new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                 oldClrType: typeof(DateTime),
                 oldType: "timestamp",
-                oldNullable: true);
+                oldNullable: true
+            );
 
             migrationBuilder.AlterColumn<string>(
                 name: "name",
@@ -121,7 +132,8 @@ namespace LiftTrackerApi.Migrations
                 oldClrType: typeof(string),
                 oldType: "varchar(255)",
                 oldMaxLength: 255,
-                oldNullable: true);
+                oldNullable: true
+            );
 
             migrationBuilder.AlterColumn<DateTime>(
                 name: "createdAt",
@@ -131,7 +143,8 @@ namespace LiftTrackerApi.Migrations
                 defaultValue: new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                 oldClrType: typeof(DateTime),
                 oldType: "timestamp",
-                oldNullable: true);
+                oldNullable: true
+            );
 
             migrationBuilder.AlterColumn<string>(
                 name: "name",
@@ -143,7 +156,8 @@ namespace LiftTrackerApi.Migrations
                 oldClrType: typeof(string),
                 oldType: "varchar(255)",
                 oldMaxLength: 255,
-                oldNullable: true);
+                oldNullable: true
+            );
 
             migrationBuilder.AlterColumn<DateTime>(
                 name: "createdAt",
@@ -153,7 +167,8 @@ namespace LiftTrackerApi.Migrations
                 defaultValue: new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                 oldClrType: typeof(DateTime),
                 oldType: "timestamp",
-                oldNullable: true);
+                oldNullable: true
+            );
 
             migrationBuilder.AlterColumn<DateTime>(
                 name: "createdAt",
@@ -163,7 +178,8 @@ namespace LiftTrackerApi.Migrations
                 defaultValue: new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                 oldClrType: typeof(DateTime),
                 oldType: "timestamp",
-                oldNullable: true);
+                oldNullable: true
+            );
 
             migrationBuilder.AlterColumn<DateTime>(
                 name: "createdAt",
@@ -173,7 +189,8 @@ namespace LiftTrackerApi.Migrations
                 defaultValue: new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                 oldClrType: typeof(DateTime),
                 oldType: "timestamp",
-                oldNullable: true);
+                oldNullable: true
+            );
 
             migrationBuilder.AlterColumn<DateTime>(
                 name: "createdAt",
@@ -183,7 +200,8 @@ namespace LiftTrackerApi.Migrations
                 defaultValue: new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                 oldClrType: typeof(DateTime),
                 oldType: "timestamp",
-                oldNullable: true);
+                oldNullable: true
+            );
 
             migrationBuilder.AlterColumn<string>(
                 name: "name",
@@ -195,7 +213,8 @@ namespace LiftTrackerApi.Migrations
                 oldClrType: typeof(string),
                 oldType: "varchar(255)",
                 oldMaxLength: 255,
-                oldNullable: true);
+                oldNullable: true
+            );
 
             migrationBuilder.AlterColumn<DateTime>(
                 name: "createdAt",
@@ -205,7 +224,8 @@ namespace LiftTrackerApi.Migrations
                 defaultValue: new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                 oldClrType: typeof(DateTime),
                 oldType: "timestamp",
-                oldNullable: true);
+                oldNullable: true
+            );
         }
     }
 }

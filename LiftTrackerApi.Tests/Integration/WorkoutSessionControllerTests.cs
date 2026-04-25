@@ -34,14 +34,14 @@ public class WorkoutSessionControllerTests(WorkoutDbFixture fixture)
         );
 
         var json = await response.Content.ReadAsStringAsync();
-        var sessions =
-            JsonConvert.DeserializeObject<PaginatedListDto<WorkoutSessionDto>>(json);
+        var sessions = JsonConvert.DeserializeObject<PaginatedListDto<WorkoutSessionDto>>(json);
 
         Assert.NotNull(sessions);
         Assert.NotEmpty(sessions!.Items);
 
-        var workoutSession = sessions.Items
-            .First(session => session.Uuid == Guid.Parse("27ffe07e-ecfd-4599-b132-6ec9e35fee1d"));
+        var workoutSession = sessions.Items.First(session =>
+            session.Uuid == Guid.Parse("27ffe07e-ecfd-4599-b132-6ec9e35fee1d")
+        );
 
         AssertTestSessionStructure(workoutSession);
     }
@@ -301,10 +301,7 @@ public class WorkoutSessionControllerTests(WorkoutDbFixture fixture)
         try
         {
             var requestJson = JsonConvert.SerializeObject(
-                new
-                {
-                    RoutineUuid = Guid.Parse("cd218127-b60d-46a7-bbc1-a17332bea15f"),
-                }
+                new { RoutineUuid = Guid.Parse("cd218127-b60d-46a7-bbc1-a17332bea15f") }
             );
             var content = new StringContent(requestJson, Encoding.UTF8, "application/json");
 
@@ -315,9 +312,9 @@ public class WorkoutSessionControllerTests(WorkoutDbFixture fixture)
             var workoutSession = JsonConvert.DeserializeObject<WorkoutSessionDto>(json);
 
             createdSessionUuid = workoutSession!.Uuid;
-            workoutSession.WorkoutProgramRoutineUuid.Should().Be(
-                Guid.Parse("cd218127-b60d-46a7-bbc1-a17332bea15f")
-            );
+            workoutSession
+                .WorkoutProgramRoutineUuid.Should()
+                .Be(Guid.Parse("cd218127-b60d-46a7-bbc1-a17332bea15f"));
             var exercise = workoutSession.SessionExercises.Single();
             exercise.ProgressionScheme.Should().Be(ProgressionScheme.FiveThreeOne);
             exercise.SessionSets.Select(set => set.Weight).Should().Equal(70m, 80m, 90m);
@@ -348,13 +345,17 @@ public class WorkoutSessionControllerTests(WorkoutDbFixture fixture)
         try
         {
             var startRequestJson = JsonConvert.SerializeObject(
-                new
-                {
-                    RoutineUuid = Guid.Parse("cd218127-b60d-46a7-bbc1-a17332bea15f"),
-                }
+                new { RoutineUuid = Guid.Parse("cd218127-b60d-46a7-bbc1-a17332bea15f") }
             );
-            var startContent = new StringContent(startRequestJson, Encoding.UTF8, "application/json");
-            var startResponse = await _client.PostAsync("/api/workout-sessions/start", startContent);
+            var startContent = new StringContent(
+                startRequestJson,
+                Encoding.UTF8,
+                "application/json"
+            );
+            var startResponse = await _client.PostAsync(
+                "/api/workout-sessions/start",
+                startContent
+            );
             startResponse.EnsureSuccessStatusCode();
             var startedSession = JsonConvert.DeserializeObject<WorkoutSessionDto>(
                 await startResponse.Content.ReadAsStringAsync()
@@ -365,12 +366,18 @@ public class WorkoutSessionControllerTests(WorkoutDbFixture fixture)
             var updateJson = JsonConvert.SerializeObject(startedSession);
             var updateContent = new StringContent(updateJson, Encoding.UTF8, "application/json");
 
-            var firstUpdateResponse = await _client.PutAsync("/api/workout-sessions", updateContent);
+            var firstUpdateResponse = await _client.PutAsync(
+                "/api/workout-sessions",
+                updateContent
+            );
             firstUpdateResponse.EnsureSuccessStatusCode();
 
             await AssertRoutineExerciseProgression(exerciseUuid, 102.5m, 1);
 
-            var secondUpdateResponse = await _client.PutAsync("/api/workout-sessions", updateContent);
+            var secondUpdateResponse = await _client.PutAsync(
+                "/api/workout-sessions",
+                updateContent
+            );
             secondUpdateResponse.EnsureSuccessStatusCode();
 
             await AssertRoutineExerciseProgression(exerciseUuid, 102.5m, 1);
@@ -441,7 +448,9 @@ public class WorkoutSessionControllerTests(WorkoutDbFixture fixture)
 
         try
         {
-            var firstSession = await StartWorkout(Guid.Parse("cd218127-b60d-46a7-bbc1-a17332bea15f"));
+            var firstSession = await StartWorkout(
+                Guid.Parse("cd218127-b60d-46a7-bbc1-a17332bea15f")
+            );
             firstSessionUuid = firstSession.Uuid;
             ApplySetMetrics(firstSession, 100m, 5m, 8);
             firstSession.EndedAt = DateTime.Parse("2026-04-18T10:00:00Z");
@@ -658,18 +667,18 @@ public class WorkoutSessionControllerTests(WorkoutDbFixture fixture)
             var firstSession = await StartWorkout(routineUuid);
             firstSessionUuid = firstSession.Uuid;
             firstSession.SessionExercises.Should().HaveCount(2);
-            firstSession.SessionExercises.Select(exercise => exercise.Name).Should().Equal(
-                "Bench 531",
-                "Rows"
-            );
+            firstSession
+                .SessionExercises.Select(exercise => exercise.Name)
+                .Should()
+                .Equal("Bench 531", "Rows");
 
             var secondSession = await StartWorkout(routineUuid);
             secondSessionUuid = secondSession.Uuid;
             secondSession.SessionExercises.Should().HaveCount(2);
-            secondSession.SessionExercises.Select(exercise => exercise.Name).Should().Equal(
-                "Bench 531",
-                "Rows"
-            );
+            secondSession
+                .SessionExercises.Select(exercise => exercise.Name)
+                .Should()
+                .Equal("Bench 531", "Rows");
 
             using var scope = fixture.Factory.Services.CreateScope();
             var db = scope.ServiceProvider.GetRequiredService<LiftTrackerDbContext>();
@@ -718,10 +727,10 @@ public class WorkoutSessionControllerTests(WorkoutDbFixture fixture)
             var startedSession = await StartWorkout(routineUuid);
 
             startedSession.Uuid.Should().Be(checkInUuid);
-            startedSession.SessionExercises.Select(exercise => exercise.Name).Should().Equal(
-                "Bench 531",
-                "Rows"
-            );
+            startedSession
+                .SessionExercises.Select(exercise => exercise.Name)
+                .Should()
+                .Equal("Bench 531", "Rows");
 
             using var scope = fixture.Factory.Services.CreateScope();
             var db = scope.ServiceProvider.GetRequiredService<LiftTrackerDbContext>();
@@ -787,10 +796,10 @@ public class WorkoutSessionControllerTests(WorkoutDbFixture fixture)
             }
 
             var nextSession = await StartWorkout(routineUuid);
-            nextSession.SessionExercises.Select(exercise => exercise.Name).Should().Equal(
-                "DB Bench Volume",
-                "Rows"
-            );
+            nextSession
+                .SessionExercises.Select(exercise => exercise.Name)
+                .Should()
+                .Equal("DB Bench Volume", "Rows");
             await DeleteWorkoutSession(nextSession.Uuid);
         }
         finally
@@ -860,7 +869,11 @@ public class WorkoutSessionControllerTests(WorkoutDbFixture fixture)
         Assert.Single(squatsSets);
     }
 
-    private async Task<(decimal? Weight, ProgressionScheme? Scheme, ProgressionSchemeSettings? Settings)> ConfigureFiveThreeOneExercise(
+    private async Task<(
+        decimal? Weight,
+        ProgressionScheme? Scheme,
+        ProgressionSchemeSettings? Settings
+    )> ConfigureFiveThreeOneExercise(
         Guid exerciseUuid,
         decimal trainingMax,
         int currentCycleWeek,
@@ -902,7 +915,11 @@ public class WorkoutSessionControllerTests(WorkoutDbFixture fixture)
 
     private async Task RestoreFiveThreeOneExercise(
         Guid exerciseUuid,
-        (decimal? Weight, ProgressionScheme? Scheme, ProgressionSchemeSettings? Settings) originalExercise
+        (
+            decimal? Weight,
+            ProgressionScheme? Scheme,
+            ProgressionSchemeSettings? Settings
+        ) originalExercise
     )
     {
         using var scope = fixture.Factory.Services.CreateScope();
@@ -914,7 +931,11 @@ public class WorkoutSessionControllerTests(WorkoutDbFixture fixture)
         await db.SaveChangesAsync();
     }
 
-    private async Task<(decimal? Weight, ProgressionScheme? Scheme, ProgressionSchemeSettings? Settings)> ConfigureGatedLinearExercise(
+    private async Task<(
+        decimal? Weight,
+        ProgressionScheme? Scheme,
+        ProgressionSchemeSettings? Settings
+    )> ConfigureGatedLinearExercise(
         Guid exerciseUuid,
         decimal weight,
         int requiredSuccessStreak,
@@ -964,7 +985,11 @@ public class WorkoutSessionControllerTests(WorkoutDbFixture fixture)
 
     private async Task RestoreRoutineExerciseState(
         Guid exerciseUuid,
-        (decimal? Weight, ProgressionScheme? Scheme, ProgressionSchemeSettings? Settings) originalExercise
+        (
+            decimal? Weight,
+            ProgressionScheme? Scheme,
+            ProgressionSchemeSettings? Settings
+        ) originalExercise
     )
     {
         using var scope = fixture.Factory.Services.CreateScope();
@@ -1007,7 +1032,9 @@ public class WorkoutSessionControllerTests(WorkoutDbFixture fixture)
         return (ProgressionSchemeGatedLinearSettings)settings!;
     }
 
-    private async Task<List<(Guid Uuid, DateTime? CreatedAt)>> MoveTodayUnstartedSessionsOutOfMergeWindow()
+    private async Task<
+        List<(Guid Uuid, DateTime? CreatedAt)>
+    > MoveTodayUnstartedSessionsOutOfMergeWindow()
     {
         using var scope = fixture.Factory.Services.CreateScope();
         var db = scope.ServiceProvider.GetRequiredService<LiftTrackerDbContext>();
@@ -1132,7 +1159,9 @@ public class WorkoutSessionControllerTests(WorkoutDbFixture fixture)
 
         using var afterScope = fixture.Factory.Services.CreateScope();
         var afterDb = afterScope.ServiceProvider.GetRequiredService<LiftTrackerDbContext>();
-        var routineExerciseCountAfter = await afterDb.RoutineExercises.IgnoreQueryFilters().CountAsync();
+        var routineExerciseCountAfter = await afterDb
+            .RoutineExercises.IgnoreQueryFilters()
+            .CountAsync();
         routineExerciseCountAfter.Should().Be(routineExerciseCountBefore);
 
         var blankRoutineExercises = await afterDb
@@ -1192,9 +1221,7 @@ public class WorkoutSessionControllerTests(WorkoutDbFixture fixture)
                         Uuid = Guid.Parse("f7dcf236-0b19-4974-a6d3-0ca97c61edd6"),
                         Name = "Deadlifts",
                         Position = 0,
-                        RoutineExerciseUuid = Guid.Parse(
-                            "231f3f81-4680-4086-b228-168116ae330a"
-                        ),
+                        RoutineExerciseUuid = Guid.Parse("231f3f81-4680-4086-b228-168116ae330a"),
                         SessionSets = new[]
                         {
                             new
@@ -1435,7 +1462,10 @@ public class WorkoutSessionControllerTests(WorkoutDbFixture fixture)
         return workoutSession;
     }
 
-    private async Task<Guid> CreateRotationGroupWorkoutProgram(Guid workoutProgramUuid, Guid routineUuid)
+    private async Task<Guid> CreateRotationGroupWorkoutProgram(
+        Guid workoutProgramUuid,
+        Guid routineUuid
+    )
     {
         var rotationGroupUuid = Guid.NewGuid();
         var firstExerciseUuid = Guid.NewGuid();

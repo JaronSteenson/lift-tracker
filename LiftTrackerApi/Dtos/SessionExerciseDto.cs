@@ -23,6 +23,7 @@ public class SessionExerciseDto : IValidatableObject
 
     public decimal? PlannedWeight { get; set; }
     public ProgressionScheme? ProgressionScheme { get; set; }
+
     [Range(1, 10, ErrorMessage = "Planned RPE must be between 1 and 10")]
     public int? PlannedRpe { get; set; }
     public int? PlannedRestPeriodDuration { get; set; }

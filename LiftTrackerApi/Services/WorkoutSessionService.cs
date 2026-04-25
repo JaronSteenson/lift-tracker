@@ -151,10 +151,7 @@ public class WorkoutSessionService(
     /// <summary>
     /// Simple nested  create method for a new WorkoutProgram with children (WorkoutProgramRoutine, and RoutineExercises),.
     /// </summary>
-    public async Task<WorkoutSession> CreateWithChildren(
-        WorkoutSessionDto request,
-        int userId
-    )
+    public async Task<WorkoutSession> CreateWithChildren(WorkoutSessionDto request, int userId)
     {
         var newWorkoutSession = MapWorkoutSession(request);
         newWorkoutSession.UserId = userId;
@@ -180,7 +177,10 @@ public class WorkoutSessionService(
             throw new ArgumentException("Routine UUID is required.");
         }
 
-        var routine = await workoutProgramService.FindRoutineByUuidAndOwner(request.RoutineUuid.Value, userId);
+        var routine = await workoutProgramService.FindRoutineByUuidAndOwner(
+            request.RoutineUuid.Value,
+            userId
+        );
         var startedAt = DateTime.UtcNow;
         var existingCheckIn = await db
             .WorkoutSessions.Include(session => session.SessionExercises)
@@ -213,7 +213,9 @@ public class WorkoutSessionService(
         {
             if (existingCheckIn.SessionExercises.Count > 0)
             {
-                db.RemoveRange(existingCheckIn.SessionExercises.SelectMany(exercise => exercise.SessionSets));
+                db.RemoveRange(
+                    existingCheckIn.SessionExercises.SelectMany(exercise => exercise.SessionSets)
+                );
                 db.RemoveRange(existingCheckIn.SessionExercises);
             }
 
@@ -245,7 +247,9 @@ public class WorkoutSessionService(
         if (workoutProgramRoutineUuid != null)
         {
             var sourceRoutine =
-                await db.WorkoutProgramRoutines.WhereUuid(workoutProgramRoutineUuid).FirstOrDefaultAsync()
+                await db
+                    .WorkoutProgramRoutines.WhereUuid(workoutProgramRoutineUuid)
+                    .FirstOrDefaultAsync()
                 ?? throw new NotFoundException(
                     $"WorkoutProgramRoutine with UUID {workoutProgramRoutineUuid} not found."
                 );
@@ -261,8 +265,8 @@ public class WorkoutSessionService(
         IEnumerable<SessionExerciseDto> exerciseRequests
     )
     {
-        var requestExerciseMap = exerciseRequests.ToDictionary(
-            exercise => exercise.Uuid ?? Guid.NewGuid()
+        var requestExerciseMap = exerciseRequests.ToDictionary(exercise =>
+            exercise.Uuid ?? Guid.NewGuid()
         );
         var allSourceUuids = exerciseRequests
             .Select(exercise => exercise.RoutineExerciseUuid)
@@ -302,10 +306,7 @@ public class WorkoutSessionService(
     /// Nested update method for an existing WorkoutProgram with children (WorkoutProgramRoutine, and RoutineExercises).
     /// If any children are not present in the updated WorkoutProgram, they will be removed.
     /// </summary>
-    public async Task<WorkoutSession> UpdateWithChildren(
-        WorkoutSessionDto request,
-        int userId
-    )
+    public async Task<WorkoutSession> UpdateWithChildren(WorkoutSessionDto request, int userId)
     {
         if (!request.Uuid.HasValue)
         {
@@ -425,7 +426,9 @@ public class WorkoutSessionService(
             .SessionExercises.Include(exercise => exercise.SessionSets)
             .Include(exercise => exercise.RoutineExercise)
             .Include(exercise => exercise.WorkoutSession)
-            .Where(exercise => EF.Property<int?>(exercise, "RoutineExerciseId") == sourceRoutineExerciseId)
+            .Where(exercise =>
+                EF.Property<int?>(exercise, "RoutineExerciseId") == sourceRoutineExerciseId
+            )
             .Where(exercise => !exercise.Skipped)
             .Where(exercise => exercise.WorkoutSession.UserId == userId)
             .Where(exercise => exercise.CreatedAt <= sourceExercise.CreatedAt)
@@ -439,8 +442,7 @@ public class WorkoutSessionService(
         );
 
         var orderedPage = pagedHistory
-            .Items
-            .OrderBy(exercise => exercise.WorkoutSession.CreatedAt)
+            .Items.OrderBy(exercise => exercise.WorkoutSession.CreatedAt)
             .ThenBy(exercise => exercise.Id)
             .ToList();
 
@@ -512,7 +514,10 @@ public class WorkoutSessionService(
         exercise.SessionSets = exercise.SessionSets.OrderByPosition().ToList();
     }
 
-    private async Task AssociateSourceExercise(SessionExercise sessionExercise, Guid? routineExerciseUuid)
+    private async Task AssociateSourceExercise(
+        SessionExercise sessionExercise,
+        Guid? routineExerciseUuid
+    )
     {
         if (routineExerciseUuid == null)
         {
@@ -531,8 +536,8 @@ public class WorkoutSessionService(
 
     private async Task AdvanceProgressionSchemes(WorkoutSession session)
     {
-        var routineExerciseIds = session.SessionExercises
-            .Where(exercise => !exercise.Skipped)
+        var routineExerciseIds = session
+            .SessionExercises.Where(exercise => !exercise.Skipped)
             .Where(exercise => exercise.ProgressionScheme != null)
             .Select(exercise => exercise.RoutineExercise?.Id)
             .Where(id => id != null)
@@ -549,7 +554,9 @@ public class WorkoutSessionService(
             .ToDictionaryAsync(exercise => exercise.Id!.Value);
         var advancedRoutineExerciseIds = new HashSet<int>();
 
-        foreach (var sessionExercise in session.SessionExercises.Where(exercise => !exercise.Skipped))
+        foreach (
+            var sessionExercise in session.SessionExercises.Where(exercise => !exercise.Skipped)
+        )
         {
             if (sessionExercise.ProgressionScheme == null)
             {
@@ -571,7 +578,9 @@ public class WorkoutSessionService(
                 continue;
             }
 
-            var strategy = progressionSchemeRegistry.GetRequiredStrategy(sessionExercise.ProgressionScheme);
+            var strategy = progressionSchemeRegistry.GetRequiredStrategy(
+                sessionExercise.ProgressionScheme
+            );
             strategy.Advance(sessionExercise, routineExercise);
         }
     }
@@ -587,12 +596,16 @@ public class WorkoutSessionService(
 
         return selectedExercises
             .OrderBy(selection => selection.Position)
-            .Select((selection, index) =>
-            {
-                var sessionExercise = CreateSessionExerciseFromRoutineExercise(selection.RoutineExercise);
-                sessionExercise.Position = index;
-                return sessionExercise;
-            })
+            .Select(
+                (selection, index) =>
+                {
+                    var sessionExercise = CreateSessionExerciseFromRoutineExercise(
+                        selection.RoutineExercise
+                    );
+                    sessionExercise.Position = index;
+                    return sessionExercise;
+                }
+            )
             .ToList();
     }
 
@@ -600,15 +613,17 @@ public class WorkoutSessionService(
         WorkoutProgramRoutine routine
     )
     {
-        var selectedExercises = routine.RoutineExercises
-            .Where(exercise => exercise.RoutineExerciseRotationGroupId == null)
+        var selectedExercises = routine
+            .RoutineExercises.Where(exercise => exercise.RoutineExerciseRotationGroupId == null)
             .Select(exercise => (RoutineExercise: exercise, Position: exercise.Position))
             .ToList();
 
         foreach (var rotationGroup in routine.RoutineExerciseRotationGroups)
         {
-            var groupExercises = routine.RoutineExercises
-                .Where(exercise => exercise.RoutineExerciseRotationGroupId == rotationGroup.Id)
+            var groupExercises = routine
+                .RoutineExercises.Where(exercise =>
+                    exercise.RoutineExerciseRotationGroupId == rotationGroup.Id
+                )
                 .OrderBy(exercise => exercise.RotationGroupPosition ?? int.MaxValue)
                 .ThenBy(exercise => exercise.Position)
                 .ToList();
@@ -623,10 +638,7 @@ public class WorkoutSessionService(
                     ? 0
                     : rotationGroup.NextExerciseIndex % groupExercises.Count;
             selectedExercises.Add(
-                (
-                    groupExercises[currentIndex],
-                    groupExercises.Min(exercise => exercise.Position)
-                )
+                (groupExercises[currentIndex], groupExercises.Min(exercise => exercise.Position))
             );
         }
 
@@ -635,8 +647,10 @@ public class WorkoutSessionService(
 
     private async Task AdvanceRotationGroupsOnCompletion(WorkoutSession session)
     {
-        var rotationGroupIds = session.SessionExercises
-            .Select(exercise => exercise.RoutineExercise?.RoutineExerciseRotationGroupId)
+        var rotationGroupIds = session
+            .SessionExercises.Select(exercise =>
+                exercise.RoutineExercise?.RoutineExerciseRotationGroupId
+            )
             .Where(id => id != null)
             .Select(id => id!.Value)
             .Distinct()
@@ -648,7 +662,9 @@ public class WorkoutSessionService(
         }
 
         var rotationGroups = await db
-            .RoutineExerciseRotationGroups.Where(group => rotationGroupIds.Contains(group.Id!.Value))
+            .RoutineExerciseRotationGroups.Where(group =>
+                rotationGroupIds.Contains(group.Id!.Value)
+            )
             .ToListAsync();
 
         foreach (var rotationGroup in rotationGroups)
@@ -671,7 +687,9 @@ public class WorkoutSessionService(
         }
     }
 
-    private SessionExercise CreateSessionExerciseFromRoutineExercise(RoutineExercise routineExercise)
+    private SessionExercise CreateSessionExerciseFromRoutineExercise(
+        RoutineExercise routineExercise
+    )
     {
         if (routineExercise.ProgressionScheme == null)
         {
@@ -700,7 +718,9 @@ public class WorkoutSessionService(
             };
         }
 
-        var strategy = progressionSchemeRegistry.GetRequiredStrategy(routineExercise.ProgressionScheme);
+        var strategy = progressionSchemeRegistry.GetRequiredStrategy(
+            routineExercise.ProgressionScheme
+        );
         var sessionExercise = strategy.CreateSessionExercise(routineExercise);
         sessionExercise.RoutineExercise = routineExercise;
         return sessionExercise;
@@ -719,20 +739,14 @@ public class WorkoutSessionService(
             PlannedWarmUp = null,
             WarmUpDuration = null,
             Skipped = false,
-            SessionSets =
-            [
-                new SessionSet
-                {
-                    Position = 0,
-                },
-            ],
+            SessionSets = [new SessionSet { Position = 0 }],
         };
     }
 
     private static void MarkFirstSetStarted(WorkoutSession session, DateTime startedAt)
     {
-        var firstSet = session.SessionExercises
-            .OrderBy(exercise => exercise.Position)
+        var firstSet = session
+            .SessionExercises.OrderBy(exercise => exercise.Position)
             .FirstOrDefault()
             ?.SessionSets.OrderBy(set => set.Position)
             .FirstOrDefault();

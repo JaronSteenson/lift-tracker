@@ -26,7 +26,10 @@ public class WorkoutProgramService(LiftTrackerDbContext db, DomainEntityService 
         return routine;
     }
 
-    public async Task<RoutineExercise> FindRoutineExerciseByUuidAndOwner(Guid exerciseUuid, int userId)
+    public async Task<RoutineExercise> FindRoutineExerciseByUuidAndOwner(
+        Guid exerciseUuid,
+        int userId
+    )
     {
         return await db
                 .RoutineExercises.Include(item => item.RoutineExerciseRotationGroup)
@@ -59,12 +62,15 @@ public class WorkoutProgramService(LiftTrackerDbContext db, DomainEntityService 
                 {
                     CurrentCycleWeek =
                         currentCycleWeek
-                        ?? (exercise.ProgressionSchemeSettings as ProgressionScheme531Settings)
-                            ?.CurrentCycleWeek
+                        ?? (
+                            exercise.ProgressionSchemeSettings as ProgressionScheme531Settings
+                        )?.CurrentCycleWeek
                         ?? 1,
                     BodyType =
                         bodyType
-                        ?? (exercise.ProgressionSchemeSettings as ProgressionScheme531Settings)?.BodyType
+                        ?? (
+                            exercise.ProgressionSchemeSettings as ProgressionScheme531Settings
+                        )?.BodyType
                         ?? ProgressionScheme531BodyType.Upper,
                 }
                 : exercise.ProgressionSchemeSettings?.Clone();
@@ -257,7 +263,10 @@ public class WorkoutProgramService(LiftTrackerDbContext db, DomainEntityService 
 
             if (
                 !updatedExercise.Uuid.HasValue
-                || !existingExercises.TryGetValue(updatedExercise.Uuid.Value, out var existingExercise)
+                || !existingExercises.TryGetValue(
+                    updatedExercise.Uuid.Value,
+                    out var existingExercise
+                )
                 || existingExercise.ProgressionScheme != ProgressionScheme.GatedLinear
                 || existingExercise.ProgressionSchemeSettings
                     is not ProgressionSchemeGatedLinearSettings existingSettings
@@ -295,7 +304,9 @@ public class WorkoutProgramService(LiftTrackerDbContext db, DomainEntityService 
 
     private static IEnumerable<RoutineExercise> EnumerateExercises(WorkoutProgram workoutProgram)
     {
-        return workoutProgram.WorkoutProgramRoutines.SelectMany(routine => routine.RoutineExercises);
+        return workoutProgram.WorkoutProgramRoutines.SelectMany(routine =>
+            routine.RoutineExercises
+        );
     }
 
     public async Task DeleteWorkoutProgram(Guid workoutProgramUuid, int userId)
@@ -318,7 +329,9 @@ public class WorkoutProgramService(LiftTrackerDbContext db, DomainEntityService 
             .ToDictionary(exercise => exercise.Uuid ?? Guid.Empty);
     }
 
-    private Dictionary<Guid, RoutineExerciseRotationGroup> ToRotationGroupMap(WorkoutProgram program)
+    private Dictionary<Guid, RoutineExerciseRotationGroup> ToRotationGroupMap(
+        WorkoutProgram program
+    )
     {
         return program
             .WorkoutProgramRoutines.SelectMany(routine => routine.RoutineExerciseRotationGroups)
@@ -346,14 +359,16 @@ public class WorkoutProgramService(LiftTrackerDbContext db, DomainEntityService 
     {
         foreach (var routine in workoutProgram.WorkoutProgramRoutines)
         {
-            routine.RoutineExerciseRotationGroups = routine.RoutineExerciseRotationGroups
-                .Where(group =>
-                    routine.RoutineExercises.Any(exercise => exercise.RotationGroupUuid == group.Uuid)
+            routine.RoutineExerciseRotationGroups = routine
+                .RoutineExerciseRotationGroups.Where(group =>
+                    routine.RoutineExercises.Any(exercise =>
+                        exercise.RotationGroupUuid == group.Uuid
+                    )
                 )
                 .ToList();
 
-            var groupsByUuid = routine.RoutineExerciseRotationGroups.ToDictionary(
-                group => group.Uuid ?? Guid.Empty
+            var groupsByUuid = routine.RoutineExerciseRotationGroups.ToDictionary(group =>
+                group.Uuid ?? Guid.Empty
             );
 
             foreach (var exercise in routine.RoutineExercises)
@@ -377,8 +392,8 @@ public class WorkoutProgramService(LiftTrackerDbContext db, DomainEntityService 
                 exercise.RoutineExerciseRotationGroup = rotationGroup;
             }
 
-            routine.RoutineExerciseRotationGroups = routine.RoutineExerciseRotationGroups
-                .Select(group =>
+            routine.RoutineExerciseRotationGroups = routine
+                .RoutineExerciseRotationGroups.Select(group =>
                 {
                     var memberCount = routine.RoutineExercises.Count(exercise =>
                         exercise.RotationGroupUuid == group.Uuid
@@ -391,9 +406,7 @@ public class WorkoutProgramService(LiftTrackerDbContext db, DomainEntityService 
                     }
 
                     group.NextExerciseIndex =
-                        group.NextExerciseIndex < 0
-                            ? 0
-                            : group.NextExerciseIndex % memberCount;
+                        group.NextExerciseIndex < 0 ? 0 : group.NextExerciseIndex % memberCount;
                     return group;
                 })
                 .ToList();
@@ -429,8 +442,8 @@ public class WorkoutProgramService(LiftTrackerDbContext db, DomainEntityService 
 
         workoutProgramRoutine.RoutineExerciseRotationGroups = workoutProgramRoutine
             .RoutineExerciseRotationGroups.OrderBy(group =>
-                group.RoutineExercises
-                    .Select(exercise => exercise.Position)
+                group
+                    .RoutineExercises.Select(exercise => exercise.Position)
                     .DefaultIfEmpty(int.MaxValue)
                     .Min()
             )

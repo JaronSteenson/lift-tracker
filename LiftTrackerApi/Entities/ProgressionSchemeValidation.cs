@@ -36,7 +36,10 @@ public static class ProgressionSchemeValidation
         switch (progressionScheme)
         {
             case ProgressionScheme.FiveThreeOne:
-                if (progressionSchemeSettings is not ProgressionScheme531Settings fiveThreeOneSettings)
+                if (
+                    progressionSchemeSettings
+                    is not ProgressionScheme531Settings fiveThreeOneSettings
+                )
                 {
                     yield return new ValidationResult(
                         "531 progression scheme settings are required.",
@@ -58,7 +61,8 @@ public static class ProgressionSchemeValidation
                 yield break;
             case ProgressionScheme.GatedLinear:
                 if (
-                    progressionSchemeSettings is not ProgressionSchemeGatedLinearSettings gatedLinearSettings
+                    progressionSchemeSettings
+                    is not ProgressionSchemeGatedLinearSettings gatedLinearSettings
                 )
                 {
                     yield return new ValidationResult(
@@ -99,10 +103,7 @@ public static class ProgressionSchemeValidation
     {
         if (progressionScheme != null && !Enum.IsDefined(progressionScheme.Value))
         {
-            yield return new ValidationResult(
-                "Progression scheme is invalid.",
-                [schemeMemberName]
-            );
+            yield return new ValidationResult("Progression scheme is invalid.", [schemeMemberName]);
         }
     }
 
@@ -123,7 +124,9 @@ public static class ProgressionSchemeValidation
         foreach (var validationResult in validationResults)
         {
             var memberNames = validationResult.MemberNames.Any()
-                ? validationResult.MemberNames.Select(memberName => $"{settingsMemberName}.{memberName}")
+                ? validationResult.MemberNames.Select(memberName =>
+                    $"{settingsMemberName}.{memberName}"
+                )
                 : [settingsMemberName];
             yield return new ValidationResult(validationResult.ErrorMessage, memberNames);
         }

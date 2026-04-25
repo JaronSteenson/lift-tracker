@@ -45,12 +45,18 @@ If `npm run lint-fix` changes files, review the diff and rerun `npm run test`.
 # Testing
 cd LiftTrackerApi && dotnet test
 
+# Formatting
+cd LiftTrackerApi && dotnet csharpier format . && dotnet csharpier format ../LiftTrackerApi.Tests
+
 # Database migrations
 cd LiftTrackerApi
 ASPNETCORE_ENVIRONMENT=Development dotnet ef database update
 ASPNETCORE_ENVIRONMENT=Test dotnet ef database update
 dotnet ef migrations add MigrationName
 ```
+
+When backend files are edited, run `cd LiftTrackerApi && dotnet csharpier format . && dotnet csharpier format ../LiftTrackerApi.Tests` before finalizing.
+When backend files are edited, run `cd LiftTrackerApi && dotnet test` before finalizing.
 
 ## Architecture
 ### Frontend Structure

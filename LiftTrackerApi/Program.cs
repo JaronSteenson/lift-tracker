@@ -127,7 +127,9 @@ if (app.Environment.IsProduction())
 }
 else
 {
-    Log.Logger.Information("Running application in local development mode, serving at http://localhost:5299/api/");
+    Log.Logger.Information(
+        "Running application in local development mode, serving at http://localhost:5299/api/"
+    );
     app.UseCors("AllowVueDev");
 }
 

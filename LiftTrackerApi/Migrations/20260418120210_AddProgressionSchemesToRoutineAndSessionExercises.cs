@@ -14,35 +14,35 @@ namespace LiftTrackerApi.Migrations
                 name: "progressionScheme",
                 table: "SessionExercises",
                 type: "int",
-                nullable: true);
+                nullable: true
+            );
 
             migrationBuilder.AddColumn<int>(
                 name: "progressionScheme",
                 table: "RoutineExercises",
                 type: "int",
-                nullable: true);
+                nullable: true
+            );
 
             migrationBuilder.AddColumn<string>(
                 name: "progressionSchemeSettings",
                 table: "RoutineExercises",
                 type: "json",
-                nullable: true);
+                nullable: true
+            );
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropColumn(
-                name: "progressionScheme",
-                table: "SessionExercises");
+            migrationBuilder.DropColumn(name: "progressionScheme", table: "SessionExercises");
 
-            migrationBuilder.DropColumn(
-                name: "progressionScheme",
-                table: "RoutineExercises");
+            migrationBuilder.DropColumn(name: "progressionScheme", table: "RoutineExercises");
 
             migrationBuilder.DropColumn(
                 name: "progressionSchemeSettings",
-                table: "RoutineExercises");
+                table: "RoutineExercises"
+            );
         }
     }
 }

@@ -85,7 +85,8 @@ internal sealed class ProgressionSchemeSettingsNewtonsoftJsonConverter
 
     private static JToken? FindProperty(JObject jsonObject, string propertyName)
     {
-        return jsonObject.Properties()
+        return jsonObject
+            .Properties()
             .FirstOrDefault(property =>
                 string.Equals(property.Name, propertyName, StringComparison.OrdinalIgnoreCase)
             )

@@ -216,8 +216,10 @@ public class WorkoutProgramControllerTests(WorkoutDbFixture fixture)
             var json = await response.Content.ReadAsStringAsync();
             var workoutProgram = JsonConvert.DeserializeObject<WorkoutProgram>(json);
 
-            var exercise = workoutProgram!.WorkoutProgramRoutines
-                .Single(routine => routine.Uuid == Guid.Parse("cd218127-b60d-46a7-bbc1-a17332bea15f"))
+            var exercise = workoutProgram!
+                .WorkoutProgramRoutines.Single(routine =>
+                    routine.Uuid == Guid.Parse("cd218127-b60d-46a7-bbc1-a17332bea15f")
+                )
                 .RoutineExercises.Single();
             exercise.ProgressionScheme = ProgressionScheme.FiveThreeOne;
             exercise.ProgressionSchemeSettings = new ProgressionScheme531Settings
@@ -235,8 +237,10 @@ public class WorkoutProgramControllerTests(WorkoutDbFixture fixture)
             updateResponse.EnsureSuccessStatusCode();
             var updatedJson = await updateResponse.Content.ReadAsStringAsync();
             var updatedWorkoutProgram = JsonConvert.DeserializeObject<WorkoutProgram>(updatedJson);
-            var updatedExercise = updatedWorkoutProgram!.WorkoutProgramRoutines
-                .Single(routine => routine.Uuid == Guid.Parse("cd218127-b60d-46a7-bbc1-a17332bea15f"))
+            var updatedExercise = updatedWorkoutProgram!
+                .WorkoutProgramRoutines.Single(routine =>
+                    routine.Uuid == Guid.Parse("cd218127-b60d-46a7-bbc1-a17332bea15f")
+                )
                 .RoutineExercises.Single();
             var settings = AssertFiveThreeOneSettings(updatedExercise.ProgressionSchemeSettings);
 
@@ -265,8 +269,10 @@ public class WorkoutProgramControllerTests(WorkoutDbFixture fixture)
             var json = await response.Content.ReadAsStringAsync();
             var workoutProgram = JsonConvert.DeserializeObject<WorkoutProgram>(json);
 
-            var exercise = workoutProgram!.WorkoutProgramRoutines
-                .Single(routine => routine.Uuid == Guid.Parse("cd218127-b60d-46a7-bbc1-a17332bea15f"))
+            var exercise = workoutProgram!
+                .WorkoutProgramRoutines.Single(routine =>
+                    routine.Uuid == Guid.Parse("cd218127-b60d-46a7-bbc1-a17332bea15f")
+                )
                 .RoutineExercises.Single();
             exercise.ProgressionScheme = ProgressionScheme.FiveThreeOne;
             exercise.ProgressionSchemeSettings = null;
@@ -300,8 +306,10 @@ public class WorkoutProgramControllerTests(WorkoutDbFixture fixture)
             var json = await response.Content.ReadAsStringAsync();
             var workoutProgram = JsonConvert.DeserializeObject<WorkoutProgram>(json);
 
-            var exercise = workoutProgram!.WorkoutProgramRoutines
-                .Single(routine => routine.Uuid == Guid.Parse("cd218127-b60d-46a7-bbc1-a17332bea15f"))
+            var exercise = workoutProgram!
+                .WorkoutProgramRoutines.Single(routine =>
+                    routine.Uuid == Guid.Parse("cd218127-b60d-46a7-bbc1-a17332bea15f")
+                )
                 .RoutineExercises.Single();
             exercise.ProgressionScheme = ProgressionScheme.GatedLinear;
             exercise.ProgressionSchemeSettings = new ProgressionSchemeGatedLinearSettings
@@ -323,8 +331,10 @@ public class WorkoutProgramControllerTests(WorkoutDbFixture fixture)
             updateResponse.EnsureSuccessStatusCode();
             var updatedJson = await updateResponse.Content.ReadAsStringAsync();
             var updatedWorkoutProgram = JsonConvert.DeserializeObject<WorkoutProgram>(updatedJson);
-            var updatedExercise = updatedWorkoutProgram!.WorkoutProgramRoutines
-                .Single(routine => routine.Uuid == Guid.Parse("cd218127-b60d-46a7-bbc1-a17332bea15f"))
+            var updatedExercise = updatedWorkoutProgram!
+                .WorkoutProgramRoutines.Single(routine =>
+                    routine.Uuid == Guid.Parse("cd218127-b60d-46a7-bbc1-a17332bea15f")
+                )
                 .RoutineExercises.Single();
             var settings = AssertGatedLinearSettings(updatedExercise.ProgressionSchemeSettings);
 
@@ -357,8 +367,10 @@ public class WorkoutProgramControllerTests(WorkoutDbFixture fixture)
             var json = await response.Content.ReadAsStringAsync();
             var workoutProgram = JsonConvert.DeserializeObject<WorkoutProgram>(json);
 
-            var exercise = workoutProgram!.WorkoutProgramRoutines
-                .Single(routine => routine.Uuid == Guid.Parse("cd218127-b60d-46a7-bbc1-a17332bea15f"))
+            var exercise = workoutProgram!
+                .WorkoutProgramRoutines.Single(routine =>
+                    routine.Uuid == Guid.Parse("cd218127-b60d-46a7-bbc1-a17332bea15f")
+                )
                 .RoutineExercises.Single();
             exercise.ProgressionScheme = ProgressionScheme.GatedLinear;
             exercise.ProgressionSchemeSettings = null;
@@ -392,8 +404,10 @@ public class WorkoutProgramControllerTests(WorkoutDbFixture fixture)
             var json = await response.Content.ReadAsStringAsync();
             var workoutProgram = JsonConvert.DeserializeObject<WorkoutProgram>(json);
 
-            var exercise = workoutProgram!.WorkoutProgramRoutines
-                .Single(routine => routine.Uuid == Guid.Parse("cd218127-b60d-46a7-bbc1-a17332bea15f"))
+            var exercise = workoutProgram!
+                .WorkoutProgramRoutines.Single(routine =>
+                    routine.Uuid == Guid.Parse("cd218127-b60d-46a7-bbc1-a17332bea15f")
+                )
                 .RoutineExercises.Single();
             exercise.ProgressionScheme = ProgressionScheme.GatedLinear;
             exercise.ProgressionSchemeSettings = new ProgressionSchemeGatedLinearSettings
@@ -444,8 +458,10 @@ public class WorkoutProgramControllerTests(WorkoutDbFixture fixture)
             var json = await response.Content.ReadAsStringAsync();
             var workoutProgram = JsonConvert.DeserializeObject<WorkoutProgram>(json);
 
-            var exercise = workoutProgram!.WorkoutProgramRoutines
-                .Single(routine => routine.Uuid == Guid.Parse("cd218127-b60d-46a7-bbc1-a17332bea15f"))
+            var exercise = workoutProgram!
+                .WorkoutProgramRoutines.Single(routine =>
+                    routine.Uuid == Guid.Parse("cd218127-b60d-46a7-bbc1-a17332bea15f")
+                )
                 .RoutineExercises.Single();
 
             var requestJson = JsonConvert.SerializeObject(workoutProgram);
@@ -456,8 +472,10 @@ public class WorkoutProgramControllerTests(WorkoutDbFixture fixture)
             updateResponse.EnsureSuccessStatusCode();
             var updatedJson = await updateResponse.Content.ReadAsStringAsync();
             var updatedWorkoutProgram = JsonConvert.DeserializeObject<WorkoutProgram>(updatedJson);
-            var updatedExercise = updatedWorkoutProgram!.WorkoutProgramRoutines
-                .Single(routine => routine.Uuid == Guid.Parse("cd218127-b60d-46a7-bbc1-a17332bea15f"))
+            var updatedExercise = updatedWorkoutProgram!
+                .WorkoutProgramRoutines.Single(routine =>
+                    routine.Uuid == Guid.Parse("cd218127-b60d-46a7-bbc1-a17332bea15f")
+                )
                 .RoutineExercises.Single();
             var settings = AssertGatedLinearSettings(updatedExercise.ProgressionSchemeSettings);
 
@@ -493,8 +511,10 @@ public class WorkoutProgramControllerTests(WorkoutDbFixture fixture)
             var json = await response.Content.ReadAsStringAsync();
             var workoutProgram = JsonConvert.DeserializeObject<WorkoutProgram>(json);
 
-            var exercise = workoutProgram!.WorkoutProgramRoutines
-                .Single(routine => routine.Uuid == Guid.Parse("cd218127-b60d-46a7-bbc1-a17332bea15f"))
+            var exercise = workoutProgram!
+                .WorkoutProgramRoutines.Single(routine =>
+                    routine.Uuid == Guid.Parse("cd218127-b60d-46a7-bbc1-a17332bea15f")
+                )
                 .RoutineExercises.Single();
             exercise.Weight = 102.5m;
 
@@ -506,8 +526,10 @@ public class WorkoutProgramControllerTests(WorkoutDbFixture fixture)
             updateResponse.EnsureSuccessStatusCode();
             var updatedJson = await updateResponse.Content.ReadAsStringAsync();
             var updatedWorkoutProgram = JsonConvert.DeserializeObject<WorkoutProgram>(updatedJson);
-            var updatedExercise = updatedWorkoutProgram!.WorkoutProgramRoutines
-                .Single(routine => routine.Uuid == Guid.Parse("cd218127-b60d-46a7-bbc1-a17332bea15f"))
+            var updatedExercise = updatedWorkoutProgram!
+                .WorkoutProgramRoutines.Single(routine =>
+                    routine.Uuid == Guid.Parse("cd218127-b60d-46a7-bbc1-a17332bea15f")
+                )
                 .RoutineExercises.Single();
             var settings = AssertGatedLinearSettings(updatedExercise.ProgressionSchemeSettings);
 
@@ -600,18 +622,21 @@ public class WorkoutProgramControllerTests(WorkoutDbFixture fixture)
                 exercise.Uuid == firstExerciseUuid
             );
 
-            createdRoutine.RoutineExerciseRotationGroups.Should().ContainSingle(group =>
-                group.Uuid == rotationGroupUuid && group.NextExerciseIndex == 1
-            );
+            createdRoutine
+                .RoutineExerciseRotationGroups.Should()
+                .ContainSingle(group =>
+                    group.Uuid == rotationGroupUuid && group.NextExerciseIndex == 1
+                );
             createdExercise.RotationGroupUuid.Should().Be(rotationGroupUuid);
             createdExercise.RotationGroupPosition.Should().Be(0);
 
             createdExercise.RotationGroupPosition = 1;
-            createdRoutine.RoutineExercises.Single(exercise => exercise.Uuid == secondExerciseUuid)
+            createdRoutine
+                .RoutineExercises.Single(exercise => exercise.Uuid == secondExerciseUuid)
                 .RotationGroupPosition = 0;
-            createdRoutine.RoutineExerciseRotationGroups.Single(group =>
-                group.Uuid == rotationGroupUuid
-            ).NextExerciseIndex = 0;
+            createdRoutine
+                .RoutineExerciseRotationGroups.Single(group => group.Uuid == rotationGroupUuid)
+                .NextExerciseIndex = 0;
 
             var putJson = JsonConvert.SerializeObject(createdWorkoutProgram);
             var putContent = new StringContent(putJson, Encoding.UTF8, "application/json");
@@ -625,15 +650,23 @@ public class WorkoutProgramControllerTests(WorkoutDbFixture fixture)
             var reloadedWorkoutProgram = JsonConvert.DeserializeObject<WorkoutProgram>(getJson);
             var reloadedRoutine = reloadedWorkoutProgram!.WorkoutProgramRoutines.Single();
 
-            reloadedRoutine.RoutineExerciseRotationGroups.Should().ContainSingle(group =>
-                group.Uuid == rotationGroupUuid && group.NextExerciseIndex == 0
-            );
-            reloadedRoutine.RoutineExercises.Single(exercise => exercise.Uuid == firstExerciseUuid)
-                .RotationGroupPosition.Should().Be(1);
-            reloadedRoutine.RoutineExercises.Single(exercise => exercise.Uuid == secondExerciseUuid)
-                .RotationGroupPosition.Should().Be(0);
-            reloadedRoutine.RoutineExercises.Single(exercise => exercise.Uuid == thirdExerciseUuid)
-                .RotationGroupUuid.Should().BeNull();
+            reloadedRoutine
+                .RoutineExerciseRotationGroups.Should()
+                .ContainSingle(group =>
+                    group.Uuid == rotationGroupUuid && group.NextExerciseIndex == 0
+                );
+            reloadedRoutine
+                .RoutineExercises.Single(exercise => exercise.Uuid == firstExerciseUuid)
+                .RotationGroupPosition.Should()
+                .Be(1);
+            reloadedRoutine
+                .RoutineExercises.Single(exercise => exercise.Uuid == secondExerciseUuid)
+                .RotationGroupPosition.Should()
+                .Be(0);
+            reloadedRoutine
+                .RoutineExercises.Single(exercise => exercise.Uuid == thirdExerciseUuid)
+                .RotationGroupUuid.Should()
+                .BeNull();
         }
         finally
         {
@@ -644,13 +677,16 @@ public class WorkoutProgramControllerTests(WorkoutDbFixture fixture)
     [Fact]
     public async Task Put_ReturnsBadRequest_WhenRotationGroupReferenceIsUnknown()
     {
-        var response = await _client.GetAsync("/api/workout-programs/186383a6-e369-4071-b80d-70c82d2495d1");
+        var response = await _client.GetAsync(
+            "/api/workout-programs/186383a6-e369-4071-b80d-70c82d2495d1"
+        );
         response.EnsureSuccessStatusCode();
         var json = await response.Content.ReadAsStringAsync();
         var workoutProgram = JsonConvert.DeserializeObject<WorkoutProgram>(json);
 
-        var routine = workoutProgram!.WorkoutProgramRoutines
-            .Single(r => r.Uuid == Guid.Parse("cd218127-b60d-46a7-bbc1-a17332bea15f"));
+        var routine = workoutProgram!.WorkoutProgramRoutines.Single(r =>
+            r.Uuid == Guid.Parse("cd218127-b60d-46a7-bbc1-a17332bea15f")
+        );
         var exercise = routine.RoutineExercises.Single();
         exercise.RotationGroupUuid = Guid.Parse("e4d97140-d462-4d5d-a8b6-619b67d6f0ce");
         exercise.RotationGroupPosition = 0;
@@ -666,20 +702,19 @@ public class WorkoutProgramControllerTests(WorkoutDbFixture fixture)
     [Fact]
     public async Task Put_RemovesRotationGroupsThatHaveNoMembers()
     {
-        var response = await _client.GetAsync("/api/workout-programs/186383a6-e369-4071-b80d-70c82d2495d1");
+        var response = await _client.GetAsync(
+            "/api/workout-programs/186383a6-e369-4071-b80d-70c82d2495d1"
+        );
         response.EnsureSuccessStatusCode();
         var json = await response.Content.ReadAsStringAsync();
         var workoutProgram = JsonConvert.DeserializeObject<WorkoutProgram>(json);
 
-        var routine = workoutProgram!.WorkoutProgramRoutines
-            .Single(r => r.Uuid == Guid.Parse("cd218127-b60d-46a7-bbc1-a17332bea15f"));
+        var routine = workoutProgram!.WorkoutProgramRoutines.Single(r =>
+            r.Uuid == Guid.Parse("cd218127-b60d-46a7-bbc1-a17332bea15f")
+        );
         routine.RoutineExerciseRotationGroups =
         [
-            new RoutineExerciseRotationGroup
-            {
-                Uuid = Guid.NewGuid(),
-                NextExerciseIndex = 0,
-            },
+            new RoutineExerciseRotationGroup { Uuid = Guid.NewGuid(), NextExerciseIndex = 0 },
         ];
 
         var requestJson = JsonConvert.SerializeObject(workoutProgram);
@@ -690,14 +725,19 @@ public class WorkoutProgramControllerTests(WorkoutDbFixture fixture)
         updateResponse.EnsureSuccessStatusCode();
         var updatedJson = await updateResponse.Content.ReadAsStringAsync();
         var updatedWorkoutProgram = JsonConvert.DeserializeObject<WorkoutProgram>(updatedJson);
-        updatedWorkoutProgram!.WorkoutProgramRoutines
-            .Single(r => r.Uuid == Guid.Parse("cd218127-b60d-46a7-bbc1-a17332bea15f"))
-            .RoutineExerciseRotationGroups.Should().BeEmpty();
+        updatedWorkoutProgram!
+            .WorkoutProgramRoutines.Single(r =>
+                r.Uuid == Guid.Parse("cd218127-b60d-46a7-bbc1-a17332bea15f")
+            )
+            .RoutineExerciseRotationGroups.Should()
+            .BeEmpty();
     }
 
-    private async Task<(decimal? Weight, ProgressionScheme? Scheme, ProgressionSchemeSettings? Settings)> CaptureRoutineExerciseState(
-        Guid exerciseUuid
-    )
+    private async Task<(
+        decimal? Weight,
+        ProgressionScheme? Scheme,
+        ProgressionSchemeSettings? Settings
+    )> CaptureRoutineExerciseState(Guid exerciseUuid)
     {
         using var scope = _fixture.Factory.Services.CreateScope();
         var db = scope.ServiceProvider.GetRequiredService<LiftTrackerDbContext>();
@@ -711,7 +751,11 @@ public class WorkoutProgramControllerTests(WorkoutDbFixture fixture)
 
     private async Task RestoreRoutineExerciseState(
         Guid exerciseUuid,
-        (decimal? Weight, ProgressionScheme? Scheme, ProgressionSchemeSettings? Settings) originalExercise
+        (
+            decimal? Weight,
+            ProgressionScheme? Scheme,
+            ProgressionSchemeSettings? Settings
+        ) originalExercise
     )
     {
         using var scope = _fixture.Factory.Services.CreateScope();
@@ -723,7 +767,11 @@ public class WorkoutProgramControllerTests(WorkoutDbFixture fixture)
         await db.SaveChangesAsync();
     }
 
-    private async Task<(decimal? Weight, ProgressionScheme? Scheme, ProgressionSchemeSettings? Settings)> ConfigureGatedLinearExercise(
+    private async Task<(
+        decimal? Weight,
+        ProgressionScheme? Scheme,
+        ProgressionSchemeSettings? Settings
+    )> ConfigureGatedLinearExercise(
         Guid exerciseUuid,
         decimal weight,
         int requiredSuccessStreak,
@@ -1555,9 +1603,11 @@ public class WorkoutProgramControllerTests(WorkoutDbFixture fixture)
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
 
         var responseJson = await response.Content.ReadAsStringAsync();
-        responseJson.Should().Contain(
-            "Routine exercise payload is blank. Name or training fields must be provided."
-        );
+        responseJson
+            .Should()
+            .Contain(
+                "Routine exercise payload is blank. Name or training fields must be provided."
+            );
     }
 
     [Fact]
@@ -1659,10 +1709,7 @@ public class WorkoutProgramControllerTests(WorkoutDbFixture fixture)
                 Encoding.UTF8,
                 "application/json"
             );
-            var restoreResponse = await _client.PutAsync(
-                "/api/workout-programs",
-                restoreContent
-            );
+            var restoreResponse = await _client.PutAsync("/api/workout-programs", restoreContent);
             restoreResponse.EnsureSuccessStatusCode();
         }
     }

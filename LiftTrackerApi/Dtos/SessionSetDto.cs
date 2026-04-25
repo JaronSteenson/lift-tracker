@@ -13,6 +13,7 @@ public class SessionSetDto
     public DateTime? UpdatedAt { get; set; }
     public decimal? Reps { get; set; }
     public decimal? Weight { get; set; }
+
     [Range(1, 10, ErrorMessage = "RPE must be between 1 and 10")]
     public int? Rpe { get; set; }
     public int? RestPeriodDuration { get; set; }

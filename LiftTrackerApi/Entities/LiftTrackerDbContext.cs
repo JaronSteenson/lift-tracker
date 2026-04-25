@@ -117,18 +117,17 @@ public partial class LiftTrackerDbContext(
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        var progressionSchemeSettingsComparer =
-            new ValueComparer<ProgressionSchemeSettings?>(
-                (left, right) =>
-                    JsonSerializer.Serialize(left, JsonSerializerOptions)
-                    == JsonSerializer.Serialize(right, JsonSerializerOptions),
-                settings => JsonSerializer.Serialize(settings, JsonSerializerOptions).GetHashCode(),
-                settings =>
-                    JsonSerializer.Deserialize<ProgressionSchemeSettings>(
-                        JsonSerializer.Serialize(settings, JsonSerializerOptions),
-                        JsonSerializerOptions
-                    )
-            );
+        var progressionSchemeSettingsComparer = new ValueComparer<ProgressionSchemeSettings?>(
+            (left, right) =>
+                JsonSerializer.Serialize(left, JsonSerializerOptions)
+                == JsonSerializer.Serialize(right, JsonSerializerOptions),
+            settings => JsonSerializer.Serialize(settings, JsonSerializerOptions).GetHashCode(),
+            settings =>
+                JsonSerializer.Deserialize<ProgressionSchemeSettings>(
+                    JsonSerializer.Serialize(settings, JsonSerializerOptions),
+                    JsonSerializerOptions
+                )
+        );
 
         modelBuilder.Entity<RoutineExercise>(entity =>
         {
@@ -160,9 +159,7 @@ public partial class LiftTrackerDbContext(
                             )
                 )
                 .Metadata.SetValueComparer(progressionSchemeSettingsComparer);
-            entity
-                .Property(e => e.RotationGroupPosition)
-                .HasColumnName("rotationGroupPosition");
+            entity.Property(e => e.RotationGroupPosition).HasColumnName("rotationGroupPosition");
             entity.Property(e => e.Rpe).HasColumnName("rpe");
             entity.Property(e => e.RestPeriod).HasColumnName("restPeriod");
             entity
@@ -234,10 +231,7 @@ public partial class LiftTrackerDbContext(
                 .HasColumnType("timestamp")
                 .HasColumnName("warmUpStartedAt");
 
-            entity
-                .HasOne(d => d.RoutineExercise)
-                .WithMany()
-                .HasForeignKey("RoutineExerciseId");
+            entity.HasOne(d => d.RoutineExercise).WithMany().HasForeignKey("RoutineExerciseId");
 
             entity
                 .HasOne(d => d.WorkoutSession)
@@ -359,10 +353,7 @@ public partial class LiftTrackerDbContext(
         {
             entity.HasKey(e => e.Id).HasName("PRIMARY");
 
-            entity.HasIndex(
-                e => e.WorkoutProgramRoutineId,
-                "RoutineExerciseRotationGroups_ibfk_1"
-            );
+            entity.HasIndex(e => e.WorkoutProgramRoutineId, "RoutineExerciseRotationGroups_ibfk_1");
 
             entity.HasIndex(e => e.Uuid, "idx_uuid").IsUnique();
 

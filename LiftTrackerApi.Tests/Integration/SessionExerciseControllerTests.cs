@@ -446,8 +446,8 @@ public class SessionExerciseControllerTests(WorkoutDbFixture fixture)
             pageOne.Items.Select(exercise => exercise.Uuid).ToList()
         );
         Assert.True(
-            pageOne.Items
-                .Zip(
+            pageOne
+                .Items.Zip(
                     pageOne.Items.Skip(1),
                     (current, next) => current.CreatedAt <= next.CreatedAt
                 )
@@ -477,8 +477,8 @@ public class SessionExerciseControllerTests(WorkoutDbFixture fixture)
             pageTwo.Items.Select(exercise => exercise.Uuid).ToList()
         );
         Assert.True(
-            pageTwo.Items
-                .Zip(
+            pageTwo
+                .Items.Zip(
                     pageTwo.Items.Skip(1),
                     (current, next) => current.CreatedAt <= next.CreatedAt
                 )

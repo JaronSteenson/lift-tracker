@@ -2,8 +2,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace LiftTrackerApi.Entities;
 
-public class ProgressionScheme531Settings
-    : ProgressionSchemeSettings
+public class ProgressionScheme531Settings : ProgressionSchemeSettings
 {
     [Range(1, 4, ErrorMessage = "Current cycle week must be between 1 and 4")]
     public int? CurrentCycleWeek { get; set; }

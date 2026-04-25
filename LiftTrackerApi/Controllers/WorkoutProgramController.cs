@@ -83,7 +83,11 @@ public class WorkoutProgramController(
 
     private void ValidateRoutineExercises(WorkoutProgram workoutProgram, int userId)
     {
-        for (var routineIndex = 0; routineIndex < workoutProgram.WorkoutProgramRoutines.Count; routineIndex++)
+        for (
+            var routineIndex = 0;
+            routineIndex < workoutProgram.WorkoutProgramRoutines.Count;
+            routineIndex++
+        )
         {
             var routine = workoutProgram.WorkoutProgramRoutines.ElementAt(routineIndex);
 
@@ -128,9 +132,11 @@ public class WorkoutProgramController(
 
     private void ValidateRotationGroups(WorkoutProgram workoutProgram)
     {
-        foreach (var (key, message) in RoutineExerciseRotationValidation.ValidateWorkoutProgram(
-                     workoutProgram
-                 ))
+        foreach (
+            var (key, message) in RoutineExerciseRotationValidation.ValidateWorkoutProgram(
+                workoutProgram
+            )
+        )
         {
             ModelState.AddModelError(key, message);
         }
