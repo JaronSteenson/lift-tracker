@@ -92,9 +92,6 @@ jobs:
           BITBUCKET_COMMIT: ${{ github.sha }}
         run: npm run prod
 
-      - name: Create frontend artifact
-        run: tar -czf artifacts-frontend.tar.gz -C dist .
-
       - name: Prepare remote frontend directory
         uses: appleboy/ssh-action@v1
         with:
@@ -111,8 +108,9 @@ jobs:
           host: ${{ secrets.PROD_IP }}
           username: ${{ secrets.PROD_USER }}
           key: ${{ secrets.PROD_SSH_KEY }}
-          source: artifacts-frontend.tar.gz
+          source: dist/*
           target: /tmp/deploy-frontend
+          strip_components: 1
 
       - name: Deploy frontend
         uses: appleboy/ssh-action@v1
@@ -122,9 +120,8 @@ jobs:
           key: ${{ secrets.PROD_SSH_KEY }}
           script: |
             set -eux
-            rm -rf /var/www/html/lift-tracker/index.html
-            rm -rf /var/www/html/lift-tracker/js
-            tar -xf /tmp/deploy-frontend/artifacts-frontend.tar.gz -C /var/www/html/lift-tracker
+            find /var/www/html/lift-tracker -mindepth 1 -maxdepth 1 ! -name publish -exec rm -rf {} +
+            cp -a /tmp/deploy-frontend/. /var/www/html/lift-tracker/
             sudo systemctl reload nginx
 
       - name: Purge Cloudflare cache
@@ -200,10 +197,6 @@ jobs:
         working-directory: LiftTrackerApi
         run: dotnet publish LiftTrackerApi.csproj -c Release -r linux-x64 --self-contained true -o ./publish
 
-      - name: Create backend artifact
-        working-directory: LiftTrackerApi
-        run: tar -czf ../artifacts-backend.tar.gz ./publish
-
       - name: Prepare remote backend directory
         uses: appleboy/ssh-action@v1
         with:
@@ -220,8 +213,9 @@ jobs:
           host: ${{ secrets.PROD_IP }}
           username: ${{ secrets.PROD_USER }}
           key: ${{ secrets.PROD_SSH_KEY }}
-          source: artifacts-backend.tar.gz
+          source: LiftTrackerApi/publish/*
           target: /tmp/deploy-backend
+          strip_components: 2
 
       - name: Deploy backend
         uses: appleboy/ssh-action@v1
@@ -231,6 +225,8 @@ jobs:
           key: ${{ secrets.PROD_SSH_KEY }}
           script: |
             set -eux
-            tar -xf /tmp/deploy-backend/artifacts-backend.tar.gz -C /var/www/html/lift-tracker
+            rm -rf /var/www/html/lift-tracker/publish
+            mkdir -p /var/www/html/lift-tracker/publish
+            cp -a /tmp/deploy-backend/. /var/www/html/lift-tracker/publish/
             sudo systemctl reload nginx
             sudo systemctl restart lt-api
