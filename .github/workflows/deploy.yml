@@ -202,7 +202,7 @@ jobs:
 
       - name: Create backend artifact
         working-directory: LiftTrackerApi
-        run: tar -czf artifacts-backend.tar.gz ./publish
+        run: tar -czf ../artifacts-backend.tar.gz ./publish
 
       - name: Prepare remote backend directory
         uses: appleboy/ssh-action@v1
@@ -220,7 +220,7 @@ jobs:
           host: ${{ secrets.PROD_IP }}
           username: ${{ secrets.PROD_USER }}
           key: ${{ secrets.PROD_SSH_KEY }}
-          source: LiftTrackerApi/artifacts-backend.tar.gz
+          source: artifacts-backend.tar.gz
           target: /tmp/deploy-backend
 
       - name: Deploy backend
