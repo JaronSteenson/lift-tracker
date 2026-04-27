@@ -186,6 +186,38 @@ jobs:
             -H "Content-Type: application/json" \
             --data '{"purge_everything":true}'
 
+      - name: Report Rollbar deploy
+        env:
+          ROLLBAR_SERVER_ACCESS_TOKEN: ${{ secrets.ROLLBAR_SERVER_ACCESS_TOKEN }}
+          ROLLBAR_CODE_VERSION: ${{ github.sha }}
+          GITHUB_ACTOR_NAME: ${{ github.actor }}
+          GITHUB_RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          set -euo pipefail
+
+          if [ -z "${ROLLBAR_SERVER_ACCESS_TOKEN:-}" ]; then
+            echo "::warning::ROLLBAR_SERVER_ACCESS_TOKEN secret is not set; skipping Rollbar deploy tracking"
+            exit 0
+          fi
+
+          deploy_payload=$(
+            node -e "
+              process.stdout.write(JSON.stringify({
+                environment: 'production',
+                revision: process.env.ROLLBAR_CODE_VERSION,
+                local_username: process.env.GITHUB_ACTOR_NAME,
+                comment: 'GitHub Actions frontend deploy: ' + process.env.GITHUB_RUN_URL,
+                status: 'succeeded',
+              }))
+            "
+          )
+
+          curl --fail-with-body --silent --show-error \
+            -X POST "https://api.rollbar.com/api/1/deploy" \
+            -H "X-Rollbar-Access-Token: ${ROLLBAR_SERVER_ACCESS_TOKEN}" \
+            -H "Content-Type: application/json" \
+            --data "${deploy_payload}"
+
   backend:
     name: Build, test, deploy backend
     needs: detect_changes
