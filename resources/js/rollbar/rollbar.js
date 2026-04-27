@@ -1,6 +1,11 @@
 import Rollbar from 'rollbar';
 import config from '../../../config.json';
 
+const IGNORED_ROLLBAR_SDK_MESSAGES = [
+    '\\[unhandledrejection\\] error getting `reason` from event',
+    '\\[unhandledrejection\\] error getting `promise` from event',
+];
+
 export default function initRollbar() {
     if (rollbar) {
         return rollbar;
@@ -22,6 +27,7 @@ export default function initRollbar() {
         accessToken: config.rollbarAccessToken,
         captureUncaught: true,
         captureUnhandledRejections: true,
+        ignoredMessages: IGNORED_ROLLBAR_SDK_MESSAGES,
         payload: {
             environment: process.env.NODE_ENV,
             client: {

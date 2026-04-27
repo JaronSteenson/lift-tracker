@@ -45,6 +45,10 @@ describe('initRollbar', () => {
             accessToken: 'client-token',
             captureUncaught: true,
             captureUnhandledRejections: true,
+            ignoredMessages: [
+                '\\[unhandledrejection\\] error getting `reason` from event',
+                '\\[unhandledrejection\\] error getting `promise` from event',
+            ],
             payload: {
                 environment: 'test',
                 client: {
