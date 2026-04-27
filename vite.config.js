@@ -12,7 +12,7 @@ export default defineConfig({
     build: {
         outDir: '../dist',
         emptyOutDir: true,
-        sourcemap: 'inline',
+        sourcemap: 'hidden',
         rollupOptions: {
             input: resolve(__dirname, 'resources/index.html'),
         },

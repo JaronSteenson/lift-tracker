@@ -86,6 +86,7 @@ jobs:
           AUTH0_CLIENT_ID: ${{ vars.AUTH0_CLIENT_ID }}
           AUTH0_AUDIENCE: ${{ vars.AUTH0_AUDIENCE }}
           ROLLBAR_ACCESS_TOKEN: ${{ secrets.ROLLBAR_ACCESS_TOKEN }}
+          ROLLBAR_CODE_VERSION: ${{ github.sha }}
           NEW_RELIC_APPLICATION_ID: ${{ secrets.NEW_RELIC_APPLICATION_ID }}
           NEW_RELIC_LICENSE_KEY: ${{ secrets.NEW_RELIC_LICENSE_KEY }}
         run: |
@@ -99,6 +100,43 @@ jobs:
         env:
           BITBUCKET_COMMIT: ${{ github.sha }}
         run: npm run prod
+
+      - name: Upload Rollbar source maps
+        env:
+          ROLLBAR_SERVER_ACCESS_TOKEN: ${{ secrets.ROLLBAR_SERVER_ACCESS_TOKEN }}
+          ROLLBAR_CODE_VERSION: ${{ github.sha }}
+          ROLLBAR_MINIFIED_URL_BASE: https://lift-tracker.app
+        run: |
+          set -euo pipefail
+
+          if [ -z "${ROLLBAR_SERVER_ACCESS_TOKEN:-}" ]; then
+            echo "::warning::ROLLBAR_SERVER_ACCESS_TOKEN secret is not set; skipping Rollbar source map upload"
+            exit 0
+          fi
+
+          shopt -s nullglob
+          source_maps=(dist/assets/*.js.map)
+
+          if [ ${#source_maps[@]} -eq 0 ]; then
+            echo "::warning::No Rollbar source maps were found to upload"
+            exit 0
+          fi
+
+          for source_map in "${source_maps[@]}"; do
+            minified_file="${source_map%.map}"
+            minified_path="${minified_file#dist/}"
+            minified_url="${ROLLBAR_MINIFIED_URL_BASE}/${minified_path}"
+
+            curl --fail-with-body --silent --show-error \
+              https://api.rollbar.com/api/1/sourcemap \
+              -H "X-Rollbar-Access-Token: ${ROLLBAR_SERVER_ACCESS_TOKEN}" \
+              -F "version=${ROLLBAR_CODE_VERSION}" \
+              -F "minified_url=${minified_url}" \
+              -F "source_map=@${source_map}"
+          done
+
+      - name: Remove source maps from frontend artifact
+        run: find dist -name '*.map' -delete
 
       - name: Prepare remote frontend directory
         uses: appleboy/ssh-action@v1

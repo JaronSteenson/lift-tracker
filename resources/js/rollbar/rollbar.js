@@ -10,11 +10,24 @@ export default function initRollbar() {
         return;
     }
 
+    const sourceMapConfig = config.rollbarCodeVersion
+        ? {
+              source_map_enabled: true,
+              code_version: config.rollbarCodeVersion,
+              guess_uncaught_frames: true,
+          }
+        : {};
+
     rollbar = new Rollbar({
         accessToken: config.rollbarAccessToken,
         captureUncaught: true,
         captureUnhandledRejections: true,
-        environment: process.env.NODE_ENV,
+        payload: {
+            environment: process.env.NODE_ENV,
+            client: {
+                javascript: sourceMapConfig,
+            },
+        },
     });
 
     if (navigator.serviceWorker) {
