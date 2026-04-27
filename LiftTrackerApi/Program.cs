@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.EntityFrameworkCore;
 using NewRelic.LogEnrichers.Serilog;
+using Rollbar;
 using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -42,6 +43,29 @@ Log.Logger = new LoggerConfiguration()
 
 builder.Host.UseSerilog();
 Log.Logger.Information("Building application");
+
+var rollbarAccessToken = builder.Configuration["Rollbar:AccessToken"];
+if (!string.IsNullOrWhiteSpace(rollbarAccessToken))
+{
+    var configuredRollbarEnvironment = builder.Configuration["Rollbar:Environment"];
+    var rollbarEnvironment = string.IsNullOrWhiteSpace(configuredRollbarEnvironment)
+        ? env.ToLowerInvariant()
+        : configuredRollbarEnvironment;
+    var rollbarConfig = new RollbarInfrastructureConfig(rollbarAccessToken, rollbarEnvironment);
+    var rollbarCodeVersion = builder.Configuration["Rollbar:CodeVersion"];
+
+    if (!string.IsNullOrWhiteSpace(rollbarCodeVersion))
+    {
+        rollbarConfig.RollbarLoggerConfig.RollbarPayloadAdditionOptions.CodeVersion =
+            rollbarCodeVersion;
+    }
+
+    RollbarInfrastructure.Instance.Init(rollbarConfig);
+    Log.Logger.Information(
+        "Rollbar backend error reporting is enabled for {Environment}",
+        rollbarEnvironment
+    );
+}
 
 // Allow CORS for the frontend (Vue dev server on localhost).
 builder.Services.AddCors(options =>

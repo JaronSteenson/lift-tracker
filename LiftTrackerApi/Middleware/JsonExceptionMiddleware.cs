@@ -8,6 +8,7 @@ using System.Text.Json;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
+using Rollbar;
 
 public class JsonExceptionMiddleware(
     RequestDelegate next,
@@ -24,9 +25,51 @@ public class JsonExceptionMiddleware(
         catch (Exception ex)
         {
             logger.LogError(ex, "Unhandled exception occurred.");
+            ReportUnexpectedExceptionToRollbar(context, ex);
             await HandleExceptionAsync(context, ex);
         }
     }
+
+    private void ReportUnexpectedExceptionToRollbar(HttpContext context, Exception exception)
+    {
+        if (
+            !ShouldReportToRollbar(exception)
+            || !RollbarInfrastructure.Instance.IsInitialized
+            || string.IsNullOrWhiteSpace(configuration["Rollbar:AccessToken"])
+        )
+        {
+            return;
+        }
+
+        try
+        {
+            var custom = new Dictionary<string, object?>
+            {
+                ["requestMethod"] = context.Request.Method,
+                ["requestPath"] = context.Request.Path.ToString(),
+                ["queryString"] = context.Request.QueryString.ToString(),
+                ["statusCode"] = (int)HttpStatusCode.InternalServerError,
+                ["traceIdentifier"] = context.TraceIdentifier,
+            };
+
+            if (context.Items.TryGetValue("UserId", out var userId) && userId != null)
+            {
+                custom["userId"] = userId;
+            }
+
+            RollbarLocator.RollbarInstance.Error(exception, custom);
+        }
+        catch (Exception rollbarException)
+        {
+            logger.LogWarning(rollbarException, "Failed to report exception to Rollbar.");
+        }
+    }
+
+    private static bool ShouldReportToRollbar(Exception exception) =>
+        exception
+            is not UuidAlreadyExistsException
+                and not UnauthorizedAccessException
+                and not NotFoundException;
 
     private Task HandleExceptionAsync(HttpContext context, Exception exception)
     {
