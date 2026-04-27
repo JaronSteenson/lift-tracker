@@ -1,5 +1,7 @@
 // --- CONFIG ---
-const CACHE_KEY = '{CACHE_KEY}'; // replace during build
+const CACHE_NAME_PREFIX = 'lift-tracker-';
+const CACHE_KEY = `${CACHE_NAME_PREFIX}{CACHE_KEY}`; // replace during build
+const MAX_APP_CACHES = 3;
 const PRECACHE_URLS = ['/', '/audio/beep.mp3'];
 const NON_SPA_PAGES = [];
 
@@ -11,8 +13,9 @@ self.addEventListener('install', (event) => {
 async function onInstall() {
     const preCache = await caches.open(CACHE_KEY);
     try {
-        // AddAll fails if ANY url 404s → wrap in try/catch
-        await preCache.addAll(PRECACHE_URLS);
+        await Promise.all(
+            PRECACHE_URLS.map((url) => preCacheUrl(preCache, url)),
+        );
         console.log('[SW] Precache complete');
     } catch (err) {
         console.warn('[SW] Precache failed:', err);
@@ -27,11 +30,17 @@ self.addEventListener('activate', (event) => {
 });
 
 async function onActivate() {
-    const currentCaches = [CACHE_KEY];
     const cacheNames = await caches.keys();
+    const appCacheNames = cacheNames.filter((cacheName) =>
+        cacheName.startsWith(CACHE_NAME_PREFIX),
+    );
+    const appCachesToKeep = new Set([
+        ...appCacheNames.slice(-(MAX_APP_CACHES - 1)),
+        CACHE_KEY,
+    ]);
 
-    const cachesToDelete = cacheNames.filter(
-        (cacheName) => !currentCaches.includes(cacheName),
+    const cachesToDelete = appCacheNames.filter(
+        (cacheName) => !appCachesToKeep.has(cacheName),
     );
 
     await Promise.all(cachesToDelete.map((c) => caches.delete(c)));
@@ -96,12 +105,12 @@ async function networkFirst(request, cacheKey = request) {
         const response = await fetch(request);
 
         // Only cache valid GET responses
-        if (
-            response &&
-            (response.ok || response.type === 'opaque') &&
-            request.method === 'GET'
-        ) {
-            cache.put(cacheKey, response.clone());
+        if (request.method === 'GET' && responseCanBeCached(response)) {
+            try {
+                await cache.put(cacheKey, response.clone());
+            } catch (err) {
+                console.warn('[SW] Cache write skipped:', request.url, err);
+            }
         }
 
         return response;
@@ -124,6 +133,27 @@ async function networkFirst(request, cacheKey = request) {
 }
 
 // --- HELPERS ---
+async function preCacheUrl(cache, url) {
+    const request = new Request(url, { cache: 'reload' });
+    const response = await fetch(request);
+
+    if (!responseCanBeCached(response)) {
+        console.warn(
+            '[SW] Precache skipped:',
+            url,
+            response?.status,
+            response?.statusText,
+        );
+        return;
+    }
+
+    await cache.put(request, response);
+}
+
+function responseCanBeCached(response) {
+    return response && (response.status === 200 || response.type === 'opaque');
+}
+
 function eventIsForSpaPageRoute(request) {
     const url = new URL(request.url);
 
