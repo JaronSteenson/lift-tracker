@@ -57,7 +57,7 @@
         "ts-debounce": "^4.0.0",
         "uuid": "^10.0.0",
         "vue": "^3.5.33",
-        "vue-router": "^4.5.0",
+        "vue-router": "^5.0.6",
         "vuedraggable": "^4.1.0",
         "vuetify": "^3.7.4"
     }
