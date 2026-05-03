@@ -2,7 +2,6 @@ import { createVuetify } from 'vuetify';
 import svgIcons from '../vuetify/svgIcons';
 import router from '../router/router';
 import { render } from '@testing-library/vue';
-import App from '../components/App.vue';
 import fs from 'node:fs';
 import { prettyDOM } from '@testing-library/dom';
 import { http, HttpResponse } from 'msw';
@@ -272,20 +271,60 @@ export async function renderApp() {
         },
     });
     await router.push('/');
-    // await router.isReady();
+    await router.isReady();
 
-    return render(App, {
-        global: {
-            plugins: [
-                router,
-                createVuetify(),
-                [VueQueryPlugin, { queryClient }],
-            ],
-            mocks: {
-                $svgIcons: svgIcons,
+    const testHost = document.createElement('section');
+    const baseElement = document.createElement('div');
+    const container = document.createElement('div');
+    baseElement.append(container);
+    testHost.append(baseElement);
+    document.body.append(testHost);
+
+    return render(
+        {
+            name: 'RoutedTestApp',
+            template: `
+                <div>
+                    <RouterView v-slot="{ Component }">
+                        <component :is="Component" />
+                    </RouterView>
+                </div>
+            `,
+        },
+        {
+            baseElement,
+            container,
+            global: {
+                plugins: [
+                    router,
+                    createVuetify(),
+                    [VueQueryPlugin, { queryClient }],
+                ],
+                mocks: {
+                    $svgIcons: svgIcons,
+                },
+                stubs: {
+                    AppNavigationDrawer: true,
+                    AppBar: {
+                        props: ['title'],
+                        template: '<div>{{ title }}</div>',
+                    },
+                    PageAppBar: {
+                        props: ['title'],
+                        template: '<div>{{ title }}</div>',
+                    },
+                    ResumeWorkoutFab: true,
+                    Teleport: true,
+                    VDataTable: true,
+                    VMenu: {
+                        template:
+                            '<div><slot name="activator" :props="{}" /><slot /></div>',
+                    },
+                    teleport: true,
+                },
             },
         },
-    });
+    );
 }
 const dumpDir = './resources/js/test/dump/';
 

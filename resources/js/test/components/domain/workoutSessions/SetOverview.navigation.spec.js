@@ -171,9 +171,8 @@ describe('SetOverview - Navigation functionality', () => {
             endWorkout: vi.fn(),
         });
 
-        const queries = await import(
-            '../../../../components/domain/workoutSessions/composibles/workoutSessionQueries'
-        );
+        const queries =
+            await import('../../../../components/domain/workoutSessions/composibles/workoutSessionQueries');
 
         vi.mocked(queries.getSet).mockImplementation((workoutSession, uuid) =>
             workoutSession.sessionExercises[0].sessionSets.find(
@@ -298,9 +297,8 @@ describe('SetOverview - Navigation functionality', () => {
 
     describe('skipExercise method', () => {
         it('optimistically skips the exercise and navigates immediately to the next exercise', async () => {
-            const queries = await import(
-                '../../../../components/domain/workoutSessions/composibles/workoutSessionQueries'
-            );
+            const queries =
+                await import('../../../../components/domain/workoutSessions/composibles/workoutSessionQueries');
             vi.mocked(queries.getNextExerciseFirstSet).mockReturnValue({
                 uuid: 'next-exercise-set-uuid',
             });
