@@ -12,7 +12,7 @@ public class WorkoutProgramService(LiftTrackerDbContext db, DomainEntityService 
         var routine =
             await db
                 .WorkoutProgramRoutines.Include(item => item.RoutineExercises)
-                .ThenInclude(exercise => exercise.RoutineExerciseRotationGroup)
+                    .ThenInclude(exercise => exercise.RoutineExerciseRotationGroup)
                 .Include(item => item.RoutineExerciseRotationGroups)
                 .Include(item => item.WorkoutProgram)
                 .Where(item => item.WorkoutProgram != null && item.WorkoutProgram.UserId == userId)
@@ -34,7 +34,7 @@ public class WorkoutProgramService(LiftTrackerDbContext db, DomainEntityService 
         return await db
                 .RoutineExercises.Include(item => item.RoutineExerciseRotationGroup)
                 .Include(item => item.WorkoutProgramRoutine)
-                .ThenInclude(routine => routine!.WorkoutProgram)
+                    .ThenInclude(routine => routine!.WorkoutProgram)
                 .Where(item =>
                     item.WorkoutProgramRoutine != null
                     && item.WorkoutProgramRoutine.WorkoutProgram != null
@@ -94,10 +94,10 @@ public class WorkoutProgramService(LiftTrackerDbContext db, DomainEntityService 
     {
         var query = db
             .WorkoutPrograms.Include(workoutProgram => workoutProgram.WorkoutProgramRoutines)
-            .ThenInclude(routine => routine.RoutineExercises)
-            .ThenInclude(exercise => exercise.RoutineExerciseRotationGroup)
+                .ThenInclude(routine => routine.RoutineExercises)
+                    .ThenInclude(exercise => exercise.RoutineExerciseRotationGroup)
             .Include(workoutProgram => workoutProgram.WorkoutProgramRoutines)
-            .ThenInclude(routine => routine.RoutineExerciseRotationGroups)
+                .ThenInclude(routine => routine.RoutineExerciseRotationGroups)
             .Where(workoutProgram => workoutProgram.UserId == userId)
             .Where(workoutProgram =>
                 workoutProgram.WorkoutProgramRoutines.Any(routine => routine.Uuid == routineUuid)
@@ -116,10 +116,10 @@ public class WorkoutProgramService(LiftTrackerDbContext db, DomainEntityService 
     {
         var query = db
             .WorkoutPrograms.Include(workoutProgram => workoutProgram.WorkoutProgramRoutines)
-            .ThenInclude(routine => routine.RoutineExercises)
-            .ThenInclude(exercise => exercise.RoutineExerciseRotationGroup)
+                .ThenInclude(routine => routine.RoutineExercises)
+                    .ThenInclude(exercise => exercise.RoutineExerciseRotationGroup)
             .Include(workoutProgram => workoutProgram.WorkoutProgramRoutines)
-            .ThenInclude(routine => routine.RoutineExerciseRotationGroups)
+                .ThenInclude(routine => routine.RoutineExerciseRotationGroups)
             .Where(workoutProgram => workoutProgram.UserId == userId)
             .OrderBy(workoutProgram => workoutProgram.Name);
 
@@ -135,10 +135,10 @@ public class WorkoutProgramService(LiftTrackerDbContext db, DomainEntityService 
             await db
                 .WorkoutPrograms.AsNoTracking()
                 .Include(workoutProgram => workoutProgram.WorkoutProgramRoutines)
-                .ThenInclude(routine => routine.RoutineExercises)
-                .ThenInclude(exercise => exercise.RoutineExerciseRotationGroup)
+                    .ThenInclude(routine => routine.RoutineExercises)
+                        .ThenInclude(exercise => exercise.RoutineExerciseRotationGroup)
                 .Include(workoutProgram => workoutProgram.WorkoutProgramRoutines)
-                .ThenInclude(routine => routine.RoutineExerciseRotationGroups)
+                    .ThenInclude(routine => routine.RoutineExerciseRotationGroups)
                 .Where(workoutProgram => workoutProgram.UserId == userId)
                 .WhereUuid(workoutProgramUid)
                 .FirstOrDefaultAsync()
@@ -156,7 +156,7 @@ public class WorkoutProgramService(LiftTrackerDbContext db, DomainEntityService 
         var query = db
             .WorkoutProgramRoutines.Include(routine => routine.WorkoutProgram)
             .Include(routine => routine.RoutineExercises)
-            .ThenInclude(exercise => exercise.RoutineExerciseRotationGroup)
+                .ThenInclude(exercise => exercise.RoutineExerciseRotationGroup)
             .Include(routine => routine.RoutineExerciseRotationGroups)
             .Where(routine =>
                 routine.WorkoutProgram != null && routine.WorkoutProgram.UserId == userId

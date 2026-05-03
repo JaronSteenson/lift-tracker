@@ -22,11 +22,11 @@ public class WorkoutSessionService(
         var query = db
             .WorkoutSessions.AsNoTracking()
             .Include(session => session.SessionExercises)
-            .ThenInclude(exercise => exercise.SessionSets)
+                .ThenInclude(exercise => exercise.SessionSets)
             .Include(session => session.SessionExercises)
-            .ThenInclude(exercise => exercise.RoutineExercise)
+                .ThenInclude(exercise => exercise.RoutineExercise)
             .Include(session => session.WorkoutProgramRoutine)
-            .ThenInclude(routine => routine!.WorkoutProgram)
+                .ThenInclude(routine => routine!.WorkoutProgram)
             .Where(session => session.UserId == userId)
             .OrderByDescending(session => session.CreatedAt);
 
@@ -45,11 +45,11 @@ public class WorkoutSessionService(
         var session =
             await db
                 .WorkoutSessions.Include(session => session.SessionExercises)
-                .ThenInclude(exercise => exercise.SessionSets)
+                    .ThenInclude(exercise => exercise.SessionSets)
                 .Include(session => session.SessionExercises)
-                .ThenInclude(exercise => exercise.RoutineExercise)
+                    .ThenInclude(exercise => exercise.RoutineExercise)
                 .Include(session => session.WorkoutProgramRoutine)
-                .ThenInclude(routine => routine!.WorkoutProgram)
+                    .ThenInclude(routine => routine!.WorkoutProgram)
                 .Where(workoutSession => workoutSession.UserId == userId)
                 .WhereUuid(uuid)
                 .AsNoTracking()
@@ -67,11 +67,11 @@ public class WorkoutSessionService(
     {
         var session = await db
             .WorkoutSessions.Include(workoutSession => workoutSession.SessionExercises)
-            .ThenInclude(exercise => exercise.SessionSets)
+                .ThenInclude(exercise => exercise.SessionSets)
             .Include(workoutSession => workoutSession.SessionExercises)
-            .ThenInclude(exercise => exercise.RoutineExercise)
+                .ThenInclude(exercise => exercise.RoutineExercise)
             .Include(workoutSession => workoutSession.WorkoutProgramRoutine)
-            .ThenInclude(routine => routine!.WorkoutProgram)
+                .ThenInclude(routine => routine!.WorkoutProgram)
             .Where(workoutSession => workoutSession.UserId == userId)
             .Where(workoutSession => workoutSession.StartedAt != null)
             .Where(workoutSession => workoutSession.EndedAt == null)
@@ -119,7 +119,7 @@ public class WorkoutSessionService(
             .SessionSets.AsNoTracking()
             .WhereUuid(sessionSetUuid)
             .Include(set => set.SessionExercise)
-            .ThenInclude(exercise => exercise.WorkoutSession)
+                .ThenInclude(exercise => exercise.WorkoutSession)
             .FirstOrDefaultAsync();
 
         if (set?.SessionExercise.WorkoutSession.UserId != userId)
@@ -136,7 +136,7 @@ public class WorkoutSessionService(
             .SessionSets.AsNoTracking()
             .WhereUuid(sessionSetUuid)
             .Include(set => set.SessionExercise)
-            .ThenInclude(exercise => exercise.WorkoutSession)
+                .ThenInclude(exercise => exercise.WorkoutSession)
             .FirstAsync();
 
         Guid uuid =
@@ -184,7 +184,7 @@ public class WorkoutSessionService(
         var startedAt = DateTime.UtcNow;
         var existingCheckIn = await db
             .WorkoutSessions.Include(session => session.SessionExercises)
-            .ThenInclude(exercise => exercise.SessionSets)
+                .ThenInclude(exercise => exercise.SessionSets)
             .Where(session => session.UserId == userId)
             .Where(session => session.StartedAt == null)
             .Where(session => session.CreatedAt >= startedAt.Date)

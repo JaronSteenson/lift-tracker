@@ -1082,7 +1082,7 @@ public class WorkoutSessionControllerTests(WorkoutDbFixture fixture)
         var db = scope.ServiceProvider.GetRequiredService<LiftTrackerDbContext>();
         var session = await db
             .WorkoutSessions.Include(item => item.SessionExercises)
-            .ThenInclude(item => item.SessionSets)
+                .ThenInclude(item => item.SessionSets)
             .WhereUuid(workoutSessionUuid.Value)
             .FirstOrDefaultAsync();
 
