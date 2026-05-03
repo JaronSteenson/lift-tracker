@@ -12,6 +12,9 @@
         "prod": "vite build",
         "prod-size": "vite build --mode analyze",
         "test": "vitest --bail=1 --reporter=verbose",
+        "e2e": "playwright test",
+        "e2e:local": "cross-env E2E_BASE_URL=http://localhost:3000 playwright test",
+        "e2e:prod": "cross-env E2E_BASE_URL=https://lift-tracker.app playwright test",
         "coverage": "vitest run --coverage",
         "lint": "eslint --ext .js,.vue resources",
         "lint-fix": "npm run lint -- --fix"
@@ -20,6 +23,7 @@
         "@babel/core": "^7.29.0",
         "@babel/preset-env": "^7.29.2",
         "@babel/preset-typescript": "^7.28.5",
+        "@playwright/test": "^1.59.1",
         "@testing-library/vue": "^8.1.0",
         "@vitejs/plugin-vue": "^6.0.6",
         "@vue/test-utils": "^2.4.10",

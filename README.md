@@ -31,5 +31,8 @@ The purpose of this project is twofold:
 - [Dotnet API](./LiftTrackerApi/README.md)
 - [MySQL](./LiftTrackerApi/Docker/mysql/README.md)
 
+## End-to-end smoke tests
+- [Playwright smoke test setup](./readme/vue-app-frontend-quick-start.md#end-to-end-smoke-tests)
+
 ## License
 This project is licensed under the [GNU General Public License v3.0](https://www.gnu.org/licenses/gpl-3.0.en.html).

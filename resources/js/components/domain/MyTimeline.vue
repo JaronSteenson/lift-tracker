@@ -1,5 +1,5 @@
 <template>
-    <VContainer v-show="showTable">
+    <VContainer v-show="showTable" data-testid="timeline-table">
         <div class="d-flex justify-space-between align-center mb-4 gap-4">
             <AddNewButton class="flex-grow-1" :to="{ name: 'CheckInEditPage' }">
                 Check-in
@@ -123,6 +123,7 @@
         class="flex-column gap-4"
         v-show="!showTable"
         :class="{ 'd-flex': !showTable }"
+        data-testid="timeline-card"
     >
         <div class="d-flex justify-space-between align-center gap-4">
             <AddNewButton class="flex-grow-1" :to="{ name: 'CheckInEditPage' }">
@@ -206,7 +207,7 @@ const { deleteWorkoutSession } = useDeleteWorkoutSession();
 const toolbarColor = theme.current.value.colors.toolbar;
 const INFINITE_SCROLL_ROOT_MARGIN = '0px 0px 300px 0px';
 
-const showTable = ref(localStorage.getItem('homePageShowTable') === 'true');
+const showTable = ref(getStoredHomePageShowTable());
 const loadingNextPage = ref(false);
 const tableInfiniteScrollSentinel = ref(null);
 const cardInfiniteScrollSentinel = ref(null);
@@ -274,10 +275,14 @@ const headers = computed(() => {
 });
 
 function setHomePageShowTable() {
-    localStorage.setItem(
+    window.localStorage?.setItem(
         'homePageShowTable',
         Boolean(showTable.value).toString(),
     );
+}
+
+function getStoredHomePageShowTable() {
+    return window.localStorage?.getItem('homePageShowTable') === 'true';
 }
 
 async function loadNextPage() {

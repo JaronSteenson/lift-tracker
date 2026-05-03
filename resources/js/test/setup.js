@@ -1,6 +1,24 @@
 import { beforeAll, vi } from 'vitest';
-import 'web-streams-polyfill/polyfill';
 import axios from 'axios';
+import {
+    ReadableStream,
+    TransformStream,
+    WritableStream,
+} from 'node:stream/web';
+
+process.env.VTL_SKIP_AUTO_CLEANUP = 'true';
+
+if (typeof global.ReadableStream === 'undefined') {
+    global.ReadableStream = ReadableStream;
+}
+
+if (typeof global.TransformStream === 'undefined') {
+    global.TransformStream = TransformStream;
+}
+
+if (typeof global.WritableStream === 'undefined') {
+    global.WritableStream = WritableStream;
+}
 
 beforeAll(() => {
     axios.defaults.headers.common.Authorization = 'Bearer fake-token';
